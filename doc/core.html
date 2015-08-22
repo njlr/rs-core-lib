@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Core Utilities</title>
+	<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<h1 id="coreutilities">Core Utilities</h1>
+
+<p>By Ross Smith</p>
+
+<ul>
+<li><code>#include &quot;prion/core.hpp&quot;</code></li>
+</ul>
+
+<h2 id="contents">Contents</h2>
+
+<ul>
+<li><a href="#preprocessormacros">Preprocessor macros</a></li>
+<li><a href="#basictypes">Basic types</a></li>
+<li><a href="#constants">Constants</a></li>
+<li><a href="#arithmeticliterals">Arithmetic literals</a></li>
+<li><a href="#arithmeticfunctions">Arithmetic functions</a></li>
+<li><a href="#byteorder">Byte order</a></li>
+<li><a href="#characterfunctions">Character functions</a></li>
+<li><a href="#exceptions">Exceptions</a></li>
+<li><a href="#flagsets">Flag sets</a></li>
+<li><a href="#functionalutilities">Functional utilities</a></li>
+<li><a href="#hashfunctions">Hash functions</a></li>
+<li><a href="#ioutilities">I/O utilities</a></li>
+<li><a href="#keywordarguments">Keyword arguments</a></li>
+<li><a href="#mixins">Mixins</a></li>
+<li><a href="#rangeutilities">Range utilities</a></li>
+<li><a href="#stringfunctions">String functions</a></li>
+<li><a href="#timeanddatefunctions">Time and date functions</a></li>
+<li><a href="#typeproperties">Type properties</a></li>
+</ul>
+
+<h2 id="preprocessormacros">Preprocessor macros</h2>
+
+<ul>
+<li><code>#define <strong>PRI_TARGET_UNIX</strong> 1</code>
+
+<ul>
+<li><code>#define <strong>PRI_TARGET_DARWIN</strong> 1</code>
+
+<ul>
+<li><code>#define <strong>PRI_TARGET_IOS</strong> 1</code></li>
+<li><code>#define <strong>PRI_TARGET_MACOSX</strong> 1</code></li>
+</ul></li>
+<li><code>#define <strong>PRI_TARGET_LINUX</strong> 1</code></li>
+</ul></li>
+<li><code>#define <strong>PRI_TARGET_WINDOWS</strong> 1</code>
+
+<ul>
+<li><code>#define <strong>PRI_TARGET_CYGWIN</strong> 1</code></li>
+<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code>
+
+<ul>
+<li><code>#define <strong>PRI_TARGET_MINGW</strong> 1</code></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p>Some of these will be defined to provide a consistent way to identify the
+target operating system for conditional compilation. At least one of
+<code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_WINDOWS</code> will always be defined (both will be
+defined on Cygwin).</p>
+
+<p>On Apple platforms, <code>PRI_TARGET_DARWIN</code> will always be defined; one of
+<code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>
+
+<p>On Microsoft Windows, <code>PRI_TARGET_NATIVE_WINDOWS</code> will be defined on any build
+not targeting Cygwin. Currently only Mingw builds are supported for native
+Windows targets, so <code>PRI_TARGET_MINGW</code> will always be defined; I may add MSVC
+support in a future version.</p>
+
+<ul>
+<li><code>#define <strong>PRI_BOUNDS</strong>(range) std::begin(range), std::end(range)</code></li>
+</ul>
+
+<p>Convenience macro for inserting the beginning and end of a range into an
+argument list.</p>
+
+<ul>
+<li><code>#define <strong>PRI_LDLIB</strong>(lib) ...</code></li>
+</ul>
+
+<p>This instructs the makefile to link with a static library.</p>
+
+<ul>
+<li><code>#define <strong>PRI_STATIC_ASSERT</strong>(expr) static_assert((expr), # expr)</code></li>
+</ul>
+
+<p>Shorthand for <code>static_assert</code>, using the assertion expression as the error
+message. (A planned change in C++17 will make this unnecessary.)</p>
+
+<h2 id="basictypes">Basic types</h2>
+
+<ul>
+<li><code>using std::<strong>basic_string</strong></code></li>
+<li><code>using std::<strong>string</strong></code></li>
+<li><code>using std::<strong>u16string</strong></code></li>
+<li><code>using std::<strong>u32string</strong></code></li>
+<li><code>using std::<strong>wstring</strong></code></li>
+</ul>
+
+<p>Imported for convenience.</p>
+
+<ul>
+<li><code>using <strong>u8string</strong> = std::string</code></li>
+</ul>
+
+<p>We use <code>u8string</code> for strings that are expected to be in UTF&#8211;8 (or ASCII,
+since any ASCII string is also valid UTF&#8211;8), while plain <code>string</code> is used
+where the string is expected to be in some non-Unicode encoding, or where the
+string is being used simply as an array of bytes rather than encoded text.</p>
+
+<ul>
+<li><code>using <strong>int128_t</strong> = __int128</code></li>
+<li><code>using <strong>uint128_t</strong> = unsigned __int128</code></li>
+</ul>
+
+<p>Named for consistency.</p>
+
+<h2 id="constants">Constants</h2>
+
+<ul>
+<li><code>constexpr const char* <strong>ascii_whitespace</strong> = &quot;\t\n\v\f\r &quot;</code></li>
+</ul>
+
+<p>ASCII whitespace characters.</p>
+
+<ul>
+<li><code>constexpr size_t <strong>npos</strong> = string::npos</code></li>
+</ul>
+
+<p>Defined for convenience. Following the conventions established by the standard
+library, this value is often used as a function argument to mean &#8220;as large as
+possible&#8221;, or as a return value to mean &#8220;not found&#8221;.</p>
+
+<ul>
+<li><code>#define <strong>PRI_DEFINE_CONSTANT</strong>(name, value)</code>
+
+<ul>
+<li><code>static constexpr double <strong>name</strong> = value</code></li>
+<li><code>static constexpr float <strong>name ## _f</strong> = value ## f</code></li>
+<li><code>static constexpr long double <strong>name ## _ld</strong> = value ## l</code></li>
+<li><code>template &lt;typename T&gt; constexpr T <strong>c_ ## name</strong>() noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>Defines a floating point constant, in several forms. This generates a set of
+three named constants (for the three standard floating point types), and a
+function template that converts the long double value by default (with
+specializations for the standard types). The <code>value</code> argument must be a
+floating point literal with no type suffix.</p>
+
+<ul>
+<li><em>Mathematical constants</em>
+
+<ul>
+<li><code>e</code></li>
+<li><code>ln2</code> <em>= log<sub>e</sub> 2</em></li>
+<li><code>ln10</code> <em>= log<sub>e</sub> 10</em></li>
+<li><code>pi</code> <em>= &pi;</em></li>
+<li><code>sqrt2</code> <em>= &radic;2</em></li>
+<li><code>sqrt3</code> <em>= &radic;3</em></li>
+<li><code>sqrt5</code> <em>= &radic;5</em></li>
+<li><code>sqrt2pi</code> <em>= &radic;(2&pi;)</em></li>
+</ul></li>
+</ul>
+
+<h2 id="arithmeticliterals">Arithmetic literals</h2>
+
+<p>These are all in <code>namespace Prion::Literals</code>.</p>
+
+<ul>
+<li><code>template &lt;char... CS&gt; constexpr int128_t <strong>operator&quot;&quot; _s128</strong>() noexcept</code></li>
+<li><code>template &lt;char... CS&gt; constexpr uint128_t <strong>operator&quot;&quot; _u128</strong>() noexcept</code></li>
+</ul>
+
+<p>Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
+usual <code>&quot;0x&quot;</code> prefix) are supported as well as decimal ones.</p>
+
+<ul>
+<li><code>constexpr float <strong>operator&quot;&quot; _degf</strong>(long double x) noexcept</code></li>
+<li><code>constexpr float <strong>operator&quot;&quot; _degf</strong>(unsigned long long x) noexcept</code></li>
+<li><code>constexpr double <strong>operator&quot;&quot; _deg</strong>(long double x) noexcept</code></li>
+<li><code>constexpr double <strong>operator&quot;&quot; _deg</strong>(unsigned long long x) noexcept</code></li>
+<li><code>constexpr long double <strong>operator&quot;&quot; _degl</strong>(long double x) noexcept</code></li>
+<li><code>constexpr long double <strong>operator&quot;&quot; _degl</strong>(unsigned long long x) noexcept</code></li>
+</ul>
+
+<p>Angle literals, converting degrees to radians.</p>
+
+<h2 id="arithmeticfunctions">Arithmetic functions</h2>
+
+<p>Some of these duplicate functionality already in the standard library; this is
+to ensure that the functions are available for 128 bit integers even if the
+standard library implementation doesn&#8217;t support them.</p>
+
+<ul>
+<li><code>template &lt;typename T, typename... Args&gt; constexpr T <strong>static_min</strong>(T t, Args... args) noexcept</code></li>
+<li><code>template &lt;typename T, typename... Args&gt; constexpr T <strong>static_max</strong>(T t, Args... args) noexcept</code></li>
+</ul>
+
+<p>Compile time maximum and minimum functions.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; T <strong>abs</strong>(T t) noexcept</code></li>
+</ul>
+
+<p>Absolute value function. <code>Prion::abs()</code> is the same as <code>std::abs()</code> except for
+adding 128 bit integer support.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; std::make_signed_t&lt;T&gt; <strong>as_signed</strong>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; std::make_unsigned_t&lt;T&gt; <strong>as_unsigned</strong>(T t) noexcept</code></li>
+</ul>
+
+<p>These return their argument converted to a signed or unsigned value of the
+same size (the argument is returned unchanged if <code>T</code> already had the desired
+signedness). Behaviour is undefined if <code>T</code> is not an integer or enumeration
+type.</p>
+
+<ul>
+<li><code>template &lt;typename T, typename T2, typename T3&gt; constexpr T <strong>clamp</strong>(const T&amp; x, const T2&amp; min, const T3&amp; max) noexcept</code></li>
+</ul>
+
+<p>Clamps a value to a fixed range. This returns <code>static_cast&lt;T&gt;(min)</code> if
+<code>t&lt;min</code>, <code>static_cast&lt;T&gt;(max)</code> if <code>t&gt;max</code>, otherwise <code>t</code>.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T <strong>degrees</strong>(T rad) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T <strong>radians</strong>(T deg) noexcept</code></li>
+</ul>
+
+<p>Convert between degrees and radians.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; std::pair&lt;T, T&gt; <strong>divide</strong>(T lhs, T rhs) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T <strong>quo</strong>(T lhs, T rhs) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T <strong>rem</strong>(T lhs, T rhs) noexcept</code></li>
+</ul>
+
+<p>These perform floor division operations: if the division is not exact, the
+remainder is always positive (regardless of the signs of the arguments), and
+the quotient is the integer that satisfies <code>lhs=quo*rhs+rem</code> (apart from
+rounding errors). The pair returned by <code>divide()</code> contains the quotient and
+remainder. For all three functions, behaviour is undefined if <code>rhs=0</code> or the
+quotient is out of <code>T</code>&#8217;s representable range.</p>
+
+<ul>
+<li><code>template &lt;typename T1, typename T2&gt; constexpr T2 <strong>interpolate</strong>(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)</code></li>
+</ul>
+
+<p>Returns the value of <code>y</code> corresponding to <code>x</code>, by interpolating or
+extrapolating the line between <code>(x1,y1)</code> and <code>(x2,y2)</code>. Behaviour is undefined
+if <code>x1==x2</code> and <code>y1!=y2</code>, or if either type is not an arithmetic type; the
+result is unspecified if either type is not floating point.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; T <strong>int_sqrt</strong>(T t) noexcept</code></li>
+</ul>
+
+<p>Returns the integer square root of the argument (the true square root
+truncated to an integer). This will return zero if the argument is negative.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T <strong>rotl</strong>(T t, int n) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T <strong>rotr</strong>(T t, int n) noexcept</code></li>
+</ul>
+
+<p>Bitwise rotate left or right. As for the standard shift operators, behaviour
+is undefined if <code>n</code> is negative or greater than or equal to the number of bits
+in <code>T</code>.</p>
+
+<ul>
+<li><code>template &lt;typename T2, typename T1&gt; T2 <strong>round</strong>(T1 value) noexcept</code></li>
+</ul>
+
+<p>Rounds the value to the nearest integer, and returns the resulting value
+converted to the return type (which must be specified explicitly). Halves are
+rounded up (toward positive infinity). The usual arithmetic rules apply if the
+result is not representable by the return type.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; constexpr int <strong>sign_of</strong>(T t) noexcept</code></li>
+</ul>
+
+<p>Returns the sign of its argument (&#8211;1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
+
+<h2 id="byteorder">Byte order</h2>
+
+<ul>
+<li><code>static constexpr bool <strong>big_endian_target</strong></code></li>
+<li><code>static constexpr bool <strong>little_endian_target</strong></code></li>
+</ul>
+
+<p>One of these will be true and the other false, reflecting the target system&#8217;s
+byte order.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; T <strong>big_endian</strong>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T <strong>little_endian</strong>(T t) noexcept</code></li>
+</ul>
+
+<p>Convert a number between the native byte order and big or little endian.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; T <strong>read_be</strong>(const void* ptr, size_t ofs = 0) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T <strong>read_be</strong>(const void* ptr, size_t ofs, size_t len) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>read_be</strong>(T&amp; t, const void* ptr, size_t ofs = 0) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>read_be</strong>(T&amp; t, const void* ptr, size_t ofs, size_t len) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T <strong>read_le</strong>(const void* ptr, size_t ofs = 0) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T <strong>read_le</strong>(const void* ptr, size_t ofs, size_t len) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>read_le</strong>(T&amp; t, const void* ptr, size_t ofs = 0) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>read_le</strong>(T&amp; t, const void* ptr, size_t ofs, size_t len) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>write_be</strong>(T t, void* ptr, size_t ofs = 0) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>write_be</strong>(T t, void* ptr, size_t ofs, size_t len) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>write_le</strong>(T t, void* ptr, size_t ofs = 0) noexcept</code></li>
+<li><code>template &lt;typename T&gt; void <strong>write_le</strong>(T t, void* ptr, size_t ofs, size_t len) noexcept</code></li>
+</ul>
+
+<p>Read or write an integer from a block of bytes, in big endian or little endian
+order. The versions that take only a pointer deduce the size from the integer
+type; the other versions take an offset and length in bytes.</p>
+
+<h2 id="characterfunctions">Character functions</h2>
+
+<ul>
+<li><code>constexpr bool <strong>ascii_isalnum</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isalpha</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_iscntrl</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isdigit</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isgraph</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_islower</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isprint</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_ispunct</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isspace</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isupper</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isxdigit</strong>(char c) noexcept</code></li>
+</ul>
+
+<p>These are simple ASCII-only versions of the standard character type functions.
+All of them will always return false for bytes outside the ASCII range
+(0&#8211;127).</p>
+
+<ul>
+<li><code>constexpr char <strong>ascii_tolower</strong>(char c) noexcept</code></li>
+<li><code>constexpr char <strong>ascii_toupper</strong>(char c) noexcept</code></li>
+</ul>
+
+<p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
+unchanged.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T <strong>char_to</strong>(char c) noexcept</code></li>
+</ul>
+
+<p>A simple conversion function that casts a <code>char</code> to a larger integer type by
+first passing it through <code>unsigned char</code>, to ensure that characters with the
+high bit set end up as integers in the 128&#8211;255 range, and not as negative or
+extremely high values.</p>
+
+<h2 id="exceptions">Exceptions</h2>
+
+<ul>
+<li><code>class <strong>SystemError</strong>: public std::runtime_error</code>
+
+<ul>
+<li><code>int SystemError::<strong>error</strong>() const noexcept</code></li>
+<li><code>const char* SystemError::<strong>function</strong>() const noexcept</code></li>
+</ul></li>
+<li><code>class <strong>CrtError</strong>: public SystemError</code>
+
+<ul>
+<li><code>CrtError::<strong>CrtError</strong>(int error, const char* function)</code></li>
+<li><code>CrtError::<strong>CrtError</strong>(int error, const u8string&amp; function)</code></li>
+<li><code>static u8string CrtError::<strong>translate</strong>(int error)</code></li>
+</ul></li>
+<li><code>class <strong>WindowsError</strong>: public SystemError</code> <em>[Windows only]</em>
+
+<ul>
+<li><code>WindowsError::<strong>WindowsError</strong>(uint32_t error, const char* function)</code></li>
+<li><code>WindowsError::<strong>WindowsError</strong>(uint32_t error, const u8string&amp; function)</code></li>
+<li><code>static u8string WindowsError::<strong>translate</strong>(uint32_t error)</code></li>
+</ul></li>
+</ul>
+
+<p>Exceptions thrown to report an error from a system call, or a function that
+uses the same error codes as a system call. <code>SystemError</code> is an abstract base
+class; <code>CrtError</code> is used for C and Unix standard library errors;
+<code>WindowsError</code> (only defined in Windows builds) is used for Win32 API errors.
+The <code>translate()</code> functions convert an error code into an error message; this
+is called by the constructor and included in the complete message
+(<code>translate()</code> may return an empty string if the error code is not
+recognized).</p>
+
+<h2 id="flagsets">Flag sets</h2>
+
+<ul>
+<li><code>class <strong>Flagset</strong></code></li>
+</ul>
+
+<p>This represents a set of boolean flags, which can supplied as either a bitmask
+(produced by bitwise-OR-ing the desired values) or a string of character
+flags. Functions that take multiple boolean options usually have a <code>Flagset</code>
+argument, allowing the caller to supply the flags as either an integer bitmask
+or an abbreviated string. This is intended to be similar to the way many Unix
+commands can be given either long, multi-word options, or the same options as
+a set of single letters (e.g. <code>grep --extended-regexp --ignore-case</code> vs <code>grep
+-Ei</code>).</p>
+
+<p>Flags can be defined by using <code>Flagset::value()</code> to specify both the full name
+(as an integer constant containing a one-bit mask) and the single-character
+abbreviation. For example, a regular expression constructor takes flags like
+these (among others):</p>
+
+<pre><code>constexpr uint64_t rx_caseless = Flagset::value('i'); // Case insensitive matching
+constexpr uint64_t rx_extended = Flagset::value('x'); // Free-form mode (ignore whitespace and comments)
+constexpr uint64_t rx_notempty = Flagset::value('z'); // Do not match an empty string
+constexpr uint64_t rx_optimize = Flagset::value('o'); // Take extra effort to optimize the regex
+</code></pre>
+
+<p>If you want a case-insensitive regex that will never match an empty string,
+you can pass the flags as either <code>rx_caseless|rx_notempty</code> or <code>&quot;iz&quot;</code>.</p>
+
+<p>The flag set is stored internally as a 64-bit unsigned integer, which means
+there aren&#8217;t enough bits to actually allow any character, or even any ASCII
+character, as a flag abbreviation. The allowed flags are the 52 ASCII letters,
+and 12 of the punctuation marks: <code># $ % &amp; * + - / &lt; = &gt; @</code> (flags are case
+sensitive).</p>
+
+<ul>
+<li><code>constexpr Flagset::<strong>Flagset</strong>() noexcept</code></li>
+<li><code>constexpr <strong>Flagset</strong>(std::nullptr_t) noexcept</code></li>
+<li><code>constexpr <strong>Flagset</strong>([integer type] flags) noexcept</code></li>
+<li><code>template &lt;typename C&gt; Flagset::<strong>Flagset</strong>(const C* flags) noexcept</code></li>
+<li><code>template &lt;typename C&gt; Flagset::<strong>Flagset</strong>(const basic_string&lt;C&gt;&amp; flags) noexcept</code></li>
+<li><code>Flagset::<strong>Flagset</strong>(const Flagset&amp; f) noexcept</code></li>
+<li><code>Flagset::<strong>Flagset</strong>(Flagset&amp;&amp; f) noexcept</code></li>
+<li><code>Flagset::<strong>~Flagset</strong>() noexcept</code></li>
+<li><code>Flagset&amp; Flagset::<strong>operator=</strong>(const Flagset&amp; f) noexcept</code></li>
+<li><code>Flagset&amp; Flagset::<strong>operator=</strong>(Flagset&amp;&amp; f) noexcept</code></li>
+</ul>
+
+<p>Life cycle operations. The flag set can be implicitly constructed from an
+integer bitmask or a string of character flags. (Constructor overloads are
+supplied for all integer types, including <code>bool</code>; these are imposed on us by
+the need to make <code>FlagSet(0)</code> do the right thing in the face of C++&#8217;s baroque
+implicit conversion rules.)</p>
+
+<ul>
+<li><code>void Flagset::<strong>allow</strong>(Flagset allowed, const char* domain) const</code></li>
+<li><code>void Flagset::<strong>exclusive</strong>(Flagset xgroup, const char* domain) const</code></li>
+</ul>
+
+<p>These functions can be used to check for valid or invalid combinations of
+flags. Both take a set of flags and a string as arguments; the <code>domain</code> string
+will be included in the exception&#8217;s error message to supply some context. The
+<code>allow()</code> function will throw <code>FlagError</code> if the source object contains any
+flags that are not in the <code>allowed</code> set; <code>exclusive()</code> will throw <code>FlagError</code>
+if it contains more than one flag in the <code>xgroup</code> set.</p>
+
+<ul>
+<li><code>constexpr bool Flagset::<strong>empty</strong>() const noexcept</code></li>
+</ul>
+
+<p>True if no flags are set.</p>
+
+<ul>
+<li><code>constexpr uint64_t Flagset::<strong>get</strong>() const noexcept</code></li>
+<li><code>constexpr bool Flagset::<strong>get</strong>(uint64_t flags) const noexcept</code></li>
+</ul>
+
+<p>The first version of <code>get()</code> returns the complete bitmask as an integer. The
+second version returns a boolean value to indicate the presence or absence of
+a specific flag; if it is passed a bitmask with more than one bit set (i.e. a
+combination of two or more flags), it will return true if any of the flags are
+set.</p>
+
+<ul>
+<li><code>template &lt;typename C&gt; constexpr bool Flagset::<strong>getc</strong>(C flag) const noexcept</code></li>
+<li><code>template &lt;typename C&gt; bool Flagset::<strong>getc</strong>(const C* flags) const noexcept</code></li>
+<li><code>template &lt;typename C&gt; bool Flagset::<strong>getc</strong>(const basic_string&lt;C&gt;&amp; flags) const noexcept</code></li>
+</ul>
+
+<p>These are similar to the second version of <code>get()</code>, except that the flag or
+flags to be tested are passed as one or more characters instead of an integer.
+They will always return false if none of the characters in the argument are
+valid flag characters.</p>
+
+<ul>
+<li><code>void Flagset::<strong>set</strong>(uint64_t flags, bool state = true) noexcept</code></li>
+<li><code>template &lt;typename C&gt; void Flagset::<strong>setc</strong>(C flag, bool state = true) noexcept</code></li>
+</ul>
+
+<p>Set or clear one flag bit. The <code>setc()</code> function will do nothing if the
+character is not one of the allowed flag characters.</p>
+
+<ul>
+<li><code>u8string Flagset::<strong>str</strong>() const</code></li>
+<li><code>template &lt;typename C&gt; basic_string&lt;C&gt; Flagset::<strong>ustr</strong>() const</code></li>
+<li><code>std::ostream&amp; <strong>operator&lt;&lt;</strong>(std::ostream&amp; out, Flagset f)</code></li>
+</ul>
+
+<p>These generate a string containing the characters corresponding to the flags
+in the set.</p>
+
+<ul>
+<li><code>constexpr Flagset Flagset::<strong>operator~</strong>() const noexcept</code></li>
+<li><code>Flagset&amp; Flagset::<strong>operator&amp;=</strong>(Flagset rhs) noexcept</code></li>
+<li><code>Flagset&amp; Flagset::<strong>operator|=</strong>(Flagset rhs) noexcept</code></li>
+<li><code>Flagset&amp; Flagset::<strong>operator^=</strong>(Flagset rhs) noexcept</code></li>
+<li><code>constexpr Flagset <strong>operator&amp;</strong>(Flagset lhs, Flagset rhs) noexcept</code></li>
+<li><code>constexpr Flagset <strong>operator|</strong>(Flagset lhs, Flagset rhs) noexcept</code></li>
+<li><code>constexpr Flagset <strong>operator^</strong>(Flagset lhs, Flagset rhs) noexcept</code></li>
+</ul>
+
+<p>Bitwise arithmetic operators.</p>
+
+<ul>
+<li><code>constexpr bool <strong>operator==</strong>(Flagset lhs, Flagset rhs) noexcept</code></li>
+<li><code>constexpr bool <strong>operator!=</strong>(Flagset lhs, Flagset rhs) noexcept</code></li>
+</ul>
+
+<p>Equality comparison operators.</p>
+
+<ul>
+<li><code>template &lt;typename C&gt; static constexpr uint64_t Flagset::<strong>value</strong>(C flag) noexcept</code></li>
+</ul>
+
+<p>Returns the bitmask value corresponding to a character flag, or zero if the
+character is not a valid flag (see above).</p>
+
+<ul>
+<li><code>class <strong>FlagError</strong>: public std::runtime_error</code>
+
+<ul>
+<li><code>FlagError::<strong>FlagError</strong>(Flagset flags, const char* domain)</code></li>
+<li><code>Flagset FlagError::<strong>flags</strong>() const noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>An exception thrown to report an invalid combination of flags.</p>
+
+<h2 id="functionalutilities">Functional utilities</h2>
+
+<ul>
+<li><code>template &lt;typename F&gt; std::function&lt;...&gt; <strong>stdfun</strong>(F&amp; lambda)</code></li>
+</ul>
+
+<p>Wraps a lambda in a <code>std::function</code> with the appropriate signature.</p>
+
+<ul>
+<li><code>struct <strong>DoNothing</strong></code>
+
+<ul>
+<li><code>void <strong>operator()</strong>() const noexcept {}</code></li>
+<li><code>template &lt;typename T&gt; void <strong>operator()</strong>(T&amp;) const noexcept {}</code></li>
+<li><code>template &lt;typename T&gt; void <strong>operator()</strong>(const T&amp;) const noexcept {}</code></li>
+</ul></li>
+<li><code>constexpr DoNothing <strong>do_nothing</strong></code></li>
+<li><code>struct <strong>Identity</strong></code>
+
+<ul>
+<li><code>template &lt;typename T&gt; T&amp; <strong>operator()</strong>(T&amp; t) const noexcept { return t; }</code></li>
+<li><code>template &lt;typename T&gt; const T&amp; <strong>operator()</strong>(const T&amp; t) const noexcept { return t; }</code></li>
+</ul></li>
+<li><code>constexpr Identity <strong>identity</strong></code></li>
+</ul>
+
+<p>Simple function objects.</p>
+
+<h2 id="hashfunctions">Hash functions</h2>
+
+<ul>
+<li><code>template &lt;typename... Args&gt; void <strong>hash_combine</strong>(size_t&amp; hash, const Args&amp;... args) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; size_t <strong>hash_value</strong>(const Args&amp;... args) noexcept</code></li>
+<li><code>template &lt;typename Range&gt; void <strong>hash_range</strong>(size_t&amp; hash, const Range&amp; range) noexcept</code></li>
+<li><code>template &lt;typename Range&gt; size_t <strong>hash_range</strong>(const Range&amp; range) noexcept</code></li>
+</ul>
+
+<p>Functions for combining hashes incrementally, or for generating the hash of a
+number of objects in one call, for use in implementing hash functions for
+compound types. All of these call <code>std::hash</code> for the element type.</p>
+
+<h2 id="ioutilities">I/O utilities</h2>
+
+<p>Functions that take a file name have overloads that take a UTF&#8211;16 string in
+native Windows builds (not on Cygwin, where the <code>_wfopen()</code> function is not
+available).</p>
+
+<ul>
+<li><code>bool <strong>is_stdout_redirected</strong>() noexcept</code></li>
+</ul>
+
+<p>Attempts to detect whether standard output has been redirected to a file or
+pipe (<code>true</code>), or is going directly to a terminal (<code>false</code>). This is not
+always possible to detect reliably; this function is fairly reliable on Unix,
+less so on Windows.</p>
+
+<ul>
+<li><code>bool <strong>load_file</strong>(const string&amp; file, string&amp; dst)</code></li>
+<li><code>bool <strong>load_file</strong>(const wstring&amp; file, string&amp; dst)</code> <em>(Native Windows only)</em></li>
+</ul>
+
+<p>Read a file&#8217;s contents into a string. The return value is true if everything
+went well, false if there was an error while opening or reading the file.</p>
+
+<ul>
+<li><code>bool <strong>save_file</strong>(const string&amp; file, const void* ptr, size_t n, bool append = false)</code></li>
+<li><code>bool <strong>save_file</strong>(const string&amp; file, const string&amp; src, bool append = false)</code></li>
+<li><code>bool <strong>save_file</strong>(const wstring&amp; file, const void* ptr, size_t n, bool append = false)</code> <em>(Native Windows only)</em></li>
+<li><code>bool <strong>save_file</strong>(const wstring&amp; file, const string&amp; src, bool append = false)</code> <em>(Native Windows only)</em></li>
+</ul>
+
+<p>Write a string&#8217;s contents into a file, optionally appending it to the file
+instead of overwriting it if it already exists (if the file does not exist,
+the <code>append</code> flag has no effect). The return value is true if everything went
+well, false if there was an error while opening or writing the file.</p>
+
+<ul>
+<li><code>constexpr const char* <strong>xt_up</strong>           = &quot;&lt;esc&gt;[A&quot;    = Cursor up</code></li>
+<li><code>constexpr const char* <strong>xt_down</strong>         = &quot;&lt;esc&gt;[B&quot;    = Cursor down</code></li>
+<li><code>constexpr const char* <strong>xt_right</strong>        = &quot;&lt;esc&gt;[C&quot;    = Cursor right</code></li>
+<li><code>constexpr const char* <strong>xt_left</strong>         = &quot;&lt;esc&gt;[D&quot;    = Cursor left</code></li>
+<li><code>constexpr const char* <strong>xt_erase_left</strong>   = &quot;&lt;esc&gt;[1K&quot;   = Erase left</code></li>
+<li><code>constexpr const char* <strong>xt_erase_right</strong>  = &quot;&lt;esc&gt;[K&quot;    = Erase right</code></li>
+<li><code>constexpr const char* <strong>xt_erase_above</strong>  = &quot;&lt;esc&gt;[1J&quot;   = Erase above</code></li>
+<li><code>constexpr const char* <strong>xt_erase_below</strong>  = &quot;&lt;esc&gt;[J&quot;    = Erase below</code></li>
+<li><code>constexpr const char* <strong>xt_erase_line</strong>   = &quot;&lt;esc&gt;[2K&quot;   = Erase line</code></li>
+<li><code>constexpr const char* <strong>xt_clear</strong>        = &quot;&lt;esc&gt;[2J&quot;   = Clear screen</code></li>
+<li><code>constexpr const char* <strong>xt_reset</strong>        = &quot;&lt;esc&gt;[0m&quot;   = Reset attributes</code></li>
+<li><code>constexpr const char* <strong>xt_bold</strong>         = &quot;&lt;esc&gt;[1m&quot;   = Bold</code></li>
+<li><code>constexpr const char* <strong>xt_under</strong>        = &quot;&lt;esc&gt;[4m&quot;   = Underline</code></li>
+<li><code>constexpr const char* <strong>xt_black</strong>        = &quot;&lt;esc&gt;[30m&quot;  = Black foreground</code></li>
+<li><code>constexpr const char* <strong>xt_red</strong>          = &quot;&lt;esc&gt;[31m&quot;  = Red foreground</code></li>
+<li><code>constexpr const char* <strong>xt_green</strong>        = &quot;&lt;esc&gt;[32m&quot;  = Green foreground</code></li>
+<li><code>constexpr const char* <strong>xt_yellow</strong>       = &quot;&lt;esc&gt;[33m&quot;  = Yellow foreground</code></li>
+<li><code>constexpr const char* <strong>xt_blue</strong>         = &quot;&lt;esc&gt;[34m&quot;  = Blue foreground</code></li>
+<li><code>constexpr const char* <strong>xt_magenta</strong>      = &quot;&lt;esc&gt;[35m&quot;  = Magenta foreground</code></li>
+<li><code>constexpr const char* <strong>xt_cyan</strong>         = &quot;&lt;esc&gt;[36m&quot;  = Cyan foreground</code></li>
+<li><code>constexpr const char* <strong>xt_white</strong>        = &quot;&lt;esc&gt;[37m&quot;  = White foreground</code></li>
+<li><code>constexpr const char* <strong>xt_black_bg</strong>     = &quot;&lt;esc&gt;[40m&quot;  = Black background</code></li>
+<li><code>constexpr const char* <strong>xt_red_bg</strong>       = &quot;&lt;esc&gt;[41m&quot;  = Red background</code></li>
+<li><code>constexpr const char* <strong>xt_green_bg</strong>     = &quot;&lt;esc&gt;[42m&quot;  = Green background</code></li>
+<li><code>constexpr const char* <strong>xt_yellow_bg</strong>    = &quot;&lt;esc&gt;[43m&quot;  = Yellow background</code></li>
+<li><code>constexpr const char* <strong>xt_blue_bg</strong>      = &quot;&lt;esc&gt;[44m&quot;  = Blue background</code></li>
+<li><code>constexpr const char* <strong>xt_magenta_bg</strong>   = &quot;&lt;esc&gt;[45m&quot;  = Magenta background</code></li>
+<li><code>constexpr const char* <strong>xt_cyan_bg</strong>      = &quot;&lt;esc&gt;[46m&quot;  = Cyan background</code></li>
+<li><code>constexpr const char* <strong>xt_white_bg</strong>     = &quot;&lt;esc&gt;[47m&quot;  = White background</code></li>
+</ul>
+
+<p>Xterm cursor movement and output formatting codes.</p>
+
+<ul>
+<li><code>string <strong>xt_move_up</strong>(int n)      = &quot;&lt;esc&gt;[&lt;n&gt;A&quot;             = Cursor up n spaces</code></li>
+<li><code>string <strong>xt_move_down</strong>(int n)    = &quot;&lt;esc&gt;[&lt;n&gt;B&quot;             = Cursor down n spaces</code></li>
+<li><code>string <strong>xt_move_right</strong>(int n)   = &quot;&lt;esc&gt;[&lt;n&gt;C&quot;             = Cursor right n spaces</code></li>
+<li><code>string <strong>xt_move_left</strong>(int n)    = &quot;&lt;esc&gt;[&lt;n&gt;D&quot;             = Cursor left n spaces</code></li>
+<li><code>string <strong>xt_colour</strong>(int rgb)     = &quot;&lt;esc&gt;[38;5;&lt;16-231&gt;m&quot;   = Set foreground colour to an RGB value</code></li>
+<li><code>string <strong>xt_colour_bg</strong>(int rgb)  = &quot;&lt;esc&gt;[48;5;&lt;16-231&gt;m&quot;   = Set background colour to an RGB value</code></li>
+<li><code>string <strong>xt_grey</strong>(int grey)      = &quot;&lt;esc&gt;[38;5;&lt;232-255&gt;m&quot;  = Set foreground colour to a grey level</code></li>
+<li><code>string <strong>xt_grey_bg</strong>(int grey)   = &quot;&lt;esc&gt;[48;5;&lt;232-255&gt;m&quot;  = Set background colour to a grey level</code></li>
+</ul>
+
+<p>Functions for generating variable Xterm codes. The RGB levels passed to the
+<code>xt_colour[_bg]()</code> functions are in the form of a 3 digit number from 111 to
+666; each digit is clamped to a range of 0&#8211;5, yielding 216 different colours.
+The grey level passed to the <code>xt_grey[_bg]()</code> functions is clamped to a range
+of 1&#8211;24.</p>
+
+<h2 id="keywordarguments">Keyword Arguments</h2>
+
+<ul>
+<li><code>template &lt;typename K&gt; struct <strong>Kwarg</strong></code>
+
+<ul>
+<li><code>template &lt;typename A&gt; ... Kwarg::<strong>operator=</strong>(const A&amp; arg) const</code></li>
+</ul></li>
+<li><code>template &lt;typename K, typename V, typename... Args&gt; bool <strong>kwget</strong>(const Kwarg&lt;K&gt;&amp; key, V&amp; var, const Args&amp;... args)</code></li>
+</ul>
+
+<p>This provides a simple implementation of variadic keyword arguments for C++
+functions.</p>
+
+<p>Define a <code>Kwarg&lt;K&gt;</code> object for each keyword argument, where <code>K</code> is the
+argument type. Functions that will take keyword arguments should be declared
+with a variadic argument pack (possibly preceded by ordinary positional
+arguments). When calling the function, the keyword arguments should be
+supplied in the form <code>key=value</code>, where <code>key</code> is a <code>Kwarg&lt;K&gt;</code> object, and
+<code>value</code> is the argument value. The value type must be convertible to <code>K</code>. If
+<code>K</code> is <code>bool</code>, the keyword alone can be passed as an argument, with the value
+defaulting to <code>true</code>.</p>
+
+<p>In the function body, call <code>kwget()</code> for each possible keyword argument, with
+the corresponding <code>Kwarg&lt;K&gt;</code> object as the key, a reference to the variable
+that will receive the value, and the variadic arguments from the enclosing
+function. The variable passed by reference will be updated with the value
+supplied with the key, or left unchanged if no corresponding keyword argument
+was supplied. The return value indicates whether the variable was updated. If
+the same key appears more than once in the actual argument list, it is
+unspecified which value will be copied.</p>
+
+<p>Example:</p>
+
+<pre><code>constexpr Kwarg&lt;int&gt; win_width, win_height;
+constexpr Kwarg&lt;string&gt; win_title;
+constexpr Kwarg&lt;bool&gt; win_visible;
+
+class Window {
+public:
+    template &lt;typename... Args&gt; explicit Window(const Args&amp;... args) {
+        int width = 640, height = 480;
+        string title = &quot;New Window&quot;;
+        bool visible = false;
+        kwget(win_width, width, args...);
+        kwget(win_height, height, args...);
+        kwget(win_title, title, args...);
+        kwget(win_visible, visible, args...);
+        // ...
+    }
+};
+
+Window app_window(win_title = &quot;Hello World&quot;, win_width = 1024, win_height = 768, win_visible);
+</code></pre>
+
+<h2 id="mixins">Mixins</h2>
+
+<p>These are convenience base classes that define members and operators that
+would normally just be repetitive boilerplate (similar to the ones in Boost).
+They all use the CRTP idiom; a class <code>T</code> should derived from <code>Mixin&lt;T&gt;</code> to
+automatically generate the desired boilerplate code.</p>
+<table>
+ <thead>
+ <tr>
+ <th>Mixin</th>
+ <th>Requires</th>
+ <th>Defines</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><code>EqualityComparable&lt;T&gt;</code></td>
+ <td><code>t1==t2</code></td>
+ <td><code>t1!=t2</code></td>
+ </tr>
+ <tr>
+ <td><code>LessThanComparable&lt;T&gt;</code></td>
+ <td><code>t1==t2<br>t1&lt;t2</code></td>
+ <td><code>t1!=t2<br>t1&gt;t2<br>t1&lt;=t2<br>t1&gt;=t2</code></td>
+ </tr>
+ <tr>
+ <td><code>InputIterator&lt;T,CV&gt;</code></td>
+ <td><code>*t<br>++t<br>t1==t2</code></td>
+ <td><code>t-&gt;<br>t++<br>t1!=t2</code></td>
+ </tr>
+ <tr>
+ <td><code>OutputIterator&lt;T&gt;</code></td>
+ <td><code>t=v</code></td>
+ <td><code>*t<br>++t<br>t++</code></td>
+ </tr>
+ <tr>
+ <td><code>ForwardIterator&lt;T,CV&gt;</code></td>
+ <td><code>*t<br>++t<br>t1==t2</code></td>
+ <td><code>t-&gt;<br>t++<br>t1!=t2</code></td>
+ </tr>
+ <tr>
+ <td><code>BidirectionalIterator&lt;T,CV&gt;</code></td>
+ <td><code>*t<br>++t<br>--t<br>t1==t2</code></td>
+ <td><code>t-&gt;<br>t++<br>t--<br>t1!=t2</code></td>
+ </tr>
+ <tr>
+ <td><code>RandomAccessIterator&lt;T,CV&gt;</code></td>
+ <td><code>*t<br>++t<br>--t<br>t+=n<br>t1-t2<br>t1==t2<br>t1&lt;t2</code></td>
+ <td><code>t-&gt;<br>t[n]<br>t++<br>t--<br>t-=n<br>t+n<br>n+t<br>t-n<br>t1!=t2<br>t1&gt;t2<br>t1&lt;=t2<br>t1&gt;=t2</code></td>
+ </tr>
+ </tbody>
+</table>
+
+<p>In the iterator mixins, <code>CV</code> is either <code>V</code> or <code>const V</code>, where <code>V</code> is the
+iterator&#8217;s value type, depending on whether a mutable or const iterator is
+required. In addition to the operators listed in the table above, all iterator
+mixins supply the standard member types:</p>
+
+<ul>
+<li><code>using <strong>difference_type</strong> = ptrdiff_t</code></li>
+<li><code>using <strong>iterator_category</strong> = [standard iterator tag type]</code></li>
+<li><code>using <strong>pointer</strong> = CV*</code></li>
+<li><code>using <strong>reference</strong> = CV&amp;</code></li>
+<li><code>using <strong>value_type</strong> = std::remove_const_t&lt;CV&gt;</code></li>
+</ul>
+
+<h2 id="rangeutilities">Range utilities</h2>
+
+<ul>
+<li><code>template &lt;typename Range&gt; using <strong>RangeIterator</strong> = ...</code></li>
+<li><code>template &lt;typename Range&gt; using <strong>RangeValue</strong> = ...</code></li>
+</ul>
+
+<p>The iterator and value types of a range.</p>
+
+<ul>
+<li><code>template &lt;typename Iterator&gt; struct <strong>Irange</strong></code>
+
+<ul>
+<li><code>Iterator Irange::<strong>first</strong></code></li>
+<li><code>Iterator Irange::<strong>second</strong></code></li>
+<li><code>constexpr Iterator Irange::<strong>begin</strong>() const { return first; }</code></li>
+<li><code>constexpr Iterator Irange::<strong>end</strong>() const { return second; }</code></li>
+</ul></li>
+<li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt; <strong>irange</strong>(const Iterator&amp; i, const Iterator&amp; j)</code></li>
+<li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt; <strong>irange</strong>(const std::pair&lt;Iterator, Iterator&gt;&amp; p)</code></li>
+</ul>
+
+<p>A wrapper for a pair of iterators, usable as a range in standard algorithms.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; constexpr Irange&lt;T*&gt; <strong>array_range</strong>(T* ptr, size_t len)</code></li>
+</ul>
+
+<p>Returns <code>irange(ptr, ptr + len)</code>.</p>
+
+<ul>
+<li><code>template &lt;typename Container&gt; [output iterator] <strong>append</strong>(Container&amp; con)</code></li>
+<li><code>template &lt;typename Container&gt; [output iterator] <strong>overwrite</strong>(Container&amp; con)</code></li>
+</ul>
+
+<p>These create output iterators that will append elements to a standard
+container. The <code>append()</code> function is similar to <code>std::back_inserter()</code> (but
+supports containers without <code>push_back()</code>), while <code>overwrite()</code> will first
+clear the container and then return the append iterator.</p>
+
+<ul>
+<li><code>template &lt;typename T, size_t N&gt; constexpr size_t <strong>array_count</strong>(T[N])</code></li>
+<li><code>template &lt;typename Range&gt; size_t <strong>range_count</strong>(const Range&amp; r)</code></li>
+<li><code>template &lt;typename Range&gt; bool <strong>range_empty</strong>(const Range&amp; r)</code></li>
+</ul>
+
+<p>Return the length of a range. The <code>range_count()</code> function is just shorthand
+for <code>std::distance(begin(r), end(r))</code>, and <code>range_empty()</code> has the obvious
+meaning. The <code>array_count()</code> version returns the same value, but only works on
+C-style arrays and is <code>constexpr</code>.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t2)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t1, T t2)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t1, T t2, T delta)</code></li>
+</ul>
+
+<p>These generate arithmetic sequences. The iterator type is a forward iterator
+that dereferences to a <code>const T&amp;</code>.</p>
+
+<p>The first two versions use <code>++t</code> to generate the next value in the sequence
+(the first starts with <code>T()</code>); the third uses <code>t+=delta</code>. <code>T</code> must be totally
+ordered and support the relevant arithmetic operators. The sequences are half
+open, containing <code>t1</code> but not <code>t2</code>; they will stop when <code>t&lt;t2</code> is no longer
+true, or if <code>delta&lt;T()</code>, when <code>t2&lt;t</code> is no longer true. The sequences will be
+empty if <code>t1&lt;t2</code> is not true (or if <code>t2&lt;t1</code> is not true, when <code>delta&lt;T()</code>),
+and will always be empty if <code>delta=T()</code>.</p>
+
+<h2 id="scopeguards">Scope guards</h2>
+
+<ul>
+<li><code>class <strong>ScopeExit</strong></code>
+
+<ul>
+<li><code>using ScopeExit::<strong>callback</strong> = std::function&lt;void()&gt;</code></li>
+<li><code>explicit ScopeExit::<strong>ScopeExit</strong>(callback f)</code></li>
+<li><code>ScopeExit::<strong>~ScopeExit</strong>() noexcept</code></li>
+</ul></li>
+<li><code>class <strong>ScopeSuccess</strong></code>
+
+<ul>
+<li><code>using ScopeSuccess::<strong>callback</strong> = std::function&lt;void()&gt;</code></li>
+<li><code>explicit ScopeSuccess::<strong>ScopeSuccess</strong>(callback f)</code></li>
+<li><code>ScopeSuccess::<strong>~ScopeSuccess</strong>() noexcept</code></li>
+</ul></li>
+<li><code>class <strong>ScopeFailure</strong></code>
+
+<ul>
+<li><code>using ScopeFailure::<strong>callback</strong> = std::function&lt;void()&gt;</code></li>
+<li><code>explicit ScopeFailure::<strong>ScopeFailure</strong>(callback f)</code></li>
+<li><code>ScopeFailure::<strong>~ScopeFailure</strong>() noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>These store a function object, to be called when the guard is destroyed.
+<code>ScopeExit</code> calls the function unconditionally, <code>ScopeSuccess</code> calls it only
+on normal exit (not when unwinding due to an exception), and <code>ScopeFailure</code>
+calls it only when an exception causes stack unwinding (not on normal exit).
+If the constructor throws an exception (this is only possible if the function
+object&#8217;s copy constructor or assignment operator throws), <code>ScopeExit</code> and
+<code>ScopeFailure</code> will call the function before propagating the exception, while
+<code>ScopeSuccess</code> will not. Any exceptions thrown by the function call in the
+destructor are silently ignored (normally the function should be written so as
+not to throw anything).</p>
+
+<ul>
+<li><code>class <strong>Transaction</strong></code>
+
+<ul>
+<li><code>using Transaction::<strong>callback</strong> = std::function&lt;void()&gt;</code></li>
+<li><code>Transaction::<strong>Transaction</strong>() noexcept</code></li>
+<li><code>Transaction::<strong>~Transaction</strong>() noexcept</code></li>
+<li><code>void Transaction::<strong>call</strong>(callback func, callback undo)</code></li>
+<li><code>void Transaction::<strong>commit</strong>() noexcept</code></li>
+<li><code>void Transaction::<strong>rollback</strong>() noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>This holds a stack of &#8220;undo&#8221; operations, to be carried out if anything goes
+wrong during a sequence of operations. The <code>call()</code> function accepts two
+function objects; <code>func()</code> is called immediately, while <code>undo()</code> is saved on
+the stack. If <code>func()</code> throws an exception, its <code>undo()</code> is not called, but
+any pre-existing undo stack is invoked. Either function can be a null pointer
+if no action is required.</p>
+
+<p>Calling <code>commit()</code> discards the saved undo functions; <code>rollback()</code> calls them
+in reverse order of insertion, silently ignoring any exceptions (normally the
+undo functions should be written so as not to throw anything). The destructor
+will perform a rollback if neither <code>commit()</code> nor <code>rollback()</code> have been
+called since the last <code>call()</code>.</p>
+
+<p>A single <code>Transaction</code> object can be used for multiple transactions. Once
+<code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and any
+newly added function pairs become part of a new cycle, equivalent to a newly
+constructed <code>Transaction</code>.</p>
+
+<h2 id="stringfunctions">String functions</h2>
+
+<ul>
+<li><code>string <strong>ascii_lowercase</strong>(const string&amp; s)</code></li>
+<li><code>string <strong>ascii_uppercase</strong>(const string&amp; s)</code></li>
+<li><code>string <strong>ascii_titlecase</strong>(const string&amp; s)</code></li>
+</ul>
+
+<p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
+unchanged.</p>
+
+<ul>
+<li><code>template &lt;typename C&gt; basic_string&lt;C&gt; <strong>cstr</strong>(const C* ptr)</code></li>
+<li><code>template &lt;typename C&gt; basic_string&lt;C&gt; <strong>cstr</strong>(const C* ptr, size_t n)</code></li>
+</ul>
+
+<p>These construct a string from a pointer to a null-terminated character
+sequence, or a pointer and a length. They differ from the corresponding string
+constructors in that passing a null pointer will yield an empty string instead
+of undefined behaviour.</p>
+
+<ul>
+<li><code>template &lt;typename C&gt; size_t <strong>cstr_size</strong>(const C* ptr)</code></li>
+</ul>
+
+<p>Returns the length of a null-terminated string (a generalized version of
+<code>strlen()</code>). This will return zero if the pointer is null.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; u8string <strong>dec</strong>(T x, size_t digits = 1)</code></li>
+<li><code>template &lt;typename T&gt; u8string <strong>hex</strong>(T x, size_t digits = 2 * sizeof(T))</code></li>
+<li><code>long long <strong>decnum</strong>(const string&amp; str) noexcept</code></li>
+<li><code>unsigned long long <strong>hexnum</strong>(const string&amp; str) noexcept</code></li>
+<li><code>double <strong>fpnum</strong>(const string&amp; str) noexcept</code></li>
+</ul>
+
+<p>Simple string and number conversion functions. The <code>dec()</code> and <code>hex()</code>
+functions convert an integer to a decimal or hexadecimal string, generating at
+least the specified number of digits. The <code>decnum()</code> and <code>hexnum()</code> functions
+perform the reverse conversion, while <code>fpnum()</code> converts a string to a
+floating point number; these will ignore any trailing characters that are not
+part of a number, and will return zero if the string is empty or does not
+contain a valid number. Results that are out of range will be clamped to the
+nearest end of the return type&#8217;s range (for <code>fpnum()</code> this will normally be
+positive or negative infinity).</p>
+
+<ul>
+<li><code>u8string <strong>hexdump</strong>(const void* ptr, size_t n, size_t block = 0)</code></li>
+<li><code>u8string <strong>hexdump</strong>(const string&amp; str, size_t block = 0)</code></li>
+</ul>
+
+<p>Converts a block of raw data into hexadecimal bytes. If <code>block</code> is not zero, a
+line feed is inserted after each block.</p>
+
+<ul>
+<li><code>template &lt;typename InputIterator&gt; string <strong>join_words</strong>(InputIterator begin, InputIterator end, const string&amp; delim = &quot; &quot;)</code></li>
+<li><code>template &lt;typename OutputIterator&gt; void <strong>split_words</strong>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
+</ul>
+
+<p>Join words into a string, using the given delimiter, or split a string into
+words, discarding any sequence of delimiter characters. The dereferenced
+iterators must be assignment compatible with <code>string</code>.</p>
+
+<ul>
+<li><code>string <strong>quote</strong>(const string&amp; str, bool allow_8bit = false)</code></li>
+</ul>
+
+<p>Returns a quoted string; internal quotes, backslashes, control characters, and
+non-ASCII characters are escaped. If the <code>allow_8bit</code> flag is set, bytes in
+the 128&#8211;255 range are passed through unchanged instead of being escaped.</p>
+
+<ul>
+<li><code>template &lt;typename T&gt; string <strong>to_str</strong>(const T&amp; t)</code></li>
+</ul>
+
+<p>Formats an object as a string. For most types this uses the type&#8217;s output
+stream operator. For strings, including character arrays and pointers, the
+string content is simply copied directly without using an output stream (a
+null character pointer is treated as an empty string). Ranges (other than
+strings) are serialized in a format similar to a JSON array (e.g.
+<code>&quot;[1,2,3]&quot;</code>), or an object (e.g. <code>&quot;{1:a,2:b,3:c}&quot;</code>) if the range&#8217;s value type
+is a pair; <code>to_str()</code> is called recursively on each range element.</p>
+
+<ul>
+<li><code>wstring <strong>utf8_to_wstring</strong>(const u8string&amp; ustr)</code> <em>(Windows only)</em></li>
+<li><code>u8string <strong>wstring_to_utf8</strong>(const wstring&amp; wstr)</code> <em>(Windows only)</em></li>
+</ul>
+
+<p>These are only defined on Windows, and provide conversions between UTF&#8211;8 and
+the native UTF&#8211;16 API. They are minimal wrappers for <code>MultiByteToWideChar()</code>
+and <code>WideCharToMultiByte()</code>. These do not do any error checking; the output
+will be garbage if the input was not valid Unicode.</p>
+
+<h2 id="timeanddatefunctions">Time and date functions</h2>
+
+<p>In this documentation, the <code>std::chrono::</code> prefix on the standard date and
+time types is left out for brevity. For all functions here that accept or
+return a broken down date, results are unspecified if the date is outside the
+range of a <code>time_t</code> (1970&#8211;2038 on 32-bit systems), or if the fields are set to
+values that do not represent a valid date.</p>
+
+<ul>
+<li><code>enum <strong>ZoneFlag</strong></code>
+
+<ul>
+<li><code>utc_date</code></li>
+<li><code>local_date</code></li>
+</ul></li>
+</ul>
+
+<p>This is passed to the conversion functions to indicate whether a broken down
+date is expressed in UTC or the local time zone.</p>
+
+<ul>
+<li><code>u8string <strong>format_date</strong>(std::chrono::system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)</code></li>
+<li><code>u8string <strong>format_date</strong>(std::chrono::system_clock::time_point tp, const u8string&amp; format, ZoneFlag z = utc_date)</code></li>
+</ul>
+
+<p>These convert a time point into a broken down date and format it. The first
+version writes the date in ISO 8601 format (<code>&quot;yyyy-mm-dd hh:mm:ss&quot;</code>). If
+<code>prec</code> is greater than zero, the specified number of decimal places will be
+added to the seconds field.</p>
+
+<p>The second version writes the date using the conventions of <code>strftime()</code>. This
+will return an empty string if anything goes wrong; there is no way to
+distinguish between a conversion error and a legitimately empty result (this
+is a limitation of <code>strftime()</code>).</p>
+
+<p>For reference, the portable subset of the <code>strftime()</code> formatting codes are:</p>
+
+<table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Code</th>
+	<th style="text-align:left;">Description</th>
+	<th style="text-align:left;">Code</th>
+	<th style="text-align:left;">Description</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;" colspan="2"><strong>Date elements</strong></td>
+	<td style="text-align:left;" colspan="2"><strong>Weekday elements</strong></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%Y</code></td>
+	<td style="text-align:left;">Year number</td>
+	<td style="text-align:left;"><code>%a</code></td>
+	<td style="text-align:left;">Local weekday abbreviation</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%y</code></td>
+	<td style="text-align:left;">Last 2 digits of the year (<code>00-99</code>)</td>
+	<td style="text-align:left;"><code>%w</code></td>
+	<td style="text-align:left;">Sunday-based weekday number (<code>0-6</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%m</code></td>
+	<td style="text-align:left;">Month number (<code>00-12</code>)</td>
+	<td style="text-align:left;"><code>%A</code></td>
+	<td style="text-align:left;">Local weekday name</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%B</code></td>
+	<td style="text-align:left;">Local month name</td>
+	<td style="text-align:left;"><code>%U</code></td>
+	<td style="text-align:left;">Sunday-based week number (<code>00-53</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%b</code></td>
+	<td style="text-align:left;">Local month abbreviation</td>
+	<td style="text-align:left;"><code>%W</code></td>
+	<td style="text-align:left;">Monday-based week number (<code>00-53</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%d</code></td>
+	<td style="text-align:left;">Day of the month (<code>01-31</code>)</td>
+	<td style="text-align:left;" colspan="2"><strong>Other elements</strong></td>
+</tr>
+<tr>
+	<td style="text-align:left;" colspan="2"><strong>Time of day elements</strong></td>
+	<td style="text-align:left;"><code>%c</code></td>
+	<td style="text-align:left;">Local standard date/time format</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%H</code></td>
+	<td style="text-align:left;">Hour on 24-hour clock (<code>00-23</code>)</td>
+	<td style="text-align:left;"><code>%x</code></td>
+	<td style="text-align:left;">Local standard date format</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%I</code></td>
+	<td style="text-align:left;">Hour on 12-hour clock (<code>01-12</code>)</td>
+	<td style="text-align:left;"><code>%X</code></td>
+	<td style="text-align:left;">Local standard time format</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%p</code></td>
+	<td style="text-align:left;">Local equivalent of a.m./p.m.</td>
+	<td style="text-align:left;"><code>%j</code></td>
+	<td style="text-align:left;">Day of the year (<code>001-366</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%M</code></td>
+	<td style="text-align:left;">Minute (<code>00-59</code>)</td>
+	<td style="text-align:left;"><code>%Z</code></td>
+	<td style="text-align:left;">Time zone name</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>%S</code></td>
+	<td style="text-align:left;">Second (<code>00-60</code>)</td>
+	<td style="text-align:left;"><code>%z</code></td>
+	<td style="text-align:left;">Time zone offset</td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li><code>template &lt;typename R, typename P&gt; u8string <strong>format_time</strong>(const duration&lt;R, P&gt;&amp; time, int prec = 0)</code></li>
+</ul>
+
+<p>Formats a time duration in Julian years, days, hours, minutes, seconds, and
+(if <code>prec&gt;0</code>) fractions of a second. Results are unspecified if the number of
+years in <code>time</code> does not fit in a signed 32-bit integer.</p>
+
+<ul>
+<li><code>system_clock::time_point <strong>make_date</strong>(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept</code></li>
+</ul>
+
+<p>Converts a broken down date into a time point.</p>
+
+<ul>
+<li><code>template &lt;typename R, typename P&gt; void <strong>sleep_for</strong>(std::chrono::duration&lt;R, P&gt; t) noexcept</code></li>
+<li><code>void <strong>sleep_for</strong>(double t) noexcept</code></li>
+</ul>
+
+<p>Suspend the current thread for the specified interval, supplied either as a
+duration or a number of seconds. Calling this with a duration less than or
+equal to zero will cause the thread to yield its time slice. Resolution is
+system dependent. Behaviour is undefined if the duration exceeds 31 days.</p>
+
+<ul>
+<li><code>template &lt;typename R, typename P&gt; double <strong>to_seconds</strong>(const duration&lt;R, P&gt;&amp; d) noexcept</code></li>
+<li><code>template &lt;typename R, typename P&gt; void <strong>from_seconds</strong>(double s, duration&lt;R, P&gt;&amp; d) noexcept</code></li>
+</ul>
+
+<p>Convenience functions to convert between a <code>duration</code> and a floating point
+number of seconds.</p>
+
+<ul>
+<li><em>Unix</em>
+
+<ul>
+<li><code>template &lt;typename R, typename P&gt; timespec <strong>duration_to_timespec</strong>(const duration&lt;R, P&gt;&amp; d) noexcept</code></li>
+<li><code>template &lt;typename R, typename P&gt; timeval <strong>duration_to_timeval</strong>(const duration&lt;R, P&gt;&amp; d) noexcept</code></li>
+<li><code>timespec <strong>timepoint_to_timespec</strong>(const system_clock::time_point&amp; tp) noexcept</code></li>
+<li><code>timeval <strong>timepoint_to_timeval</strong>(const system_clock::time_point&amp; tp) noexcept</code></li>
+<li><code>template &lt;typename R, typename P&gt; void <strong>timespec_to_duration</strong>(const timespec&amp; ts, duration&lt;R, P&gt;&amp; d) noexcept</code></li>
+<li><code>system_clock::time_point <strong>timespec_to_timepoint</strong>(const timespec&amp; ts) noexcept</code></li>
+<li><code>template &lt;typename R, typename P&gt; void <strong>timeval_to_duration</strong>(const timeval&amp; tv, duration&lt;R, P&gt;&amp; d) noexcept</code></li>
+<li><code>system_clock::time_point <strong>timeval_to_timepoint</strong>(const timeval&amp; tv) noexcept</code></li>
+</ul></li>
+<li><em>Windows</em>
+
+<ul>
+<li><code>system_clock::time_point <strong>filetime_to_timepoint</strong>(const FILETIME&amp; ft) noexcept</code></li>
+<li><code>void <strong>timepoint_to_filetime</strong>(const system_clock::time_point&amp; tp, FILETIME&amp; ft) noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>Conversion functions between C++ chrono types and system API types. Some of
+them return their result through a reference argument instead of a return
+value, either to avoid having to explicitly specify the duration type, or to
+avoid including system headers in this header. Behaviour is undefined if the
+value being represented is out of range for either the source or destination
+type.</p>
+
+<p>For reference, the system time types are:</p>
+
+<ul>
+<li><em>Unix</em>
+
+<ul>
+<li><code>#include &lt;time.h&gt;</code>
+
+<ul>
+<li><code>struct <strong>timespec</strong></code>
+
+<ul>
+<li><code>time_t timespec::<strong>tv_sec</strong> [seconds]</code></li>
+<li><code>long timespec::<strong>tv_nsec</strong> [nanoseconds]</code></li>
+</ul></li>
+</ul></li>
+<li><code>#include &lt;sys/time.h&gt;</code>
+
+<ul>
+<li><code>struct <strong>timeval</strong></code>
+
+<ul>
+<li><code>time_t timeval::<strong>tv_sec</strong> [seconds]</code></li>
+<li><code>suseconds_t timeval::<strong>tv_usec</strong> [microseconds]</code></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li><em>Windows</em>
+
+<ul>
+<li><code>#include &lt;windows.h&gt;</code>
+
+<ul>
+<li><code>struct <strong>FILETIME</strong></code>
+
+<ul>
+<li><code>DWORD FILETIME::<strong>dwLowDateTime</strong> [low 32 bits]</code></li>
+<li><code>DWORD FILETIME::<strong>dwHighDateTime</strong> [high 32 bits]</code></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h2 id="typeproperties">Type properties</h2>
+
+<ul>
+<li><code>template &lt;typename T1, typename T2&gt; using <strong>CopyConst</strong> = ...</code></li>
+</ul>
+
+<p>Yields a type created by transferring the <code>const</code> qualification (or lack of
+it) from <code>T1</code> to the unqualified type of <code>T2</code>. For example, <code>CopyConst&lt;int,
+const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;const int, string&gt;</code> yields
+<code>const string</code>.</p>
+
+<ul>
+<li><code>string <strong>demangle</strong>(const string&amp; name)</code></li>
+<li><code>string <strong>type_name</strong>(const std::type_info&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; string <strong>type_name</strong>()</code></li>
+<li><code>template &lt;typename T&gt; string <strong>type_name</strong>(const T&amp;)</code></li>
+</ul>
+
+<p>Demangle a type name. The original mangled name can be supplied as an explicit
+string, as a <code>std::type_info</code> object, as a type argument to a template
+function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type is to be named
+(e.g. <code>type_name(42)</code>).</p>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+if [ "$(ls */*.md 2>/dev/null)" == '' ]; then exit; fi
+
+title=$(cat */*.md | head -n 1 | sed -E 's/^Title: (.+): .+$/\1/')
+
+# sources=*/*.md
+
+cat << EOF
+Title: $title
+CSS: style.css
+
+# $title #
+
+## Index ##
+
+EOF
+
+for md in */*.md; do
+    path=${md%.*}
+    name=${path#*/}
+    subtitle=$(head -n 1 $md | sed -E 's/^[^:]+:[^:]+: //')
+    echo "* [$path.hpp]($name.html) -- $subtitle"
+done

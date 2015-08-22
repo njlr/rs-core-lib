@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Prion Library</title>
+	<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<h1 id="prionlibrary">Prion Library</h1>
+
+<h4 id="minimalcommonutilitiesbyrosssmith">Minimal common utilities by Ross Smith</h4>
+
+<p>This is a header-only library that basically represents the absolute minimum
+set of common utilities I need for other libraries without having to duplicate
+the code in all of them.</p>
+
+<p>Everything in this library is in <code>namespace Prion</code>, and can be used either by
+explicit namespace qualification or via <code>using namespace Prion</code>. In practise,
+you should never use the <code>prion/core</code> module or its namespace explicitly; it
+will be included automatically in any other library that needs it.</p>
+
+<p>Since Prion is header-only, it is not necessary to build Prion before using it
+with any other library. The makefile included here exists mainly to be
+referenced by inclusion in other projects&#8217; makefiles; it can also be used to
+run Prion&#8217;s own unit tests.</p>
+
+<ul>
+<li><a href="core.html"><code>&quot;prion/core.hpp&quot;</code></a> &#8211; Core utilities.</li>
+<li><a href="unit-test.html"><code>&quot;prion/unit-test.hpp&quot;</code></a> &#8211; Unit testing utilities.</li>
+</ul>
+
+</body>
+</html>
