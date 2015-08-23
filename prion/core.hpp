@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-// #include <atomic>
 #include <cerrno>
 #include <chrono>
 #include <clocale>
@@ -13,14 +12,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-// #include <cwchar>
-// #include <exception>
+#include <cwchar>
 #include <functional>
 #include <iostream>
 #include <iterator>
 #include <limits>
 #include <memory>
 #include <new>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -237,14 +236,44 @@ namespace Prion {
 
     // Mathematical constants
 
-    PRI_DEFINE_CONSTANT(e, 2.71828182845904523536028747135266249775724709369996);
-    PRI_DEFINE_CONSTANT(ln2, 0.69314718055994530941723212145817656807550013436026);
-    PRI_DEFINE_CONSTANT(ln10, 2.30258509299404568401799145468436420760110148862877);
-    PRI_DEFINE_CONSTANT(pi, 3.14159265358979323846264338327950288419716939937511);
-    PRI_DEFINE_CONSTANT(sqrt2, 1.41421356237309504880168872420969807856967187537695);
-    PRI_DEFINE_CONSTANT(sqrt3, 1.73205080756887729352744634150587236694280525381038);
-    PRI_DEFINE_CONSTANT(sqrt5, 2.23606797749978969640917366873127623544061835961153);
-    PRI_DEFINE_CONSTANT(sqrt2pi, 2.50662827463100050241576528481104525300698674060994);
+    PRI_DEFINE_CONSTANT(e,        2.71828182845904523536028747135266249775724709369996);
+    PRI_DEFINE_CONSTANT(ln2,      0.69314718055994530941723212145817656807550013436026);
+    PRI_DEFINE_CONSTANT(ln10,     2.30258509299404568401799145468436420760110148862877);
+    PRI_DEFINE_CONSTANT(pi,       3.14159265358979323846264338327950288419716939937511);
+    PRI_DEFINE_CONSTANT(sqrt2,    1.41421356237309504880168872420969807856967187537695);
+    PRI_DEFINE_CONSTANT(sqrt3,    1.73205080756887729352744634150587236694280525381038);
+    PRI_DEFINE_CONSTANT(sqrt5,    2.23606797749978969640917366873127623544061835961153);
+    PRI_DEFINE_CONSTANT(sqrt2pi,  2.50662827463100050241576528481104525300698674060994);
+
+    // Physical constants
+
+    PRI_DEFINE_CONSTANT(atomic_mass_unit,           1.660538921e-27);  // kg
+    PRI_DEFINE_CONSTANT(avogadro_constant,          6.02214129e23);    // mol^-1
+    PRI_DEFINE_CONSTANT(boltzmann_constant,         1.3806488e-23);    // J K^-1
+    PRI_DEFINE_CONSTANT(elementary_charge,          1.602176565e-19);  // C
+    PRI_DEFINE_CONSTANT(gas_constant,               8.3144621);        // J mol^-1 K^-1
+    PRI_DEFINE_CONSTANT(gravitational_constant,     6.67384e-11);      // m^3 kg^-1 s^-2
+    PRI_DEFINE_CONSTANT(planck_constant,            6.62606957e-34);   // J s
+    PRI_DEFINE_CONSTANT(speed_of_light,             299792458.0);      // m s^-1
+    PRI_DEFINE_CONSTANT(stefan_boltzmann_constant,  5.670373e-8);      // W m^-2 K^-4
+
+    // Astronomical constants
+
+    PRI_DEFINE_CONSTANT(earth_mass,         5.97219e24);          // kg
+    PRI_DEFINE_CONSTANT(earth_radius,       6.3710e6);            // m
+    PRI_DEFINE_CONSTANT(jupiter_mass,       1.8986e27);           // kg
+    PRI_DEFINE_CONSTANT(jupiter_radius,     6.9911e7);            // m
+    PRI_DEFINE_CONSTANT(solar_mass,         1.98855e30);          // kg
+    PRI_DEFINE_CONSTANT(solar_radius,       6.96342e8);           // m
+    PRI_DEFINE_CONSTANT(solar_luminosity,   3.846e26);            // W
+    PRI_DEFINE_CONSTANT(solar_temperature,  5778.0);              // K
+    PRI_DEFINE_CONSTANT(astronomical_unit,  1.49597870700e11);    // m
+    PRI_DEFINE_CONSTANT(light_year,         9.4607304725808e15);  // m
+    PRI_DEFINE_CONSTANT(parsec,             3.08567758149e16);    // m
+    PRI_DEFINE_CONSTANT(julian_day,         86400.0);             // s
+    PRI_DEFINE_CONSTANT(julian_year,        31557600.0);          // s
+    PRI_DEFINE_CONSTANT(sidereal_year,      31558149.7635);       // s
+    PRI_DEFINE_CONSTANT(tropical_year,      31556925.19);         // s
 
     // Arithmetic literals
 
@@ -1759,5 +1788,194 @@ namespace Prion {
     inline string xt_colour_bg(int rgb) { return "\x1b[48;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }   // Set background colour to an RGB value (0-5)
     inline string xt_grey(int grey) { return "\x1b[38;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }     // Set foreground colour to a grey level (1-24)
     inline string xt_grey_bg(int grey) { return "\x1b[48;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }  // Set background colour to a grey level (1-24)
+
+    // UUID
+
+    namespace PrionDetail {
+
+        inline int decode_hex_byte(string::const_iterator& i, string::const_iterator end) {
+            auto j = i;
+            if (end - i >= 2 && j[0] == '0' && (j[1] == 'X' || j[1] == 'x'))
+                j += 2;
+            if (end - j < 2)
+                return -1;
+            int n = 0;
+            for (auto k = j + 2; j != k; ++j) {
+                n <<= 4;
+                if (*j >= '0' && *j <= '9')
+                    n += *j - '0';
+                else if (*j >= 'A' && *j <= 'F')
+                    n += *j - 'A' + 10;
+                else if (*j >= 'a' && *j <= 'f')
+                    n += *j - 'a' + 10;
+                else
+                    return -1;
+            }
+            i = j;
+            return n;
+        }
+
+    }
+
+    struct RandomUuid;
+
+    class Uuid:
+    public LessThanComparable<Uuid> {
+    public:
+        Uuid() noexcept { memset(bytes, 0, 16); }
+        Uuid(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f, uint8_t g, uint8_t h,
+            uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
+            bytes{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p} {}
+        Uuid(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l,
+            uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
+            bytes{static_cast<uint8_t>((abcd >> 24) & 0xff), static_cast<uint8_t>((abcd >> 16) & 0xff),
+            static_cast<uint8_t>((abcd >> 8) & 0xff), static_cast<uint8_t>(abcd & 0xff),
+            static_cast<uint8_t>((ef >> 8) & 0xff), static_cast<uint8_t>(ef & 0xff),
+            static_cast<uint8_t>((gh >> 8) & 0xff), static_cast<uint8_t>(gh & 0xff),
+            i, j, k, l, m, n, o, p} {}
+        explicit Uuid(uint128_t u) noexcept { write_be(u, bytes); }
+        explicit Uuid(const uint8_t* ptr) noexcept
+            { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
+        explicit Uuid(const string& s);
+        uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
+        const uint8_t& operator[](size_t i) const noexcept { return bytes[i]; }
+        uint8_t* begin() noexcept { return bytes; }
+        const uint8_t* begin() const noexcept { return bytes; }
+        uint8_t* end() noexcept { return bytes + 16; }
+        const uint8_t* end() const noexcept { return bytes + 16; }
+        uint128_t as_integer() const noexcept { return read_be<uint128_t>(bytes); }
+        u8string str() const;
+        friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept
+            { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
+        friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept
+            { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }
+    private:
+        friend struct RandomUuid;
+        union {
+            uint8_t bytes[16];
+            uint32_t words[4];
+        };
+    };
+
+    inline Uuid::Uuid(const string& s) {
+        auto begins = s.begin(), i = begins, ends = s.end();
+        auto j = begin(), endu = end();
+        int rc = 0;
+        while (i != ends && j != endu && rc != -1) {
+            i = std::find_if(i, ends, ascii_isxdigit);
+            if (i == ends)
+                break;
+            rc = PrionDetail::decode_hex_byte(i, ends);
+            if (rc == -1)
+                break;
+            *j++ = static_cast<uint8_t>(rc);
+        }
+        if (rc == -1 || j != endu || std::find_if(i, ends, ascii_isalnum) != ends)
+            throw std::invalid_argument("Invalid UUID: " + s);
+    }
+
+    inline u8string Uuid::str() const {
+        u8string s;
+        s.reserve(36);
+        int i = 0;
+        for (; i < 4; ++i)
+            PrionDetail::append_hex_byte(bytes[i], s);
+        s += '-';
+        for (; i < 6; ++i)
+            PrionDetail::append_hex_byte(bytes[i], s);
+        s += '-';
+        for (; i < 8; ++i)
+            PrionDetail::append_hex_byte(bytes[i], s);
+        s += '-';
+        for (; i < 10; ++i)
+            PrionDetail::append_hex_byte(bytes[i], s);
+        s += '-';
+        for (; i < 16; ++i)
+            PrionDetail::append_hex_byte(bytes[i], s);
+        return s;
+    }
+
+    inline std::ostream& operator<<(std::ostream& o, const Uuid& u) { return o << u.str(); }
+    inline u8string to_str(const Uuid& u) { return u.str(); }
+
+    struct RandomUuid {
+        using result_type = Uuid;
+        template <typename Rng> Uuid operator()(Rng& rng) const {
+            std::uniform_int_distribution<uint32_t> dist;
+            Uuid result;
+            for (auto& w: result.words)
+                w = dist(rng);
+            result[6] = (result[6] & 0x0f) | 0x40;
+            result[8] = (result[8] & 0x3f) | 0x80;
+            return result;
+        }
+    };
+
+    // Version number
+
+    struct Version:
+    public LessThanComparable<Version> {
+        unsigned major;
+        unsigned minor;
+        unsigned patch;
+        Version(unsigned x = 0, unsigned y = 0, unsigned z = 0): major(x), minor(y), patch(z) {}
+        unsigned& operator[](size_t i) noexcept { return begin()[i]; }
+        const unsigned& operator[](size_t i) const noexcept { return begin()[i]; }
+        unsigned* begin() noexcept { return &major; }
+        const unsigned* begin() const noexcept { return &major; }
+        unsigned* end() noexcept { return begin() + 3; }
+        const unsigned* end() const noexcept { return begin() + 3; }
+        u8string str() const { return dec(major) + '.' + dec(minor) + '.' + dec(patch); }
+        static Version from(int n, int scale = 10) noexcept;
+        static Version parse(const u8string& s);
+    };
+
+    inline Version Version::from(int n, int scale) noexcept {
+        Version v{0, 0, 0};
+        if (scale < 1)
+            return v;
+        v.patch = n % scale;
+        n /= scale;
+        v.minor = n % scale;
+        n /= scale;
+        v.major = n;
+        return v;
+    }
+
+    inline Version Version::parse(const u8string& s) {
+        Version v{0, 0, 0};
+        if (s.empty())
+            return v;
+        auto i = std::begin(s), e = std::end(s);
+        unsigned n = 0;
+        while (n < 3) {
+            auto j = std::find_if_not(i, e, ascii_isdigit);
+            if (j == i)
+                break;
+            v[n++] = static_cast<unsigned>(decnum(string(i, j)));
+            if (j == e || *j != '.')
+                break;
+            i = j + 1;
+        }
+        if (n == 0)
+            throw std::invalid_argument("Invalid version: " + s);
+        return v;
+    }
+
+    inline bool operator==(const Version& lhs, const Version& rhs) noexcept {
+        return lhs.major == rhs.major && lhs.minor == rhs.minor && lhs.patch == rhs.patch;
+    }
+
+    inline bool operator<(const Version& lhs, const Version& rhs) noexcept {
+        if (lhs.major != rhs.major)
+            return lhs.major < rhs.major;
+        else if (lhs.minor != rhs.minor)
+            return lhs.minor < rhs.minor;
+        else
+            return lhs.patch < rhs.patch;
+    }
+
+    inline std::ostream& operator<<(std::ostream& o, const Version& v) { return o << v.str(); }
+    inline u8string to_str(const Version& v) { return v.str(); }
 
 }
