@@ -1632,6 +1632,8 @@ namespace Prion {
     template <typename T1, typename T2> using CopyConst =
         std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
 
+    template <typename T2, typename T1> inline T2 implicit_cast(const T1& t) { return t; }
+
     inline string demangle(const string& name) {
         auto mangled = name;
         std::shared_ptr<char> demangled;
@@ -1653,141 +1655,6 @@ namespace Prion {
     inline string type_name(const std::type_info& t) { return demangle(t.name()); }
     template <typename T> string type_name() { return type_name(typeid(T)); }
     template <typename T> string type_name(const T&) { return type_name(typeid(T)); }
-
-    // I/O utilities
-
-    // (These are at the end of the file because of internal dependencies)
-
-    namespace PrionDetail {
-
-        #if defined(PRI_TARGET_NATIVE_WINDOWS)
-            extern "C" int _isatty(int fd);
-        #endif
-
-        inline bool load_file_helper(FILE* fp, string& dst) {
-            static constexpr size_t bufsize = 65536;
-            size_t offset = 0;
-            while (! (feof(fp) || ferror(fp))) {
-                dst.resize(offset + bufsize, 0);
-                offset += fread(&dst[0] + offset, 1, bufsize, fp);
-            }
-            dst.resize(offset);
-            return ! ferror(fp);
-        }
-
-        inline bool save_file_helper(FILE* fp, const void* ptr, size_t n) {
-            auto cptr = static_cast<const char*>(ptr);
-            size_t offset = 0;
-            while (offset < n && ! ferror(fp))
-                offset += fwrite(cptr + offset, 1, n - offset, fp);
-            return ! ferror(fp);
-        }
-
-        inline int make_grey(int n) noexcept {
-            return 231 + clamp(n, 1, 24);
-        }
-
-        inline int make_rgb(int rgb) noexcept {
-            int r = clamp((rgb / 100) % 10, 1, 6);
-            int g = clamp((rgb / 10) % 10, 1, 6);
-            int b = clamp(rgb % 10, 1, 6);
-            return 36 * r + 6 * g + b - 27;
-        }
-
-    }
-
-    inline bool is_stdout_redirected() noexcept {
-        #if defined(PRI_TARGET_UNIX)
-            return ! isatty(1);
-        #else
-            return ! _isatty(1);
-        #endif
-    }
-
-    #if defined(PRI_TARGET_UNIX)
-
-        inline bool load_file(const string& file, string& dst) {
-            dst.clear();
-            FILE* fp = fopen(file.data(), "rb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::load_file_helper(fp, dst);
-        }
-
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
-            auto fp = fopen(file.data(), append ? "ab" : "wb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::save_file_helper(fp, ptr, n);
-        }
-
-    #else
-
-        inline bool load_file(const wstring& file, string& dst) {
-            dst.clear();
-            FILE* fp = _wfopen(file.data(), L"rb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::load_file_helper(fp, dst);
-        }
-
-        inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
-            auto fp = _wfopen(file.data(), append ? L"ab" : L"wb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::save_file_helper(fp, ptr, n);
-        }
-
-        inline bool load_file(const string& file, string& dst) { return load_file(utf8_to_wstring(file), dst); }
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append) { return save_file(utf8_to_wstring(file), ptr, n, append); }
-        inline bool save_file(const wstring& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
-
-    #endif
-
-    inline bool save_file(const string& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
-
-    static constexpr const char* xt_up           = "\e[A";    // Cursor up
-    static constexpr const char* xt_down         = "\e[B";    // Cursor down
-    static constexpr const char* xt_right        = "\e[C";    // Cursor right
-    static constexpr const char* xt_left         = "\e[D";    // Cursor left
-    static constexpr const char* xt_erase_left   = "\e[1K";   // Erase left
-    static constexpr const char* xt_erase_right  = "\e[K";    // Erase right
-    static constexpr const char* xt_erase_above  = "\e[1J";   // Erase above
-    static constexpr const char* xt_erase_below  = "\e[J";    // Erase below
-    static constexpr const char* xt_erase_line   = "\e[2K";   // Erase line
-    static constexpr const char* xt_clear        = "\e[2J";   // Clear screen
-    static constexpr const char* xt_reset        = "\e[0m";   // Reset attributes
-    static constexpr const char* xt_bold         = "\e[1m";   // Bold
-    static constexpr const char* xt_under        = "\e[4m";   // Underline
-    static constexpr const char* xt_black        = "\e[30m";  // Black foreground
-    static constexpr const char* xt_red          = "\e[31m";  // Red foreground
-    static constexpr const char* xt_green        = "\e[32m";  // Green foreground
-    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow foreground
-    static constexpr const char* xt_blue         = "\e[34m";  // Blue foreground
-    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta foreground
-    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan foreground
-    static constexpr const char* xt_white        = "\e[37m";  // White foreground
-    static constexpr const char* xt_black_bg     = "\e[40m";  // Black background
-    static constexpr const char* xt_red_bg       = "\e[41m";  // Red background
-    static constexpr const char* xt_green_bg     = "\e[42m";  // Green background
-    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow background
-    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue background
-    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta background
-    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan background
-    static constexpr const char* xt_white_bg     = "\e[47m";  // White background
-
-    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                    // Cursor up n spaces
-    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                                  // Cursor down n spaces
-    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                                 // Cursor right n spaces
-    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                                  // Cursor left n spaces
-    inline string xt_colour(int rgb) { return "\x1b[38;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }      // Set foreground colour to an RGB value (0-5)
-    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }   // Set background colour to an RGB value (0-5)
-    inline string xt_grey(int grey) { return "\x1b[38;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }     // Set foreground colour to a grey level (1-24)
-    inline string xt_grey_bg(int grey) { return "\x1b[48;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }  // Set background colour to a grey level (1-24)
 
     // UUID
 
@@ -1977,5 +1844,140 @@ namespace Prion {
 
     inline std::ostream& operator<<(std::ostream& o, const Version& v) { return o << v.str(); }
     inline u8string to_str(const Version& v) { return v.str(); }
+
+    // I/O utilities
+
+    // (These are at the end of the file because of internal dependencies)
+
+    namespace PrionDetail {
+
+        #if defined(PRI_TARGET_NATIVE_WINDOWS)
+            extern "C" int _isatty(int fd);
+        #endif
+
+        inline bool load_file_helper(FILE* fp, string& dst) {
+            static constexpr size_t bufsize = 65536;
+            size_t offset = 0;
+            while (! (feof(fp) || ferror(fp))) {
+                dst.resize(offset + bufsize, 0);
+                offset += fread(&dst[0] + offset, 1, bufsize, fp);
+            }
+            dst.resize(offset);
+            return ! ferror(fp);
+        }
+
+        inline bool save_file_helper(FILE* fp, const void* ptr, size_t n) {
+            auto cptr = static_cast<const char*>(ptr);
+            size_t offset = 0;
+            while (offset < n && ! ferror(fp))
+                offset += fwrite(cptr + offset, 1, n - offset, fp);
+            return ! ferror(fp);
+        }
+
+        inline int make_grey(int n) noexcept {
+            return 231 + clamp(n, 1, 24);
+        }
+
+        inline int make_rgb(int rgb) noexcept {
+            int r = clamp((rgb / 100) % 10, 1, 6);
+            int g = clamp((rgb / 10) % 10, 1, 6);
+            int b = clamp(rgb % 10, 1, 6);
+            return 36 * r + 6 * g + b - 27;
+        }
+
+    }
+
+    inline bool is_stdout_redirected() noexcept {
+        #if defined(PRI_TARGET_UNIX)
+            return ! isatty(1);
+        #else
+            return ! _isatty(1);
+        #endif
+    }
+
+    #if defined(PRI_TARGET_UNIX)
+
+        inline bool load_file(const string& file, string& dst) {
+            dst.clear();
+            FILE* fp = fopen(file.data(), "rb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::load_file_helper(fp, dst);
+        }
+
+        inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
+            auto fp = fopen(file.data(), append ? "ab" : "wb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::save_file_helper(fp, ptr, n);
+        }
+
+    #else
+
+        inline bool load_file(const wstring& file, string& dst) {
+            dst.clear();
+            FILE* fp = _wfopen(file.data(), L"rb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::load_file_helper(fp, dst);
+        }
+
+        inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
+            auto fp = _wfopen(file.data(), append ? L"ab" : L"wb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::save_file_helper(fp, ptr, n);
+        }
+
+        inline bool load_file(const string& file, string& dst) { return load_file(utf8_to_wstring(file), dst); }
+        inline bool save_file(const string& file, const void* ptr, size_t n, bool append) { return save_file(utf8_to_wstring(file), ptr, n, append); }
+        inline bool save_file(const wstring& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+
+    #endif
+
+    inline bool save_file(const string& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+
+    static constexpr const char* xt_up           = "\e[A";    // Cursor up
+    static constexpr const char* xt_down         = "\e[B";    // Cursor down
+    static constexpr const char* xt_right        = "\e[C";    // Cursor right
+    static constexpr const char* xt_left         = "\e[D";    // Cursor left
+    static constexpr const char* xt_erase_left   = "\e[1K";   // Erase left
+    static constexpr const char* xt_erase_right  = "\e[K";    // Erase right
+    static constexpr const char* xt_erase_above  = "\e[1J";   // Erase above
+    static constexpr const char* xt_erase_below  = "\e[J";    // Erase below
+    static constexpr const char* xt_erase_line   = "\e[2K";   // Erase line
+    static constexpr const char* xt_clear        = "\e[2J";   // Clear screen
+    static constexpr const char* xt_reset        = "\e[0m";   // Reset attributes
+    static constexpr const char* xt_bold         = "\e[1m";   // Bold
+    static constexpr const char* xt_under        = "\e[4m";   // Underline
+    static constexpr const char* xt_black        = "\e[30m";  // Black foreground
+    static constexpr const char* xt_red          = "\e[31m";  // Red foreground
+    static constexpr const char* xt_green        = "\e[32m";  // Green foreground
+    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow foreground
+    static constexpr const char* xt_blue         = "\e[34m";  // Blue foreground
+    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta foreground
+    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan foreground
+    static constexpr const char* xt_white        = "\e[37m";  // White foreground
+    static constexpr const char* xt_black_bg     = "\e[40m";  // Black background
+    static constexpr const char* xt_red_bg       = "\e[41m";  // Red background
+    static constexpr const char* xt_green_bg     = "\e[42m";  // Green background
+    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow background
+    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue background
+    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta background
+    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan background
+    static constexpr const char* xt_white_bg     = "\e[47m";  // White background
+
+    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                    // Cursor up n spaces
+    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                                  // Cursor down n spaces
+    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                                 // Cursor right n spaces
+    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                                  // Cursor left n spaces
+    inline string xt_colour(int rgb) { return "\x1b[38;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }      // Set foreground colour to an RGB value (0-5)
+    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }   // Set background colour to an RGB value (0-5)
+    inline string xt_grey(int grey) { return "\x1b[38;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }     // Set foreground colour to a grey level (1-24)
+    inline string xt_grey_bg(int grey) { return "\x1b[48;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }  // Set background colour to a grey level (1-24)
 
 }

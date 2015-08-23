@@ -1311,6 +1311,12 @@ const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;con
 <code>const string</code>.</p>
 
 <ul>
+<li><code>template &lt;typename T2, typename T1&gt; T2 <strong>implicit_cast</strong>(const T1&amp; t)</code></li>
+</ul>
+
+<p>Converts one type to another, only if the conversion is implicit.</p>
+
+<ul>
 <li><code>string <strong>demangle</strong>(const string&amp; name)</code></li>
 <li><code>string <strong>type_name</strong>(const std::type_info&amp; t)</code></li>
 <li><code>template &lt;typename T&gt; string <strong>type_name</strong>()</code></li>

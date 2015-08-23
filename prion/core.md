@@ -969,6 +969,10 @@ it) from `T1` to the unqualified type of `T2`. For example, `CopyConst<int,
 const string>` yields `string`, while `CopyConst<const int, string>` yields
 `const string`.
 
+* `template <typename T2, typename T1> T2 implicit_cast(const T1& t)`
+
+Converts one type to another, only if the conversion is implicit.
+
 * `string demangle(const string& name)`
 * `string type_name(const std::type_info& t)`
 * `template <typename T> string type_name()`
