@@ -1051,11 +1051,11 @@ namespace Prion {
     namespace PrionDetail {
 
         extern "C" char* __cxa_get_globals();
-        unsigned uncaught_exception_count() noexcept { return *reinterpret_cast<unsigned*>(__cxa_get_globals() + sizeof(void*)); }
+        inline unsigned uncaught_exception_count() noexcept { return *reinterpret_cast<unsigned*>(__cxa_get_globals() + sizeof(void*)); }
 
         // MSVC implementation (for reference in case we ever support it):
         // extern "C" char* _getptd();
-        // unsigned uncaught_exception_count() noexcept {
+        // inline unsigned uncaught_exception_count() noexcept {
         //     static const size_t offset = sizeof(void*) == 8 ? 0x100 : 0x90;
         //     return *reinterpret_cast<unsigned*>(_getptd() + offset);
         // }
@@ -1182,7 +1182,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        void append_hex_byte(uint8_t b, string& s) {
+        inline void append_hex_byte(uint8_t b, string& s) {
             static constexpr const char* digits = "0123456789abcdef";
             s += digits[b / 16];
             s += digits[b % 16];
