@@ -121,10 +121,10 @@ undoc:
 	rm -f doc/*.html
 
 clean:
-	rm -rf build/$(TARGET) *.stackdump
+	rm -rf build/$(TARGET) *.stackdump __*
 
 cleanall:
-	rm -rf build doc *.stackdump
+	rm -rf build doc *.stackdump __*
 
 dep:
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM */*.cpp \
