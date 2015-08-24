@@ -127,8 +127,6 @@ TESTER  := build/$(TARGET)/test-$(NAME)$(EXE)
 
 all: static app unit doc
 
-doc: $(DOCS)
-
 unlink:
 	rm -f $(STATICLIB) $(APP) $(TESTER)
 
@@ -201,6 +199,12 @@ check: all
 help-test: help-app
 	@echo "    unit       = Build the unit tests"
 	@echo "    check      = Build and run the unit tests"
+endif
+
+ifeq ($(DOCSOURCES),)
+doc:
+else
+doc: $(DOCS)
 endif
 
 ifeq ($(TAG),lib)
