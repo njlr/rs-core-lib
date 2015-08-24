@@ -34,8 +34,8 @@ SOURCES      := $(wildcard $(NAME)/*.c $(NAME)/*.cpp)
 APPSOURCES   := $(wildcard $(NAME)/app-*.cpp)
 TESTSOURCES  := $(wildcard $(NAME)/*-test.cpp)
 LIBSOURCES   := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
-HEADERS      := $(filter-out $(NAME)/library.hpp,$(shell grep -EL '// NOT INSTALLED' \
-				$(wildcard $(NAME)/*.h $(NAME)/*.hpp Makefile))) # Dummy entry to avoid empty list
+HEADERS      := $(wildcard $(NAME)/*.h $(NAME)/*.hpp)
+LIBHEADERS   := $(filter-out $(NAME)/library.hpp,$(shell grep -EL '// NOT INSTALLED' $(HEADERS) Makefile)) # Dummy entry to avoid empty list
 APPOBJECTS   := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(APPSOURCES))
 TESTOBJECTS  := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(TESTSOURCES))
 LIBOBJECTS   := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(LIBSOURCES))
@@ -44,16 +44,23 @@ DOCSOURCES   := $(sort $(wildcard $(NAME)/*.md))
 DOCS         := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
 CORELIBS 	 := $(shell ls $(LIBROOT)/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!' | sort -u)
 LIBREGEX     := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
+LIBTAG       :=
 SCRIPTS      := $(LIBROOT)/prion-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
 	LDFLAGS += -Wl,--enable-auto-import
+	LIBTAG := cygwin
 endif
 
 ifeq ($(HOST),darwin)
 	CXX := clang++
 	DEFINES += -D_DARWIN_C_SOURCE=1
+	LIBTAG := mac
+endif
+
+ifeq ($(HOST),linux)
+	LIBTAG := linux
 endif
 
 ifeq ($(CXX),clang++)
@@ -68,6 +75,7 @@ ifeq ($(XHOST),mingw)
 	CXXFLAGS += -mthreads
 	DEFINES += -DNOMINMAX=1 -DUNICODE=1 -D_UNICODE=1 -DWINVER=0x601 -D_WIN32_WINNT=0x601 -DPCRE_STATIC=1
 	LIBPATH := $(MINGW)/lib $(subst ;, ,$(LIBRARY_PATH))
+	LIBTAG := mingw
 else
 	DEFINES += -D_REENTRANT=1 -D_XOPEN_SOURCE=700
 	LDLIBS += -lpthread
@@ -76,6 +84,13 @@ else
 	endif
 	LIBPATH := /usr/lib $(subst :, ,$(LIBRARY_PATH))
 endif
+
+EXTRALIBS := $(shell grep -h PRI_LDLIB $(HEADERS) $(SOURCES) \
+	| grep -v 'define PRI_LDLIB' \
+	| sed -E 's/PRI_LDLIB\((.*)\).*/\1/' \
+	| grep -E '$(LIBTAG):|^[^:]+$$' \
+	| sed -E -e 's/$(LIBTAG)://' -e 's/[^ ]+/-l&/g' \
+	| sort -u)
 
 PCRELIBS := $(shell find $(LIBPATH) -name 'libpcre16.*' -or -name 'libpcre32.*' 2>/dev/null \
 			| grep -Ev '\.pc$$' | sed -E 's!.*/!!')
@@ -133,14 +148,6 @@ dep:
 				 -e 's!^ +!  !' \
 				 -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
-	echo 'REQLIBS :=' \\ >> $(DEPENDS)
-	for src in $(SOURCES); do $(CXX) $(CXXFLAGS) $(DEFINES) -E $$src;done \
-		| grep -Eo ' Prion_ldlib_\w+' \
-		| sed -E -e 's/ Prion_ldlib_/-l/' -e 's/$$/ \\/' \
-		| grep -Ev '[-]l$(NAME)\b' \
-		| sort -u \
-		>> $(DEPENDS)
-	echo >> $(DEPENDS)
 
 help: help-suffix
 
@@ -202,11 +209,11 @@ static: $(STATICPART) $(NAME)/library.hpp
 ifeq ($(LIBSOURCES),)
 install: uninstall static
 	mkdir -p $(PREFIX)/lib $(PREFIX)/include/$(NAME)
-	cp $(HEADERS) $(NAME)/library.hpp $(PREFIX)/include/$(NAME)
+	cp $(LIBHEADERS) $(NAME)/library.hpp $(PREFIX)/include/$(NAME)
 else
 install: uninstall static
 	mkdir -p $(PREFIX)/lib $(PREFIX)/include/$(NAME)
-	cp $(HEADERS) $(NAME)/library.hpp $(PREFIX)/include/$(NAME)
+	cp $(LIBHEADERS) $(NAME)/library.hpp $(PREFIX)/include/$(NAME)
 	cp $(STATICLIB) $(PREFIX)/lib
 endif
 ifeq ($(XHOST),mingw)
@@ -263,7 +270,7 @@ endif
 
 -include $(DEPENDS)
 
-LDLIBS := $(REQLIBS) $(LDLIBS)
+LDLIBS := $(EXTRALIBS) $(LDLIBS)
 
 build/$(TARGET)/%-test.o: $(NAME)/%-test.cpp
 	@mkdir -p $(dir $@)
@@ -286,10 +293,10 @@ $(TESTER): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	$(LD) $(CXXFLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(NAME)/library.hpp: $(HEADERS)
+$(NAME)/library.hpp: $(LIBHEADERS)
 	echo "#pragma once" > $@
 	echo >> $@
-	echo $(sort $(HEADERS)) | tr ' ' '\n' | sed -E 's/.+/#include "&"/' >> $@
+	echo $(sort $(LIBHEADERS)) | tr ' ' '\n' | sed -E 's/.+/#include "&"/' >> $@
 
 ifeq ($(DOCINDEX),)
 doc/index.html: $(DOCSOURCES)

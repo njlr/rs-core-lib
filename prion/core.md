@@ -39,12 +39,12 @@ Cygwin, this will only happen if `_WIN32` is defined.
 
 * `#define PRI_TARGET_UNIX 1`
     * `#define PRI_TARGET_DARWIN 1`
-        * `#define PRI_TARGET_IOS 1`
         * `#define PRI_TARGET_MACOSX 1`
+        * `#define PRI_TARGET_IOS 1`
     * `#define PRI_TARGET_LINUX 1`
 * `#define PRI_TARGET_WINDOWS 1`
-    * `#define PRI_TARGET_NATIVE_WINDOWS 1`
     * `#define PRI_TARGET_MINGW 1`
+    * `#define PRI_TARGET_NATIVE_WINDOWS 1`
 * `#define PRI_TARGET_CYGWIN 1`
 
 Some of these will be defined to provide a consistent way to identify the
@@ -65,9 +65,27 @@ support in a future version.
 Convenience macro for inserting the beginning and end of a range into an
 argument list.
 
-* `#define PRI_LDLIB(lib) ...`
+* `#define PRI_LDLIB(libs)`
 
-This instructs the makefile to link with a static library.
+This instructs the makefile to link with one or more static libraries. Specify
+library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
+`-lfoo`). Libraries can be supplied as a space delimited list in a single
+`PRI_LDLIB()` invocation, or in multiple invocations; link order is only
+preserved within a single invocation. Libraries that are needed only on
+specific targets can be prefixed with a target identifier, e.g.
+`PRI_LDLIB(mac: foo bar)` will link with `-lfoo -lbar` only in Mac OS X
+builds.
+
+Tag        | Build target    | Corresponding macro
+---        | ------------    | -------------------
+`mac:`     | Mac OS X + iOS  | `PRI_TARGET_DARWIN`
+`linux:`   | Linux           | `PRI_TARGET_LINUX`
+`mingw:`   | Mingw           | `PRI_TARGET_MINGW`
+`cygwin:`  | Cygwin          | `PRI_TARGET_CYGWIN`
+
+Only one target can be specified per invocation; if the same libraries are
+needed on multiple targets, but not on all targets, you will need a separate
+`PRI_LDLIB()` line for each target.
 
 * `#define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)`
 

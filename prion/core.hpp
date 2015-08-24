@@ -108,7 +108,7 @@
 // Other preprocessor macros
 
 #define PRI_BOUNDS(range) std::begin(range), std::end(range)
-#define PRI_LDLIB(lib) namespace Prion { namespace Prion_ldlib_ ## lib {} }
+#define PRI_LDLIB(libs)
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
 
 namespace Prion {

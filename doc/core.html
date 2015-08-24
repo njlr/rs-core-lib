@@ -54,16 +54,16 @@ Cygwin, this will only happen if <code>_WIN32</code> is defined.</p>
 <li><code>#define <strong>PRI_TARGET_DARWIN</strong> 1</code>
 
 <ul>
-<li><code>#define <strong>PRI_TARGET_IOS</strong> 1</code></li>
 <li><code>#define <strong>PRI_TARGET_MACOSX</strong> 1</code></li>
+<li><code>#define <strong>PRI_TARGET_IOS</strong> 1</code></li>
 </ul></li>
 <li><code>#define <strong>PRI_TARGET_LINUX</strong> 1</code></li>
 </ul></li>
 <li><code>#define <strong>PRI_TARGET_WINDOWS</strong> 1</code>
 
 <ul>
-<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code></li>
 <li><code>#define <strong>PRI_TARGET_MINGW</strong> 1</code></li>
+<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code></li>
 </ul></li>
 <li><code>#define <strong>PRI_TARGET_CYGWIN</strong> 1</code></li>
 </ul>
@@ -89,10 +89,60 @@ support in a future version.</p>
 argument list.</p>
 
 <ul>
-<li><code>#define <strong>PRI_LDLIB</strong>(lib) ...</code></li>
+<li><code>#define <strong>PRI_LDLIB</strong>(libs)</code></li>
 </ul>
 
-<p>This instructs the makefile to link with a static library.</p>
+<p>This instructs the makefile to link with one or more static libraries. Specify
+library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo)</code> will link with
+<code>-lfoo</code>). Libraries can be supplied as a space delimited list in a single
+<code>PRI_LDLIB()</code> invocation, or in multiple invocations; link order is only
+preserved within a single invocation. Libraries that are needed only on
+specific targets can be prefixed with a target identifier, e.g.
+<code>PRI_LDLIB(mac: foo bar)</code> will link with <code>-lfoo -lbar</code> only in Mac OS X
+builds.</p>
+
+<table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Tag</th>
+	<th style="text-align:left;">Build target</th>
+	<th style="text-align:left;">Corresponding macro</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>mac:</code></td>
+	<td style="text-align:left;">Mac OS X + iOS</td>
+	<td style="text-align:left;"><code>PRI_TARGET_DARWIN</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>linux:</code></td>
+	<td style="text-align:left;">Linux</td>
+	<td style="text-align:left;"><code>PRI_TARGET_LINUX</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>mingw:</code></td>
+	<td style="text-align:left;">Mingw</td>
+	<td style="text-align:left;"><code>PRI_TARGET_MINGW</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>cygwin:</code></td>
+	<td style="text-align:left;">Cygwin</td>
+	<td style="text-align:left;"><code>PRI_TARGET_CYGWIN</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Only one target can be specified per invocation; if the same libraries are
+needed on multiple targets, but not on all targets, you will need a separate
+<code>PRI_LDLIB()</code> line for each target.</p>
 
 <ul>
 <li><code>#define <strong>PRI_STATIC_ASSERT</strong>(expr) static_assert((expr), # expr)</code></li>
