@@ -15,6 +15,11 @@
 <li><code>#include &quot;prion/core.hpp&quot;</code></li>
 </ul>
 
+<p>On Microsoft Windows builds, including Prion will bring in the whole of
+<code>&lt;windows.h&gt;</code>. This is annoying but unfortunately unavoidable for a library
+that needs to make calls to system APIs while remaining header-only. Under
+Cygwin, this will only happen if <code>_WIN32</code> is defined.</p>
+
 <h2 id="contents">Contents</h2>
 
 <ul>
@@ -57,19 +62,16 @@
 <li><code>#define <strong>PRI_TARGET_WINDOWS</strong> 1</code>
 
 <ul>
-<li><code>#define <strong>PRI_TARGET_CYGWIN</strong> 1</code></li>
-<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code>
-
-<ul>
+<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code></li>
 <li><code>#define <strong>PRI_TARGET_MINGW</strong> 1</code></li>
 </ul></li>
-</ul></li>
+<li><code>#define <strong>PRI_TARGET_CYGWIN</strong> 1</code></li>
 </ul>
 
 <p>Some of these will be defined to provide a consistent way to identify the
 target operating system for conditional compilation. At least one of
 <code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_WINDOWS</code> will always be defined (both will be
-defined on Cygwin).</p>
+defined on Cygwin if <code>_WIN32</code> has been defined).</p>
 
 <p>On Apple platforms, <code>PRI_TARGET_DARWIN</code> will always be defined; one of
 <code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>

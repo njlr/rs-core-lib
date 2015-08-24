@@ -878,17 +878,13 @@ namespace {
 
         #if defined(PRI_TARGET_WINDOWS)
 
-            // Windows error message translation is disabled until I figure
-            // out some way to do it without having to include <windows.h>.
-
             TRY(s = WindowsError::translate(ERROR_INVALID_FUNCTION));
-            // TEST_EQUAL(s, "Incorrect function.");
+            TEST_EQUAL(s, "Incorrect function.");
             try {
                 throw WindowsError(ERROR_INVALID_FUNCTION, "SomeFunction()");
             }
             catch (const std::exception& ex) {
-                TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\): Error 1");
-                // TEST_EQUAL(string(ex.what()), "SomeFunction(): Error 1: Incorrect function.");
+                TEST_EQUAL(string(ex.what()), "SomeFunction(): Error 1: Incorrect function.");
             }
 
         #endif

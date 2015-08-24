@@ -7,6 +7,11 @@ By Ross Smith
 
 * `#include "prion/core.hpp"`
 
+On Microsoft Windows builds, including Prion will bring in the whole of
+`<windows.h>`. This is annoying but unfortunately unavoidable for a library
+that needs to make calls to system APIs while remaining header-only. Under
+Cygwin, this will only happen if `_WIN32` is defined.
+
 ## Contents ##
 
 * [Preprocessor macros][]
@@ -38,14 +43,14 @@ By Ross Smith
         * `#define PRI_TARGET_MACOSX 1`
     * `#define PRI_TARGET_LINUX 1`
 * `#define PRI_TARGET_WINDOWS 1`
-    * `#define PRI_TARGET_CYGWIN 1`
     * `#define PRI_TARGET_NATIVE_WINDOWS 1`
-        * `#define PRI_TARGET_MINGW 1`
+    * `#define PRI_TARGET_MINGW 1`
+* `#define PRI_TARGET_CYGWIN 1`
 
 Some of these will be defined to provide a consistent way to identify the
 target operating system for conditional compilation. At least one of
 `PRI_TARGET_UNIX` or `PRI_TARGET_WINDOWS` will always be defined (both will be
-defined on Cygwin).
+defined on Cygwin if `_WIN32` has been defined).
 
 On Apple platforms, `PRI_TARGET_DARWIN` will always be defined; one of
 `PRI_TARGET_IOS` or `PRI_TARGET_MACOSX` will also be defined.

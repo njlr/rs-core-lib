@@ -5,13 +5,14 @@
 #if defined(__CYGWIN__)
     #define PRI_TARGET_CYGWIN 1
     #define PRI_TARGET_UNIX 1
-    #define PRI_TARGET_WINDOWS 1
+    #if defined(_WIN32)
+        #define PRI_TARGET_WINDOWS 1
+    #endif
 #elif defined(_WIN32)
-    #define PRI_TARGET_NATIVE_WINDOWS 1
-    #define PRI_TARGET_WINDOWS 1
     // We don't support MSVC yet, so we can assume Mingw
     #define PRI_TARGET_MINGW 1
-    #include <io.h>
+    #define PRI_TARGET_NATIVE_WINDOWS 1
+    #define PRI_TARGET_WINDOWS 1
 #else
     #define PRI_TARGET_UNIX 1
     #if defined(__APPLE__)
@@ -27,10 +28,6 @@
     #endif
 #endif
 
-// Compromising here - I don't want to impose the whole kit and kaboodle of
-// <windows.h> on everything, but the individual Unix headers are smaller and
-// one or two of those are acceptable overhead.
-
 #if defined(PRI_TARGET_UNIX)
     #if ! defined(_XOPEN_SOURCE)
         #define _XOPEN_SOURCE 700 // Posix 2008
@@ -38,8 +35,6 @@
     #if ! defined(_REENTRANT)
         #define _REENTRANT 1
     #endif
-    #include <sys/time.h>
-    #include <unistd.h>
 #endif
 
 #if defined(PRI_TARGET_WINDOWS)
@@ -90,6 +85,16 @@
 #include <utility>
 #include <vector>
 #include <cxxabi.h>
+
+#if defined(PRI_TARGET_UNIX)
+    #include <sys/time.h>
+    #include <unistd.h>
+#endif
+
+#if defined(PRI_TARGET_WINDOWS)
+    #include <windows.h>
+    #include <io.h>
+#endif
 
 // Fix GNU brain damage
 
@@ -165,17 +170,6 @@ namespace Prion {
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
 
     #if defined(PRI_TARGET_WINDOWS)
-
-        namespace PrionDetail {
-
-            static constexpr unsigned CP_UTF8 = 65001;
-
-            extern "C" int __stdcall MultiByteToWideChar(unsigned codepage, uint32_t flags,
-                const char* mbstr, int mblen, wchar_t* wcstr, int wclen);
-            extern "C" int __stdcall WideCharToMultiByte(unsigned codepage, uint32_t flags,
-                const wchar_t* wcstr, int wclen, char* mbstr, int mblen, const char* defchar, int* used);
-
-        }
 
         inline wstring utf8_to_wstring(const u8string& ustr) {
             using namespace PrionDetail;
@@ -675,7 +669,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        #if defined(PRI_TARGET_WINDOWS)
+        #if defined(PRI_TARGET_WINDOWS) || defined(PRI_TARGET_CYGWIN)
 
             class ForceUtf8 {
             public:
@@ -749,20 +743,17 @@ namespace Prion {
 
     #if defined(PRI_TARGET_WINDOWS)
 
-        // Windows error message translation is disabled until I figure out
-        // some way to do it without having to include <windows.h>.
-
         namespace PrionDetail {
 
-            // class LocalBuffer {
-            // public:
-            //     LocalBuffer(): ptr(nullptr) {}
-            //     ~LocalBuffer() { LocalFree(ptr); }
-            //     wchar_t* get() const { return static_cast<wchar_t*>(ptr); }
-            //     wchar_t* indirect() { return reinterpret_cast<wchar_t*>(&ptr); }
-            // private:
-            //     void* ptr;
-            // };
+            class LocalBuffer {
+            public:
+                LocalBuffer(): ptr(nullptr) {}
+                ~LocalBuffer() { LocalFree(ptr); }
+                wchar_t* get() const { return static_cast<wchar_t*>(ptr); }
+                wchar_t* indirect() { return reinterpret_cast<wchar_t*>(&ptr); }
+            private:
+                void* ptr;
+            };
 
         }
 
@@ -776,13 +767,12 @@ namespace Prion {
             static u8string translate(uint32_t error);
         };
 
-        inline u8string WindowsError::translate(uint32_t /*error*/) {
-            return {};
-            // using namespace PrionDetail;
-            // static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
-            // LocalBuffer buf;
-            // auto rc = FormatMessageW(flags, nullptr, error, 0, buf.indirect(), 0, nullptr);
-            // return trim_ws(wstring_to_utf8(wstring(buf.get(), rc)));
+        inline u8string WindowsError::translate(uint32_t error) {
+            using namespace PrionDetail;
+            static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+            LocalBuffer buf;
+            auto rc = FormatMessageW(flags, nullptr, error, 0, buf.indirect(), 0, nullptr);
+            return trim_ws(wstring_to_utf8(wstring(buf.get(), rc)));
         }
 
     #endif
@@ -1389,12 +1379,12 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        #if defined(PRI_TARGET_UNIX)
-            using SleepUnit = std::chrono::microseconds;
-        #else
-            extern "C" void __stdcall Sleep(uint32_t msec);
-            using SleepUnit = std::chrono::milliseconds;
-        #endif
+        using SleepUnit =
+            #if defined(PRI_TARGET_UNIX)
+                std::chrono::microseconds;
+            #else
+                std::chrono::milliseconds;
+            #endif
 
         inline u8string format_time(int64_t sec, double frac, int prec) {
             u8string result;
@@ -1622,8 +1612,7 @@ namespace Prion {
 
     #if defined(PRI_TARGET_WINDOWS)
 
-        template <typename FT>
-        std::chrono::system_clock::time_point filetime_to_timepoint(const FT& ft) noexcept {
+        inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
             using namespace std::chrono;
             static constexpr int64_t filetime_freq = 10000000ll;     // FILETIME ticks (100 ns) per second
             static constexpr int64_t windows_epoch = 11644473600ll;  // Windows epoch (1601) to Unix epoch (1970)
@@ -1633,8 +1622,7 @@ namespace Prion {
             return system_clock::from_time_t(static_cast<time_t>(sec)) + duration_cast<system_clock::duration>(nanoseconds(nsec));
         }
 
-        template <typename FT>
-        void timepoint_to_filetime(const std::chrono::system_clock::time_point& tp, FT& ft) noexcept {
+        inline void timepoint_to_filetime(const std::chrono::system_clock::time_point& tp, FILETIME& ft) noexcept {
             using namespace std::chrono;
             auto unix_time = tp - system_clock::from_time_t(0);
             uint64_t nsec = duration_cast<nanoseconds>(unix_time).count();
