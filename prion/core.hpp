@@ -1,5 +1,67 @@
 #pragma once
 
+// Compilation environment identification
+
+#if defined(__CYGWIN__)
+    #define PRI_TARGET_CYGWIN 1
+    #define PRI_TARGET_UNIX 1
+    #define PRI_TARGET_WINDOWS 1
+#elif defined(_WIN32)
+    #define PRI_TARGET_NATIVE_WINDOWS 1
+    #define PRI_TARGET_WINDOWS 1
+    // We don't support MSVC yet, so we can assume Mingw
+    #define PRI_TARGET_MINGW 1
+    #include <io.h>
+#else
+    #define PRI_TARGET_UNIX 1
+    #if defined(__APPLE__)
+        #define PRI_TARGET_DARWIN 1
+        #include "TargetConditionals.h"
+        #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+            #define PRI_TARGET_IOS 1
+        #elif TARGET_OS_MAC
+            #define PRI_TARGET_MACOSX 1
+        #endif
+    #elif defined(__linux__)
+        #define PRI_TARGET_LINUX 1
+    #endif
+#endif
+
+// Compromising here - I don't want to impose the whole kit and kaboodle of
+// <windows.h> on everything, but the individual Unix headers are smaller and
+// one or two of those are acceptable overhead.
+
+#if defined(PRI_TARGET_UNIX)
+    #if ! defined(_XOPEN_SOURCE)
+        #define _XOPEN_SOURCE 700 // Posix 2008
+    #endif
+    #if ! defined(_REENTRANT)
+        #define _REENTRANT 1
+    #endif
+    #include <sys/time.h>
+    #include <unistd.h>
+#endif
+
+#if defined(PRI_TARGET_WINDOWS)
+    #if ! defined(NOMINMAX)
+        #define NOMINMAX 1
+    #endif
+    #if ! defined(UNICODE)
+        #define UNICODE 1
+    #endif
+    #if ! defined(_UNICODE)
+        #define _UNICODE 1
+    #endif
+    #if ! defined(WINVER)
+        #define WINVER 0x601 // Windows 7
+    #endif
+    #if ! defined(_WIN32_WINNT)
+        #define _WIN32_WINNT 0x601
+    #endif
+#endif
+
+// Includes here so anything that needs the macros above will see them
+
 #include <algorithm>
 #include <cerrno>
 #include <chrono>
@@ -29,65 +91,13 @@
 #include <vector>
 #include <cxxabi.h>
 
-// Compilation environment identification
+// Fix GNU brain damage
 
-#if defined(__CYGWIN__)
-    #define PRI_TARGET_CYGWIN 1
-    #define PRI_TARGET_UNIX 1
-    #define PRI_TARGET_WINDOWS 1
-#elif defined(_WIN32)
-    #define PRI_TARGET_NATIVE_WINDOWS 1
-    #define PRI_TARGET_WINDOWS 1
-    // We don't support MSVC yet, so we can assume Mingw
-    #define PRI_TARGET_MINGW 1
-#else
-    #define PRI_TARGET_UNIX 1
-    #if defined(__APPLE__)
-        #define PRI_TARGET_DARWIN 1
-        #include "TargetConditionals.h"
-        #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-            #define PRI_TARGET_IOS 1
-        #elif TARGET_OS_MAC
-            #define PRI_TARGET_MACOSX 1
-        #endif
-    #elif defined(__linux__)
-        #define PRI_TARGET_LINUX 1
-    #endif
+#if defined(major)
+    #undef major
 #endif
-
-// Compromising here - I don't want to impose the whole kit and kaboodle of
-// <windows.h> on everything, but the individual Unix headers are smaller and
-// one or two of those are acceptable overhead.
-
-#if defined(PRI_TARGET_UNIX)
-    #if ! defined(_XOPEN_SOURCE)
-        #define _XOPEN_SOURCE 700 // Posix 2008
-    #endif
-    #if ! defined(_REENTRANT)
-        #define _REENTRANT 1
-    #endif
-    // #include <pthread.h>
-    #include <sys/time.h>
-    #include <unistd.h>
-#endif
-
-#if defined(PRI_TARGET_WINDOWS)
-    #if ! defined(NOMINMAX)
-        #define NOMINMAX 1
-    #endif
-    #if ! defined(UNICODE)
-        #define UNICODE 1
-    #endif
-    #if ! defined(_UNICODE)
-        #define _UNICODE 1
-    #endif
-    #if ! defined(WINVER)
-        #define WINVER 0x601 // Windows 7
-    #endif
-    #if ! defined(_WIN32_WINNT)
-        #define _WIN32_WINNT 0x601
-    #endif
-    struct _FILETIME;
+#if defined(minor)
+    #undef minor
 #endif
 
 // Other preprocessor macros
@@ -153,6 +163,45 @@ namespace Prion {
 
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
+
+    #if defined(PRI_TARGET_WINDOWS)
+
+        namespace PrionDetail {
+
+            static constexpr unsigned CP_UTF8 = 65001;
+
+            extern "C" int __stdcall MultiByteToWideChar(unsigned codepage, uint32_t flags,
+                const char* mbstr, int mblen, wchar_t* wcstr, int wclen);
+            extern "C" int __stdcall WideCharToMultiByte(unsigned codepage, uint32_t flags,
+                const wchar_t* wcstr, int wclen, char* mbstr, int mblen, const char* defchar, int* used);
+
+        }
+
+        inline wstring utf8_to_wstring(const u8string& ustr) {
+            using namespace PrionDetail;
+            if (ustr.empty())
+                return {};
+            int rc = MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), nullptr, 0);
+            if (rc <= 0)
+                return {};
+            wstring result(rc, 0);
+            MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), &result[0], rc);
+            return result;
+        }
+
+        inline u8string wstring_to_utf8(const wstring& wstr) {
+            using namespace PrionDetail;
+            if (wstr.empty())
+                return {};
+            int rc = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), nullptr, 0, nullptr, nullptr);
+            if (rc <= 0)
+                return {};
+            u8string result(rc, 0);
+            WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), &result[0], rc, nullptr, nullptr);
+            return result;
+        }
+
+    #endif
 
     // Mixins
 
@@ -303,14 +352,22 @@ namespace Prion {
 
     namespace Literals {
 
-        template <char... CS> inline constexpr int128_t operator"" _s128() noexcept { return static_cast<int128_t>(PrionDetail::MakeInteger<CS...>::value); }
-        template <char... CS> inline constexpr uint128_t operator"" _u128() noexcept { return PrionDetail::MakeInteger<CS...>::value; }
-        inline constexpr float operator"" _degf(long double x) noexcept { return static_cast<float>(x * (pi_ld / 180.0L)); }
-        inline constexpr float operator"" _degf(unsigned long long x) noexcept { return static_cast<float>(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        inline constexpr double operator"" _deg(long double x) noexcept { return static_cast<double>(x * (pi_ld / 180.0L)); }
-        inline constexpr double operator"" _deg(unsigned long long x) noexcept { return static_cast<double>(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        inline constexpr long double operator"" _degl(long double x) noexcept { return x * (pi_ld / 180.0L); }
-        inline constexpr long double operator"" _degl(unsigned long long x) noexcept { return static_cast<long double>(x) * (pi_ld / 180.0L); }
+        template <char... CS> inline constexpr int128_t operator"" _s128() noexcept
+            { return static_cast<int128_t>(PrionDetail::MakeInteger<CS...>::value); }
+        template <char... CS> inline constexpr uint128_t operator"" _u128() noexcept
+            { return PrionDetail::MakeInteger<CS...>::value; }
+        inline constexpr float operator"" _degf(long double x) noexcept
+            { return static_cast<float>(x * (pi_ld / 180.0L)); }
+        inline constexpr float operator"" _degf(unsigned long long x) noexcept
+            { return static_cast<float>(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+        inline constexpr double operator"" _deg(long double x) noexcept
+            { return static_cast<double>(x * (pi_ld / 180.0L)); }
+        inline constexpr double operator"" _deg(unsigned long long x) noexcept
+            { return static_cast<double>(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+        inline constexpr long double operator"" _degl(long double x) noexcept
+            { return x * (pi_ld / 180.0L); }
+        inline constexpr long double operator"" _degl(unsigned long long x) noexcept
+            { return static_cast<long double>(x) * (pi_ld / 180.0L); }
 
     }
 
@@ -331,11 +388,14 @@ namespace Prion {
 
         template <typename T>
         struct NumType {
-            using limits = std::numeric_limits<T>;
-            static constexpr NumMode value = ! limits::is_specialized ? NumMode::not_numeric :
-                ! limits::is_integer ? NumMode::floating_point :
-                limits::is_signed ? NumMode::signed_integer : NumMode::unsigned_integer;
+            static constexpr NumMode value =
+                std::is_floating_point<T>::value ? NumMode::floating_point :
+                std::is_signed<T>::value ? NumMode::signed_integer :
+                std::is_unsigned<T>::value ? NumMode::unsigned_integer : NumMode::not_numeric;
         };
+
+        template <> struct NumType<int128_t> { static constexpr NumMode value = NumMode::signed_integer; };
+        template <> struct NumType<uint128_t> { static constexpr NumMode value = NumMode::unsigned_integer; };
 
         template <typename T, NumMode Mode = NumType<T>::value> struct Divide;
 
@@ -393,44 +453,31 @@ namespace Prion {
                 { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
         };
 
-        enum class RoundMode {
-            from_integer,
-            from_floating,
-            not_numeric,
-        };
-
-        template <typename T1, typename T2>
-        struct RoundType {
-            using limits1 = std::numeric_limits<T1>;
-            using limits2 = std::numeric_limits<T2>;
-            static constexpr RoundMode value =
-                ! limits1::is_specialized || ! limits2::is_specialized ? RoundMode::not_numeric :
-                limits1::is_integer ? RoundMode::from_integer : RoundMode::from_floating;
-        };
-
-        template <typename T2, typename T1, RoundMode Mode = RoundType<T1, T2>::value> struct Round;
+        template <typename T2, typename T1, bool FromFloat = std::is_floating_point<T1>::value> struct Round;
 
         template <typename T2, typename T1>
-        struct Round<T2, T1, RoundMode::from_integer> {
-            T2 operator()(T1 value) const noexcept {
-                return static_cast<T2>(value);
-            }
-        };
-
-        template <typename T2, typename T1>
-        struct Round<T2, T1, RoundMode::from_floating> {
+        struct Round<T2, T1, true> {
             T2 operator()(T1 value) const noexcept {
                 using std::floor;
                 return static_cast<T2>(floor(value + T1(1) / T1(2)));
             }
         };
 
+        template <typename T2, typename T1>
+        struct Round<T2, T1, false> {
+            T2 operator()(T1 value) const noexcept {
+                return static_cast<T2>(value);
+            }
+        };
+
     }
 
     template <typename T> constexpr T static_min(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept { return t < static_min(args...) ? t : static_min(args...); }
+    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept
+        { return t < static_min(args...) ? t : static_min(args...); }
     template <typename T> constexpr T static_max(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept { return static_max(args...) < t ? t : static_max(args...); }
+    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept
+        { return static_max(args...) < t ? t : static_max(args...); }
     template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
         { return x < static_cast<T>(min) ? static_cast<T>(min) : static_cast<T>(max) < x ? static_cast<T>(max) : x; }
     template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
@@ -613,7 +660,8 @@ namespace Prion {
     constexpr bool ascii_isgraph(char c) noexcept { return c >= '!' && c <= '~'; }
     constexpr bool ascii_islower(char c) noexcept { return c >= 'a' && c <= 'z'; }
     constexpr bool ascii_isprint(char c) noexcept { return c >= ' ' && c <= '~'; }
-    constexpr bool ascii_ispunct(char c) noexcept { return (c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'); }
+    constexpr bool ascii_ispunct(char c) noexcept
+        { return (c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'); }
     constexpr bool ascii_isspace(char c) noexcept { return (c >= '\t' && c <= '\r') || c == ' '; }
     constexpr bool ascii_isupper(char c) noexcept { return c >= 'A' && c <= 'Z'; }
     constexpr bool ascii_isalpha(char c) noexcept { return ascii_islower(c) || ascii_isupper(c); }
@@ -701,41 +749,40 @@ namespace Prion {
 
     #if defined(PRI_TARGET_WINDOWS)
 
+        // Windows error message translation is disabled until I figure out
+        // some way to do it without having to include <windows.h>.
+
         namespace PrionDetail {
 
-            extern "C" void* __stdcall LocalFree(void* mem);
-            extern "C" uint32_t __stdcall FormatMessageW(uint32_t flags, const void* source, uint32_t message_id, uint32_t language_id, wchar_t* buffer, uint32_t size, va_list* args);
-
-            constexpr uint32_t FORMAT_MESSAGE_ALLOCATE_BUFFER  = 0x100;
-            constexpr uint32_t FORMAT_MESSAGE_FROM_SYSTEM      = 0x400;
-            constexpr uint32_t FORMAT_MESSAGE_IGNORE_INSERTS   = 0x200;
-
-            class LocalBuffer {
-            public:
-                LocalBuffer(): ptr(nullptr) {}
-                ~LocalBuffer() { LocalFree(static_cast<HLOCAL>(ptr)); }
-                wchar_t* get() const { return static_cast<wchar_t*>(ptr); }
-                wchar_t* indirect() { return reinterpret_cast<wchar_t*>(&ptr); }
-            private:
-                void* ptr;
-            };
+            // class LocalBuffer {
+            // public:
+            //     LocalBuffer(): ptr(nullptr) {}
+            //     ~LocalBuffer() { LocalFree(ptr); }
+            //     wchar_t* get() const { return static_cast<wchar_t*>(ptr); }
+            //     wchar_t* indirect() { return reinterpret_cast<wchar_t*>(&ptr); }
+            // private:
+            //     void* ptr;
+            // };
 
         }
 
         class WindowsError:
         public SystemError {
         public:
-            WindowsError(uint32_t error, const char* function): SystemError(static_cast<int>(error), cstr(function), assemble(static_cast<int>(error), cstr(function), translate(error))) {}
-            WindowsError(uint32_t error, const u8string& function): SystemError(static_cast<int>(error), function, assemble(static_cast<int>(error), function, translate(error))) {}
+            WindowsError(uint32_t error, const char* function):
+                SystemError(static_cast<int>(error), cstr(function), assemble(static_cast<int>(error), cstr(function), translate(error))) {}
+            WindowsError(uint32_t error, const u8string& function):
+                SystemError(static_cast<int>(error), function, assemble(static_cast<int>(error), function, translate(error))) {}
             static u8string translate(uint32_t error);
         };
 
-        inline u8string WindowsError::translate(uint32_t error) {
-            using namesace PrionDetail;
-            static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
-            LocalBuffer buf;
-            auto rc = FormatMessageW(flags, nullptr, error, 0, buf.indirect(), 0, nullptr);
-            return PrionDetail::trim_ws(wstring_to_utf8(wstring(buf.get(), rc)));
+        inline u8string WindowsError::translate(uint32_t /*error*/) {
+            return {};
+            // using namespace PrionDetail;
+            // static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+            // LocalBuffer buf;
+            // auto rc = FormatMessageW(flags, nullptr, error, 0, buf.indirect(), 0, nullptr);
+            // return trim_ws(wstring_to_utf8(wstring(buf.get(), rc)));
         }
 
     #endif
@@ -784,8 +831,10 @@ namespace Prion {
         constexpr uint64_t get() const noexcept { return bits; }
         constexpr bool get(uint64_t flags) const noexcept { return bits & flags; }
         template <typename C> constexpr bool getc(C flag) const noexcept { return get(value(flag)); }
-        template <typename C> bool gets(const C* flags) const noexcept { for (; flags && *flags; ++flags) if (getc(*flags)) return true; return false; }
-        template <typename C> bool gets(const basic_string<C>& flags) const noexcept { for (auto c: flags) if (getc(c)) return true; return false; }
+        template <typename C> bool gets(const C* flags) const noexcept
+            { for (; flags && *flags; ++flags) if (getc(*flags)) return true; return false; }
+        template <typename C> bool gets(const basic_string<C>& flags) const noexcept
+            { for (auto c: flags) if (getc(c)) return true; return false; }
         void set(uint64_t flags, bool state = true) noexcept { if (state) bits |= flags; else bits &= ~ flags; }
         template <typename C> void setc(C flag, bool state = true) noexcept { set(value(flag), state); }
         u8string str() const {
@@ -836,8 +885,10 @@ namespace Prion {
         }
     };
 
-    inline void Flagset::allow(Flagset allowed, const char* domain) const { if (bits & ~ allowed.bits) throw FlagError(*this, domain); }
-    inline void Flagset::exclusive(Flagset xgroup, const char* domain) const { if (__builtin_popcountll(bits & xgroup.bits) > 1) throw FlagError(*this, domain); }
+    inline void Flagset::allow(Flagset allowed, const char* domain) const
+        { if (bits & ~ allowed.bits) throw FlagError(*this, domain); }
+    inline void Flagset::exclusive(Flagset xgroup, const char* domain) const
+        { if (__builtin_popcountll(bits & xgroup.bits) > 1) throw FlagError(*this, domain); }
 
     // Functional utilities
 
@@ -1334,43 +1385,6 @@ namespace Prion {
 
     template <typename T> string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
 
-    #if defined(PRI_TARGET_WINDOWS)
-
-        namespace PrionDetail {
-
-            static constexpr unsigned CP_UTF8 = 65001;
-
-            extern "C" int __stdcall MultiByteToWideChar(unsigned codepage, uint32_t flags, const char* mbstr, int mblen, wchar_t* wcstr, int wclen);
-            extern "C" int __stdcall WideCharToMultiByte(unsigned codepage, uint32_t flags, const wchar_t* wcstr, int wclen, char* mbstr, int mblen, const char* defchar, int* used);
-
-        }
-
-        inline wstring utf8_to_wstring(const u8string& ustr) {
-            using namespace PrionDetail;
-            if (ustr.empty())
-                return {};
-            int rc = MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), nullptr, 0);
-            if (rc <= 0)
-                return {};
-            wstring result(rc, 0);
-            MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), &result[0], rc);
-            return result;
-        }
-
-        inline u8string wstring_to_utf8(const wstring& wstr) {
-            using namespace PrionDetail;
-            if (wstr.empty())
-                return {};
-            int rc = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), nullptr, 0, nullptr, nullptr);
-            if (rc <= 0)
-                return {};
-            u8string result(rc, 0);
-            WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), &result[0], rc, nullptr, nullptr);
-            return result;
-        }
-
-    #endif
-
     // Time and date functions
 
     namespace PrionDetail {
@@ -1436,7 +1450,7 @@ namespace Prion {
             #else
                 auto msec = t.count();
                 if (msec > 0)
-                    Sleep(static_cast<DWORD>(msec));
+                    Sleep(static_cast<uint32_t>(msec));
                 else
                     Sleep(0);
             #endif
@@ -1499,7 +1513,8 @@ namespace Prion {
         return result;
     }
 
-    inline std::chrono::system_clock::time_point make_date(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept {
+    inline std::chrono::system_clock::time_point make_date(int year, int month, int day,
+            int hour, int min, double sec, ZoneFlag z = utc_date) noexcept {
         using namespace std::chrono;
         double isec = 0, fsec = modf(sec, &isec);
         if (fsec < 0) {
@@ -1607,17 +1622,19 @@ namespace Prion {
 
     #if defined(PRI_TARGET_WINDOWS)
 
-        inline std::chrono::system_clock::time_point filetime_to_timepoint(const _FILETIME& ft) noexcept {
+        template <typename FT>
+        std::chrono::system_clock::time_point filetime_to_timepoint(const FT& ft) noexcept {
             using namespace std::chrono;
             static constexpr int64_t filetime_freq = 10000000ll;     // FILETIME ticks (100 ns) per second
             static constexpr int64_t windows_epoch = 11644473600ll;  // Windows epoch (1601) to Unix epoch (1970)
             int64_t ticks = (static_cast<int64_t>(ft.dwHighDateTime) << 32) + static_cast<int64_t>(ft.dwLowDateTime);
-            int64_t sec = ticks / PrionDetail::filetime_freq - PrionDetail::windows_epoch;
-            int64_t nsec = 100ll * (ticks % PrionDetail::filetime_freq);
+            int64_t sec = ticks / filetime_freq - windows_epoch;
+            int64_t nsec = 100ll * (ticks % filetime_freq);
             return system_clock::from_time_t(static_cast<time_t>(sec)) + duration_cast<system_clock::duration>(nanoseconds(nsec));
         }
 
-        inline void timepoint_to_filetime(const std::chrono::system_clock::time_point& tp, _FILETIME& ft) noexcept {
+        template <typename FT>
+        void timepoint_to_filetime(const std::chrono::system_clock::time_point& tp, FT& ft) noexcept {
             using namespace std::chrono;
             auto unix_time = tp - system_clock::from_time_t(0);
             uint64_t nsec = duration_cast<nanoseconds>(unix_time).count();
@@ -1849,6 +1866,8 @@ namespace Prion {
 
     // (These are at the end of the file because of internal dependencies)
 
+    inline bool is_stdout_redirected() noexcept { return ! isatty(1); }
+
     namespace PrionDetail {
 
         #if defined(PRI_TARGET_NATIVE_WINDOWS)
@@ -1874,25 +1893,6 @@ namespace Prion {
             return ! ferror(fp);
         }
 
-        inline int make_grey(int n) noexcept {
-            return 231 + clamp(n, 1, 24);
-        }
-
-        inline int make_rgb(int rgb) noexcept {
-            int r = clamp((rgb / 100) % 10, 1, 6);
-            int g = clamp((rgb / 10) % 10, 1, 6);
-            int b = clamp(rgb % 10, 1, 6);
-            return 36 * r + 6 * g + b - 27;
-        }
-
-    }
-
-    inline bool is_stdout_redirected() noexcept {
-        #if defined(PRI_TARGET_UNIX)
-            return ! isatty(1);
-        #else
-            return ! _isatty(1);
-        #endif
     }
 
     #if defined(PRI_TARGET_UNIX)
@@ -1934,12 +1934,29 @@ namespace Prion {
         }
 
         inline bool load_file(const string& file, string& dst) { return load_file(utf8_to_wstring(file), dst); }
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append) { return save_file(utf8_to_wstring(file), ptr, n, append); }
-        inline bool save_file(const wstring& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+        inline bool save_file(const string& file, const void* ptr, size_t n, bool append)
+            { return save_file(utf8_to_wstring(file), ptr, n, append); }
+        inline bool save_file(const wstring& file, const string& src, bool append = false)
+            { return save_file(file, src.data(), src.size(), append); }
 
     #endif
 
     inline bool save_file(const string& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+
+    namespace PrionDetail {
+
+        inline int grey(int n) noexcept {
+            return 231 + clamp(n, 1, 24);
+        }
+
+        inline int rgb(int rgb) noexcept {
+            int r = clamp((rgb / 100) % 10, 1, 6);
+            int g = clamp((rgb / 10) % 10, 1, 6);
+            int b = clamp(rgb % 10, 1, 6);
+            return 36 * r + 6 * g + b - 27;
+        }
+
+    }
 
     static constexpr const char* xt_up           = "\e[A";    // Cursor up
     static constexpr const char* xt_down         = "\e[B";    // Cursor down
@@ -1954,30 +1971,30 @@ namespace Prion {
     static constexpr const char* xt_reset        = "\e[0m";   // Reset attributes
     static constexpr const char* xt_bold         = "\e[1m";   // Bold
     static constexpr const char* xt_under        = "\e[4m";   // Underline
-    static constexpr const char* xt_black        = "\e[30m";  // Black foreground
-    static constexpr const char* xt_red          = "\e[31m";  // Red foreground
-    static constexpr const char* xt_green        = "\e[32m";  // Green foreground
-    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow foreground
-    static constexpr const char* xt_blue         = "\e[34m";  // Blue foreground
-    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta foreground
-    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan foreground
-    static constexpr const char* xt_white        = "\e[37m";  // White foreground
-    static constexpr const char* xt_black_bg     = "\e[40m";  // Black background
-    static constexpr const char* xt_red_bg       = "\e[41m";  // Red background
-    static constexpr const char* xt_green_bg     = "\e[42m";  // Green background
-    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow background
-    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue background
-    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta background
-    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan background
-    static constexpr const char* xt_white_bg     = "\e[47m";  // White background
+    static constexpr const char* xt_black        = "\e[30m";  // Black fg
+    static constexpr const char* xt_red          = "\e[31m";  // Red fg
+    static constexpr const char* xt_green        = "\e[32m";  // Green fg
+    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow fg
+    static constexpr const char* xt_blue         = "\e[34m";  // Blue fg
+    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta fg
+    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan fg
+    static constexpr const char* xt_white        = "\e[37m";  // White fg
+    static constexpr const char* xt_black_bg     = "\e[40m";  // Black bg
+    static constexpr const char* xt_red_bg       = "\e[41m";  // Red bg
+    static constexpr const char* xt_green_bg     = "\e[42m";  // Green bg
+    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow bg
+    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue bg
+    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta bg
+    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan bg
+    static constexpr const char* xt_white_bg     = "\e[47m";  // White bg
 
-    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                    // Cursor up n spaces
-    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                                  // Cursor down n spaces
-    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                                 // Cursor right n spaces
-    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                                  // Cursor left n spaces
-    inline string xt_colour(int rgb) { return "\x1b[38;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }      // Set foreground colour to an RGB value (0-5)
-    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;"+ dec(PrionDetail::make_rgb(rgb)) + 'm'; }   // Set background colour to an RGB value (0-5)
-    inline string xt_grey(int grey) { return "\x1b[38;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }     // Set foreground colour to a grey level (1-24)
-    inline string xt_grey_bg(int grey) { return "\x1b[48;5;"+ dec(PrionDetail::make_grey(grey)) + 'm'; }  // Set background colour to a grey level (1-24)
+    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                               // Cursor up n spaces
+    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                             // Cursor down n spaces
+    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                            // Cursor right n spaces
+    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                             // Cursor left n spaces
+    inline string xt_colour(int rgb) { return "\x1b[38;5;"+ dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (0-5)
+    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;"+ dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (0-5)
+    inline string xt_grey(int grey) { return "\x1b[38;5;"+ dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
+    inline string xt_grey_bg(int grey) { return "\x1b[48;5;"+ dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
 
 }

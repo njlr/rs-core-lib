@@ -334,6 +334,9 @@ is called by the constructor and included in the complete message
 (`translate()` may return an empty string if the error code is not
 recognized).
 
+_(Error message translation does not work on Windows in the current version,
+because I'm still trying to find a way to do that in a header-only library.)_
+
 ## Flag sets ##
 
 * `class Flagset`

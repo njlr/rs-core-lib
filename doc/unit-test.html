@@ -77,14 +77,14 @@ impossible.</p>
 <li><code>#define <strong>TEST_EQUAL_RANGE</strong>(lhs, rhs)</code></li>
 </ul>
 
-<p>Evaluate the two expressions and compares the results, failing if the
-specified comparison is false, or if either expression (or the comparison
-itself) throws an exception. <code>TEST_COMPARE()</code> applies the given comparison
-operator, and is equivalent to <code>TEST((lhs)op(rhs))</code>, but with a more
-informative error message if it fails. <code>TEST_EQUAL()</code> is shorthand for
-<code>TEST_COMPARE(lhs,==,rhs)</code>. <code>TEST_EQUAL_RANGE()</code> expects the expressions to
-evaluate to ranges, and performs a memberwise equality comparison, failing if
-the ranges are different sizes, or any of the elements fail to match.</p>
+<p>Evaluate the two expressions and compare the results, failing if the specified
+comparison is false, or if either expression (or the comparison itself) throws
+an exception. <code>TEST_COMPARE()</code> applies the given comparison operator, and is
+equivalent to <code>TEST((lhs)op(rhs))</code>, but with a more informative error message
+if it fails. <code>TEST_EQUAL()</code> is shorthand for <code>TEST_COMPARE(lhs,==,rhs)</code>.
+<code>TEST_EQUAL_RANGE()</code> expects the expressions to evaluate to ranges, and
+performs a memberwise equality comparison, failing if the ranges are different
+sizes, or any of the elements fail to match.</p>
 
 <ul>
 <li><code>#define <strong>TEST_MATCH</strong>(string, pattern)</code></li>
@@ -102,7 +102,7 @@ to match, or an exception is thrown.</p>
 </ul>
 
 <p>Evaluate two floating point expressions, or two ranges of floating point
-values, and compares them for approximate equality. The test fails if the
+values, and compare them for approximate equality. The test fails if the
 values differ by more than the tolerance (defaulting to 10<sup>&#8211;6</sup>), or
 if any expression throws an exception.</p>
 

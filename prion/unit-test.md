@@ -56,14 +56,14 @@ impossible.
 * `#define TEST_EQUAL(lhs, rhs)`
 * `#define TEST_EQUAL_RANGE(lhs, rhs)`
 
-Evaluate the two expressions and compares the results, failing if the
-specified comparison is false, or if either expression (or the comparison
-itself) throws an exception. `TEST_COMPARE()` applies the given comparison
-operator, and is equivalent to `TEST((lhs)op(rhs))`, but with a more
-informative error message if it fails. `TEST_EQUAL()` is shorthand for
-`TEST_COMPARE(lhs,==,rhs)`. `TEST_EQUAL_RANGE()` expects the expressions to
-evaluate to ranges, and performs a memberwise equality comparison, failing if
-the ranges are different sizes, or any of the elements fail to match.
+Evaluate the two expressions and compare the results, failing if the specified
+comparison is false, or if either expression (or the comparison itself) throws
+an exception. `TEST_COMPARE()` applies the given comparison operator, and is
+equivalent to `TEST((lhs)op(rhs))`, but with a more informative error message
+if it fails. `TEST_EQUAL()` is shorthand for `TEST_COMPARE(lhs,==,rhs)`.
+`TEST_EQUAL_RANGE()` expects the expressions to evaluate to ranges, and
+performs a memberwise equality comparison, failing if the ranges are different
+sizes, or any of the elements fail to match.
 
 * `#define TEST_MATCH(string, pattern)`
 
@@ -77,7 +77,7 @@ to match, or an exception is thrown.
 * `#define TEST_NEAR_EPSILON_RANGE(lhs, rhs, tolerance)`
 
 Evaluate two floating point expressions, or two ranges of floating point
-values, and compares them for approximate equality. The test fails if the
+values, and compare them for approximate equality. The test fails if the
 values differ by more than the tolerance (defaulting to 10<sup>-6</sup>), or
 if any expression throws an exception.
 

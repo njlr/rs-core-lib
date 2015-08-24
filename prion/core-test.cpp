@@ -869,15 +869,27 @@ namespace {
         u8string s;
         TRY(s = CrtError::translate(EDOM));
         TEST_MATCH(s, "[Dd]omain");
-        CrtError crt_error(EDOM, "SomeFunction()");
-        TEST_MATCH(string(crt_error.what()), "^SomeFunction\\(\\): Error \\d+: .*[Dd]omain");
+        try {
+            throw CrtError(EDOM, "SomeFunction()");
+        }
+        catch (const std::exception& ex) {
+            TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\): Error \\d+: .*[Dd]omain");
+        }
 
         #if defined(PRI_TARGET_WINDOWS)
 
+            // Windows error message translation is disabled until I figure
+            // out some way to do it without having to include <windows.h>.
+
             TRY(s = WindowsError::translate(ERROR_INVALID_FUNCTION));
-            TEST_EQUAL(s, "Incorrect function.");
-            WindowsError win_error(ERROR_INVALID_FUNCTION, "SomeFunction()");
-            TEST_EQUAL(string(win_error.what()), "SomeFunction(): Error 1: Incorrect function.");
+            // TEST_EQUAL(s, "Incorrect function.");
+            try {
+                throw WindowsError(ERROR_INVALID_FUNCTION, "SomeFunction()");
+            }
+            catch (const std::exception& ex) {
+                TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\): Error 1");
+                // TEST_EQUAL(string(ex.what()), "SomeFunction(): Error 1: Incorrect function.");
+            }
 
         #endif
 
@@ -1200,7 +1212,7 @@ namespace {
             wstring wfile = L"__test__";
 
             TEST(load_file(L"README.md"s, s));
-            TEST_EQUAL(s.substr(0, 17), "# Prion Library #\n");
+            TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
             TEST(save_file(wfile, "Hello world\n"s));
             TEST(load_file(wfile, s));
             TEST_EQUAL(s, "Hello world\n");
