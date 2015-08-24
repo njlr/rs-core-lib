@@ -58,6 +58,7 @@
 // Includes here so anything that needs the macros above will see them
 
 #include <algorithm>
+#include <atomic>
 #include <cerrno>
 #include <chrono>
 #include <clocale>
@@ -70,6 +71,7 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <iterator>
@@ -87,8 +89,14 @@
 #include <cxxabi.h>
 
 #if defined(PRI_TARGET_UNIX)
+    #include <pthread.h>
+    #include <sched.h>
+    #include <sys/select.h>
     #include <sys/time.h>
     #include <unistd.h>
+    #if defined(PRI_TARGET_DARWIN)
+        #include <mach/mach.h>
+    #endif
 #endif
 
 #if defined(PRI_TARGET_WINDOWS)
@@ -110,6 +118,14 @@
 #define PRI_BOUNDS(range) std::begin(range), std::end(range)
 #define PRI_LDLIB(libs)
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
+
+// For internal use only
+
+#define PRI_NO_COPY_MOVE(T) \
+    T(const T&) = delete; \
+    T(T&&) = delete; \
+    T& operator=(const T&) = delete; \
+    T& operator=(T&&) = delete;
 
 namespace Prion {
 
@@ -1374,6 +1390,308 @@ namespace Prion {
     }
 
     template <typename T> string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+
+    // Threads
+
+    #if defined(PRI_TARGET_UNIX)
+
+        class Mutex {
+        public:
+            Mutex() noexcept: pmutex(PTHREAD_MUTEX_INITIALIZER) {}
+            ~Mutex() noexcept { pthread_mutex_destroy(&pmutex); }
+            void lock() noexcept { pthread_mutex_lock(&pmutex); }
+            bool try_lock() noexcept { return pthread_mutex_trylock(&pmutex) == 0; }
+            void unlock() noexcept { pthread_mutex_unlock(&pmutex); }
+        private:
+            friend class ConditionVariable;
+            pthread_mutex_t pmutex;
+            PRI_NO_COPY_MOVE(Mutex)
+        };
+
+    #else
+
+        class Mutex {
+        public:
+            Mutex() noexcept { InitializeCriticalSection(&wcrit); }
+            ~Mutex() noexcept { DeleteCriticalSection(&wcrit); }
+            void lock() noexcept { EnterCriticalSection(&wcrit); }
+            bool try_lock() noexcept { return TryEnterCriticalSection(&wcrit); }
+            void unlock() noexcept { LeaveCriticalSection(&wcrit); }
+        private:
+            friend class ConditionVariable;
+            CRITICAL_SECTION wcrit;
+            PRI_NO_COPY_MOVE(Mutex)
+        };
+
+    #endif
+
+    class MutexLock {
+    public:
+        explicit MutexLock(Mutex& m) noexcept: mx(&m) { mx->lock(); }
+        ~MutexLock() noexcept { mx->unlock(); }
+    private:
+        friend class ConditionVariable;
+        Mutex* mx;
+        PRI_NO_COPY_MOVE(MutexLock)
+    };
+
+    #if defined(PRI_TARGET_UNIX)
+
+        // The Posix standard recommends using clock_gettime() with
+        // CLOCK_REALTIME to find the current time for a CV wait. OSX doesn't
+        // have clock_gettime(), but the Apple man page for
+        // pthread_cond_timedwait() recommends using gettimeofday() instead,
+        // and manually converting timeval to timespec.
+
+        class ConditionVariable {
+        public:
+            ConditionVariable() {
+                int rc = pthread_cond_init(&pcond, nullptr);
+                if (rc)
+                    throw CrtError(rc, "pthread_cond_init()");
+            }
+            ~ConditionVariable() noexcept { pthread_cond_destroy(&pcond); }
+            void notify_all() noexcept { pthread_cond_broadcast(&pcond); }
+            void notify_one() noexcept { pthread_cond_signal(&pcond); }
+            void wait(MutexLock& ml) {
+                int rc = pthread_cond_wait(&pcond, &ml.mx->pmutex);
+                if (rc)
+                    throw CrtError(rc, "pthread_cond_wait()");
+            }
+            template <typename Pred> void wait(MutexLock& lock, Pred p) { while (! p()) wait(lock); }
+            template <typename R, typename P, typename Pred> bool wait_for(MutexLock& lock, std::chrono::duration<R, P> t, Pred p) {
+                using namespace std::chrono;
+                return wait_impl(lock, duration_cast<nanoseconds>(t), predicate(p));
+            }
+        private:
+            using predicate = std::function<bool()>;
+            pthread_cond_t pcond;
+            PRI_NO_COPY_MOVE(ConditionVariable)
+            bool wait_impl(MutexLock& ml, std::chrono::nanoseconds ns, predicate p) {
+                using namespace std::chrono;
+                if (p())
+                    return true;
+                auto nsc = ns.count();
+                if (nsc <= 0)
+                    return false;
+                timespec ts;
+                #if defined(PRI_TARGET_DARWIN)
+                    timeval tv;
+                    gettimeofday(&tv, nullptr);
+                    ts = {tv.tv_sec, 1000 * tv.tv_usec};
+                #else
+                    clock_gettime(CLOCK_REALTIME, &ts);
+                #endif
+                static constexpr long billion = 1000000000L;
+                ts.tv_nsec += nsc % billion;
+                ts.tv_sec += nsc / billion + ts.tv_nsec / billion;
+                ts.tv_nsec %= billion;
+                for (;;) {
+                    int rc = pthread_cond_timedwait(&pcond, &ml.mx->pmutex, &ts);
+                    if (rc == ETIMEDOUT)
+                        return p();
+                    if (rc != 0)
+                        throw CrtError(rc, "pthread_cond_timedwait()");
+                    if (p())
+                        return true;
+                }
+            }
+        };
+
+        class Thread {
+        public:
+            using callback = std::function<void()>;
+            using id_type = pthread_t;
+            Thread() noexcept: except(), payload(), state(thread_joined), thread() {}
+            explicit Thread(callback f): Thread() {
+                if (f) {
+                    payload = f;
+                    state = thread_running;
+                    int rc = pthread_create(&thread, nullptr, thread_callback, this);
+                    if (rc)
+                        throw CrtError(rc, "pthread_create()");
+                }
+            }
+            ~Thread() noexcept { if (state != thread_joined) pthread_join(thread, nullptr); }
+            Thread(Thread&&) = default;
+            Thread& operator=(Thread&&) = default;
+            id_type get_id() const noexcept { return thread; }
+            bool poll() noexcept { return state != thread_running; }
+            void wait() {
+                if (state == thread_joined)
+                    return;
+                int rc = pthread_join(thread, nullptr);
+                state = thread_joined;
+                if (rc)
+                    throw CrtError(rc, "pthread_join()");
+                if (except)
+                    std::rethrow_exception(except);
+            }
+            static size_t cpu_threads() noexcept {
+                size_t n = 0;
+                #if defined(PRI_TARGET_DARWIN)
+                    mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
+                    host_basic_info_data_t info;
+                    if (host_info(mach_host_self(), HOST_BASIC_INFO,
+                            reinterpret_cast<host_info_t>(&info), &count) == 0)
+                        n = info.avail_cpus;
+                #else
+                    char buf[256];
+                    FILE* f = fopen("/proc/cpuinfo", "r");
+                    while (fgets(buf, sizeof(buf), f))
+                        if (memcmp(buf, "processor", 9) == 0)
+                            ++n;
+                    fclose(f);
+                #endif
+                if (n == 0)
+                    n = 1;
+                return n;
+            }
+            static id_type current() noexcept { return pthread_self(); }
+            static void yield() noexcept { sched_yield(); }
+        private:
+            enum state_type {
+                thread_running,
+                thread_complete,
+                thread_joined,
+            };
+            std::exception_ptr except;
+            Thread::callback payload;
+            std::atomic<int> state;
+            pthread_t thread;
+            Thread(const Thread&) = delete;
+            Thread& operator=(const Thread&) = delete;
+            static void* thread_callback(void* ptr) noexcept {
+                auto t = static_cast<Thread*>(ptr);
+                if (t->payload) {
+                    try { t->payload(); }
+                    catch (...) { t->except = std::current_exception(); }
+                }
+                t->state = thread_complete;
+                return nullptr;
+            }
+        };
+
+    #else
+
+        // Windows only has millisecond resolution in their API. The actual
+        // resolution varies from 1ms to 15ms depending on the version of
+        // Windows, what APIs have been called lately, and the phase of the
+        // moon.
+
+        class ConditionVariable {
+        public:
+            ConditionVariable() { InitializeConditionVariable(&wcond); }
+            ~ConditionVariable() noexcept {}
+            void notify_all() noexcept { WakeAllConditionVariable(&wcond); }
+            void notify_one() noexcept { WakeConditionVariable(&wcond); }
+            void wait(MutexLock& lock) {
+                if (! SleepConditionVariableCS(&wcond, cs_ptr(lock.mx->wcrit), INFINITE))
+                    throw WindowsError(GetLastError(), "SleepConditionVariableCS()");
+            }
+            template <typename Pred> void wait(MutexLock& lock, Pred p) { while (! p()) wait(lock); }
+            template <typename R, typename P, typename Pred> bool wait_for(MutexLock& lock, std::chrono::duration<R, P> t, Pred p) {
+                using namespace std::chrono;
+                return wait_impl(lock, duration_cast<nanoseconds>(t), predicate(p));
+            }
+        private:
+            using predicate = std::function<bool()>;
+            CONDITION_VARIABLE wcond;
+            PRI_NO_COPY_MOVE(ConditionVariable)
+            bool wait_impl(MutexLock& lock, std::chrono::nanoseconds ns, predicate p) {
+                using namespace std::chrono;
+                if (p())
+                    return true;
+                if (ns <= nanoseconds())
+                    return false;
+                auto timeout = system_clock::now() + ns;
+                for (;;) {
+                    auto remain = timeout - system_clock::now();
+                    auto ms = duration_cast<milliseconds>(remain).count();
+                    if (ms < 0)
+                        ms = 0;
+                    else if (ms >= INFINITE)
+                        ms = INFINITE - 1;
+                    if (SleepConditionVariableCS(&wcond, cs_ptr(lock.mx->wcrit), ms)) {
+                        if (p())
+                            return true;
+                    } else {
+                        auto status = GetLastError();
+                        if (status == ERROR_TIMEOUT)
+                            return p();
+                        else
+                            throw WindowsError(status, "SleepConditionVariableCS()");
+                    }
+                }
+            }
+        };
+
+        class Thread {
+        public:
+            using callback = std::function<void()>;
+            using id_type = uint32_t;
+            Thread() noexcept: except(), payload(), state(thread_joined), key(0), thread(nullptr) {}
+            explciit Thread(callback f): Thread() {
+                if (f) {
+                    payload = f;
+                    state = thread_running;
+                    thread = CreateThread(nullptr, 0, ThreadHelper::callback, this, 0, &key);
+                    if (! thread)
+                        throw WindowsError(GetLastError(), "CreateThread()");
+                }
+            }
+            ~Thread() noexcept {
+                if (state != thread_joined)
+                    WaitForSingleObject(thread, INFINITE);
+                CloseHandle(thread);
+            }
+            Thread(Thread&&) = default;
+            Thread& operator=(Thread&&) = default;
+            id_type get_id() const noexcept { return key; }
+            bool poll() noexcept { return state != thread_running; }
+            void wait() {
+                if (state == thread_joined)
+                    return;
+                auto rc = WaitForSingleObject(thread, INFINITE);
+                state = thread_joined;
+                if (rc == WAIT_FAILED)
+                    throw WindowsError(GetLastError(), "WaitForSingleObject()");
+                if (except)
+                    std::rethrow_exception(except);
+            }
+            static size_t cpu_threads() noexcept {
+                SYSTEM_INFO sysinfo;
+                memset(&sysinfo, 0, sizeof(sysinfo));
+                GetSystemInfo(&sysinfo);
+                return sysinfo.dwNumberOfProcessors;
+            }
+            static id_type current() noexcept { return GetCurrentThreadId(); }
+            static void yield() noexcept { Sleep(0); }
+        private:
+            enum state_type {
+                thread_running,
+                thread_complete,
+                thread_joined,
+            };
+            std::exception_ptr except;
+            Thread::callback payload;
+            std::atomic<int> state;
+            DWORD key;
+            HANDLE thread;
+            Thread(const Thread&) = delete;
+            Thread& operator=(const Thread&) = delete;
+            static DWORD WINAPI thread_callback(void* ptr) noexcept {
+                auto t = static_cast<Thread*>(ptr);
+                if (t->payload) {
+                    try { t->payload(); }
+                    catch (...) { t->except = std::current_exception(); }
+                }
+                t->state = thread_complete;
+                return 0;
+            }
+        };
+
+    #endif
 
     // Time and date functions
 

@@ -1679,6 +1679,111 @@ namespace {
 
     }
 
+    void check_threads() {
+
+        TEST_COMPARE(Thread::cpu_threads(), >=, 1);
+        TRY(Thread::yield());
+
+        Mutex m;
+        ConditionVariable cv;
+        int n = 0;
+        string s;
+
+        {
+            MutexLock lock(m);
+            TEST(! cv.wait_for(lock, milliseconds(50), [&] { return n > 0; }));
+            n = 42;
+            TEST(cv.wait_for(lock, milliseconds(50), [&] { return n > 0; }));
+        }
+
+        {
+            Thread t([&] { s = "Neddie"; });
+            TEST_COMPARE(t.get_id(), !=, Thread::current());
+            TRY(t.wait());
+            TEST(t.poll());
+            TEST_EQUAL(s, "Neddie");
+        }
+
+        {
+            Thread t(0);
+            TRY(t.wait());
+            TEST(t.poll());
+        }
+
+        {
+            Thread t([&] { throw std::runtime_error("Hello"); });
+            TEST_THROW(t.wait(), std::runtime_error );
+            TRY(t.wait());
+        }
+
+        {
+            Thread t([&] { throw 42; });
+            TEST_THROW(t.wait(), int );
+            TRY(t.wait());
+        }
+
+
+        {
+            auto f = [&] {
+                MutexLock lock(m);
+                TRY(cv.wait(lock, [&] { return ! s.empty(); }));
+                s += "Seagoon";
+            };
+            Thread t(f);
+            TEST(! t.poll());
+            s = "Neddie";
+            TRY(cv.notify_all());
+            TRY(t.wait());
+            TEST(t.poll());
+            TEST_EQUAL(s, "NeddieSeagoon");
+        }
+
+        {
+            s.clear();
+            auto f1 = [&] {
+                MutexLock lock(m);
+                TRY(cv.wait(lock));
+                s += "Seagoon";
+            };
+            auto f2 = [&] {
+                TRY(sleep_for(0.05));
+                MutexLock lock(m);
+                s += "Neddie";
+                TRY(cv.notify_all());
+            };
+            Thread t1(f1);
+            Thread t2(f2);
+            TRY(t1.wait());
+            TRY(t2.wait());
+            TEST_EQUAL(s, "NeddieSeagoon");
+        }
+
+        {
+            s.clear();
+            auto f1 = [&] {
+                MutexLock lock(m);
+                TRY(cv.wait(lock, [&] { return ! s.empty(); }));
+                s += "Seagoon";
+            };
+            auto f2 = [&] {
+                TRY(cv.notify_one());
+                TRY(sleep_for(0.05));
+                TRY(cv.notify_one());
+                {
+                    MutexLock lock(m);
+                    s += "Neddie";
+                }
+                TRY(cv.notify_one());
+            };
+            Thread t1(f1);
+            Thread t2(f2);
+            TRY(t1.wait());
+            TRY(t2.wait());
+            TEST_EQUAL(s, "NeddieSeagoon");
+        }
+
+    }
+
     void check_time_and_date_functions() {
 
         using IntMsec = duration<int64_t, std::ratio<1, 1000>>;
@@ -2035,6 +2140,7 @@ TEST_MODULE(prion, core) {
     check_range_utilities();
     check_scope_guards();
     check_string_functions();
+    check_threads();
     check_time_and_date_functions();
     check_type_properties();
     check_uuid();

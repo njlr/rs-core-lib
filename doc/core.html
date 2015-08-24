@@ -39,6 +39,7 @@ Cygwin, this will only happen if <code>_WIN32</code> is defined.</p>
 <li><a href="#mixins">Mixins</a></li>
 <li><a href="#rangeutilities">Range utilities</a></li>
 <li><a href="#stringfunctions">String functions</a></li>
+<li><a href="#threads">Threads</a></li>
 <li><a href="#timeanddatefunctions">Time and date functions</a></li>
 <li><a href="#typeproperties">Type properties</a></li>
 <li><a href="#uuid">UUID</a></li>
@@ -1118,6 +1119,105 @@ is a pair; <code>to_str()</code> is called recursively on each range element.</p
 the native UTF&#8211;16 API. They are minimal wrappers for <code>MultiByteToWideChar()</code>
 and <code>WideCharToMultiByte()</code>. These do not do any error checking; the output
 will be garbage if the input was not valid Unicode.</p>
+
+<h2 id="threads">Threads</h2>
+
+<p>This section of the library exists because some of the compilers I need to
+support don&#8217;t implement C++11 threads yet.</p>
+
+<ul>
+<li><code>class <strong>Mutex</strong></code>
+
+<ul>
+<li><code>Mutex::<strong>Mutex</strong>() noexcept</code></li>
+<li><code>Mutex::<strong>~Mutex</strong>() noexcept</code></li>
+<li><code>void Mutex::<strong>lock</strong>() noexcept</code></li>
+<li><code>bool Mutex::<strong>try_lock</strong>() noexcept</code></li>
+<li><code>void Mutex::<strong>unlock</strong>() noexcept</code></li>
+</ul></li>
+<li><code>class <strong>MutexLock</strong></code>
+
+<ul>
+<li><code>explicit MutexLock::<strong>MutexLock</strong>(Mutex&amp; m) noexcept</code></li>
+<li><code>MutexLock::<strong>~MutexLock</strong>() noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>Mutex and exclusive lock.</p>
+
+<ul>
+<li><code>class <strong>ConditionVariable</strong></code>
+
+<ul>
+<li><code>ConditionVariable::<strong>ConditionVariable</strong>()</code></li>
+<li><code>ConditionVariable::<strong>~ConditionVariable</strong>() noexcept</code></li>
+<li><code>void ConditionVariable::<strong>notify_all</strong>() noexcept</code></li>
+<li><code>void ConditionVariable::<strong>notify_one</strong>() noexcept</code></li>
+<li><code>void ConditionVariable::<strong>wait</strong>(MutexLock&amp; lock)</code></li>
+<li><code>template &lt;typename Pred&gt; void ConditionVariable::<strong>wait</strong>(MutexLock&amp; lock, Pred p)</code></li>
+<li><code>template &lt;typename R, typename P, typename Pred&gt; bool ConditionVariable::<strong>wait_for</strong>(MutexLock&amp; lock, std::chrono::duration&lt;R, P&gt; t, Pred p)</code></li>
+</ul></li>
+</ul>
+
+<p>Condition variable.</p>
+
+<ul>
+<li><code>class <strong>Thread</strong></code>
+
+<ul>
+<li><code>using Thread::<strong>callback</strong> = std::function&lt;void()&gt;</code></li>
+<li><code>using Thread::<strong>id_type</strong> = ...</code></li>
+<li><code>Thread::<strong>Thread</strong>() noexcept</code></li>
+<li><code>explicit Thread::<strong>Thread</strong>(callback f)</code></li>
+<li><code>Thread::<strong>Thread</strong>(Thread&amp;&amp; t)</code></li>
+<li><code>Thread::<strong>~Thread</strong>() noexcept</code></li>
+<li><code>Thread&amp; Thread::<strong>operator=</strong>(Thread&amp;&amp; t)</code></li>
+<li><code>Thread::id_type Thread::<strong>get_id</strong>() const noexcept</code></li>
+<li><code>bool Thread::<strong>poll</strong>() noexcept</code></li>
+<li><code>void Thread::<strong>wait</strong>()</code></li>
+<li><code>size_t Thread::<strong>cpu_threads</strong>() noexcept</code></li>
+<li><code>static Thread::id_type Thread::<strong>current</strong>() noexcept</code></li>
+<li><code>void Thread::<strong>yield</strong>() noexcept</code></li>
+</ul></li>
+</ul>
+
+<p>This is a wrapper for an operating system thread. The constructor accepts a
+callback function, which will be called as the thread&#8217;s payload. If a null
+function is supplied, or the default constructor is used, no actual thread
+will be created, and <code>wait()</code> will return immediately.</p>
+
+<p>The <code>get_id()</code> function returns a thread identifier. This is guaranteed to be
+unique only between threads running simultaneously; threads whose lifetimes do
+not overlap may re-use the same ID (a thread&#8217;s lifetime starts during the
+constructor, and ends during the first call to <code>wait()</code> or the destructor). If
+the thread was default constructed, the value of <code>get_id()</code> is unspecified.
+The <code>current()</code> function returns the calling thread&#8217;s ID.</p>
+
+<p>The <code>poll()</code> function returns true if the thread&#8217;s payload has completed
+(meaning that the thread is either awaiting joining or already joined), false
+if it is still running. A default constructed thread is considered to be
+already completed.</p>
+
+<p>The <code>wait()</code> function and the destructor wait for the thread to finish. Any
+exceptions thrown by the callback function will be rethrown by <code>wait()</code>, or
+silently discarded by the destructor. If the thread has already been
+successfully waited on (or was default constructed), subsequent waits will
+return immediately (and will not rethrow exceptions). Behaviour is undefined
+if more than one thread is waiting on the same thread, or if a thread attempts
+to wait on itself.</p>
+
+<p>Apart from <code>wait()</code>, the other methods can be safely called simultaneously on
+the same thread object from multiple other threads without synchronisation
+precautions.</p>
+
+<p>The constructor and the <code>wait()</code> function may throw <code>SystemError</code> or a derived
+class if anything goes wrong in the underlying native thread API, and <code>wait()</code>
+may rethrow as described above.</p>
+
+<p>The <code>cpu_threads()</code> function returns the number of hardware threads available.</p>
+
+<p>The <code>yield()</code> function causes the current thread to yield its scheduler time
+slice.</p>
 
 <h2 id="timeanddatefunctions">Time and date functions</h2>
 
