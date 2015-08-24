@@ -1586,7 +1586,7 @@ namespace Prion {
             void notify_all() noexcept { WakeAllConditionVariable(&wcond); }
             void notify_one() noexcept { WakeConditionVariable(&wcond); }
             void wait(MutexLock& lock) {
-                if (! SleepConditionVariableCS(&wcond, cs_ptr(lock.mx->wcrit), INFINITE))
+                if (! SleepConditionVariableCS(&wcond, &lock.mx->wcrit, INFINITE))
                     throw WindowsError(GetLastError(), "SleepConditionVariableCS()");
             }
             template <typename Pred> void wait(MutexLock& lock, Pred p) { while (! p()) wait(lock); }
@@ -1612,7 +1612,7 @@ namespace Prion {
                         ms = 0;
                     else if (ms >= INFINITE)
                         ms = INFINITE - 1;
-                    if (SleepConditionVariableCS(&wcond, cs_ptr(lock.mx->wcrit), ms)) {
+                    if (SleepConditionVariableCS(&wcond, &lock.mx->wcrit, ms)) {
                         if (p())
                             return true;
                     } else {
@@ -1631,11 +1631,11 @@ namespace Prion {
             using callback = std::function<void()>;
             using id_type = uint32_t;
             Thread() noexcept: except(), payload(), state(thread_joined), key(0), thread(nullptr) {}
-            explciit Thread(callback f): Thread() {
+            explicit Thread(callback f): Thread() {
                 if (f) {
                     payload = f;
                     state = thread_running;
-                    thread = CreateThread(nullptr, 0, ThreadHelper::callback, this, 0, &key);
+                    thread = CreateThread(nullptr, 0, thread_callback, this, 0, &key);
                     if (! thread)
                         throw WindowsError(GetLastError(), "CreateThread()");
                 }
