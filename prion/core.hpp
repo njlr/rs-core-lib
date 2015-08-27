@@ -504,6 +504,18 @@ namespace Prion {
     template <typename T> constexpr int sign_of(T t) noexcept { return PrionDetail::SignOf<T>()(t); }
 
     template <typename T>
+    T int_power(T x, T y) noexcept {
+        T z = T(1);
+        while (y) {
+            if (y & T(1))
+                z *= x;
+            x *= x;
+            y >>= 1;
+        }
+        return z;
+    }
+
+    template <typename T>
     T int_sqrt(T t) noexcept {
         if (sign_of(t) < 0)
             return 0;

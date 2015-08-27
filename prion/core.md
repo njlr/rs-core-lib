@@ -251,6 +251,12 @@ extrapolating the line between `(x1,y1)` and `(x2,y2)`. Behaviour is undefined
 if `x1==x2` and `y1!=y2`, or if either type is not an arithmetic type; the
 result is unspecified if either type is not floating point.
 
+* `template <typename T> T int_power(T x, T y) noexcept`
+
+Calculates <code>x<sup>y</sup></code> for integer types.
+<code>0<sup>0</sup></code> will return 1. Behaviour is undefined if `y` is
+negative, or if `T` is signed and the true result would be out of range.
+
 * `template <typename T> T int_sqrt(T t) noexcept`
 
 Returns the integer square root of the argument (the true square root

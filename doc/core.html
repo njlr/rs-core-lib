@@ -355,6 +355,14 @@ if <code>x1==x2</code> and <code>y1!=y2</code>, or if either type is not an arit
 result is unspecified if either type is not floating point.</p>
 
 <ul>
+<li><code>template &lt;typename T&gt; T <strong>int_power</strong>(T x, T y) noexcept</code></li>
+</ul>
+
+<p>Calculates <code>x<sup>y</sup></code> for integer types.
+<code>0<sup>0</sup></code> will return 1. Behaviour is undefined if <code>y</code> is
+negative, or if <code>T</code> is signed and the true result would be out of range.</p>
+
+<ul>
 <li><code>template &lt;typename T&gt; T <strong>int_sqrt</strong>(T t) noexcept</code></li>
 </ul>
 

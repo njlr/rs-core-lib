@@ -365,6 +365,104 @@ namespace {
         TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 2.00), 5.0);
         TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 2.50), 5.0);
 
+        TEST_EQUAL(int_power(0, 1), 0);
+        TEST_EQUAL(int_power(0, 2), 0);
+        TEST_EQUAL(int_power(0, 3), 0);
+
+        TEST_EQUAL(int_power(1, 0), 1);
+        TEST_EQUAL(int_power(1, 1), 1);
+        TEST_EQUAL(int_power(1, 2), 1);
+        TEST_EQUAL(int_power(1, 3), 1);
+
+        TEST_EQUAL(int_power(-1, 0), 1);
+        TEST_EQUAL(int_power(-1, 1), -1);
+        TEST_EQUAL(int_power(-1, 2), 1);
+        TEST_EQUAL(int_power(-1, 3), -1);
+
+        TEST_EQUAL(int_power(2, 0), 1);
+        TEST_EQUAL(int_power(2, 1), 2);
+        TEST_EQUAL(int_power(2, 2), 4);
+        TEST_EQUAL(int_power(2, 3), 8);
+        TEST_EQUAL(int_power(2, 4), 16);
+        TEST_EQUAL(int_power(2, 5), 32);
+        TEST_EQUAL(int_power(2, 6), 64);
+        TEST_EQUAL(int_power(2, 7), 128);
+        TEST_EQUAL(int_power(2, 8), 256);
+        TEST_EQUAL(int_power(2, 9), 512);
+        TEST_EQUAL(int_power(2, 10), 1024);
+
+        TEST_EQUAL(int_power(-2, 0), 1);
+        TEST_EQUAL(int_power(-2, 1), -2);
+        TEST_EQUAL(int_power(-2, 2), 4);
+        TEST_EQUAL(int_power(-2, 3), -8);
+        TEST_EQUAL(int_power(-2, 4), 16);
+        TEST_EQUAL(int_power(-2, 5), -32);
+        TEST_EQUAL(int_power(-2, 6), 64);
+        TEST_EQUAL(int_power(-2, 7), -128);
+        TEST_EQUAL(int_power(-2, 8), 256);
+        TEST_EQUAL(int_power(-2, 9), -512);
+        TEST_EQUAL(int_power(-2, 10), 1024);
+
+        TEST_EQUAL(int_power(10ll, 0ll), 1ll);
+        TEST_EQUAL(int_power(10ll, 1ll), 10ll);
+        TEST_EQUAL(int_power(10ll, 2ll), 100ll);
+        TEST_EQUAL(int_power(10ll, 3ll), 1000ll);
+        TEST_EQUAL(int_power(10ll, 4ll), 10000ll);
+        TEST_EQUAL(int_power(10ll, 5ll), 100000ll);
+        TEST_EQUAL(int_power(10ll, 6ll), 1000000ll);
+        TEST_EQUAL(int_power(10ll, 7ll), 10000000ll);
+        TEST_EQUAL(int_power(10ll, 8ll), 100000000ll);
+        TEST_EQUAL(int_power(10ll, 9ll), 1000000000ll);
+        TEST_EQUAL(int_power(10ll, 10ll), 10000000000ll);
+
+        TEST_EQUAL(int_power(-10ll, 0ll), 1ll);
+        TEST_EQUAL(int_power(-10ll, 1ll), -10ll);
+        TEST_EQUAL(int_power(-10ll, 2ll), 100ll);
+        TEST_EQUAL(int_power(-10ll, 3ll), -1000ll);
+        TEST_EQUAL(int_power(-10ll, 4ll), 10000ll);
+        TEST_EQUAL(int_power(-10ll, 5ll), -100000ll);
+        TEST_EQUAL(int_power(-10ll, 6ll), 1000000ll);
+        TEST_EQUAL(int_power(-10ll, 7ll), -10000000ll);
+        TEST_EQUAL(int_power(-10ll, 8ll), 100000000ll);
+        TEST_EQUAL(int_power(-10ll, 9ll), -1000000000ll);
+        TEST_EQUAL(int_power(-10ll, 10ll), 10000000000ll);
+
+        TEST_EQUAL(int_power(10ull, 0ull), 1ull);
+        TEST_EQUAL(int_power(10ull, 1ull), 10ull);
+        TEST_EQUAL(int_power(10ull, 2ull), 100ull);
+        TEST_EQUAL(int_power(10ull, 3ull), 1000ull);
+        TEST_EQUAL(int_power(10ull, 4ull), 10000ull);
+        TEST_EQUAL(int_power(10ull, 5ull), 100000ull);
+        TEST_EQUAL(int_power(10ull, 6ull), 1000000ull);
+        TEST_EQUAL(int_power(10ull, 7ull), 10000000ull);
+        TEST_EQUAL(int_power(10ull, 8ull), 100000000ull);
+        TEST_EQUAL(int_power(10ull, 9ull), 1000000000ull);
+        TEST_EQUAL(int_power(10ull, 10ull), 10000000000ull);
+
+        TEST_EQUAL(int_power(-10_s128, 0_s128), 1_s128);
+        TEST_EQUAL(int_power(-10_s128, 1_s128), -10_s128);
+        TEST_EQUAL(int_power(-10_s128, 2_s128), 100_s128);
+        TEST_EQUAL(int_power(-10_s128, 3_s128), -1000_s128);
+        TEST_EQUAL(int_power(-10_s128, 4_s128), 10000_s128);
+        TEST_EQUAL(int_power(-10_s128, 5_s128), -100000_s128);
+        TEST_EQUAL(int_power(-10_s128, 6_s128), 1000000_s128);
+        TEST_EQUAL(int_power(-10_s128, 7_s128), -10000000_s128);
+        TEST_EQUAL(int_power(-10_s128, 8_s128), 100000000_s128);
+        TEST_EQUAL(int_power(-10_s128, 9_s128), -1000000000_s128);
+        TEST_EQUAL(int_power(-10_s128, 10_s128), 10000000000_s128);
+
+        TEST_EQUAL(int_power(10_u128, 0_u128), 1_u128);
+        TEST_EQUAL(int_power(10_u128, 1_u128), 10_u128);
+        TEST_EQUAL(int_power(10_u128, 2_u128), 100_u128);
+        TEST_EQUAL(int_power(10_u128, 3_u128), 1000_u128);
+        TEST_EQUAL(int_power(10_u128, 4_u128), 10000_u128);
+        TEST_EQUAL(int_power(10_u128, 5_u128), 100000_u128);
+        TEST_EQUAL(int_power(10_u128, 6_u128), 1000000_u128);
+        TEST_EQUAL(int_power(10_u128, 7_u128), 10000000_u128);
+        TEST_EQUAL(int_power(10_u128, 8_u128), 100000000_u128);
+        TEST_EQUAL(int_power(10_u128, 9_u128), 1000000000_u128);
+        TEST_EQUAL(int_power(10_u128, 10_u128), 10000000000_u128);
+
         TEST_EQUAL(int_sqrt(0), 0);
         TEST_EQUAL(int_sqrt(1), 1);
         TEST_EQUAL(int_sqrt(2), 1);
