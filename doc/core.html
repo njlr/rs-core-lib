@@ -30,6 +30,7 @@ Cygwin, this will only happen if <code>_WIN32</code> is defined.</p>
 <li><a href="#arithmeticfunctions">Arithmetic functions</a></li>
 <li><a href="#byteorder">Byte order</a></li>
 <li><a href="#characterfunctions">Character functions</a></li>
+<li><a href="#containers">Containers</a></li>
 <li><a href="#exceptions">Exceptions</a></li>
 <li><a href="#flagsets">Flag sets</a></li>
 <li><a href="#functionalutilities">Functional utilities</a></li>
@@ -465,6 +466,87 @@ unchanged.</p>
 first passing it through <code>unsigned char</code>, to ensure that characters with the
 high bit set end up as integers in the 128&#8211;255 range, and not as negative or
 extremely high values.</p>
+
+<h2 id="containers">Containers</h2>
+
+<ul>
+<li><code>template &lt;typename T&gt; class <strong>SimpleBuffer</strong></code>
+
+<ul>
+<li><code>using SimpleBuffer::<strong>const_iterator</strong> = const T*</code></li>
+<li><code>using SimpleBuffer::<strong>const_reference</strong> = const T&amp;</code></li>
+<li><code>using SimpleBuffer::<strong>difference_type</strong> = ptrdiff_t</code></li>
+<li><code>using SimpleBuffer::<strong>iterator</strong> = T*</code></li>
+<li><code>using SimpleBuffer::<strong>reference</strong> = T&amp;</code></li>
+<li><code>using SimpleBuffer::<strong>size_type</strong> = size_t</code></li>
+<li><code>using SimpleBuffer::<strong>value_type</strong> = T</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>() noexcept</code></li>
+<li><code>explicit SimpleBuffer::<strong>SimpleBuffer</strong>(size_t n)</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(size_t n, T t)</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(const T* p, size_t n)</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(const T* p1, const T* p2)</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(const SimpleBuffer&amp; sb)</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(SimpleBuffer&amp;&amp; sb) noexcept</code></li>
+<li><code>SimpleBuffer::<strong>~SimpleBuffer</strong>() noexcept</code></li>
+<li><code>SimpleBuffer&amp; SimpleBuffer::<strong>operator=</strong>(const SimpleBuffer&amp; sb)</code></li>
+<li><code>SimpleBuffer&amp; SimpleBuffer::<strong>operator=</strong>(SimpleBuffer&amp;&amp; sb) noexcept</code></li>
+<li><code>T&amp; SimpleBuffer::<strong>operator[]</strong>(size_t i) noexcept</code></li>
+<li><code>const T&amp; SimpleBuffer::<strong>operator[]</strong>(size_t i) const noexcept</code></li>
+<li><code>void SimpleBuffer::<strong>assign</strong>(size_t n)</code></li>
+<li><code>void SimpleBuffer::<strong>assign</strong>(size_t n, T t)</code></li>
+<li><code>void SimpleBuffer::<strong>assign</strong>(const T* p, size_t n)</code></li>
+<li><code>void SimpleBuffer::<strong>assign</strong>(const T* p1, const T* p2)</code></li>
+<li><code>T&amp; SimpleBuffer::<strong>at</strong>(size_t i)</code></li>
+<li><code>const T&amp; SimpleBuffer::<strong>at</strong>(size_t i) const</code></li>
+<li><code>T* SimpleBuffer::<strong>begin</strong>() noexcept</code></li>
+<li><code>const T* SimpleBuffer::<strong>begin</strong>() const noexcept</code></li>
+<li><code>const T* SimpleBuffer::<strong>cbegin</strong>() const noexcept</code></li>
+<li><code>T* SimpleBuffer::<strong>data</strong>() noexcept</code></li>
+<li><code>const T* SimpleBuffer::<strong>data</strong>() const noexcept</code></li>
+<li><code>const T* SimpleBuffer::<strong>cdata</strong>() const noexcept</code></li>
+<li><code>T* SimpleBuffer::<strong>end</strong>() noexcept</code></li>
+<li><code>const T* SimpleBuffer::<strong>end</strong>() const noexcept</code></li>
+<li><code>const T* SimpleBuffer::<strong>cend</strong>() const noexcept</code></li>
+<li><code>size_t SimpleBuffer::<strong>bytes</strong>() const noexcept</code></li>
+<li><code>size_t SimpleBuffer::<strong>capacity</strong>() const noexcept</code></li>
+<li><code>void SimpleBuffer::<strong>clear</strong>() noexcept</code></li>
+<li><code>bool SimpleBuffer::<strong>empty</strong>() const noexcept</code></li>
+<li><code>size_t SimpleBuffer::<strong>max_size</strong>() const noexcept</code></li>
+<li><code>void SimpleBuffer::<strong>resize</strong>(size_t n)</code></li>
+<li><code>void SimpleBuffer::<strong>resize</strong>(size_t n, T t)</code></li>
+<li><code>size_t SimpleBuffer::<strong>size</strong>() const noexcept</code></li>
+<li><code>void SimpleBuffer::<strong>swap</strong>(SimpleBuffer&amp; sb2) noexcept</code></li>
+</ul></li>
+<li><code>bool <strong>operator==</strong>(const SimpleBuffer&amp; lhs, const SimpleBuffer&amp; rhs) noexcept</code></li>
+<li><code>bool <strong>operator!=</strong>(const SimpleBuffer&amp; lhs, const SimpleBuffer&amp; rhs) noexcept</code></li>
+<li><code>bool <strong>operator&lt;</strong>(const SimpleBuffer&amp; lhs, const SimpleBuffer&amp; rhs) noexcept</code></li>
+<li><code>bool <strong>operator&gt;</strong>(const SimpleBuffer&amp; lhs, const SimpleBuffer&amp; rhs) noexcept</code></li>
+<li><code>bool <strong>operator&lt;=</strong>(const SimpleBuffer&amp; lhs, const SimpleBuffer&amp; rhs) noexcept</code></li>
+<li><code>bool <strong>operator&gt;=</strong>(const SimpleBuffer&amp; lhs, const SimpleBuffer&amp; rhs) noexcept</code></li>
+<li><code>void <strong>swap</strong>(SimpleBuffer&amp; sb1, SimpleBuffer&amp; sb2) noexcept</code></li>
+</ul>
+
+<p>This is a simple dynamically allocated array. The element type <code>T</code> must be
+trivially copyable; the implementation will use <code>memcpy()</code> wherever possible
+instead of copying discrete <code>T</code> objects. Most of the member functions are
+equivalent to those of <code>std::vector</code> and should be self explanatory.</p>
+
+<p>The constructor, <code>assign()</code>, and <code>resize()</code> functions that take only a length
+do not initialize the newly allocated memory. All of the <code>resize()</code> functions
+are synonyms for the corresponding <code>assign()</code>.</p>
+
+<p>Unlike a <code>std::vector</code>, a <code>SimpleBuffer</code> always allocates exactly the required
+amount of memory (<code>capacity()</code> is always equal to <code>size()</code>). Any operation
+that changes the buffer&#8217;s size will reallocate it and invalidate all iterators
+and references into the old buffer.</p>
+
+<p>The <code>data()</code> and <code>cdata()</code> functions are synonyms for <code>begin()</code> and
+<code>cbegin()</code>. The <code>bytes()</code> function reports the array&#8217;s size in bytes (equal to
+<code>size()* sizeof(T)</code>).</p>
+
+<p>The comparison operators perform bytewise comparison by calling <code>memcmp()</code>. If
+<code>T</code> is not an unsigned integer type, this will usually not give the same
+ordering as a lexicographical comparison using <code>T</code>&#8217;s less-than operator.</p>
 
 <h2 id="exceptions">Exceptions</h2>
 

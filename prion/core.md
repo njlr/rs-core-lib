@@ -21,6 +21,7 @@ Cygwin, this will only happen if `_WIN32` is defined.
 * [Arithmetic functions][]
 * [Byte order][]
 * [Character functions][]
+* [Containers][]
 * [Exceptions][]
 * [Flag sets][]
 * [Functional utilities][]
@@ -340,6 +341,82 @@ A simple conversion function that casts a `char` to a larger integer type by
 first passing it through `unsigned char`, to ensure that characters with the
 high bit set end up as integers in the 128-255 range, and not as negative or
 extremely high values.
+
+## Containers ##
+
+* `template <typename T> class SimpleBuffer`
+    * `using SimpleBuffer::const_iterator = const T*`
+    * `using SimpleBuffer::const_reference = const T&`
+    * `using SimpleBuffer::difference_type = ptrdiff_t`
+    * `using SimpleBuffer::iterator = T*`
+    * `using SimpleBuffer::reference = T&`
+    * `using SimpleBuffer::size_type = size_t`
+    * `using SimpleBuffer::value_type = T`
+    * `SimpleBuffer::SimpleBuffer() noexcept`
+    * `explicit SimpleBuffer::SimpleBuffer(size_t n)`
+    * `SimpleBuffer::SimpleBuffer(size_t n, T t)`
+    * `SimpleBuffer::SimpleBuffer(const T* p, size_t n)`
+    * `SimpleBuffer::SimpleBuffer(const T* p1, const T* p2)`
+    * `SimpleBuffer::SimpleBuffer(const SimpleBuffer& sb)`
+    * `SimpleBuffer::SimpleBuffer(SimpleBuffer&& sb) noexcept`
+    * `SimpleBuffer::~SimpleBuffer() noexcept`
+    * `SimpleBuffer& SimpleBuffer::operator=(const SimpleBuffer& sb)`
+    * `SimpleBuffer& SimpleBuffer::operator=(SimpleBuffer&& sb) noexcept`
+    * `T& SimpleBuffer::operator[](size_t i) noexcept`
+    * `const T& SimpleBuffer::operator[](size_t i) const noexcept`
+    * `void SimpleBuffer::assign(size_t n)`
+    * `void SimpleBuffer::assign(size_t n, T t)`
+    * `void SimpleBuffer::assign(const T* p, size_t n)`
+    * `void SimpleBuffer::assign(const T* p1, const T* p2)`
+    * `T& SimpleBuffer::at(size_t i)`
+    * `const T& SimpleBuffer::at(size_t i) const`
+    * `T* SimpleBuffer::begin() noexcept`
+    * `const T* SimpleBuffer::begin() const noexcept`
+    * `const T* SimpleBuffer::cbegin() const noexcept`
+    * `T* SimpleBuffer::data() noexcept`
+    * `const T* SimpleBuffer::data() const noexcept`
+    * `const T* SimpleBuffer::cdata() const noexcept`
+    * `T* SimpleBuffer::end() noexcept`
+    * `const T* SimpleBuffer::end() const noexcept`
+    * `const T* SimpleBuffer::cend() const noexcept`
+    * `size_t SimpleBuffer::bytes() const noexcept`
+    * `size_t SimpleBuffer::capacity() const noexcept`
+    * `void SimpleBuffer::clear() noexcept`
+    * `bool SimpleBuffer::empty() const noexcept`
+    * `size_t SimpleBuffer::max_size() const noexcept`
+    * `void SimpleBuffer::resize(size_t n)`
+    * `void SimpleBuffer::resize(size_t n, T t)`
+    * `size_t SimpleBuffer::size() const noexcept`
+    * `void SimpleBuffer::swap(SimpleBuffer& sb2) noexcept`
+* `bool operator==(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool operator!=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool operator<(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool operator>(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool operator<=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool operator>=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `void swap(SimpleBuffer& sb1, SimpleBuffer& sb2) noexcept`
+
+This is a simple dynamically allocated array. The element type `T` must be
+trivially copyable; the implementation will use `memcpy()` wherever possible
+instead of copying discrete `T` objects. Most of the member functions are
+equivalent to those of `std::vector` and should be self explanatory.
+
+The constructor, `assign()`, and `resize()` functions that take only a length
+do not initialize the newly allocated memory. All of the `resize()` functions
+are synonyms for the corresponding `assign()`.
+
+Unlike a `std::vector`, a `SimpleBuffer` always allocates exactly the required
+amount of memory (`capacity()` is always equal to `size()`). Any operation
+that changes the buffer's size will reallocate it and invalidate all iterators
+and references into the old buffer.
+
+The `data()` and `cdata()` functions are synonyms for `begin()` and
+`cbegin()`. The `bytes()` function reports the array's size in bytes (equal to
+`size()* sizeof(T)`).
+
+The comparison operators perform bytewise comparison by calling `memcmp()`. If
+`T` is not an unsigned integer type, this will usually not give the same
+ordering as a lexicographical comparison using `T`'s less-than operator.
 
 ## Exceptions ##
 

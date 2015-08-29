@@ -693,6 +693,89 @@ namespace Prion {
     constexpr char ascii_toupper(char c) noexcept { return ascii_islower(c) ? c - 32 : c; }
     template <typename T> constexpr T char_to(char c) noexcept { return static_cast<T>(static_cast<unsigned char>(c)); }
 
+    // Containers
+
+    template <typename T>
+    class SimpleBuffer {
+    public:
+        using const_iterator = const T*;
+        using const_reference = const T&;
+        using difference_type = ptrdiff_t;
+        using iterator = T*;
+        using reference = T&;
+        using size_type = size_t;
+        using value_type = T;
+        SimpleBuffer() noexcept: len(0), ptr(nullptr) {}
+        explicit SimpleBuffer(size_t n): len(n), ptr(new T[n]) {}
+        SimpleBuffer(size_t n, T t): len(n), ptr(new T[n]) { std::fill_n(ptr, n, t); }
+        SimpleBuffer(const T* p, size_t n): len(n), ptr(new T[n]) { memcpy(ptr, p, bytes()); }
+        SimpleBuffer(const T* p1, const T* p2): len(p2 - p1), ptr(new T[len]) { memcpy(ptr, p1, bytes()); }
+        SimpleBuffer(const SimpleBuffer& sb): len(sb.len), ptr(new T[len]) { memcpy(ptr, sb.ptr, bytes()); }
+        SimpleBuffer(SimpleBuffer&& sb) noexcept: len(sb.len), ptr(sb.ptr) { sb.ptr = nullptr; sb.len = 0; }
+        ~SimpleBuffer() noexcept { delete[] ptr; }
+        SimpleBuffer& operator=(const SimpleBuffer& sb) {
+            SimpleBuffer temp(sb);
+            swap(temp);
+            return *this;
+        }
+        SimpleBuffer& operator=(SimpleBuffer&& sb) noexcept {
+            delete[] ptr;
+            len = sb.len;
+            ptr = sb.ptr;
+            sb.len = 0;
+            sb.ptr = nullptr;
+            return *this;
+        }
+        T& operator[](size_t i) noexcept { return ptr[i]; }
+        const T& operator[](size_t i) const noexcept { return ptr[i]; }
+        void assign(size_t n) {
+            if (n != len) {
+                T* temp = new T[n];
+                delete[] ptr;
+                len = n;
+                ptr = temp;
+            }
+        }
+        void assign(size_t n, T t) { assign(n); std::fill_n(ptr, n, t); }
+        void assign(const T* p, size_t n) { assign(n); memcpy(ptr, p, bytes()); }
+        void assign(const T* p1, const T* p2) { assign(p2 - p1); memcpy(ptr, p1, bytes()); }
+        T& at(size_t i) { check_index(i); return ptr[i]; }
+        const T& at(size_t i) const { check_index(i); return ptr[i]; }
+        T* begin() noexcept { return ptr; }
+        const T* begin() const noexcept { return ptr; }
+        const T* cbegin() const noexcept { return ptr; }
+        T* data() noexcept { return ptr; }
+        const T* data() const noexcept { return ptr; }
+        const T* cdata() const noexcept { return ptr; }
+        T* end() noexcept { return ptr + len; }
+        const T* end() const noexcept { return ptr + len; }
+        const T* cend() const noexcept { return ptr + len; }
+        size_t bytes() const noexcept { return len * sizeof(T); }
+        size_t capacity() const noexcept { return len; }
+        void clear() noexcept { delete[] ptr; ptr = nullptr; len = 0; }
+        bool empty() const noexcept { return len == 0; }
+        size_t max_size() const noexcept { return npos / sizeof(T); }
+        void resize(size_t n) { assign(n); }
+        void resize(size_t n, T t) { assign(n, t); }
+        size_t size() const noexcept { return len; }
+        void swap(SimpleBuffer& sb2) noexcept { std::swap(len, sb2.len); std::swap(ptr, sb2.ptr); }
+        friend void swap(SimpleBuffer& sb1, SimpleBuffer& sb2) noexcept { sb1.swap(sb2); }
+        friend bool operator==(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return lhs.len == rhs.len && memcmp(lhs.ptr, rhs.ptr, lhs.bytes()) == 0; }
+        friend bool operator!=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (lhs == rhs); }
+        friend bool operator<(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept {
+            auto rc = memcmp(lhs.ptr, rhs.ptr, std::min(lhs.bytes(), rhs.bytes()));
+            return rc == 0 ? lhs.len < rhs.len : rc < 0;
+        }
+        friend bool operator>(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return rhs < lhs; }
+        friend bool operator<=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (rhs < lhs); }
+        friend bool operator>=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (lhs < rhs); }
+    private:
+        PRI_STATIC_ASSERT(std::is_trivially_copyable<T>::value);
+        size_t len;
+        T* ptr;
+        void check_index(size_t i) const { if (i >= len) throw std::out_of_range("Buffer index out of range"); }
+    };
+
     // Exceptions
 
     namespace PrionDetail {

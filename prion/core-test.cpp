@@ -962,6 +962,81 @@ namespace {
 
     }
 
+    void check_containers() {
+
+        using buf = SimpleBuffer<int32_t>;
+
+        std::shared_ptr<buf> bp;
+        int32_t array[] = {1,2,3,4,5};
+
+        TRY(bp.reset(new buf));
+        TEST(bp->empty());
+
+        TRY(bp.reset(new buf(10)));
+        TEST_EQUAL(bp->size(), 10);
+
+        TRY(bp.reset(new buf(20, 42)));
+        TEST_EQUAL(bp->size(), 20);
+        TEST_EQUAL(bp->at(0), 42);
+        TEST_THROW(bp->at(20), std::out_of_range);
+
+        TRY(bp.reset(new buf(array, 5)));
+        TEST_EQUAL(bp->size(), 5);
+        TEST_EQUAL(bp->at(0), 1);
+        TEST_EQUAL(bp->at(4), 5);
+
+        TRY(bp.reset(new buf(array + 0, array + 5)));
+        TEST_EQUAL(bp->size(), 5);
+        TEST_EQUAL(bp->at(0), 1);
+        TEST_EQUAL(bp->at(4), 5);
+
+        buf b1, b2;
+
+        TRY(b1.assign(10));
+        TEST_EQUAL(b1.size(), 10);
+        TEST_EQUAL(b1.bytes(), 40);
+
+        TRY(b1.assign(20, 42));
+        TEST_EQUAL(b1.size(), 20);
+        TEST_EQUAL(b1.bytes(), 80);
+        TEST_EQUAL(b1[0], 42);
+        TEST_EQUAL(b1.at(0), 42);
+        TEST_THROW(b1.at(20), std::out_of_range);
+
+        TRY(b1.assign(array, 5));
+        TEST_EQUAL(b1.size(), 5);
+        TEST_EQUAL(b1.bytes(), 20);
+        TEST_EQUAL(b1[0], 1);
+        TEST_EQUAL(b1[4], 5);
+
+        TRY(b1.assign(array + 0, array + 5));
+        TEST_EQUAL(b1.size(), 5);
+        TEST_EQUAL(b1.bytes(), 20);
+        TEST_EQUAL(b1[0], 1);
+        TEST_EQUAL(b1[4], 5);
+
+        TRY(b2.assign(20, 42));
+        TRY(b1 = b2);
+        TEST_EQUAL(b1.size(), 20);
+        TEST_EQUAL(b1[0], 42);
+
+        TRY(b2.assign(10, 99));
+        TRY(b1 = std::move(b2));
+        TEST_EQUAL(b1.size(), 10);
+        TEST_EQUAL(b1[0], 99);
+        TEST_EQUAL(b2.size(), 0);
+
+        TRY(bp.reset(new buf(b1)));
+        TEST_EQUAL(bp->size(), 10);
+        TEST_EQUAL(bp->at(0), 99);
+
+        TRY(bp.reset(new buf(std::move(b1))));
+        TEST_EQUAL(bp->size(), 10);
+        TEST_EQUAL(bp->at(0), 99);
+        TEST_EQUAL(b1.size(), 0);
+
+    }
+
     void check_exceptions() {
 
         u8string s;
@@ -2229,6 +2304,7 @@ TEST_MODULE(prion, core) {
     check_arithmetic_functions();
     check_byte_order();
     check_character_functions();
+    check_containers();
     check_exceptions();
     check_flag_sets();
     check_functional_utilities();
