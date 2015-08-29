@@ -4,36 +4,38 @@ import os
 import re
 import sys
 
+qual = r'(?:[\w\[\]]+::)*'
+
 code_patterns = [
 
-    r'//.*',                                                                             # comment (skip)
-    r'^\[.*\]$',                                                                         # note (skip)
-    r'^&quot;',                                                                          # note (skip)
-    r'^#include',                                                                        # include (skip)
-    r'(?:namespace|public|protected|private)\b',                                         # namespace or access (skip)
-    r'template &lt;[^&;]*&gt;$',                                                         # template parameters (skip)
-    r'(?:[A-Za-z]\w*, )+[A-Za-z]\w*,?$',                                                 # enum values (skip)
-    r'^\w+;?(?: *//|$)',                                                                 # single word (skip)
-    r'.+ -&gt; ',                                                                        # class hierarchy (skip)
-    r'#define ([A-Z][A-Z0-9_]+)',                                                        # preprocessor
-    r'using (?:\w+::)+(\w+)',                                                            # using declaration
-    r'using namespace (?:\w+::)*(\w+)',                                                  # using directive
-    r'(?:template &lt;.+&gt; )?using (?:\w+::)?(\w+) =',                                 # type alias
-    r'enum(?: class)? (\w+)',                                                            # enum type
-    r'\w+(?: += .+)?,?(?: +//.*)?$',                                                     # enum values (skip)
-    r'\w+ \[.+\]',                                                                       # annotated enum value (skip)
-    r'(?:abstract )?(?:template (?:&lt;.*&gt; )?)?(?:class|struct) (?:\w+::)*(\w+)',     # class or struct
-    r'(?:[^()]+ )?(operator&quot;&quot; _\w+)\(',                                        # literal operator
-    r'(?:[^()]+ )?(?:\w+::)?(operator(?:[!%*+,/<=>^|~-]|&[a-z]+;)+)\(',                  # operator
-    r'(?:[^()]+ )?(?:\w+::)?(operator(?:\(\)|\[\]))\(',                                  # operator
-    r'(?:[^()]+ )?(?:\w+::)?(operator \w+)\(',                                           # conversion operator
-    r'(?:[^()#]+ )?(?:std::function&lt;.+\)&gt; )?(?:\w+::)?(\w+(?: ## \w+)*)\(',        # function
-    r'std::function&lt;.+&gt; (\w+)\(',                                                  # function
-    r'^(?:static )?const(?:expr)? \[?(?:\w|[ &*:;<>])+\]? (?:\w+::)?(\w+(?: ## \w+)*)',  # constant
-    r'^(\w+) = [+-]?\d+',                                                                # constant
-    r'\w+ (?:\w+::)?(\w+)( ?\[.+\])?$',                                                  # variable
-    r'(?:virtual )?(?:\w+::)?(~\w+)\(',                                                  # destructor
-    r'^([A-Z]\w+)&lt;[^&;]*&gt;$',                                                       # metafunction short form
+    r'//.*',                                                                                   # comment (skip)
+    r'^\[.*\]$',                                                                               # note (skip)
+    r'^&quot;',                                                                                # note (skip)
+    r'^#include',                                                                              # include (skip)
+    r'(?:namespace|public|protected|private)\b',                                               # namespace or access (skip)
+    r'template &lt;[^&;]*&gt;$',                                                               # template parameters (skip)
+    r'(?:[A-Za-z]\w*, )+[A-Za-z]\w*,?$',                                                       # enum values (skip)
+    r'^\w+;?(?: *//|$)',                                                                       # single word (skip)
+    r'.+ -&gt; ',                                                                              # class hierarchy (skip)
+    r'#define ([A-Z][A-Z0-9_]+)',                                                              # preprocessor
+    r'using ' + qual + r'(\w+)',                                                               # using declaration
+    r'using namespace ' + qual + r'(\w+)',                                                     # using directive
+    r'(?:template &lt;.+&gt; )?using ' + qual + r'(\w+) =',                                    # type alias
+    r'enum(?: class)? (\w+)',                                                                  # enum type
+    r'\w+(?: += .+)?,?(?: +//.*)?$',                                                           # enum values (skip)
+    r'\w+ \[.+\]',                                                                             # annotated enum value (skip)
+    r'(?:\[?abstract\]? )?(?:template (?:&lt;.*&gt; )?)?(?:class|struct) ' + qual + r'(\w+)',  # class or struct
+    r'(?:[^()]+ )?(operator&quot;&quot; _\w+)\(',                                              # literal operator
+    r'(?:[^()]+ )?' + qual + r'(operator(?:[!%*+,/<=>^|~-]|&[a-z]+;)+)\(',                     # operator
+    r'(?:[^()]+ )?' + qual + r'(operator(?:\(\)|\[\]))\(',                                     # operator
+    r'(?:[^()]+ )?' + qual + r'(operator \w+)\(',                                              # conversion operator
+    r'(?:[^()#]+ )?(?:std::function&lt;.+\)&gt; )?' + qual + r'(\w+(?: ## \w+)*)\(',           # function
+    r'std::function&lt;.+&gt; (\w+)\(',                                                        # function
+    r'^(?:static )?const(?:expr)? \[?(?:\w|[ &*:;<>])+\]? ' + qual + r'(\w+(?: ## \w+)*)',     # constant
+    r'^(\w+) = [+-]?\d+',                                                                      # constant
+    r'\w+ ' + qual + r'(\w+)( ?\[.+\])?$',                                                     # variable
+    r'(?:virtual )?' + qual + r'(~\w+)\(',                                                     # destructor
+    r'^([A-Z]\w+)&lt;[^&;]*&gt;$',                                                             # metafunction short form
 
 ]
 
