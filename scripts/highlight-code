@@ -18,8 +18,8 @@ code_patterns = [
     r'^\w+;?(?: *//|$)',                                                                          # single word (skip)
     r'.+ -&gt; ',                                                                                 # class hierarchy (skip)
     r'#define ([A-Z][A-Z0-9_]+)',                                                                 # preprocessor
-    r'using ' + qual + r'(\w+)',                                                                  # using declaration
     r'using namespace ' + qual + r'(\w+)',                                                        # using directive
+    r'using ' + qual + r'(\w+)',                                                                  # using declaration
     r'(?:template &lt;.+&gt; )?using ' + qual + r'(\w+) =',                                       # type alias
     r'enum(?: class)? (\w+)',                                                                     # enum type
     r'\w+(?: += .+)?,?(?: +//.*)?$',                                                              # enum values (skip)
