@@ -28,10 +28,10 @@ code_patterns = [
     r'(?:[^()]+ )?(?:\w+::)?(operator(?:\(\)|\[\]))\(',                                  # operator
     r'(?:[^()]+ )?(?:\w+::)?(operator \w+)\(',                                           # conversion operator
     r'(?:[^()#]+ )?(?:std::function&lt;.+\)&gt; )?(?:\w+::)?(\w+(?: ## \w+)*)\(',        # function
+    r'std::function&lt;.+&gt; (\w+)\(',                                                  # function
     r'^(?:static )?const(?:expr)? \[?(?:\w|[ &*:;<>])+\]? (?:\w+::)?(\w+(?: ## \w+)*)',  # constant
     r'^(\w+) = [+-]?\d+',                                                                # constant
-    r'\w+ (?:\w+::)?(\w+)( \[.+\])?$',                                                   # variable
-    r'std::function&lt;.+&gt; (\w+)\(',                                                  # function
+    r'\w+ (?:\w+::)?(\w+)( ?\[.+\])?$',                                                  # variable
     r'(?:virtual )?(?:\w+::)?(~\w+)\(',                                                  # destructor
     r'^([A-Z]\w+)&lt;[^&;]*&gt;$',                                                       # metafunction short form
 
