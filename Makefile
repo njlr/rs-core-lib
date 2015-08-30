@@ -17,7 +17,7 @@ HOST         := $(shell uname | tr A-Z a-z | sed -E 's/[^a-z].*//')
 TARGET       := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e 's/[0-9.]*$$//' | tr A-Z a-z)
 XHOST        := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
 CXX          := g++
-CXXFLAGS     := -I. -g2 -march=core2 -mfpmath=sse -Wall -Wextra -Werror -Wold-style-cast -Woverloaded-virtual
+CXXFLAGS     := -I. -g2 -march=core2 -mfpmath=sse -Wall -Wextra -Werror
 DEFINES      := -DNDEBUG=1
 OPT          := -O2
 TESTOPT      := -O1
