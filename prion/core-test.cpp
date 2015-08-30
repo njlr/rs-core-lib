@@ -980,12 +980,12 @@ namespace {
         TEST_EQUAL(bp->at(0), 42);
         TEST_THROW(bp->at(20), std::out_of_range);
 
-        TRY(bp.reset(new buf(array, 5)));
+        TRY(bp->copy(array, 5));
         TEST_EQUAL(bp->size(), 5);
         TEST_EQUAL(bp->at(0), 1);
         TEST_EQUAL(bp->at(4), 5);
 
-        TRY(bp.reset(new buf(array + 0, array + 5)));
+        TRY(bp->copy(array + 0, array + 5));
         TEST_EQUAL(bp->size(), 5);
         TEST_EQUAL(bp->at(0), 1);
         TEST_EQUAL(bp->at(4), 5);
@@ -1003,13 +1003,13 @@ namespace {
         TEST_EQUAL(b1.at(0), 42);
         TEST_THROW(b1.at(20), std::out_of_range);
 
-        TRY(b1.assign(array, 5));
+        TRY(b1.copy(array, 5));
         TEST_EQUAL(b1.size(), 5);
         TEST_EQUAL(b1.bytes(), 20);
         TEST_EQUAL(b1[0], 1);
         TEST_EQUAL(b1[4], 5);
 
-        TRY(b1.assign(array + 0, array + 5));
+        TRY(b1.copy(array + 0, array + 5));
         TEST_EQUAL(b1.size(), 5);
         TEST_EQUAL(b1.bytes(), 20);
         TEST_EQUAL(b1[0], 1);

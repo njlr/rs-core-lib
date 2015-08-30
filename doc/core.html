@@ -475,6 +475,7 @@ extremely high values.</p>
 <ul>
 <li><code>using SimpleBuffer::<strong>const_iterator</strong> = const T*</code></li>
 <li><code>using SimpleBuffer::<strong>const_reference</strong> = const T&amp;</code></li>
+<li><code>using SimpleBuffer::<strong>delete_function</strong> = std::function&lt;void(T*)&gt;</code></li>
 <li><code>using SimpleBuffer::<strong>difference_type</strong> = ptrdiff_t</code></li>
 <li><code>using SimpleBuffer::<strong>iterator</strong> = T*</code></li>
 <li><code>using SimpleBuffer::<strong>reference</strong> = T&amp;</code></li>
@@ -483,8 +484,8 @@ extremely high values.</p>
 <li><code>SimpleBuffer::<strong>SimpleBuffer</strong>() noexcept</code></li>
 <li><code>explicit SimpleBuffer::<strong>SimpleBuffer</strong>(size_t n)</code></li>
 <li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(size_t n, T t)</code></li>
-<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(const T* p, size_t n)</code></li>
-<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(const T* p1, const T* p2)</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(T* p, size_t n) noexcept</code></li>
+<li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(T* p, size_t n, delete_function d)</code></li>
 <li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(const SimpleBuffer&amp; sb)</code></li>
 <li><code>SimpleBuffer::<strong>SimpleBuffer</strong>(SimpleBuffer&amp;&amp; sb) noexcept</code></li>
 <li><code>SimpleBuffer::<strong>~SimpleBuffer</strong>() noexcept</code></li>
@@ -494,8 +495,8 @@ extremely high values.</p>
 <li><code>const T&amp; SimpleBuffer::<strong>operator[]</strong>(size_t i) const noexcept</code></li>
 <li><code>void SimpleBuffer::<strong>assign</strong>(size_t n)</code></li>
 <li><code>void SimpleBuffer::<strong>assign</strong>(size_t n, T t)</code></li>
-<li><code>void SimpleBuffer::<strong>assign</strong>(const T* p, size_t n)</code></li>
-<li><code>void SimpleBuffer::<strong>assign</strong>(const T* p1, const T* p2)</code></li>
+<li><code>void SimpleBuffer::<strong>assign</strong>(T* p, size_t n) noexcept</code></li>
+<li><code>void SimpleBuffer::<strong>assign</strong>(T* p, size_t n, delete_function d)</code></li>
 <li><code>T&amp; SimpleBuffer::<strong>at</strong>(size_t i)</code></li>
 <li><code>const T&amp; SimpleBuffer::<strong>at</strong>(size_t i) const</code></li>
 <li><code>T* SimpleBuffer::<strong>begin</strong>() noexcept</code></li>
@@ -510,10 +511,10 @@ extremely high values.</p>
 <li><code>size_t SimpleBuffer::<strong>bytes</strong>() const noexcept</code></li>
 <li><code>size_t SimpleBuffer::<strong>capacity</strong>() const noexcept</code></li>
 <li><code>void SimpleBuffer::<strong>clear</strong>() noexcept</code></li>
+<li><code>void SimpleBuffer::<strong>copy</strong>(const T* p, size_t n)</code></li>
+<li><code>void SimpleBuffer::<strong>copy</strong>(const T* p1, const T* p2)</code></li>
 <li><code>bool SimpleBuffer::<strong>empty</strong>() const noexcept</code></li>
 <li><code>size_t SimpleBuffer::<strong>max_size</strong>() const noexcept</code></li>
-<li><code>void SimpleBuffer::<strong>resize</strong>(size_t n)</code></li>
-<li><code>void SimpleBuffer::<strong>resize</strong>(size_t n, T t)</code></li>
 <li><code>size_t SimpleBuffer::<strong>size</strong>() const noexcept</code></li>
 <li><code>void SimpleBuffer::<strong>swap</strong>(SimpleBuffer&amp; sb2) noexcept</code></li>
 </ul></li>
@@ -531,22 +532,34 @@ trivially copyable; the implementation will use <code>memcpy()</code> wherever p
 instead of copying discrete <code>T</code> objects. Most of the member functions are
 equivalent to those of <code>std::vector</code> and should be self explanatory.</p>
 
-<p>The constructor, <code>assign()</code>, and <code>resize()</code> functions that take only a length
-do not initialize the newly allocated memory. All of the <code>resize()</code> functions
-are synonyms for the corresponding <code>assign()</code>.</p>
-
 <p>Unlike a <code>std::vector</code>, a <code>SimpleBuffer</code> always allocates exactly the required
 amount of memory (<code>capacity()</code> is always equal to <code>size()</code>). Any operation
 that changes the buffer&#8217;s size will reallocate it and invalidate all iterators
 and references into the old buffer.</p>
 
+<p>The constructor and <code>assign()</code> function that take only a length do not
+initialize the newly allocated memory. The versions that take a length and
+value will fill the entire buffer with the value. The versions that take a
+pointer, size, and optional deallocation function function take ownership of
+the referenced data, and will deallocate it when it is discarded. If no
+deallocation function is supplied, the memory is assumed to have been acquired
+with <code>malloc()</code>, and will be released with <code>free()</code>. When a buffer is copied,
+the memory for the new copy is always allocated using <code>new T[]</code>, regardless of
+how the source buffer was allocated.</p>
+
+<p>For all functions that take a pointer, behaviour is undefined if the pointer
+is null.</p>
+
 <p>The <code>data()</code> and <code>cdata()</code> functions are synonyms for <code>begin()</code> and
 <code>cbegin()</code>. The <code>bytes()</code> function reports the array&#8217;s size in bytes (equal to
-<code>size()* sizeof(T)</code>).</p>
+<code>size()*sizeof(T)</code>).</p>
 
-<p>The comparison operators perform bytewise comparison by calling <code>memcmp()</code>. If
-<code>T</code> is not an unsigned integer type, this will usually not give the same
-ordering as a lexicographical comparison using <code>T</code>&#8217;s less-than operator.</p>
+<p>The <code>copy()</code> functions reallocate the buffer to the required size and copy the
+referenced data.</p>
+
+<p>The comparison operators perform bytewise comparison by calling <code>memcmp()</code>.
+This will usually not give the same ordering as a lexicographical comparison
+using <code>T</code>&#8217;s less-than operator.</p>
 
 <h2 id="exceptions">Exceptions</h2>
 

@@ -347,6 +347,7 @@ extremely high values.
 * `template <typename T> class SimpleBuffer`
     * `using SimpleBuffer::const_iterator = const T*`
     * `using SimpleBuffer::const_reference = const T&`
+    * `using SimpleBuffer::delete_function = std::function<void(T*)>`
     * `using SimpleBuffer::difference_type = ptrdiff_t`
     * `using SimpleBuffer::iterator = T*`
     * `using SimpleBuffer::reference = T&`
@@ -355,8 +356,8 @@ extremely high values.
     * `SimpleBuffer::SimpleBuffer() noexcept`
     * `explicit SimpleBuffer::SimpleBuffer(size_t n)`
     * `SimpleBuffer::SimpleBuffer(size_t n, T t)`
-    * `SimpleBuffer::SimpleBuffer(const T* p, size_t n)`
-    * `SimpleBuffer::SimpleBuffer(const T* p1, const T* p2)`
+    * `SimpleBuffer::SimpleBuffer(T* p, size_t n) noexcept`
+    * `SimpleBuffer::SimpleBuffer(T* p, size_t n, delete_function d)`
     * `SimpleBuffer::SimpleBuffer(const SimpleBuffer& sb)`
     * `SimpleBuffer::SimpleBuffer(SimpleBuffer&& sb) noexcept`
     * `SimpleBuffer::~SimpleBuffer() noexcept`
@@ -366,8 +367,8 @@ extremely high values.
     * `const T& SimpleBuffer::operator[](size_t i) const noexcept`
     * `void SimpleBuffer::assign(size_t n)`
     * `void SimpleBuffer::assign(size_t n, T t)`
-    * `void SimpleBuffer::assign(const T* p, size_t n)`
-    * `void SimpleBuffer::assign(const T* p1, const T* p2)`
+    * `void SimpleBuffer::assign(T* p, size_t n) noexcept`
+    * `void SimpleBuffer::assign(T* p, size_t n, delete_function d)`
     * `T& SimpleBuffer::at(size_t i)`
     * `const T& SimpleBuffer::at(size_t i) const`
     * `T* SimpleBuffer::begin() noexcept`
@@ -382,10 +383,10 @@ extremely high values.
     * `size_t SimpleBuffer::bytes() const noexcept`
     * `size_t SimpleBuffer::capacity() const noexcept`
     * `void SimpleBuffer::clear() noexcept`
+    * `void SimpleBuffer::copy(const T* p, size_t n)`
+    * `void SimpleBuffer::copy(const T* p1, const T* p2)`
     * `bool SimpleBuffer::empty() const noexcept`
     * `size_t SimpleBuffer::max_size() const noexcept`
-    * `void SimpleBuffer::resize(size_t n)`
-    * `void SimpleBuffer::resize(size_t n, T t)`
     * `size_t SimpleBuffer::size() const noexcept`
     * `void SimpleBuffer::swap(SimpleBuffer& sb2) noexcept`
 * `bool operator==(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
@@ -401,22 +402,34 @@ trivially copyable; the implementation will use `memcpy()` wherever possible
 instead of copying discrete `T` objects. Most of the member functions are
 equivalent to those of `std::vector` and should be self explanatory.
 
-The constructor, `assign()`, and `resize()` functions that take only a length
-do not initialize the newly allocated memory. All of the `resize()` functions
-are synonyms for the corresponding `assign()`.
-
 Unlike a `std::vector`, a `SimpleBuffer` always allocates exactly the required
 amount of memory (`capacity()` is always equal to `size()`). Any operation
 that changes the buffer's size will reallocate it and invalidate all iterators
 and references into the old buffer.
 
+The constructor and `assign()` function that take only a length do not
+initialize the newly allocated memory. The versions that take a length and
+value will fill the entire buffer with the value. The versions that take a
+pointer, size, and optional deallocation function function take ownership of
+the referenced data, and will deallocate it when it is discarded. If no
+deallocation function is supplied, the memory is assumed to have been acquired
+with `malloc()`, and will be released with `free()`. When a buffer is copied,
+the memory for the new copy is always allocated using `new T[]`, regardless of
+how the source buffer was allocated.
+
+For all functions that take a pointer, behaviour is undefined if the pointer
+is null.
+
 The `data()` and `cdata()` functions are synonyms for `begin()` and
 `cbegin()`. The `bytes()` function reports the array's size in bytes (equal to
-`size()* sizeof(T)`).
+`size()*sizeof(T)`).
 
-The comparison operators perform bytewise comparison by calling `memcmp()`. If
-`T` is not an unsigned integer type, this will usually not give the same
-ordering as a lexicographical comparison using `T`'s less-than operator.
+The `copy()` functions reallocate the buffer to the required size and copy the
+referenced data.
+
+The comparison operators perform bytewise comparison by calling `memcmp()`.
+This will usually not give the same ordering as a lexicographical comparison
+using `T`'s less-than operator.
 
 ## Exceptions ##
 
