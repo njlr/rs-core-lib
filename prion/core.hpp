@@ -770,7 +770,9 @@ namespace Prion {
         friend bool operator<=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (rhs < lhs); }
         friend bool operator>=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (lhs < rhs); }
     private:
-        PRI_STATIC_ASSERT(std::is_trivially_copyable<T>::value);
+        #if ! defined(__GNUC__) || __GNUC__ >= 5
+            PRI_STATIC_ASSERT(std::is_trivially_copyable<T>::value);
+        #endif
         size_t len;
         T* ptr;
         void check_index(size_t i) const { if (i >= len) throw std::out_of_range("Buffer index out of range"); }
