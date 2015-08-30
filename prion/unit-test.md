@@ -18,6 +18,9 @@ A typical test module will look something like this:
         TEST_EQUAL(answer, 42);
     }
 
+Plase note that all of the macros here may evaluate their arguments more than
+once.
+
 * `#define TEST_MAIN`
 
 Supplies the main function for a test program. This must appear at global
