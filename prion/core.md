@@ -30,6 +30,7 @@ Cygwin, this will only happen if `_WIN32` is defined.
 * [Keyword arguments][]
 * [Mixins][]
 * [Range utilities][]
+* [Scope guards][]
 * [String functions][]
 * [Threads][]
 * [Time and date functions][]
@@ -682,7 +683,7 @@ Functions for generating variable Xterm codes. The RGB levels passed to the
 The grey level passed to the `xt_grey[_bg]()` functions is clamped to a range
 of 1-24.
 
-## Keyword Arguments ##
+## Keyword arguments ##
 
 * `template <typename K> struct Kwarg`
     * `template <typename A> ... Kwarg::operator=(const A& arg) const`
