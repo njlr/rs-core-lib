@@ -63,10 +63,22 @@ ifeq ($(HOST),linux)
 	LIBTAG := linux
 endif
 
+CXXVERSION := $(shell $(CXX) --version | head -n 1 | grep -Eo '[0-9]+(\.[0-9]+)+' | sed -E 's/\..*//')
+
 ifeq ($(CXX),clang++)
 	CXXFLAGS += -std=c++1z -stdlib=libc++
 else
-	CXXFLAGS += -std=c++14
+	ifeq ($(XHOST),cygwin)
+		CXXLANG := gnu++
+	else
+		CXXLANG := c++
+	endif
+	ifeq ($(CXXVERSION),4)
+		CXXLANGVER := 14
+	else
+		CXXLANGVER := 1z
+	endif
+	CXXFLAGS += -std=$(CXXLANG)$(CXXLANGVER)
 endif
 
 ifeq ($(XHOST),mingw)
