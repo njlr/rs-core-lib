@@ -28,7 +28,7 @@ code_patterns = [
     r'(?:[^()]+ )?(operator&quot;&quot; _\w+)\(',                                                 # literal operator
     r'(?:[^()]+ )?' + qual + r'(operator(?:[!%*+,/<=>^|~-]|&[a-z]+;)+)\(',                        # operator
     r'(?:[^()]+ )?' + qual + r'(operator(?:\(\)|\[\]))\(',                                        # operator
-    r'(?:[^()]+ )?' + qual + r'(operator \w+)\(',                                                 # conversion operator
+    r'(?:[^()]+ )?' + qual + r'(operator (?:const )?\w+(?:\*|&amp;)*)\(',                         # conversion operator
     r'(?:[^()#]+ )?(?:std::function&lt;.+\)&gt; )?' + qual + r'([\w\[\]]+(?: ## \w+)*)\(',        # function
     r'std::function&lt;.+&gt; (\w+)\(',                                                           # function
     r'^(?:static )?const(?:expr)? \[?(?:\w|[ &*:;<>])+\]? ' + qual + r'([\w\[\]]+(?: ## \w+)*)',  # constant
