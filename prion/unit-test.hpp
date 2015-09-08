@@ -22,10 +22,7 @@
 
 // Unit testing macros
 
-#define TEST_MAIN \
-    int main() { \
-        return ::Test::test_main(); \
-    }
+#define TEST_MAIN int main() { return ::Test::test_main(); }
 
 #define TEST_MODULE(project, module) \
     void test_ ## project ## _ ## module(); \
@@ -54,7 +51,7 @@
 #define TEST_IMPL(status, expr, desc) \
     do { \
         status = true; \
-        TRY_IMPL(status = static_cast<bool>(expr), desc); \
+        TRY_IMPL(status = bool(expr), desc); \
     } while (false)
 
 #define FAIL(msg) \
@@ -330,8 +327,8 @@ struct Test {
         int caps = 0;
         pcre_fullinfo(p.get(), nullptr, PCRE_INFO_CAPTURECOUNT, &caps);
         std::vector<int> ofs(3 * (caps + 1));
-        auto rc = pcre_exec(p.get(), nullptr, str.data(), static_cast<int>(str.size()),
-            0, 0, ofs.data(), static_cast<int>(ofs.size()));
+        auto rc = pcre_exec(p.get(), nullptr, str.data(), int(str.size()),
+            0, 0, ofs.data(), int(ofs.size()));
         return rc > 0;
     }
 
@@ -350,7 +347,7 @@ struct Test {
                 case '\\': result += "\\\\"; break;
                 default:
                     if (uc >= 0x20 && uc <= 0x7e) {
-                        result += static_cast<char>(uc);
+                        result += char(uc);
                     } else if (uc <= 0xff) {
                         result += "\\x";
                         result += Prion::hex(uc, 2);

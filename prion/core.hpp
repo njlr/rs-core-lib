@@ -143,11 +143,11 @@ namespace Prion {
     // Functions needed early
 
     template <typename T> inline auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
-    inline auto as_signed(__int128 t) noexcept { return static_cast<__int128>(t); }
-    inline auto as_signed(unsigned __int128 t) noexcept { return static_cast<__int128>(t); }
+    inline auto as_signed(int128_t t) noexcept { return int128_t(t); }
+    inline auto as_signed(uint128_t t) noexcept { return int128_t(t); }
     template <typename T> inline auto as_unsigned(T t) noexcept { return static_cast<std::make_unsigned_t<T>>(t); }
-    inline auto as_unsigned(__int128 t) noexcept { return static_cast<unsigned __int128>(t); }
-    inline auto as_unsigned(unsigned __int128 t) noexcept { return static_cast<unsigned __int128>(t); }
+    inline auto as_unsigned(int128_t t) noexcept { return uint128_t(t); }
+    inline auto as_unsigned(uint128_t t) noexcept { return uint128_t(t); }
 
     template <typename C>
     basic_string<C> cstr(const C* ptr) {
@@ -170,8 +170,8 @@ namespace Prion {
             auto y = neg ? as_unsigned(- x) : as_unsigned(x);
             u8string s;
             do {
-                auto d = static_cast<int>(y % b);
-                s += static_cast<char>((d < 10 ? '0' : 'a' - 10) + d);
+                auto d = int(y % b);
+                s += char((d < 10 ? '0' : 'a' - 10) + d);
                 y /= b;
             } while (y || s.size() < digits);
             if (neg)
@@ -339,7 +339,7 @@ namespace Prion {
     namespace PrionDetail {
 
         template <char C> constexpr uint128_t digit_value() noexcept
-            { return static_cast<uint128_t>(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
+            { return uint128_t(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
 
         template <uint128_t Base, char C, char... CS>
         struct BaseInteger {
@@ -363,17 +363,17 @@ namespace Prion {
     namespace Literals {
 
         template <char... CS> inline constexpr int128_t operator"" _s128() noexcept
-            { return static_cast<int128_t>(PrionDetail::MakeInteger<CS...>::value); }
+            { return int128_t(PrionDetail::MakeInteger<CS...>::value); }
         template <char... CS> inline constexpr uint128_t operator"" _u128() noexcept
             { return PrionDetail::MakeInteger<CS...>::value; }
         inline constexpr float operator"" _degf(long double x) noexcept
-            { return static_cast<float>(x * (pi_ld / 180.0L)); }
+            { return float(x * (pi_ld / 180.0L)); }
         inline constexpr float operator"" _degf(unsigned long long x) noexcept
-            { return static_cast<float>(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+            { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
         inline constexpr double operator"" _deg(long double x) noexcept
-            { return static_cast<double>(x * (pi_ld / 180.0L)); }
+            { return double(x * (pi_ld / 180.0L)); }
         inline constexpr double operator"" _deg(unsigned long long x) noexcept
-            { return static_cast<double>(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+            { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
         inline constexpr long double operator"" _degl(long double x) noexcept
             { return x * (pi_ld / 180.0L); }
         inline constexpr long double operator"" _degl(unsigned long long x) noexcept
@@ -520,7 +520,7 @@ namespace Prion {
         if (sign_of(t) < 0)
             return 0;
         if (std::numeric_limits<T>::digits < std::numeric_limits<double>::digits)
-            return static_cast<T>(floor(sqrt(static_cast<double>(t))));
+            return static_cast<T>(floor(sqrt(double(t))));
         auto u = as_unsigned(t);
         using U = decltype(u);
         U result = 0, test = U(1) << (8 * sizeof(U) - 2);
@@ -659,7 +659,7 @@ namespace Prion {
     void write_be(T t, void* ptr, size_t ofs, size_t len) noexcept {
         auto bp = static_cast<uint8_t*>(ptr) + ofs + len;
         for (; len > 0; --len, t >>= 8)
-            *--bp = static_cast<uint8_t>(t & 0xff);
+            *--bp = uint8_t(t & 0xff);
     }
 
     template <typename T>
@@ -672,12 +672,12 @@ namespace Prion {
     void write_le(T t, void* ptr, size_t ofs, size_t len) noexcept {
         auto bp = static_cast<uint8_t*>(ptr) + ofs;
         for (; len > 0; --len, t >>= 8)
-            *bp++ = static_cast<uint8_t>(t & 0xff);
+            *bp++ = uint8_t(t & 0xff);
     }
 
     // Character functions
 
-    constexpr bool ascii_iscntrl(char c) noexcept { return static_cast<uint8_t>(c) <= 31 || c == 127; }
+    constexpr bool ascii_iscntrl(char c) noexcept { return uint8_t(c) <= 31 || c == 127; }
     constexpr bool ascii_isdigit(char c) noexcept { return c >= '0' && c <= '9'; }
     constexpr bool ascii_isgraph(char c) noexcept { return c >= '!' && c <= '~'; }
     constexpr bool ascii_islower(char c) noexcept { return c >= 'a' && c <= 'z'; }
@@ -885,9 +885,9 @@ namespace Prion {
         public SystemError {
         public:
             WindowsError(uint32_t error, const char* function):
-                SystemError(static_cast<int>(error), cstr(function), assemble(static_cast<int>(error), cstr(function), translate(error))) {}
+                SystemError(int(error), cstr(function), assemble(int(error), cstr(function), translate(error))) {}
             WindowsError(uint32_t error, const u8string& function):
-                SystemError(static_cast<int>(error), function, assemble(static_cast<int>(error), function, translate(error))) {}
+                SystemError(int(error), function, assemble(int(error), function, translate(error))) {}
             static u8string translate(uint32_t error);
         };
 
@@ -1075,10 +1075,8 @@ namespace Prion {
     namespace PrionDetail {
 
         template <typename K, typename V, bool = std::is_convertible<K, V>::value> struct Kwcopy;
-        template <typename K, typename V> struct Kwcopy<K, V, true>
-            { void operator()(const K& a, V& p) const { p = static_cast<V>(a); } };
-        template <typename K, typename V> struct Kwcopy<K, V, false>
-            { void operator()(const K&, V&) const {} };
+        template <typename K, typename V> struct Kwcopy<K, V, true> { void operator()(const K& a, V& p) const { p = static_cast<V>(a); } };
+        template <typename K, typename V> struct Kwcopy<K, V, false> { void operator()(const K&, V&) const {} };
 
         template <typename K> struct Kwparam {
             const void* key;
@@ -1089,8 +1087,7 @@ namespace Prion {
 
     template <typename K> struct Kwarg {
         constexpr Kwarg() {}
-        template <typename A> PrionDetail::Kwparam<K> operator=(const A& a) const
-            { return {this, static_cast<K>(a)}; }
+        template <typename A> PrionDetail::Kwparam<K> operator=(const A& a) const { return {this, static_cast<K>(a)}; }
     };
 
     template <typename K, typename V, typename K2, typename... Args>
@@ -1412,7 +1409,7 @@ namespace Prion {
     inline string quote(const string& str, bool allow_8bit = false) {
         string result = "\"";
         for (auto c: str) {
-            auto b = static_cast<uint8_t>(c);
+            auto b = uint8_t(c);
             if (c == 0)                        result += "\\0";
             else if (c == '\t')                result += "\\t";
             else if (c == '\n')                result += "\\n";
@@ -1838,7 +1835,7 @@ namespace Prion {
                     rc = snprintf(buf.data(), buf.size(), "%dm%02d", m, s);
                 else
                     rc = snprintf(buf.data(), buf.size(), "%d", s);
-                if (rc < static_cast<int>(buf.size()))
+                if (rc < int(buf.size()))
                     break;
                 buf.resize(2 * buf.size());
             }
@@ -1866,7 +1863,7 @@ namespace Prion {
             #else
                 auto msec = t.count();
                 if (msec > 0)
-                    Sleep(static_cast<uint32_t>(msec));
+                    Sleep(uint32_t(msec));
                 else
                     Sleep(0);
             #endif
@@ -1939,7 +1936,7 @@ namespace Prion {
         }
         tm stm;
         memset(&stm, 0, sizeof(stm));
-        stm.tm_sec = static_cast<int>(isec);
+        stm.tm_sec = int(isec);
         stm.tm_min = min;
         stm.tm_hour = hour;
         stm.tm_mday = day;
@@ -1985,7 +1982,7 @@ namespace Prion {
             using namespace std::chrono;
             static constexpr int64_t billion = 1000000000ll;
             int64_t nsec = duration_cast<nanoseconds>(d).count();
-            return {static_cast<time_t>(nsec / billion), static_cast<long>(nsec % billion)};
+            return {time_t(nsec / billion), long(nsec % billion)};
         }
 
         template <typename R, typename P>
@@ -1993,7 +1990,7 @@ namespace Prion {
             using namespace std::chrono;
             static constexpr int64_t million = 1000000ll;
             int64_t usec = duration_cast<microseconds>(d).count();
-            return {static_cast<time_t>(usec / million), static_cast<suseconds_t>(usec % million)};
+            return {time_t(usec / million), suseconds_t(usec % million)};
         }
 
         inline timespec timepoint_to_timespec(const std::chrono::system_clock::time_point& tp) noexcept {
@@ -2042,10 +2039,10 @@ namespace Prion {
             using namespace std::chrono;
             static constexpr int64_t filetime_freq = 10000000ll;     // FILETIME ticks (100 ns) per second
             static constexpr int64_t windows_epoch = 11644473600ll;  // Windows epoch (1601) to Unix epoch (1970)
-            int64_t ticks = (static_cast<int64_t>(ft.dwHighDateTime) << 32) + static_cast<int64_t>(ft.dwLowDateTime);
+            int64_t ticks = (int64_t(ft.dwHighDateTime) << 32) + int64_t(ft.dwLowDateTime);
             int64_t sec = ticks / filetime_freq - windows_epoch;
             int64_t nsec = 100ll * (ticks % filetime_freq);
-            return system_clock::from_time_t(static_cast<time_t>(sec)) + duration_cast<system_clock::duration>(nanoseconds(nsec));
+            return system_clock::from_time_t(time_t(sec)) + duration_cast<system_clock::duration>(nanoseconds(nsec));
         }
 
         inline void timepoint_to_filetime(const std::chrono::system_clock::time_point& tp, FILETIME& ft) noexcept {
@@ -2053,7 +2050,7 @@ namespace Prion {
             auto unix_time = tp - system_clock::from_time_t(0);
             uint64_t nsec = duration_cast<nanoseconds>(unix_time).count();
             uint64_t ticks = nsec / 100ll;
-            ft = {static_cast<uint32_t>(ticks), static_cast<uint32_t>(ticks >> 32)};
+            ft = {uint32_t(ticks), uint32_t(ticks >> 32)};
         }
 
     #endif
@@ -2126,14 +2123,11 @@ namespace Prion {
             bytes{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p} {}
         Uuid(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l,
             uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
-            bytes{static_cast<uint8_t>((abcd >> 24) & 0xff), static_cast<uint8_t>((abcd >> 16) & 0xff),
-            static_cast<uint8_t>((abcd >> 8) & 0xff), static_cast<uint8_t>(abcd & 0xff),
-            static_cast<uint8_t>((ef >> 8) & 0xff), static_cast<uint8_t>(ef & 0xff),
-            static_cast<uint8_t>((gh >> 8) & 0xff), static_cast<uint8_t>(gh & 0xff),
-            i, j, k, l, m, n, o, p} {}
+            bytes{uint8_t((abcd >> 24) & 0xff), uint8_t((abcd >> 16) & 0xff), uint8_t((abcd >> 8) & 0xff), uint8_t(abcd & 0xff),
+                uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff),
+                i, j, k, l, m, n, o, p} {}
         explicit Uuid(uint128_t u) noexcept { write_be(u, bytes); }
-        explicit Uuid(const uint8_t* ptr) noexcept
-            { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
+        explicit Uuid(const uint8_t* ptr) noexcept { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
         explicit Uuid(const string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
         const uint8_t& operator[](size_t i) const noexcept { return bytes[i]; }
@@ -2143,10 +2137,8 @@ namespace Prion {
         const uint8_t* end() const noexcept { return bytes + 16; }
         uint128_t as_integer() const noexcept { return read_be<uint128_t>(bytes); }
         u8string str() const;
-        friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept
-            { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
-        friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept
-            { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }
+        friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
+        friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }
     private:
         friend struct RandomUuid;
         union {
@@ -2166,7 +2158,7 @@ namespace Prion {
             rc = PrionDetail::decode_hex_byte(i, ends);
             if (rc == -1)
                 break;
-            *j++ = static_cast<uint8_t>(rc);
+            *j++ = uint8_t(rc);
         }
         if (rc == -1 || j != endu || std::find_if(i, ends, ascii_isalnum) != ends)
             throw std::invalid_argument("Invalid UUID: " + s);
@@ -2250,7 +2242,7 @@ namespace Prion {
             auto j = std::find_if_not(i, e, ascii_isdigit);
             if (j == i)
                 break;
-            v[n++] = static_cast<unsigned>(decnum(string(i, j)));
+            v[n++] = unsigned(decnum(string(i, j)));
             if (j == e || *j != '.')
                 break;
             i = j + 1;
@@ -2402,13 +2394,13 @@ namespace Prion {
     static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan bg
     static constexpr const char* xt_white_bg     = "\e[47m";  // White bg
 
-    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                               // Cursor up n spaces
-    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                             // Cursor down n spaces
-    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                            // Cursor right n spaces
-    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                             // Cursor left n spaces
-    inline string xt_colour(int rgb) { return "\x1b[38;5;"+ dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (0-5)
-    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;"+ dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (0-5)
-    inline string xt_grey(int grey) { return "\x1b[38;5;"+ dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
-    inline string xt_grey_bg(int grey) { return "\x1b[48;5;"+ dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
+    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
+    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces
+    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                             // Cursor right n spaces
+    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                              // Cursor left n spaces
+    inline string xt_colour(int rgb) { return "\x1b[38;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (0-5)
+    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (0-5)
+    inline string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
+    inline string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
 
 }

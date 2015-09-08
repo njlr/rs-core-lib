@@ -947,18 +947,18 @@ namespace {
 
         TEST_EQUAL(char_to<int>(0), 0);
         TEST_EQUAL(char_to<int>('A'), 65);
-        TEST_EQUAL(char_to<int>(static_cast<char>(127)), 127);
-        TEST_EQUAL(char_to<int>(static_cast<char>(128)), 128);
-        TEST_EQUAL(char_to<int>(static_cast<char>(-128)), 128);
-        TEST_EQUAL(char_to<int>(static_cast<char>(255)), 255);
-        TEST_EQUAL(char_to<int>(static_cast<char>(-1)), 255);
+        TEST_EQUAL(char_to<int>(char(127)), 127);
+        TEST_EQUAL(char_to<int>(char(128)), 128);
+        TEST_EQUAL(char_to<int>(char(-128)), 128);
+        TEST_EQUAL(char_to<int>(char(255)), 255);
+        TEST_EQUAL(char_to<int>(char(-1)), 255);
         TEST_EQUAL(char_to<uint32_t>(0), 0);
         TEST_EQUAL(char_to<uint32_t>('A'), 65);
-        TEST_EQUAL(char_to<uint32_t>(static_cast<char>(127)), 127);
-        TEST_EQUAL(char_to<uint32_t>(static_cast<char>(128)), 128);
-        TEST_EQUAL(char_to<uint32_t>(static_cast<char>(-128)), 128);
-        TEST_EQUAL(char_to<uint32_t>(static_cast<char>(255)), 255);
-        TEST_EQUAL(char_to<uint32_t>(static_cast<char>(-1)), 255);
+        TEST_EQUAL(char_to<uint32_t>(char(127)), 127);
+        TEST_EQUAL(char_to<uint32_t>(char(128)), 128);
+        TEST_EQUAL(char_to<uint32_t>(char(-128)), 128);
+        TEST_EQUAL(char_to<uint32_t>(char(255)), 255);
+        TEST_EQUAL(char_to<uint32_t>(char(-1)), 255);
 
     }
 
@@ -1342,9 +1342,9 @@ namespace {
         bool b = false;
         string c;
         template <typename... Args> int fun(const Args&... args) {
-            auto i = static_cast<int>(kwget(kw_alpha, a, args...));
-            auto j = static_cast<int>(kwget(kw_bravo, b, args...));
-            auto k = static_cast<int>(kwget(kw_charlie, c, args...));
+            auto i = int(kwget(kw_alpha, a, args...));
+            auto j = int(kwget(kw_bravo, b, args...));
+            auto k = int(kwget(kw_charlie, c, args...));
             return (i << 2) + (j << 1) + k;
         }
     };
@@ -1739,17 +1739,17 @@ namespace {
         TEST_EQUAL(hex(0xabcdef, 3), "abcdef");
         TEST_EQUAL(hex(0xabcdef, 6), "abcdef");
         TEST_EQUAL(hex(0xabcdef, 9), "000abcdef");
-        TEST_EQUAL(hex(static_cast<int8_t>(0)), "00");
-        TEST_EQUAL(hex(static_cast<int16_t>(0)), "0000");
-        TEST_EQUAL(hex(static_cast<int32_t>(0)), "00000000");
-        TEST_EQUAL(hex(static_cast<int8_t>(42)), "2a");
-        TEST_EQUAL(hex(static_cast<int16_t>(42)), "002a");
-        TEST_EQUAL(hex(static_cast<int32_t>(42)), "0000002a");
-        TEST_EQUAL(hex(static_cast<int8_t>(-42)), "-2a");
-        TEST_EQUAL(hex(static_cast<int16_t>(-42)), "-002a");
-        TEST_EQUAL(hex(static_cast<int32_t>(-42)), "-0000002a");
-        TEST_EQUAL(hex(static_cast<uint32_t>(0xabcdef)), "00abcdef");
-        TEST_EQUAL(hex(static_cast<uint64_t>(0x123456789abcdefull)), "0123456789abcdef");
+        TEST_EQUAL(hex(int8_t(0)), "00");
+        TEST_EQUAL(hex(int16_t(0)), "0000");
+        TEST_EQUAL(hex(int32_t(0)), "00000000");
+        TEST_EQUAL(hex(int8_t(42)), "2a");
+        TEST_EQUAL(hex(int16_t(42)), "002a");
+        TEST_EQUAL(hex(int32_t(42)), "0000002a");
+        TEST_EQUAL(hex(int8_t(-42)), "-2a");
+        TEST_EQUAL(hex(int16_t(-42)), "-002a");
+        TEST_EQUAL(hex(int32_t(-42)), "-0000002a");
+        TEST_EQUAL(hex(uint32_t(0xabcdef)), "00abcdef");
+        TEST_EQUAL(hex(uint64_t(0x123456789abcdefull)), "0123456789abcdef");
 
         TEST_EQUAL(decnum(""), 0);
         TEST_EQUAL(decnum("0"), 0);
@@ -1988,13 +1988,13 @@ namespace {
         u8string str;
 
         TRY(tp = make_date(1970, 1, 1, 0, 0, 0));
-        TRY(t1 = static_cast<intmax_t>(system_clock::to_time_t(tp)));
+        TRY(t1 = intmax_t(system_clock::to_time_t(tp)));
         TEST_EQUAL(t1, 0);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5));
-        TRY(t1 = static_cast<intmax_t>(system_clock::to_time_t(tp)));
+        TRY(t1 = intmax_t(system_clock::to_time_t(tp)));
         TEST_EQUAL(t1, 946782245);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5, local_date));
-        TRY(t2 = static_cast<intmax_t>(system_clock::to_time_t(tp)));
+        TRY(t2 = intmax_t(system_clock::to_time_t(tp)));
         TEST_COMPARE(abs(t2 - t1), <=, 86400);
 
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5));
@@ -2143,13 +2143,13 @@ namespace {
             FILETIME ft;
 
             n = epoch * freq;
-            ft = {static_cast<uint32_t>(n), static_cast<uint32_t>(n >> 32)};
+            ft = {uint32_t(n), uint32_t(n >> 32)};
             TRY(tp = filetime_to_timepoint(ft));
             d = tp - system_clock::from_time_t(0);
             TEST_EQUAL(d.count(), 0);
 
             n += 86400 * freq;
-            ft = {static_cast<uint32_t>(n), static_cast<uint32_t>(n >> 32)};
+            ft = {uint32_t(n), uint32_t(n >> 32)};
             TRY(tp = filetime_to_timepoint(ft));
             d = tp - system_clock::from_time_t(0);
             TEST_EQUAL(duration_cast<IntMsec>(d).count(), 86400000);
@@ -2188,7 +2188,7 @@ namespace {
     void check_uuid() {
 
         Uuid u1, u2;
-        std::mt19937 rng{static_cast<uint32_t>(time(nullptr))};
+        std::mt19937 rng{uint32_t(time(nullptr))};
 
         TEST_EQUAL(u1.str(), "00000000-0000-0000-0000-000000000000");
         TEST_EQUAL(to_str(u1), "00000000-0000-0000-0000-000000000000");
