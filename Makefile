@@ -68,17 +68,11 @@ CXXVERSION := $(shell $(CXX) --version | head -n 1 | grep -Eo '[0-9]+(\.[0-9]+)+
 ifeq ($(CXX),clang++)
 	CXXFLAGS += -std=c++1z -stdlib=libc++
 else
-	ifeq ($(XHOST),cygwin)
-		CXXLANG := gnu++
-	else
-		CXXLANG := c++
-	endif
 	ifeq ($(CXXVERSION),4)
-		CXXLANGVER := 14
+		CXXFLAGS += -std=gnu++14
 	else
-		CXXLANGVER := 1z
+		CXXFLAGS += -std=gnu++1z
 	endif
-	CXXFLAGS += -std=$(CXXLANG)$(CXXLANGVER)
 endif
 
 ifeq ($(XHOST),mingw)
