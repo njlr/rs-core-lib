@@ -1064,7 +1064,7 @@ namespace {
 
     }
 
-    void check_flag_sets() {
+    void check_flagset() {
 
         constexpr uint64_t ALPHA = Flagset::value('A');
         constexpr uint64_t BRAVO = Flagset::value('B');
@@ -1237,6 +1237,16 @@ namespace {
         TEST_COMPARE(Flagset("[abc]"), ==, Flagset("{abc}"));
         TEST_COMPARE(Flagset("abc"), ==, Flagset("aaabbbccc"));
 
+        TRY(f = "(a, b, c)");
+        TEST(f.getc('a'));
+        TEST(f.getc('b'));
+        TEST(f.getc('c'));
+        TEST(! f.getc('d'));
+        TEST(! f.getc(' '));
+        TEST(! f.getc('('));
+        TEST(! f.getc(')'));
+        TEST(! f.getc(','));
+
         TRY(f = "abc");
         TRY(f.allow("abc", "test"));
         TRY(f.allow("abcdef", "test"));
@@ -1249,6 +1259,7 @@ namespace {
         TRY(f.exclusive("def", "test"));
         TEST_THROW_EQUAL(f.exclusive("abc", "test"), FlagError, "Invalid test flags: \"abc\"");
         TEST_THROW_EQUAL(f.exclusive("bcd", "test"), FlagError, "Invalid test flags: \"abc\"");
+
 
     }
 
@@ -2306,7 +2317,7 @@ TEST_MODULE(prion, core) {
     check_character_functions();
     check_containers();
     check_exceptions();
-    check_flag_sets();
+    check_flagset();
     check_functional_utilities();
     check_hash_functions();
     check_io_utilities();

@@ -486,9 +486,14 @@ you can pass the flags as either `rx_caseless|rx_notempty` or `"iz"`.
 
 The flag set is stored internally as a 64-bit unsigned integer, which means
 there aren't enough bits to actually allow any character, or even any ASCII
-character, as a flag abbreviation. The allowed flags are the 52 ASCII letters,
-and 12 of the punctuation marks: `# $ % & * + - / < = > @` (flags are case
-sensitive).
+character, as a flag abbreviation. The allowed flags are the 52 ASCII letters
+(case sensitive), and 12 punctuation marks:
+
+    # $ % & * + - / < = > @
+
+Functions that take one or more characters intended to identify flags
+(constructors, `getc()`, `setc()`) will ignore any characters that are not
+valid flags.
 
 * `constexpr Flagset::Flagset() noexcept`
 * `constexpr Flagset(std::nullptr_t) noexcept`
@@ -502,10 +507,10 @@ sensitive).
 * `Flagset& Flagset::operator=(Flagset&& f) noexcept`
 
 Life cycle operations. The flag set can be implicitly constructed from an
-integer bitmask or a string of character flags. (Constructor overloads are
-supplied for all integer types, including `bool`; these are imposed on us by
-the need to make `FlagSet(0)` do the right thing in the face of C++'s baroque
-implicit conversion rules.)
+integer bitmask or a string of character flags. Constructor overloads are
+supplied for all integer types, including `bool` (these are imposed on us by
+the need to make `Flagset(0)` do the right thing in the face of C++'s baroque
+implicit conversion rules).
 
 * `void Flagset::allow(Flagset allowed, const char* domain) const`
 * `void Flagset::exclusive(Flagset xgroup, const char* domain) const`
@@ -572,7 +577,7 @@ Equality comparison operators.
 Returns the bitmask value corresponding to a character flag, or zero if the
 character is not a valid flag (see above).
 
-* `class FlagError: public std::runtime_error`
+* `class FlagError: public std::invalid_argument`
     * `FlagError::FlagError(Flagset flags, const char* domain)`
     * `Flagset FlagError::flags() const noexcept`
 

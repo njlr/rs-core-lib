@@ -985,9 +985,9 @@ namespace Prion {
     };
 
     class FlagError:
-    public std::runtime_error {
+    public std::invalid_argument {
     public:
-        FlagError(Flagset flags, const char* domain): std::runtime_error(assemble(flags, domain)), fs(flags) {}
+        FlagError(Flagset flags, const char* domain): std::invalid_argument(assemble(flags, domain)), fs(flags) {}
         Flagset flags() const noexcept { return fs; }
     private:
         Flagset fs;

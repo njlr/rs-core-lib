@@ -630,9 +630,15 @@ you can pass the flags as either <code>rx_caseless|rx_notempty</code> or <code>&
 
 <p>The flag set is stored internally as a 64-bit unsigned integer, which means
 there aren&#8217;t enough bits to actually allow any character, or even any ASCII
-character, as a flag abbreviation. The allowed flags are the 52 ASCII letters,
-and 12 of the punctuation marks: <code># $ % &amp; * + - / &lt; = &gt; @</code> (flags are case
-sensitive).</p>
+character, as a flag abbreviation. The allowed flags are the 52 ASCII letters
+(case sensitive), and 12 punctuation marks:</p>
+
+<pre><code># $ % &amp; * + - / &lt; = &gt; @
+</code></pre>
+
+<p>Functions that take one or more characters intended to identify flags
+(constructors, <code>getc()</code>, <code>setc()</code>) will ignore any characters that are not
+valid flags.</p>
 
 <ul>
 <li><code>constexpr Flagset::<strong>Flagset</strong>() noexcept</code></li>
@@ -648,10 +654,10 @@ sensitive).</p>
 </ul>
 
 <p>Life cycle operations. The flag set can be implicitly constructed from an
-integer bitmask or a string of character flags. (Constructor overloads are
-supplied for all integer types, including <code>bool</code>; these are imposed on us by
-the need to make <code>FlagSet(0)</code> do the right thing in the face of C++&#8217;s baroque
-implicit conversion rules.)</p>
+integer bitmask or a string of character flags. Constructor overloads are
+supplied for all integer types, including <code>bool</code> (these are imposed on us by
+the need to make <code>Flagset(0)</code> do the right thing in the face of C++&#8217;s baroque
+implicit conversion rules).</p>
 
 <ul>
 <li><code>void Flagset::<strong>allow</strong>(Flagset allowed, const char* domain) const</code></li>
@@ -737,7 +743,7 @@ in the set.</p>
 character is not a valid flag (see above).</p>
 
 <ul>
-<li><code>class <strong>FlagError</strong>: public std::runtime_error</code>
+<li><code>class <strong>FlagError</strong>: public std::invalid_argument</code>
 
 <ul>
 <li><code>FlagError::<strong>FlagError</strong>(Flagset flags, const char* domain)</code></li>
