@@ -1115,7 +1115,8 @@ object&#8217;s copy constructor or assignment operator throws), <code>ScopeExit<
 <code>ScopeFailure</code> will call the function before propagating the exception, while
 <code>ScopeSuccess</code> will not. Any exceptions thrown by the function call in the
 destructor are silently ignored (normally the function should be written so as
-not to throw anything).</p>
+not to throw anything). Passing <code>nullptr</code> for the function will quietly do
+nothing.</p>
 
 <ul>
 <li><code>class <strong>Transaction</strong></code>

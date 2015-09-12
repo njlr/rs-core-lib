@@ -888,7 +888,8 @@ object's copy constructor or assignment operator throws), `ScopeExit` and
 `ScopeFailure` will call the function before propagating the exception, while
 `ScopeSuccess` will not. Any exceptions thrown by the function call in the
 destructor are silently ignored (normally the function should be written so as
-not to throw anything).
+not to throw anything). Passing `nullptr` for the function will quietly do
+nothing.
 
 * `class Transaction`
     * `using Transaction::callback = std::function<void()>`

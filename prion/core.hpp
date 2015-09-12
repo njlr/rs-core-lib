@@ -1247,18 +1247,12 @@ namespace Prion {
                     func = f;
                 } else {
                     try { func = f; }
-                    catch (...) {
-                        try { f(); }
-                        catch (...) {}
-                        throw;
-                    }
+                    catch (...) { silent_call(f); throw; }
                 }
             }
             ~ConditionalScopeExit() noexcept {
-                if (ScopeExitBase<Mode>::should_run()) {
-                    try { func(); }
-                    catch (...) {}
-                }
+                if (ScopeExitBase<Mode>::should_run())
+                    silent_call(func);
             }
         private:
             std::function<void()> func;
@@ -1266,6 +1260,7 @@ namespace Prion {
             ConditionalScopeExit(ConditionalScopeExit&&) = delete;
             ConditionalScopeExit& operator=(const ConditionalScopeExit&) = delete;
             ConditionalScopeExit& operator=(ConditionalScopeExit&&) = delete;
+            static void silent_call(callback& f) noexcept { if (f) { try { f(); } catch (...) {} } }
         };
 
     }

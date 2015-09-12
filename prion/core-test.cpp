@@ -1722,6 +1722,36 @@ namespace {
         catch (...) {}
         TEST_EQUAL(n, 2);
 
+        {
+            ScopeExit x(nullptr);
+        }
+
+        try {
+            ScopeExit x(nullptr);
+            throw std::runtime_error("Hello");
+        }
+        catch (...) {}
+
+        {
+            ScopeSuccess x(nullptr);
+        }
+
+        try {
+            ScopeSuccess x(nullptr);
+            throw std::runtime_error("Hello");
+        }
+        catch (...) {}
+
+        {
+            ScopeFailure x(nullptr);
+        }
+
+        try {
+            ScopeFailure x(nullptr);
+            throw std::runtime_error("Hello");
+        }
+        catch (...) {}
+
         string s;
         {
             Transaction t;
