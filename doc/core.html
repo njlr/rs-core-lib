@@ -452,6 +452,17 @@ All of them will always return false for bytes outside the ASCII range
 (0&#8211;127).</p>
 
 <ul>
+<li><code>constexpr bool <strong>ascii_isalnum_w</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_isalpha_w</strong>(char c) noexcept</code></li>
+<li><code>constexpr bool <strong>ascii_ispunct_w</strong>(char c) noexcept</code></li>
+</ul>
+
+<p>These behave the same as the corresodning functions without the <code>&quot;_w&quot;</code> suffix,
+except that the underscore character is counted as a letter instead of a
+punctuation mark. (The suffix is intended to suggest the <code>&quot;\w&quot;</code> regex element,
+which does much the same thing.)</p>
+
+<ul>
 <li><code>constexpr char <strong>ascii_tolower</strong>(char c) noexcept</code></li>
 <li><code>constexpr char <strong>ascii_toupper</strong>(char c) noexcept</code></li>
 </ul>

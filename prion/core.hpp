@@ -689,6 +689,9 @@ namespace Prion {
     constexpr bool ascii_isalpha(char c) noexcept { return ascii_islower(c) || ascii_isupper(c); }
     constexpr bool ascii_isalnum(char c) noexcept { return ascii_isalpha(c) || ascii_isdigit(c); }
     constexpr bool ascii_isxdigit(char c) noexcept { return ascii_isdigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
+    constexpr bool ascii_isalnum_w(char c) noexcept { return ascii_isalnum(c) || c == '_'; }
+    constexpr bool ascii_isalpha_w(char c) noexcept { return ascii_isalpha(c) || c == '_'; }
+    constexpr bool ascii_ispunct_w(char c) noexcept { return ascii_ispunct(c) && c != '_'; }
     constexpr char ascii_tolower(char c) noexcept { return ascii_isupper(c) ? c + 32 : c; }
     constexpr char ascii_toupper(char c) noexcept { return ascii_islower(c) ? c - 32 : c; }
     template <typename T> constexpr T char_to(char c) noexcept { return static_cast<T>(static_cast<unsigned char>(c)); }
