@@ -1008,14 +1008,16 @@ namespace Prion {
     class FlagError:
     public std::invalid_argument {
     public:
-        FlagError(Flagset flags, const char* domain): std::invalid_argument(assemble(flags, domain)), fs(flags) {}
+        FlagError(Flagset flags, const char* domain): std::invalid_argument(assemble(flags.str(), domain)), fs(flags) {}
+        FlagError(const u8string& flags, const char* domain): std::invalid_argument(assemble(flags, domain)), fs(flags) {}
+        FlagError(const char* flags, const char* domain): std::invalid_argument(assemble(flags, domain)), fs(flags) {}
         Flagset flags() const noexcept { return fs; }
     private:
         Flagset fs;
-        static u8string assemble(Flagset flags, const char* domain) {
+        static u8string assemble(const u8string& flags, const char* domain) {
             u8string s = "Invalid ";
             if (domain && *domain) s += u8string(domain) + " ";
-            s += "flags: \"" + flags.str() + "\"";
+            s += "flags: \"" + flags + "\"";
             return s;
         }
     };

@@ -592,6 +592,8 @@ above).
 
 * `class FlagError: public std::invalid_argument`
     * `FlagError::FlagError(Flagset flags, const char* domain)`
+    * `FlagError::FlagError(const u8string& flags, const char* domain)`
+    * `FlagError::FlagError(const char* flags, const char* domain)`
     * `Flagset FlagError::flags() const noexcept`
 
 An exception thrown to report an invalid combination of flags.
