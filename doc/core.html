@@ -747,11 +747,15 @@ in the set.</p>
 <p>Equality comparison operators.</p>
 
 <ul>
+<li><code>static constexpr char Flagset::<strong>cvalue</strong>(uint64_t flag) noexcept</code></li>
 <li><code>template &lt;typename C&gt; static constexpr uint64_t Flagset::<strong>value</strong>(C flag) noexcept</code></li>
 </ul>
 
-<p>Returns the bitmask value corresponding to a character flag, or zero if the
-character is not a valid flag (see above).</p>
+<p>These return the character flag corresponding to a bitmask flag, or vice
+versa. The <code>cvalue()</code> function will return zero if the argument does not have
+exactly one bit set; <code>value()</code> will return zero if the argument is not a valid
+flag character (i.e. one of the ASCII letter and punctuation marks listed
+above).</p>
 
 <ul>
 <li><code>class <strong>FlagError</strong>: public std::invalid_argument</code>

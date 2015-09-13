@@ -909,21 +909,39 @@ namespace Prion {
     class Flagset:
     public EqualityComparable<Flagset> {
     public:
+        static constexpr char cvalue(uint64_t flag) noexcept {
+            return __builtin_popcountll(flag) != 1 ? '\0'
+                : flag < (1ull << 26) ? 'A' + __builtin_ctzll(flag)
+                : flag < (1ull << 52) ? 'a' + __builtin_ctzll(flag) - 26
+                : flag == (1ull << 52) ? '#'
+                : flag == (1ull << 53) ? '$'
+                : flag == (1ull << 54) ? '%'
+                : flag == (1ull << 55) ? '&'
+                : flag == (1ull << 56) ? '*'
+                : flag == (1ull << 57) ? '+'
+                : flag == (1ull << 58) ? '-'
+                : flag == (1ull << 59) ? '/'
+                : flag == (1ull << 60) ? '<'
+                : flag == (1ull << 61) ? '='
+                : flag == (1ull << 62) ? '>'
+                : flag == (1ull << 63) ? '@'
+                : '\0';
+        }
         template <typename C> static constexpr uint64_t value(C flag) noexcept {
-            return (flag >= C('A') && flag <= C('Z')) ? uint64_t(1) << (flag - 65)
-                : (flag >= C('a') && flag <= C('z')) ? uint64_t(1) << (flag - 71)
-                : (flag == C('#')) ? uint64_t(1) << 52
-                : (flag == C('$')) ? uint64_t(1) << 53
-                : (flag == C('%')) ? uint64_t(1) << 54
-                : (flag == C('&')) ? uint64_t(1) << 55
-                : (flag == C('*')) ? uint64_t(1) << 56
-                : (flag == C('+')) ? uint64_t(1) << 57
-                : (flag == C('-')) ? uint64_t(1) << 58
-                : (flag == C('/')) ? uint64_t(1) << 59
-                : (flag == C('<')) ? uint64_t(1) << 60
-                : (flag == C('=')) ? uint64_t(1) << 61
-                : (flag == C('>')) ? uint64_t(1) << 62
-                : (flag == C('@')) ? uint64_t(1) << 63
+            return (flag >= C('A') && flag <= C('Z')) ? 1ull << (flag - 65)
+                : (flag >= C('a') && flag <= C('z')) ? 1ull << (flag - 71)
+                : (flag == C('#')) ? 1ull << 52
+                : (flag == C('$')) ? 1ull << 53
+                : (flag == C('%')) ? 1ull << 54
+                : (flag == C('&')) ? 1ull << 55
+                : (flag == C('*')) ? 1ull << 56
+                : (flag == C('+')) ? 1ull << 57
+                : (flag == C('-')) ? 1ull << 58
+                : (flag == C('/')) ? 1ull << 59
+                : (flag == C('<')) ? 1ull << 60
+                : (flag == C('=')) ? 1ull << 61
+                : (flag == C('>')) ? 1ull << 62
+                : (flag == C('@')) ? 1ull << 63
                 : 0;
         }
         constexpr Flagset() noexcept: bits(0) {}

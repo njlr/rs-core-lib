@@ -1148,6 +1148,48 @@ namespace {
 
     void check_flagset() {
 
+        TEST_EQUAL(Flagset::value('A'), 1);
+        TEST_EQUAL(Flagset::value('B'), 2);
+        TEST_EQUAL(Flagset::value('C'), 4);
+        TEST_EQUAL(Flagset::value('Z'), 0x2000000ull);
+        TEST_EQUAL(Flagset::value('a'), 0x4000000ull);
+        TEST_EQUAL(Flagset::value('b'), 0x8000000ull);
+        TEST_EQUAL(Flagset::value('c'), 0x10000000ull);
+        TEST_EQUAL(Flagset::value('z'), 0x8000000000000ull);
+        TEST_EQUAL(Flagset::value('#'), 0x10000000000000ull);
+        TEST_EQUAL(Flagset::value('$'), 0x20000000000000ull);
+        TEST_EQUAL(Flagset::value('%'), 0x40000000000000ull);
+        TEST_EQUAL(Flagset::value('&'), 0x80000000000000ull);
+        TEST_EQUAL(Flagset::value('*'), 0x100000000000000ull);
+        TEST_EQUAL(Flagset::value('+'), 0x200000000000000ull);
+        TEST_EQUAL(Flagset::value('-'), 0x400000000000000ull);
+        TEST_EQUAL(Flagset::value('/'), 0x800000000000000ull);
+        TEST_EQUAL(Flagset::value('<'), 0x1000000000000000ull);
+        TEST_EQUAL(Flagset::value('='), 0x2000000000000000ull);
+        TEST_EQUAL(Flagset::value('>'), 0x4000000000000000ull);
+        TEST_EQUAL(Flagset::value('@'), 0x8000000000000000ull);
+
+        TEST_EQUAL(Flagset::cvalue(1), 'A');
+        TEST_EQUAL(Flagset::cvalue(2), 'B');
+        TEST_EQUAL(Flagset::cvalue(4), 'C');
+        TEST_EQUAL(Flagset::cvalue(0x2000000ull), 'Z');
+        TEST_EQUAL(Flagset::cvalue(0x4000000ull), 'a');
+        TEST_EQUAL(Flagset::cvalue(0x8000000ull), 'b');
+        TEST_EQUAL(Flagset::cvalue(0x10000000ull), 'c');
+        TEST_EQUAL(Flagset::cvalue(0x8000000000000ull), 'z');
+        TEST_EQUAL(Flagset::cvalue(0x10000000000000ull), '#');
+        TEST_EQUAL(Flagset::cvalue(0x20000000000000ull), '$');
+        TEST_EQUAL(Flagset::cvalue(0x40000000000000ull), '%');
+        TEST_EQUAL(Flagset::cvalue(0x80000000000000ull), '&');
+        TEST_EQUAL(Flagset::cvalue(0x100000000000000ull), '*');
+        TEST_EQUAL(Flagset::cvalue(0x200000000000000ull), '+');
+        TEST_EQUAL(Flagset::cvalue(0x400000000000000ull), '-');
+        TEST_EQUAL(Flagset::cvalue(0x800000000000000ull), '/');
+        TEST_EQUAL(Flagset::cvalue(0x1000000000000000ull), '<');
+        TEST_EQUAL(Flagset::cvalue(0x2000000000000000ull), '=');
+        TEST_EQUAL(Flagset::cvalue(0x4000000000000000ull), '>');
+        TEST_EQUAL(Flagset::cvalue(0x8000000000000000ull), '@');
+
         constexpr uint64_t ALPHA = Flagset::value('A');
         constexpr uint64_t BRAVO = Flagset::value('B');
         constexpr uint64_t CHARLIE = Flagset::value('C');
@@ -1341,7 +1383,6 @@ namespace {
         TRY(f.exclusive("def", "test"));
         TEST_THROW_EQUAL(f.exclusive("abc", "test"), FlagError, "Invalid test flags: \"abc\"");
         TEST_THROW_EQUAL(f.exclusive("bcd", "test"), FlagError, "Invalid test flags: \"abc\"");
-
 
     }
 

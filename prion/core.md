@@ -581,10 +581,14 @@ Bitwise arithmetic operators.
 
 Equality comparison operators.
 
+* `static constexpr char Flagset::cvalue(uint64_t flag) noexcept`
 * `template <typename C> static constexpr uint64_t Flagset::value(C flag) noexcept`
 
-Returns the bitmask value corresponding to a character flag, or zero if the
-character is not a valid flag (see above).
+These return the character flag corresponding to a bitmask flag, or vice
+versa. The `cvalue()` function will return zero if the argument does not have
+exactly one bit set; `value()` will return zero if the argument is not a valid
+flag character (i.e. one of the ASCII letter and punctuation marks listed
+above).
 
 * `class FlagError: public std::invalid_argument`
     * `FlagError::FlagError(Flagset flags, const char* domain)`
