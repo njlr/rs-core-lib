@@ -117,6 +117,7 @@
 
 #define PRI_BOUNDS(range) std::begin(range), std::end(range)
 #define PRI_LDLIB(libs)
+#define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
 
 // For internal use only

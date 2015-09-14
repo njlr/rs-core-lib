@@ -41,6 +41,34 @@ TEST_MAIN;
 
 namespace {
 
+    u8string f1(int n) { return u8string(n, '*'); }
+    u8string f1(u8string s) { return '[' + s + ']'; }
+    u8string f2() { return "Hello"; }
+    u8string f2(u8string s) { return '[' + s + ']'; }
+    u8string f2(int x, int y) { return dec(x * y); }
+
+    void check_macros() {
+
+        std::vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
+        std::vector<u8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
+
+        TRY(std::transform(PRI_BOUNDS(iv), overwrite(result), PRI_OVERLOAD(f1)));
+        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"*", "**", "***", "****", "*****"}));
+        TRY(std::transform(PRI_BOUNDS(sv), overwrite(result), PRI_OVERLOAD(f1)));
+        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+
+        TRY(std::generate_n(overwrite(result), 3, PRI_OVERLOAD(f2)));
+        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"Hello", "Hello", "Hello"}));
+        TRY(std::transform(PRI_BOUNDS(sv), overwrite(result), PRI_OVERLOAD(f2)));
+        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        auto of2 = PRI_OVERLOAD(f2);
+        auto out = overwrite(result);
+        for (size_t i = 0; i < iv.size() && i < iv2.size(); ++i)
+            TRY(*out++ = of2(iv[i], iv2[i]));
+        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"2", "6", "15", "28", "55"}));
+
+    }
+
     void check_arithmetic_literals() {
 
         int128_t i = 0;
@@ -2464,6 +2492,7 @@ namespace {
 
 TEST_MODULE(prion, core) {
 
+    check_macros();
     check_arithmetic_literals();
     check_arithmetic_functions();
     check_byte_order();

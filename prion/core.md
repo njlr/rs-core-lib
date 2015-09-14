@@ -90,6 +90,13 @@ Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate
 `PRI_LDLIB()` line for each target.
 
+* `#define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }`
+
+Creates a function object wrapping a set of overloaded functions, that can be
+passed to a context expecting a function (such as an STL algorithm) without
+having to explicitly resolve the overload at the call site. (From an idea by
+Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)
+
 * `#define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)`
 
 Shorthand for `static_assert`, using the assertion expression as the error

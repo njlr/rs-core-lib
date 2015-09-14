@@ -148,6 +148,15 @@ needed on multiple targets, but not on all targets, you will need a separate
 <code>PRI_LDLIB()</code> line for each target.</p>
 
 <ul>
+<li><code>#define <strong>PRI_OVERLOAD</strong>(f) [] (auto&amp;&amp;... args) { return f(std::forward&lt;decltype(args)&gt;(args)...); }</code></li>
+</ul>
+
+<p>Creates a function object wrapping a set of overloaded functions, that can be
+passed to a context expecting a function (such as an STL algorithm) without
+having to explicitly resolve the overload at the call site. (From an idea by
+Arthur O&#8217;Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)</p>
+
+<ul>
 <li><code>#define <strong>PRI_STATIC_ASSERT</strong>(expr) static_assert((expr), # expr)</code></li>
 </ul>
 
