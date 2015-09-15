@@ -17,6 +17,7 @@ Cygwin, this will only happen if `_WIN32` is defined.
 * [Preprocessor macros][]
 * [Basic types][]
 * [Constants][]
+* [Algorithms][]
 * [Arithmetic literals][]
 * [Arithmetic functions][]
 * [Byte order][]
@@ -188,6 +189,23 @@ Constants defined using the macro above. The values quoted here are
 approximate; the values actually supplied are accurate to at least `long
 double` precision for the mathematical constants, or to the best known
 accuracy for the physical ones.
+
+## Algorithms ##
+
+* `template <typename Container, typename T> void con_remove(Container& con, const T& t)`
+* `template <typename Container, typename Predicate> void con_remove_if(Container& con, Predicate p)`
+* `template <typename Container, typename Predicate> void con_remove_if_not(Container& con, Predicate p)`
+* `template <typename Container> void con_unique(Container& con)`
+* `template <typename Container, typename BinaryPredicate> void con_unique(Container& con, BinaryPredicate p)`
+* `template <typename Container> void con_sort_unique(Container& con)`
+* `template <typename Container, typename Compare> void con_sort_unique(Container& con, Compare cmp)`
+
+These carry out the same algorithms as the similarly named STL functions,
+except that unwanted elements are removed from the container rather than
+shuffled to the end. The `con_sort_unique()` functions perform a sort followed
+by removing equivalent elements from the container; like `std::sort()`, its
+predicate has less-than semantics (whereas that of `con_unique()`, like that
+of `std::unique()`, has equality semantics).
 
 ## Arithmetic literals ##
 

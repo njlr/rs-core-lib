@@ -26,6 +26,7 @@ Cygwin, this will only happen if <code>_WIN32</code> is defined.</p>
 <li><a href="#preprocessormacros">Preprocessor macros</a></li>
 <li><a href="#basictypes">Basic types</a></li>
 <li><a href="#constants">Constants</a></li>
+<li><a href="#algorithms">Algorithms</a></li>
 <li><a href="#arithmeticliterals">Arithmetic literals</a></li>
 <li><a href="#arithmeticfunctions">Arithmetic functions</a></li>
 <li><a href="#byteorder">Byte order</a></li>
@@ -275,6 +276,25 @@ floating point literal with no type suffix.</p>
 approximate; the values actually supplied are accurate to at least <code>long
 double</code> precision for the mathematical constants, or to the best known
 accuracy for the physical ones.</p>
+
+<h2 id="algorithms">Algorithms</h2>
+
+<ul>
+<li><code>template &lt;typename Container, typename T&gt; void <strong>con_remove</strong>(Container&amp; con, const T&amp; t)</code></li>
+<li><code>template &lt;typename Container, typename Predicate&gt; void <strong>con_remove_if</strong>(Container&amp; con, Predicate p)</code></li>
+<li><code>template &lt;typename Container, typename Predicate&gt; void <strong>con_remove_if_not</strong>(Container&amp; con, Predicate p)</code></li>
+<li><code>template &lt;typename Container&gt; void <strong>con_unique</strong>(Container&amp; con)</code></li>
+<li><code>template &lt;typename Container, typename BinaryPredicate&gt; void <strong>con_unique</strong>(Container&amp; con, BinaryPredicate p)</code></li>
+<li><code>template &lt;typename Container&gt; void <strong>con_sort_unique</strong>(Container&amp; con)</code></li>
+<li><code>template &lt;typename Container, typename Compare&gt; void <strong>con_sort_unique</strong>(Container&amp; con, Compare cmp)</code></li>
+</ul>
+
+<p>These carry out the same algorithms as the similarly named STL functions,
+except that unwanted elements are removed from the container rather than
+shuffled to the end. The <code>con_sort_unique()</code> functions perform a sort followed
+by removing equivalent elements from the container; like <code>std::sort()</code>, its
+predicate has less-than semantics (whereas that of <code>con_unique()</code>, like that
+of <code>std::unique()</code>, has equality semantics).</p>
 
 <h2 id="arithmeticliterals">Arithmetic literals</h2>
 

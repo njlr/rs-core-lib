@@ -335,6 +335,38 @@ namespace Prion {
     PRI_DEFINE_CONSTANT(sidereal_year,      31558149.7635);       // s
     PRI_DEFINE_CONSTANT(tropical_year,      31556925.19);         // s
 
+    // Algorithms
+
+    template <typename Container, typename T> void con_remove(Container& con, const T& t) {
+        con.erase(std::remove(PRI_BOUNDS(con), t), con.end());
+    }
+
+    template <typename Container, typename Predicate> void con_remove_if(Container& con, Predicate p) {
+        con.erase(std::remove_if(PRI_BOUNDS(con), p), con.end());
+    }
+
+    template <typename Container, typename Predicate> void con_remove_if_not(Container& con, Predicate p) {
+        con.erase(std::remove_if(PRI_BOUNDS(con), [p] (const auto& x) { return ! p(x); }), con.end());
+    }
+
+    template <typename Container> void con_unique(Container& con) {
+        con.erase(std::unique(PRI_BOUNDS(con)), con.end());
+    }
+
+    template <typename Container, typename BinaryPredicate> void con_unique(Container& con, BinaryPredicate p) {
+        con.erase(std::unique(PRI_BOUNDS(con), p), con.end());
+    }
+
+    template <typename Container> void con_sort_unique(Container& con) {
+        std::sort(PRI_BOUNDS(con));
+        con_unique(con);
+    }
+
+    template <typename Container, typename Compare> void con_sort_unique(Container& con, Compare cmp) {
+        std::sort(PRI_BOUNDS(con), cmp);
+        con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
+    }
+
     // Arithmetic literals
 
     namespace PrionDetail {

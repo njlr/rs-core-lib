@@ -69,6 +69,21 @@ namespace {
 
     }
 
+    void check_algorithms() {
+
+        std::string s;
+        const auto same_case = [] (char a, char b) { return ascii_isupper(a) == ascii_isupper(b); };
+
+        s = "abcabcabc";        TRY(con_remove(s, 'c'));                        TEST_EQUAL(s, "ababab");
+        s = "abc123abc123";     TRY(con_remove_if(s, ascii_isalpha));           TEST_EQUAL(s, "123123");
+        s = "abc123abc123";     TRY(con_remove_if_not(s, ascii_isalpha));       TEST_EQUAL(s, "abcabc");
+        s = "abbcccddddeeeee";  TRY(con_unique(s));                             TEST_EQUAL(s, "abcde");
+        s = "ABCabcABCabc";     TRY(con_unique(s, same_case));                  TEST_EQUAL(s, "AaAa");
+        s = "abcdeabcdabcaba";  TRY(con_sort_unique(s));                        TEST_EQUAL(s, "abcde");
+        s = "abcdeabcdabcaba";  TRY(con_sort_unique(s, std::greater<char>()));  TEST_EQUAL(s, "edcba");
+
+    }
+
     void check_arithmetic_literals() {
 
         int128_t i = 0;
@@ -2493,6 +2508,7 @@ namespace {
 TEST_MODULE(prion, core) {
 
     check_macros();
+    check_algorithms();
     check_arithmetic_literals();
     check_arithmetic_functions();
     check_byte_order();
