@@ -445,8 +445,8 @@ and references into the old buffer.
 The constructor and `assign()` function that take only a length do not
 initialize the newly allocated memory. The versions that take a length and
 value will fill the entire buffer with the value. The versions that take a
-pointer, size, and optional deallocation function function take ownership of
-the referenced data, and will deallocate it when it is discarded. If no
+pointer, size, and optional deallocation function take ownership of the
+referenced data, and will deallocate it when it is discarded. If no
 deallocation function is supplied, the memory is assumed to have been acquired
 with `malloc()`, and will be released with `free()`. When a buffer is copied,
 the memory for the new copy is always allocated using `new T[]`, regardless of
