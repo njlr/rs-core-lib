@@ -1931,6 +1931,26 @@ namespace {
         TEST_EQUAL(cstr_size(r1), 0);
         TEST_EQUAL(cstr_size(r2), 5);
 
+        TEST_EQUAL(bin(0, 1), "0");
+        TEST_EQUAL(bin(0, 10), "0000000000");
+        TEST_EQUAL(bin(42, 1), "101010");
+        TEST_EQUAL(bin(42, 5), "101010");
+        TEST_EQUAL(bin(42, 10), "0000101010");
+        TEST_EQUAL(bin(0xabcdef, 20), "101010111100110111101111");
+        TEST_EQUAL(bin(0xabcdef, 24), "101010111100110111101111");
+        TEST_EQUAL(bin(0xabcdef, 28), "0000101010111100110111101111");
+        TEST_EQUAL(bin(int8_t(0)), "00000000");
+        TEST_EQUAL(bin(int16_t(0)), "0000000000000000");
+        TEST_EQUAL(bin(int32_t(0)), "00000000000000000000000000000000");
+        TEST_EQUAL(bin(int8_t(42)), "00101010");
+        TEST_EQUAL(bin(int16_t(42)), "0000000000101010");
+        TEST_EQUAL(bin(int32_t(42)), "00000000000000000000000000101010");
+        TEST_EQUAL(bin(int8_t(-42)), "-00101010");
+        TEST_EQUAL(bin(int16_t(-42)), "-0000000000101010");
+        TEST_EQUAL(bin(int32_t(-42)), "-00000000000000000000000000101010");
+        TEST_EQUAL(bin(uint32_t(0xabcdef)), "00000000101010111100110111101111");
+        TEST_EQUAL(bin(uint64_t(0x123456789abcdefull)), "0000000100100011010001010110011110001001101010111100110111101111");
+
         TEST_EQUAL(dec(0), "0");
         TEST_EQUAL(dec(42), "42");
         TEST_EQUAL(dec(-42), "-42");
@@ -1957,6 +1977,14 @@ namespace {
         TEST_EQUAL(hex(int32_t(-42)), "-0000002a");
         TEST_EQUAL(hex(uint32_t(0xabcdef)), "00abcdef");
         TEST_EQUAL(hex(uint64_t(0x123456789abcdefull)), "0123456789abcdef");
+
+        TEST_EQUAL(binnum(""), 0);
+        TEST_EQUAL(binnum("0"), 0);
+        TEST_EQUAL(binnum("101010"), 42);
+        TEST_EQUAL(binnum("000000101010"), 42);
+        TEST_EQUAL(binnum("1111111111111111111111111111111111111111111111111111111111111110"), 0xfffffffffffffffeull);
+        TEST_EQUAL(binnum("1111111111111111111111111111111111111111111111111111111111111111"), 0xffffffffffffffffull);
+        TEST_EQUAL(binnum("10000000000000000000000000000000000000000000000000000000000000000"), 0xffffffffffffffffull);
 
         TEST_EQUAL(decnum(""), 0);
         TEST_EQUAL(decnum("0"), 0);

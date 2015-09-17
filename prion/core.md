@@ -970,21 +970,23 @@ of undefined behaviour.
 Returns the length of a null-terminated string (a generalized version of
 `strlen()`). This will return zero if the pointer is null.
 
+* `template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T))`
 * `template <typename T> u8string dec(T x, size_t digits = 1)`
 * `template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T))`
+* `unsigned long long binnum(const string& str) noexcept`
 * `long long decnum(const string& str) noexcept`
 * `unsigned long long hexnum(const string& str) noexcept`
 * `double fpnum(const string& str) noexcept`
 
-Simple string and number conversion functions. The `dec()` and `hex()`
-functions convert an integer to a decimal or hexadecimal string, generating at
-least the specified number of digits. The `decnum()` and `hexnum()` functions
-perform the reverse conversion, while `fpnum()` converts a string to a
-floating point number; these will ignore any trailing characters that are not
-part of a number, and will return zero if the string is empty or does not
-contain a valid number. Results that are out of range will be clamped to the
-nearest end of the return type's range (for `fpnum()` this will normally be
-positive or negative infinity).
+Simple string and number conversion functions. The `bin()`, `dec()`, and
+`hex()` functions convert an integer to a binary, decimal, or hexadecimal
+string, generating at least the specified number of digits. The `binnum()`,
+`decnum()`, and `hexnum()` functions perform the reverse conversion, while
+`fpnum()` converts a string to a floating point number; these will ignore any
+trailing characters that are not part of a number, and will return zero if the
+string is empty or does not contain a valid number. Results that are out of
+range will be clamped to the nearest end of the return type's range (for
+`fpnum()` this will normally be positive or negative infinity).
 
 * `u8string hexdump(const void* ptr, size_t n, size_t block = 0)`
 * `u8string hexdump(const string& str, size_t block = 0)`

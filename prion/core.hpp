@@ -183,6 +183,7 @@ namespace Prion {
 
     }
 
+    template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
 
@@ -1389,6 +1390,7 @@ namespace Prion {
         return n;
     }
 
+    inline unsigned long long binnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
     inline long long decnum(const string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
     inline unsigned long long hexnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
     inline double fpnum(const string& str) noexcept { return strtod(str.data(), nullptr); }

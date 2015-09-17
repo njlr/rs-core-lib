@@ -1213,22 +1213,24 @@ of undefined behaviour.</p>
 <code>strlen()</code>). This will return zero if the pointer is null.</p>
 
 <ul>
+<li><code>template &lt;typename T&gt; u8string <strong>bin</strong>(T x, size_t digits = 8 * sizeof(T))</code></li>
 <li><code>template &lt;typename T&gt; u8string <strong>dec</strong>(T x, size_t digits = 1)</code></li>
 <li><code>template &lt;typename T&gt; u8string <strong>hex</strong>(T x, size_t digits = 2 * sizeof(T))</code></li>
+<li><code>unsigned long long <strong>binnum</strong>(const string&amp; str) noexcept</code></li>
 <li><code>long long <strong>decnum</strong>(const string&amp; str) noexcept</code></li>
 <li><code>unsigned long long <strong>hexnum</strong>(const string&amp; str) noexcept</code></li>
 <li><code>double <strong>fpnum</strong>(const string&amp; str) noexcept</code></li>
 </ul>
 
-<p>Simple string and number conversion functions. The <code>dec()</code> and <code>hex()</code>
-functions convert an integer to a decimal or hexadecimal string, generating at
-least the specified number of digits. The <code>decnum()</code> and <code>hexnum()</code> functions
-perform the reverse conversion, while <code>fpnum()</code> converts a string to a
-floating point number; these will ignore any trailing characters that are not
-part of a number, and will return zero if the string is empty or does not
-contain a valid number. Results that are out of range will be clamped to the
-nearest end of the return type&#8217;s range (for <code>fpnum()</code> this will normally be
-positive or negative infinity).</p>
+<p>Simple string and number conversion functions. The <code>bin()</code>, <code>dec()</code>, and
+<code>hex()</code> functions convert an integer to a binary, decimal, or hexadecimal
+string, generating at least the specified number of digits. The <code>binnum()</code>,
+<code>decnum()</code>, and <code>hexnum()</code> functions perform the reverse conversion, while
+<code>fpnum()</code> converts a string to a floating point number; these will ignore any
+trailing characters that are not part of a number, and will return zero if the
+string is empty or does not contain a valid number. Results that are out of
+range will be clamped to the nearest end of the return type&#8217;s range (for
+<code>fpnum()</code> this will normally be positive or negative infinity).</p>
 
 <ul>
 <li><code>u8string <strong>hexdump</strong>(const void* ptr, size_t n, size_t block = 0)</code></li>
