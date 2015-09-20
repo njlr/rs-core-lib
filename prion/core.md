@@ -994,7 +994,7 @@ range will be clamped to the nearest end of the return type's range (for
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
 
-* `template <typename InputIterator> string join_words(InputIterator begin, InputIterator end, const string& delim = " ")`
+* `template <typename InputRange> string join_words(const InputRange& range, const string& delim = " ")`
 * `template <typename OutputIterator> void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
 
 Join words into a string, using the given delimiter, or split a string into

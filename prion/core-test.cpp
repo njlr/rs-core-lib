@@ -2025,27 +2025,27 @@ namespace {
         TEST_EQUAL(hexdump("Hello world!"s, 5), "48 65 6c 6c 6f\n20 77 6f 72 6c\n64 21");
         TEST_EQUAL(hexdump("Hello world!"s, 6), "48 65 6c 6c 6f 20\n77 6f 72 6c 64 21");
 
-        sv.clear();                      TEST_EQUAL(join_words(PRI_BOUNDS(sv)), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(PRI_BOUNDS(sv)), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(PRI_BOUNDS(sv)), "Hello world");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(PRI_BOUNDS(sv)), "Hello world again");
-        sv.clear();                      TEST_EQUAL(join_words(PRI_BOUNDS(sv), ""), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(PRI_BOUNDS(sv), ""), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(PRI_BOUNDS(sv), ""), "Helloworld");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(PRI_BOUNDS(sv), ""), "Helloworldagain");
-        sv.clear();                      TEST_EQUAL(join_words(PRI_BOUNDS(sv), "<*>"s), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "<*>"s), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(PRI_BOUNDS(sv), "<*>"s), "Hello<*>world");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "<*>"s), "Hello<*>world<*>again");
+        sv.clear();                      TEST_EQUAL(join_words(sv), "");
+        sv = {"Hello"};                  TEST_EQUAL(join_words(sv), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv), "Hello world");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv), "Hello world again");
+        sv.clear();                      TEST_EQUAL(join_words(sv, ""), "");
+        sv = {"Hello"};                  TEST_EQUAL(join_words(sv, ""), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, ""), "Helloworld");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv, ""), "Helloworldagain");
+        sv.clear();                      TEST_EQUAL(join_words(sv, "<*>"s), "");
+        sv = {"Hello"};                  TEST_EQUAL(join_words(sv, "<*>"s), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, "<*>"s), "Hello<*>world");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv, "<*>"s), "Hello<*>world<*>again");
 
-        TRY(split_words("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "");
-        TRY(split_words("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "Hello");
-        TRY(split_words("Hello world", overwrite(sv)));              TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "Hello/world");
-        TRY(split_words("\t Hello \t world \t", overwrite(sv)));     TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "Hello/world");
-        TRY(split_words("**Hello**world**"s, overwrite(sv), "*"));   TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "Hello/world");
-        TRY(split_words("**Hello**world**"s, overwrite(sv), "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "Hello/world");
-        TRY(split_words("*****"s, overwrite(sv), "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "");
-        TRY(split_words("*****"s, overwrite(sv), "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(PRI_BOUNDS(sv), "/"), "");
+        TRY(split_words("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(sv, "/"), "");
+        TRY(split_words("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join_words(sv, "/"), "Hello");
+        TRY(split_words("Hello world", overwrite(sv)));              TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
+        TRY(split_words("\t Hello \t world \t", overwrite(sv)));     TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
+        TRY(split_words("**Hello**world**"s, overwrite(sv), "*"));   TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
+        TRY(split_words("**Hello**world**"s, overwrite(sv), "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
+        TRY(split_words("*****"s, overwrite(sv), "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(sv, "/"), "");
+        TRY(split_words("*****"s, overwrite(sv), "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(sv, "/"), "");
 
         TRY(s = quote(""s));                            TEST_EQUAL(s, "\"\""s);
         TRY(s = quote("\"\""s));                        TEST_EQUAL(s, "\"\\\"\\\"\""s);

@@ -1241,7 +1241,7 @@ range will be clamped to the nearest end of the return type&#8217;s range (for
 line feed is inserted after each block.</p>
 
 <ul>
-<li><code>template &lt;typename InputIterator&gt; string <strong>join_words</strong>(InputIterator begin, InputIterator end, const string&amp; delim = &quot; &quot;)</code></li>
+<li><code>template &lt;typename InputRange&gt; string <strong>join_words</strong>(const InputRange&amp; range, const string&amp; delim = &quot; &quot;)</code></li>
 <li><code>template &lt;typename OutputIterator&gt; void <strong>split_words</strong>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
 </ul>
 

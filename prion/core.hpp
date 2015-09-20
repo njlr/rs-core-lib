@@ -1427,11 +1427,11 @@ namespace Prion {
 
     inline u8string hexdump(const string& str, size_t block = 0) { return hexdump(str.data(), str.size(), block); }
 
-    template <typename InputIterator>
-    string join_words(InputIterator begin, InputIterator end, const string& delim = " ") {
+    template <typename InputRange>
+    string join_words(const InputRange& range, const string& delim = " ") {
         string result;
-        for (; begin != end; ++begin) {
-            result += *begin;
+        for (auto& s: range) {
+            result += s;
             result += delim;
         }
         if (! result.empty() && ! delim.empty())
