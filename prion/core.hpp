@@ -76,6 +76,7 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <memory>
 #include <new>
 #include <random>
@@ -824,6 +825,77 @@ namespace Prion {
         delete_function del = PrionDetail::DeleteArray();
         void check_index(size_t i) const { if (i >= len) throw std::out_of_range("Buffer index out of range"); }
         void abandon() noexcept { len = 0; ptr = nullptr; del = nullptr; }
+    };
+
+    template <typename K, typename V>
+    class TwoWayMap {
+    public:
+        using key_type = K;
+        using mapped_type = V;
+        TwoWayMap() = default;
+        V operator[](const K& k) const { return get(k); }
+        K operator[](const V& v) const { return get_key(v); }
+        void clear() noexcept {
+            fwd.clear();
+            rev.clear();
+        }
+        bool empty() const noexcept { return fwd.empty(); }
+        V get(const K& k) const {
+            V v = V();
+            get(k, v);
+            return v;
+        }
+        void erase(const K& k) noexcept {
+            auto f = fwd.find(k);
+            if (f == fwd.end())
+                return;
+            for (auto& v: f->second)
+                rev.erase(v);
+            fwd.erase(k);
+        }
+        void erase_value(const V& v) noexcept {
+            auto r = rev.find(v);
+            if (r == rev.end())
+                return;
+            auto f = fwd.find(r->second);
+            auto i = std::find(PRI_BOUNDS(f->second), v);
+            f->second.erase(i);
+            if (f->second.empty())
+                fwd.erase(f);
+            rev.erase(r);
+        }
+        bool get(const K& k, V& v) const {
+            auto f = fwd.find(k);
+            if (f == fwd.end() || f->second.empty())
+                return false;
+            v = f->second.front();
+            return true;
+        }
+        K get_key(const V& v) const {
+            K k = K();
+            get_key(v, k);
+            return k;
+        }
+        bool get_key(const V& v, K& k) const {
+            auto r = rev.find(v);
+            if (r == rev.end())
+                return false;
+            k = r->second;
+            return true;
+        }
+        bool has(const K& k) const noexcept { return fwd.find(k) != fwd.end(); }
+        bool has_value(const V& v) const noexcept { return rev.find(v) != rev.end(); }
+        void insert(const K& k, const V& v) {
+            fwd[k].push_back(v);
+            rev[v] = k;
+        }
+        template <typename... VS> void insert(const K& k, const V& v, const VS&... vs) {
+            insert(k, v);
+            insert(k, vs...);
+        }
+    private:
+        std::map<K, std::vector<V>> fwd;
+        std::map<V, K> rev;
     };
 
     // Exceptions

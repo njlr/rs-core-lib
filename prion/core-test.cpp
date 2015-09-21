@@ -1091,6 +1091,7 @@ namespace {
 
         using buf = SimpleBuffer<int32_t>;
 
+        buf b1, b2;
         std::shared_ptr<buf> bp;
         int32_t array[] = {1,2,3,4,5};
 
@@ -1114,8 +1115,6 @@ namespace {
         TEST_EQUAL(bp->size(), 5);
         TEST_EQUAL(bp->at(0), 1);
         TEST_EQUAL(bp->at(4), 5);
-
-        buf b1, b2;
 
         TRY(b1.assign(10));
         TEST_EQUAL(b1.size(), 10);
@@ -1159,6 +1158,128 @@ namespace {
         TEST_EQUAL(bp->size(), 10);
         TEST_EQUAL(bp->at(0), 99);
         TEST_EQUAL(b1.size(), 0);
+
+        TwoWayMap<int, u8string> map;
+        int n = 0;
+        u8string s;
+
+        TEST(! map.has(1));
+        TEST(! map.has_value("alpha"));
+
+        s = "";  TEST(! map.get(0, s));            TEST_EQUAL(s, "");
+        n = 0;   TEST(! map.get_key("hello", n));  TEST_EQUAL(n, 0);
+
+        TRY(s = map[0]);        TEST_EQUAL(s, "");
+        TRY(n = map["hello"]);  TEST_EQUAL(n, 0);
+
+        TRY(map.insert(1, "alpha", "able"));
+        TRY(map.insert(2, "bravo", "baker"));
+        TRY(map.insert(3, "charlie"));
+
+        TEST(map.has(1));
+        TEST(map.has(2));
+        TEST(map.has(3));
+        TEST(! map.has(4));
+        TEST(map.has_value("alpha"));
+        TEST(map.has_value("able"));
+        TEST(map.has_value("bravo"));
+        TEST(map.has_value("baker"));
+        TEST(map.has_value("charlie"));
+        TEST(! map.has_value("delta"));
+
+        s = "";  TEST(map.get(1, s));              TEST_EQUAL(s, "alpha");
+        s = "";  TEST(map.get(2, s));              TEST_EQUAL(s, "bravo");
+        s = "";  TEST(map.get(3, s));              TEST_EQUAL(s, "charlie");
+        s = "";  TEST(! map.get(4, s));            TEST_EQUAL(s, "");
+        n = 0;   TEST(map.get_key("alpha", n));    TEST_EQUAL(n, 1);
+        n = 0;   TEST(map.get_key("able", n));     TEST_EQUAL(n, 1);
+        n = 0;   TEST(map.get_key("bravo", n));    TEST_EQUAL(n, 2);
+        n = 0;   TEST(map.get_key("baker", n));    TEST_EQUAL(n, 2);
+        n = 0;   TEST(map.get_key("charlie", n));  TEST_EQUAL(n, 3);
+        n = 0;   TEST(! map.get_key("delta", n));  TEST_EQUAL(n, 0);
+
+        TRY(s = map[1]);          TEST_EQUAL(s, "alpha");
+        TRY(s = map[2]);          TEST_EQUAL(s, "bravo");
+        TRY(s = map[3]);          TEST_EQUAL(s, "charlie");
+        TRY(s = map[4]);          TEST_EQUAL(s, "");
+        TRY(n = map["alpha"]);    TEST_EQUAL(n, 1);
+        TRY(n = map["able"]);     TEST_EQUAL(n, 1);
+        TRY(n = map["bravo"]);    TEST_EQUAL(n, 2);
+        TRY(n = map["baker"]);    TEST_EQUAL(n, 2);
+        TRY(n = map["charlie"]);  TEST_EQUAL(n, 3);
+        TRY(n = map["delta"]);    TEST_EQUAL(n, 0);
+
+        TRY(map.erase(1));
+
+        TEST(! map.has(1));
+        TEST(map.has(2));
+        TEST(map.has(3));
+        TEST(! map.has(4));
+        TEST(! map.has_value("alpha"));
+        TEST(! map.has_value("able"));
+        TEST(map.has_value("bravo"));
+        TEST(map.has_value("baker"));
+        TEST(map.has_value("charlie"));
+        TEST(! map.has_value("delta"));
+
+        TRY(s = map[1]);          TEST_EQUAL(s, "");
+        TRY(s = map[2]);          TEST_EQUAL(s, "bravo");
+        TRY(s = map[3]);          TEST_EQUAL(s, "charlie");
+        TRY(s = map[4]);          TEST_EQUAL(s, "");
+        TRY(n = map["alpha"]);    TEST_EQUAL(n, 0);
+        TRY(n = map["able"]);     TEST_EQUAL(n, 0);
+        TRY(n = map["bravo"]);    TEST_EQUAL(n, 2);
+        TRY(n = map["baker"]);    TEST_EQUAL(n, 2);
+        TRY(n = map["charlie"]);  TEST_EQUAL(n, 3);
+        TRY(n = map["delta"]);    TEST_EQUAL(n, 0);
+
+        TRY(map.erase_value("bravo"));
+
+        TEST(! map.has(1));
+        TEST(map.has(2));
+        TEST(map.has(3));
+        TEST(! map.has(4));
+        TEST(! map.has_value("alpha"));
+        TEST(! map.has_value("able"));
+        TEST(! map.has_value("bravo"));
+        TEST(map.has_value("baker"));
+        TEST(map.has_value("charlie"));
+        TEST(! map.has_value("delta"));
+
+        TRY(s = map[1]);          TEST_EQUAL(s, "");
+        TRY(s = map[2]);          TEST_EQUAL(s, "baker");
+        TRY(s = map[3]);          TEST_EQUAL(s, "charlie");
+        TRY(s = map[4]);          TEST_EQUAL(s, "");
+        TRY(n = map["alpha"]);    TEST_EQUAL(n, 0);
+        TRY(n = map["able"]);     TEST_EQUAL(n, 0);
+        TRY(n = map["bravo"]);    TEST_EQUAL(n, 0);
+        TRY(n = map["baker"]);    TEST_EQUAL(n, 2);
+        TRY(n = map["charlie"]);  TEST_EQUAL(n, 3);
+        TRY(n = map["delta"]);    TEST_EQUAL(n, 0);
+
+        TRY(map.erase_value("baker"));
+
+        TEST(! map.has(1));
+        TEST(! map.has(2));
+        TEST(map.has(3));
+        TEST(! map.has(4));
+        TEST(! map.has_value("alpha"));
+        TEST(! map.has_value("able"));
+        TEST(! map.has_value("bravo"));
+        TEST(! map.has_value("baker"));
+        TEST(map.has_value("charlie"));
+        TEST(! map.has_value("delta"));
+
+        TRY(s = map[1]);          TEST_EQUAL(s, "");
+        TRY(s = map[2]);          TEST_EQUAL(s, "");
+        TRY(s = map[3]);          TEST_EQUAL(s, "charlie");
+        TRY(s = map[4]);          TEST_EQUAL(s, "");
+        TRY(n = map["alpha"]);    TEST_EQUAL(n, 0);
+        TRY(n = map["able"]);     TEST_EQUAL(n, 0);
+        TRY(n = map["bravo"]);    TEST_EQUAL(n, 0);
+        TRY(n = map["baker"]);    TEST_EQUAL(n, 0);
+        TRY(n = map["charlie"]);  TEST_EQUAL(n, 3);
+        TRY(n = map["delta"]);    TEST_EQUAL(n, 0);
 
     }
 

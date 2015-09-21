@@ -601,6 +601,53 @@ referenced data.</p>
 This will usually not give the same ordering as a lexicographical comparison
 using <code>T</code>&#8217;s less-than operator.</p>
 
+<ul>
+<li><code>template &lt;typename K, typename V&gt; class <strong>TwoWayMap</strong></code>
+
+<ul>
+<li><code>using TwoWayMap::<strong>key_type</strong> = K</code></li>
+<li><code>using TwoWayMap::<strong>mapped_type</strong> = V</code></li>
+<li><code>TwoWayMap::<strong>TwoWayMap</strong>()</code></li>
+<li><code>TwoWayMap::<strong>TwoWayMap</strong>(const TwoWayMap&amp; m)</code></li>
+<li><code>TwoWayMap::<strong>TwoWayMap</strong>(TwoWayMap&amp;&amp; m) noexcept</code></li>
+<li><code>TwoWayMap::<strong>~TwoWayMap</strong>() noexcept</code></li>
+<li><code>TwoWayMap&amp; TwoWayMap::<strong>operator=</strong>(const TwoWayMap&amp; m)</code></li>
+<li><code>TwoWayMap&amp; TwoWayMap::<strong>operator=</strong>(TwoWayMap&amp;&amp; m) noexcept</code></li>
+<li><code>V TwoWayMap::<strong>operator[]</strong>(const K&amp; k) const</code></li>
+<li><code>K TwoWayMap::<strong>operator[]</strong>(const V&amp; v) const</code></li>
+<li><code>void TwoWayMap::<strong>clear</strong>() noexcept</code></li>
+<li><code>bool TwoWayMap::<strong>empty</strong>() const noexcept</code></li>
+<li><code>void TwoWayMap::<strong>erase</strong>(const K&amp; k) noexcept</code></li>
+<li><code>void TwoWayMap::<strong>erase_value</strong>(const V&amp; v) noexcept</code></li>
+<li><code>V TwoWayMap::<strong>get</strong>(const K&amp; k) const</code></li>
+<li><code>bool TwoWayMap::<strong>get</strong>(const K&amp; k, V&amp; v) const</code></li>
+<li><code>K TwoWayMap::<strong>get_key</strong>(const V&amp; v) const</code></li>
+<li><code>bool TwoWayMap::<strong>get_key</strong>(const V&amp; v, K&amp; k) const</code></li>
+<li><code>bool TwoWayMap::<strong>has</strong>(const K&amp; k) const noexcept</code></li>
+<li><code>bool TwoWayMap::<strong>has_value</strong>(const V&amp; v) const noexcept</code></li>
+<li><code>void TwoWayMap::<strong>insert</strong>(const K&amp; k, const V&amp; v)</code></li>
+<li><code>template &lt;typename... VS&gt; void TwoWayMap::<strong>insert</strong>(const K&amp; k, const V&amp; v, const VS&amp;... vs)</code></li>
+</ul></li>
+</ul>
+
+<p>A simple two-way mapping, allowing lookup in either direction between the key
+and value types. Both types must be default constructible, fully copyable and
+movable, and totally ordered.</p>
+
+<p>Multiple values can be inserted for a given key; the first value associated
+with that key will be treated as the canonical value, and will be returned
+from a lookup by key, but all of the associated values will return the same
+key from a reverse lookup. Multiple values for a key can be inserted through a
+single variadic insert call, or through multiple separate inserts.</p>
+
+<p>The indexing operators are equivalent to the single argument versions of
+<code>get()</code> and <code>get_key()</code>; the operators will only be usable if the <code>K</code> and <code>V</code>
+types are distinguishable.</p>
+
+<p>The two-argument versions of <code>get()</code> and <code>get_key()</code> will update the second
+argument if the first was found, but leave it unchanged otherwise, and return
+a flag indicating whether or not the target was found.</p>
+
 <h2 id="exceptions">Exceptions</h2>
 
 <ul>

@@ -465,6 +465,48 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 This will usually not give the same ordering as a lexicographical comparison
 using `T`'s less-than operator.
 
+* `template <typename K, typename V> class TwoWayMap`
+    * `using TwoWayMap::key_type = K`
+    * `using TwoWayMap::mapped_type = V`
+    * `TwoWayMap::TwoWayMap()`
+    * `TwoWayMap::TwoWayMap(const TwoWayMap& m)`
+    * `TwoWayMap::TwoWayMap(TwoWayMap&& m) noexcept`
+    * `TwoWayMap::~TwoWayMap() noexcept`
+    * `TwoWayMap& TwoWayMap::operator=(const TwoWayMap& m)`
+    * `TwoWayMap& TwoWayMap::operator=(TwoWayMap&& m) noexcept`
+    * `V TwoWayMap::operator[](const K& k) const`
+    * `K TwoWayMap::operator[](const V& v) const`
+    * `void TwoWayMap::clear() noexcept`
+    * `bool TwoWayMap::empty() const noexcept`
+    * `void TwoWayMap::erase(const K& k) noexcept`
+    * `void TwoWayMap::erase_value(const V& v) noexcept`
+    * `V TwoWayMap::get(const K& k) const`
+    * `bool TwoWayMap::get(const K& k, V& v) const`
+    * `K TwoWayMap::get_key(const V& v) const`
+    * `bool TwoWayMap::get_key(const V& v, K& k) const`
+    * `bool TwoWayMap::has(const K& k) const noexcept`
+    * `bool TwoWayMap::has_value(const V& v) const noexcept`
+    * `void TwoWayMap::insert(const K& k, const V& v)`
+    * `template <typename... VS> void TwoWayMap::insert(const K& k, const V& v, const VS&... vs)`
+
+A simple two-way mapping, allowing lookup in either direction between the key
+and value types. Both types must be default constructible, fully copyable and
+movable, and totally ordered.
+
+Multiple values can be inserted for a given key; the first value associated
+with that key will be treated as the canonical value, and will be returned
+from a lookup by key, but all of the associated values will return the same
+key from a reverse lookup. Multiple values for a key can be inserted through a
+single variadic insert call, or through multiple separate inserts.
+
+The indexing operators are equivalent to the single argument versions of
+`get()` and `get_key()`; the operators will only be usable if the `K` and `V`
+types are distinguishable.
+
+The two-argument versions of `get()` and `get_key()` will update the second
+argument if the first was found, but leave it unchanged otherwise, and return
+a flag indicating whether or not the target was found.
+
 ## Exceptions ##
 
 * `class SystemError: public std::runtime_error`
