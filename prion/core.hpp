@@ -138,6 +138,11 @@ namespace Prion {
     using std::u16string;
     using std::u32string;
     using std::wstring;
+    using std::shared_ptr;
+    using std::unique_ptr;
+    using std::make_shared;
+    using std::make_unique;
+    using std::vector;
     using u8string = std::string;
     using int128_t = __int128;
     using uint128_t = unsigned __int128;
@@ -894,7 +899,7 @@ namespace Prion {
             insert(k, vs...);
         }
     private:
-        std::map<K, std::vector<V>> fwd;
+        std::map<K, vector<V>> fwd;
         std::map<V, K> rev;
     };
 
@@ -940,11 +945,11 @@ namespace Prion {
         int error() const noexcept { return err; }
         const char* function() const noexcept { return fun->data(); }
     protected:
-        SystemError(int error, const u8string& function, const u8string& message): std::runtime_error(message), err(error), fun(std::make_shared<u8string>(function)) {}
+        SystemError(int error, const u8string& function, const u8string& message): std::runtime_error(message), err(error), fun(make_shared<u8string>(function)) {}
         static u8string assemble(int error, const u8string& function, const u8string& details);
     private:
         int err;
-        std::shared_ptr<u8string> fun;
+        shared_ptr<u8string> fun;
     };
 
     inline u8string SystemError::assemble(int error, const u8string& function, const u8string& details) {
@@ -1306,7 +1311,7 @@ namespace Prion {
             stack.clear();
         }
     private:
-        std::vector<callback> stack;
+        vector<callback> stack;
         Transaction(const Transaction&) = delete;
         Transaction(Transaction&&) = delete;
         Transaction& operator=(const Transaction&) = delete;
@@ -1837,7 +1842,7 @@ namespace Prion {
             int m = sec / 60;
             sec -= 60 * m;
             int rc, s = sec;
-            std::vector<char> buf(64);
+            vector<char> buf(64);
             for (;;) {
                 if (y > 0)
                     rc = snprintf(buf.data(), buf.size(), "%dy%03dd%02dh%02dm%02d", y, d, h, m, s);
@@ -2078,7 +2083,7 @@ namespace Prion {
 
     inline string demangle(const string& name) {
         auto mangled = name;
-        std::shared_ptr<char> demangled;
+        shared_ptr<char> demangled;
         int status = 0;
         for (;;) {
             if (mangled.empty())

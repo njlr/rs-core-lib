@@ -49,23 +49,23 @@ namespace {
 
     void check_macros() {
 
-        std::vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
-        std::vector<u8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
+        vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
+        vector<u8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
 
         TRY(std::transform(PRI_BOUNDS(iv), overwrite(result), PRI_OVERLOAD(f1)));
-        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"*", "**", "***", "****", "*****"}));
+        TEST_EQUAL_RANGE(result, (vector<u8string>{"*", "**", "***", "****", "*****"}));
         TRY(std::transform(PRI_BOUNDS(sv), overwrite(result), PRI_OVERLOAD(f1)));
-        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        TEST_EQUAL_RANGE(result, (vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
 
         TRY(std::generate_n(overwrite(result), 3, PRI_OVERLOAD(f2)));
-        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"Hello", "Hello", "Hello"}));
+        TEST_EQUAL_RANGE(result, (vector<u8string>{"Hello", "Hello", "Hello"}));
         TRY(std::transform(PRI_BOUNDS(sv), overwrite(result), PRI_OVERLOAD(f2)));
-        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        TEST_EQUAL_RANGE(result, (vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
         auto of2 = PRI_OVERLOAD(f2);
         auto out = overwrite(result);
         for (size_t i = 0; i < iv.size() && i < iv2.size(); ++i)
             TRY(*out++ = of2(iv[i], iv2[i]));
-        TEST_EQUAL_RANGE(result, (std::vector<u8string>{"2", "6", "15", "28", "55"}));
+        TEST_EQUAL_RANGE(result, (vector<u8string>{"2", "6", "15", "28", "55"}));
 
     }
 
@@ -1092,7 +1092,7 @@ namespace {
         using buf = SimpleBuffer<int32_t>;
 
         buf b1, b2;
-        std::shared_ptr<buf> bp;
+        shared_ptr<buf> bp;
         int32_t array[] = {1,2,3,4,5};
 
         TRY(bp.reset(new buf));
@@ -1343,7 +1343,7 @@ namespace {
         Counted::reset();
         TEST_EQUAL(Counted::count(), 0);
         Counted* cp = nullptr;
-        std::shared_ptr<Counted> csp;
+        shared_ptr<Counted> csp;
         TRY(csp.reset(new Counted));
         TEST_EQUAL(Counted::count(), 1);
         TRY(csp.reset());
@@ -1383,7 +1383,7 @@ namespace {
         TEST_COMPARE(h1, !=, h2);
         TEST_COMPARE(h1, !=, h3);
         TEST_COMPARE(h2, !=, h3);
-        std::vector<string> sv {"hello", "world", "goodbye"};
+        vector<string> sv {"hello", "world", "goodbye"};
         for (auto& s: sv)
             TRY(hash_combine(h4, s));
         TRY(h5 = hash_range(sv));
@@ -1558,13 +1558,13 @@ namespace {
 
         TEST_TYPE(RangeIterator<string>, string::iterator);
         TEST_TYPE(RangeIterator<const string>, string::const_iterator);
-        TEST_TYPE(RangeIterator<std::vector<int>>, std::vector<int>::iterator);
-        TEST_TYPE(RangeIterator<const std::vector<int>>, std::vector<int>::const_iterator);
+        TEST_TYPE(RangeIterator<vector<int>>, vector<int>::iterator);
+        TEST_TYPE(RangeIterator<const vector<int>>, vector<int>::const_iterator);
         TEST_TYPE(RangeIterator<Irange<int*>>, int*);
         TEST_TYPE(RangeIterator<Irange<const int*>>, const int*);
 
         TEST_TYPE(RangeValue<string>, char);
-        TEST_TYPE(RangeValue<std::vector<int>>, int);
+        TEST_TYPE(RangeValue<vector<int>>, int);
         TEST_TYPE(RangeValue<Irange<int*>>, int);
         TEST_TYPE(RangeValue<Irange<const int*>>, int);
 
@@ -1764,8 +1764,8 @@ namespace {
     void check_string_functions() {
 
         string s;
-        std::vector<string> sv;
-        std::vector<int> iv;
+        vector<string> sv;
+        vector<int> iv;
         std::map<int, string> ism;
 
         const char* p0 = nullptr;

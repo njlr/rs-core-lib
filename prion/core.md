@@ -104,6 +104,11 @@ message. (A planned change in C++17 will make this unnecessary.)
 * `using std::u16string`
 * `using std::u32string`
 * `using std::wstring`
+* `using std::shared_ptr`
+* `using std::unique_ptr`
+* `using std::make_shared`
+* `using std::make_unique`
+* `using std::vector`
 
 Imported for convenience.
 
