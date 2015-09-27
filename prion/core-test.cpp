@@ -1613,6 +1613,12 @@ namespace {
         TEST(range_empty(""s));
         TEST(! range_empty("Hello"s));
 
+        s1 = "hello";
+        s2 = "world";
+        TRY(memswap(&s1[0], &s2[0], 5));
+        TEST_EQUAL(s1, "world");
+        TEST_EQUAL(s2, "hello");
+
         TRY(s1 = to_str(seq(0)));           TEST_EQUAL(s1, "[]");
         TRY(s1 = to_str(seq(1)));           TEST_EQUAL(s1, "[0]");
         TRY(s1 = to_str(seq(5)));           TEST_EQUAL(s1, "[0,1,2,3,4]");

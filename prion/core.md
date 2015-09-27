@@ -787,6 +787,10 @@ for `std::distance(begin(r), end(r))`, and `range_empty()` has the obvious
 meaning. The `array_count()` version returns the same value, but only works on
 C-style arrays and is `constexpr`.
 
+* `void memswap(void* ptr1, void* ptr2, size_t n) noexcept`
+
+Swap two blocks of memory. Behaviour is undefined if either pointer is null.
+
 * `template <typename T> Irange<[iterator]> seq(T t2)`
 * `template <typename T> Irange<[iterator]> seq(T t1, T t2)`
 * `template <typename T> Irange<[iterator]> seq(T t1, T t2, T delta)`

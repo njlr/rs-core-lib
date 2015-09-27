@@ -982,6 +982,12 @@ meaning. The <code>array_count()</code> version returns the same value, but only
 C-style arrays and is <code>constexpr</code>.</p>
 
 <ul>
+<li><code>void <strong>memswap</strong>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
+</ul>
+
+<p>Swap two blocks of memory. Behaviour is undefined if either pointer is null.</p>
+
+<ul>
 <li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t2)</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t1, T t2)</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t1, T t2, T delta)</code></li>

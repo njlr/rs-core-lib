@@ -1152,6 +1152,17 @@ namespace Prion {
     template <typename Range> size_t range_count(const Range& r) { return std::distance(PRI_BOUNDS(r)); }
     template <typename Range> bool range_empty(const Range& r) { return std::begin(r) == std::end(r); }
 
+    inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {
+        if (ptr1 == ptr2)
+            return;
+        auto p = static_cast<uint8_t*>(ptr1), q = static_cast<uint8_t*>(ptr2);
+        for (size_t i = 0; i < n; ++i) {
+            p[i] ^= q[i];
+            q[i] ^= p[i];
+            p[i] ^= q[i];
+        }
+    }
+
     namespace PrionDetail {
 
         template <typename T>
