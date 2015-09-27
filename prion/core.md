@@ -7,11 +7,6 @@ By Ross Smith
 
 * `#include "prion/core.hpp"`
 
-On Microsoft Windows builds, including Prion will bring in the whole of
-`<windows.h>`. This is annoying but unfortunately unavoidable for a library
-that needs to make calls to system APIs while remaining header-only. Under
-Cygwin, this will only happen if `_WIN32` is defined.
-
 ## Contents ##
 
 * [Preprocessor macros][]
