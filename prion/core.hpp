@@ -1156,10 +1156,11 @@ namespace Prion {
         if (ptr1 == ptr2)
             return;
         auto p = static_cast<uint8_t*>(ptr1), q = static_cast<uint8_t*>(ptr2);
+        uint8_t b;
         for (size_t i = 0; i < n; ++i) {
-            p[i] ^= q[i];
-            q[i] ^= p[i];
-            p[i] ^= q[i];
+            b = p[i];
+            p[i] = q[i];
+            q[i] = b;
         }
     }
 
