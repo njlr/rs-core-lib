@@ -1619,27 +1619,27 @@ namespace {
         TEST_EQUAL(s1, "world");
         TEST_EQUAL(s2, "hello");
 
-        TRY(s1 = to_str(seq(0)));           TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(1)));           TEST_EQUAL(s1, "[0]");
-        TRY(s1 = to_str(seq(5)));           TEST_EQUAL(s1, "[0,1,2,3,4]");
-        TRY(s1 = to_str(seq(1, 5)));        TEST_EQUAL(s1, "[1,2,3,4]");
-        TRY(s1 = to_str(seq(1, 2)));        TEST_EQUAL(s1, "[1]");
-        TRY(s1 = to_str(seq(1, 1)));        TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(1, 0)));        TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(0, 10, 2)));    TEST_EQUAL(s1, "[0,2,4,6,8]");
-        TRY(s1 = to_str(seq(1, 10, 2)));    TEST_EQUAL(s1, "[1,3,5,7,9]");
-        TRY(s1 = to_str(seq(0, -10, -2)));  TEST_EQUAL(s1, "[0,-2,-4,-6,-8]");
-        TRY(s1 = to_str(seq(1, -10, -2)));  TEST_EQUAL(s1, "[1,-1,-3,-5,-7,-9]");
-        TRY(s1 = to_str(seq(0, 10, -2)));   TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(0, -10, 2)));   TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(0, 2, 2)));     TEST_EQUAL(s1, "[0]");
-        TRY(s1 = to_str(seq(0, 1, 2)));     TEST_EQUAL(s1, "[0]");
-        TRY(s1 = to_str(seq(0, 0, 2)));     TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(0, -1, 2)));    TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(0, -2, -2)));   TEST_EQUAL(s1, "[0]");
-        TRY(s1 = to_str(seq(0, -1, -2)));   TEST_EQUAL(s1, "[0]");
-        TRY(s1 = to_str(seq(0, 0, -2)));    TEST_EQUAL(s1, "[]");
-        TRY(s1 = to_str(seq(0, 1, -2)));    TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0)));           TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(1)));           TEST_EQUAL(s1, "[0]");
+        TRY(s1 = to_str(inseq(5)));           TEST_EQUAL(s1, "[0,1,2,3,4]");
+        TRY(s1 = to_str(inseq(1, 5)));        TEST_EQUAL(s1, "[1,2,3,4]");
+        TRY(s1 = to_str(inseq(1, 2)));        TEST_EQUAL(s1, "[1]");
+        TRY(s1 = to_str(inseq(1, 1)));        TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(1, 0)));        TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0, 10, 2)));    TEST_EQUAL(s1, "[0,2,4,6,8]");
+        TRY(s1 = to_str(inseq(1, 10, 2)));    TEST_EQUAL(s1, "[1,3,5,7,9]");
+        TRY(s1 = to_str(inseq(0, -10, -2)));  TEST_EQUAL(s1, "[0,-2,-4,-6,-8]");
+        TRY(s1 = to_str(inseq(1, -10, -2)));  TEST_EQUAL(s1, "[1,-1,-3,-5,-7,-9]");
+        TRY(s1 = to_str(inseq(0, 10, -2)));   TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0, -10, 2)));   TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0, 2, 2)));     TEST_EQUAL(s1, "[0]");
+        TRY(s1 = to_str(inseq(0, 1, 2)));     TEST_EQUAL(s1, "[0]");
+        TRY(s1 = to_str(inseq(0, 0, 2)));     TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0, -1, 2)));    TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0, -2, -2)));   TEST_EQUAL(s1, "[0]");
+        TRY(s1 = to_str(inseq(0, -1, -2)));   TEST_EQUAL(s1, "[0]");
+        TRY(s1 = to_str(inseq(0, 0, -2)));    TEST_EQUAL(s1, "[]");
+        TRY(s1 = to_str(inseq(0, 1, -2)));    TEST_EQUAL(s1, "[]");
 
     }
 

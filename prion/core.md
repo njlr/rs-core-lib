@@ -791,9 +791,9 @@ C-style arrays and is `constexpr`.
 
 Swap two blocks of memory. Behaviour is undefined if either pointer is null.
 
-* `template <typename T> Irange<[iterator]> seq(T t2)`
-* `template <typename T> Irange<[iterator]> seq(T t1, T t2)`
-* `template <typename T> Irange<[iterator]> seq(T t1, T t2, T delta)`
+* `template <typename T> Irange<[iterator]> inseq(T t2)`
+* `template <typename T> Irange<[iterator]> inseq(T t1, T t2)`
+* `template <typename T> Irange<[iterator]> inseq(T t1, T t2, T delta)`
 
 These generate arithmetic sequences. The iterator type is a forward iterator
 that dereferences to a `const T&`.

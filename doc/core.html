@@ -988,9 +988,9 @@ C-style arrays and is <code>constexpr</code>.</p>
 <p>Swap two blocks of memory. Behaviour is undefined if either pointer is null.</p>
 
 <ul>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t2)</code></li>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t1, T t2)</code></li>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>seq</strong>(T t1, T t2, T delta)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>inseq</strong>(T t2)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>inseq</strong>(T t1, T t2)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>inseq</strong>(T t1, T t2, T delta)</code></li>
 </ul>
 
 <p>These generate arithmetic sequences. The iterator type is a forward iterator

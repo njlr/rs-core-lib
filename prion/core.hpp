@@ -1224,9 +1224,9 @@ namespace Prion {
 
     }
 
-    template <typename T> inline Irange<PrionDetail::UnitSequenceIterator<T>> seq(T t2) { return {{T(), t2}, {}}; }
-    template <typename T> inline Irange<PrionDetail::UnitSequenceIterator<T>> seq(T t1, T t2) { return {{t1, t2}, {}}; }
-    template <typename T> inline Irange<PrionDetail::DeltaSequenceIterator<T>> seq(T t1, T t2, T delta) { return {{t1, t2, delta}, {}}; }
+    template <typename T> inline Irange<PrionDetail::UnitSequenceIterator<T>> inseq(T t2) { return {{T(), t2}, {}}; }
+    template <typename T> inline Irange<PrionDetail::UnitSequenceIterator<T>> inseq(T t1, T t2) { return {{t1, t2}, {}}; }
+    template <typename T> inline Irange<PrionDetail::DeltaSequenceIterator<T>> inseq(T t1, T t2, T delta) { return {{t1, t2, delta}, {}}; }
 
     // Scope guards
 
