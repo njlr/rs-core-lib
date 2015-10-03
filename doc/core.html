@@ -87,6 +87,19 @@ support in a future version.</p>
 argument list.</p>
 
 <ul>
+<li><code>#define <strong>PRI_CHAR</strong>(C, T)</code></li>
+</ul>
+
+<p>Resolves to a <code>constexpr</code> value equal to the character <code>C</code> as represented in
+the character type <code>T</code>; for example, <code>PRI_CHAR('A',wchar_t)</code> resolves to
+<code>L'A'</code>. <code>C</code> must be a simple character literal; <code>T</code> must be one of the four
+character types that can be used in strings (<code>char</code>, <code>char16_t</code>, <code>char32_t</code>,
+or <code>wchar_t</code>), or a template parameter type that will resolve to one of these
+four types. Behaviour is undefined if <code>T</code> is not one of those four types, or
+if the character <code>C</code> is not representable by a single code unit in all four
+types.</p>
+
+<ul>
 <li><code>#define <strong>PRI_LDLIB</strong>(libs)</code></li>
 </ul>
 
@@ -339,8 +352,8 @@ standard library implementation doesn&#8217;t support them.</p>
 adding 128 bit integer support.</p>
 
 <ul>
-<li><code>template &lt;typename T&gt; std::make_signed_t&lt;T&gt; <strong>as_signed</strong>(T t) noexcept</code></li>
-<li><code>template &lt;typename T&gt; std::make_unsigned_t&lt;T&gt; <strong>as_unsigned</strong>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr std::make_signed_t&lt;T&gt; <strong>as_signed</strong>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr std::make_unsigned_t&lt;T&gt; <strong>as_unsigned</strong>(T t) noexcept</code></li>
 </ul>
 
 <p>These return their argument converted to a signed or unsigned value of the

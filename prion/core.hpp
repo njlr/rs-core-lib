@@ -117,6 +117,7 @@
 // Other preprocessor macros
 
 #define PRI_BOUNDS(range) std::begin(range), std::end(range)
+#define PRI_CHAR(C, T) (::Prion::PrionDetail::select_char<T>(C, u ## C, U ## C, L ## C))
 #define PRI_LDLIB(libs)
 #define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
@@ -149,12 +150,12 @@ namespace Prion {
 
     // Functions needed early
 
-    template <typename T> inline auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
-    inline auto as_signed(int128_t t) noexcept { return int128_t(t); }
-    inline auto as_signed(uint128_t t) noexcept { return int128_t(t); }
-    template <typename T> inline auto as_unsigned(T t) noexcept { return static_cast<std::make_unsigned_t<T>>(t); }
-    inline auto as_unsigned(int128_t t) noexcept { return uint128_t(t); }
-    inline auto as_unsigned(uint128_t t) noexcept { return uint128_t(t); }
+    template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
+    constexpr auto as_signed(int128_t t) noexcept { return int128_t(t); }
+    constexpr auto as_signed(uint128_t t) noexcept { return int128_t(t); }
+    template <typename T> constexpr auto as_unsigned(T t) noexcept { return static_cast<std::make_unsigned_t<T>>(t); }
+    constexpr auto as_unsigned(int128_t t) noexcept { return uint128_t(t); }
+    constexpr auto as_unsigned(uint128_t t) noexcept { return uint128_t(t); }
 
     template <typename C>
     basic_string<C> cstr(const C* ptr) {
@@ -169,6 +170,14 @@ namespace Prion {
     }
 
     namespace PrionDetail {
+
+        template <typename T> constexpr T select_char(char c, char16_t c16, char32_t c32, wchar_t wc) noexcept {
+            return std::is_same<T, char>::value ? c
+                : std::is_same<T, char16_t>::value ? c16
+                : std::is_same<T, char32_t>::value ? c32
+                : std::is_same<T, wchar_t>::value ? wc
+                : 0;
+        }
 
         template <typename T>
         u8string int_to_string(T x, int base, size_t digits) {
@@ -509,14 +518,14 @@ namespace Prion {
         struct Round<T2, T1, true> {
             T2 operator()(T1 value) const noexcept {
                 using std::floor;
-                return static_cast<T2>(floor(value + T1(1) / T1(2)));
+                return T2(floor(value + T1(1) / T1(2)));
             }
         };
 
         template <typename T2, typename T1>
         struct Round<T2, T1, false> {
             T2 operator()(T1 value) const noexcept {
-                return static_cast<T2>(value);
+                return T2(value);
             }
         };
 
@@ -529,7 +538,7 @@ namespace Prion {
     template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept
         { return static_max(args...) < t ? t : static_max(args...); }
     template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
-        { return x < static_cast<T>(min) ? static_cast<T>(min) : static_cast<T>(max) < x ? static_cast<T>(max) : x; }
+        { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
     template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
     template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
     template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
@@ -560,7 +569,7 @@ namespace Prion {
         if (sign_of(t) < 0)
             return 0;
         if (std::numeric_limits<T>::digits < std::numeric_limits<double>::digits)
-            return static_cast<T>(floor(sqrt(double(t))));
+            return T(floor(sqrt(double(t))));
         auto u = as_unsigned(t);
         using U = decltype(u);
         U result = 0, test = U(1) << (8 * sizeof(U) - 2);
@@ -574,7 +583,7 @@ namespace Prion {
             result >>= 1;
             test >>= 2;
         }
-        return static_cast<T>(result);
+        return T(result);
     }
 
     // Byte order
@@ -644,7 +653,7 @@ namespace Prion {
         auto bp = static_cast<const uint8_t*>(ptr) + ofs;
         t = 0;
         for (; len > 0; --len)
-            t = (t << 8) + static_cast<T>(*bp++);
+            t = (t << 8) + T(*bp++);
     }
 
     template <typename T>
@@ -672,7 +681,7 @@ namespace Prion {
         auto bp = static_cast<const uint8_t*>(ptr) + ofs + len;
         t = 0;
         for (; len > 0; --len)
-            t = (t << 8) + static_cast<T>(*--bp);
+            t = (t << 8) + T(*--bp);
     }
 
     template <typename T>
@@ -734,7 +743,7 @@ namespace Prion {
     constexpr bool ascii_ispunct_w(char c) noexcept { return ascii_ispunct(c) && c != '_'; }
     constexpr char ascii_tolower(char c) noexcept { return ascii_isupper(c) ? c + 32 : c; }
     constexpr char ascii_toupper(char c) noexcept { return ascii_islower(c) ? c - 32 : c; }
-    template <typename T> constexpr T char_to(char c) noexcept { return static_cast<T>(static_cast<unsigned char>(c)); }
+    template <typename T> constexpr T char_to(char c) noexcept { return T(uint8_t(c)); }
 
     // Containers
 
@@ -1086,7 +1095,7 @@ namespace Prion {
     namespace PrionDetail {
 
         template <typename K, typename V, bool = std::is_convertible<K, V>::value> struct Kwcopy;
-        template <typename K, typename V> struct Kwcopy<K, V, true> { void operator()(const K& a, V& p) const { p = static_cast<V>(a); } };
+        template <typename K, typename V> struct Kwcopy<K, V, true> { void operator()(const K& a, V& p) const { p = V(a); } };
         template <typename K, typename V> struct Kwcopy<K, V, false> { void operator()(const K&, V&) const {} };
 
         template <typename K> struct Kwparam {
@@ -1098,7 +1107,7 @@ namespace Prion {
 
     template <typename K> struct Kwarg {
         constexpr Kwarg() {}
-        template <typename A> PrionDetail::Kwparam<K> operator=(const A& a) const { return {this, static_cast<K>(a)}; }
+        template <typename A> PrionDetail::Kwparam<K> operator=(const A& a) const { return {this, K(a)}; }
     };
 
     template <typename K, typename V, typename K2, typename... Args>

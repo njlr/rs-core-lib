@@ -63,6 +63,17 @@ support in a future version.
 Convenience macro for inserting the beginning and end of a range into an
 argument list.
 
+* `#define PRI_CHAR(C, T)`
+
+Resolves to a `constexpr` value equal to the character `C` as represented in
+the character type `T`; for example, `PRI_CHAR('A',wchar_t)` resolves to
+`L'A'`. `C` must be a simple character literal; `T` must be one of the four
+character types that can be used in strings (`char`, `char16_t`, `char32_t`,
+or `wchar_t`), or a template parameter type that will resolve to one of these
+four types. Behaviour is undefined if `T` is not one of those four types, or
+if the character `C` is not representable by a single code unit in all four
+types.
+
 * `#define PRI_LDLIB(libs)`
 
 This instructs the makefile to link with one or more static libraries. Specify
@@ -241,8 +252,8 @@ Compile time maximum and minimum functions.
 Absolute value function. `Prion::abs()` is the same as `std::abs()` except for
 adding 128 bit integer support.
 
-* `template <typename T> std::make_signed_t<T> as_signed(T t) noexcept`
-* `template <typename T> std::make_unsigned_t<T> as_unsigned(T t) noexcept`
+* `template <typename T> constexpr std::make_signed_t<T> as_signed(T t) noexcept`
+* `template <typename T> constexpr std::make_unsigned_t<T> as_unsigned(T t) noexcept`
 
 These return their argument converted to a signed or unsigned value of the
 same size (the argument is returned unchanged if `T` already had the desired

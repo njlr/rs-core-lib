@@ -67,6 +67,11 @@ namespace {
             TRY(*out++ = of2(iv[i], iv2[i]));
         TEST_EQUAL_RANGE(result, (vector<u8string>{"2", "6", "15", "28", "55"}));
 
+        auto c1 = PRI_CHAR('A', char);      TEST_TYPE_OF(c1, char);      TEST_EQUAL(c1, 'A');
+        auto c2 = PRI_CHAR('A', char16_t);  TEST_TYPE_OF(c2, char16_t);  TEST_EQUAL(c2, u'A');
+        auto c3 = PRI_CHAR('A', char32_t);  TEST_TYPE_OF(c3, char32_t);  TEST_EQUAL(c3, U'A');
+        auto c4 = PRI_CHAR('A', wchar_t);   TEST_TYPE_OF(c4, wchar_t);   TEST_EQUAL(c4, L'A');
+
     }
 
     void check_algorithms() {
