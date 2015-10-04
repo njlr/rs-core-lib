@@ -16,6 +16,7 @@
 #else
     #define PRI_TARGET_UNIX 1
     #if defined(__APPLE__)
+        // Target condition on Apple must be #if, not #ifdef
         #define PRI_TARGET_DARWIN 1
         #include "TargetConditionals.h"
         #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
@@ -55,7 +56,7 @@
     #endif
 #endif
 
-// Includes here so anything that needs the macros above will see them
+// Includes go here so anything that needs the macros above will see them
 
 #include <algorithm>
 #include <atomic>
