@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <iterator>
@@ -240,8 +241,23 @@
 
 struct Test {
 
-    using TestFunction = void (*)();
-    using TestMap = std::map<std::string, TestFunction>;
+    struct compare_modules {
+        static bool is_core(const std::string& s) noexcept {
+            return s.size() > 5 && memcmp(s.data() + s.size() - 5, "/core", 5) == 0;
+        }
+        bool operator()(const std::string& lhs, const std::string& rhs) const noexcept {
+            bool lcore = is_core(lhs), rcore = is_core(rhs);
+            if (lcore && ! rcore)
+                return true;
+            else if (rcore && ! lcore)
+                return false;
+            else
+                return lhs < rhs;
+        }
+    };
+
+    using test_function = void (*)();
+    using test_map = std::map<std::string, test_function, compare_modules>;
 
     static constexpr const char* x_reset = "\x1b[0m";
     static constexpr const char* x_head = "\x1b[38;5;220m";
@@ -255,8 +271,8 @@ struct Test {
         return fails;
     }
 
-    static TestMap& test_functions() noexcept {
-        static TestMap funcs;
+    static test_map& test_functions() noexcept {
+        static test_map funcs;
         return funcs;
     }
 
@@ -264,7 +280,7 @@ struct Test {
         ++test_failures();
     }
 
-    static void register_test(TestFunction f, const std::string& project, const std::string& module) {
+    static void register_test(test_function f, const std::string& project, const std::string& module) {
         auto key = project + '/' + module;
         std::replace(key.begin(), key.end(), '_', '-');
         test_functions()[key] = f;
@@ -279,9 +295,8 @@ struct Test {
     }
 
     static void print_out(const std::string& str) {
-        // TODO
-        // static Prion::Mutex mtx;
-        // Prion::MutexLock lock(mtx);
+        static Prion::Mutex mtx;
+        Prion::MutexLock lock(mtx);
         std::cout << str << std::endl;
     }
 
