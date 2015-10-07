@@ -46,6 +46,8 @@
 <h2 id="preprocessormacros">Preprocessor macros</h2>
 
 <ul>
+<li><code>#define <strong>PRI_COMPILER_CLANG</strong> 1</code></li>
+<li><code>#define <strong>PRI_COMPILER_GCC</strong> [version]</code></li>
 <li><code>#define <strong>PRI_TARGET_UNIX</strong> 1</code>
 
 <ul>
@@ -67,9 +69,14 @@
 </ul>
 
 <p>Some of these will be defined to provide a consistent way to identify the
-target operating system for conditional compilation. At least one of
-<code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_WINDOWS</code> will always be defined (both will be
-defined on Cygwin if <code>_WIN32</code> has been defined).</p>
+compiler and target operating system for conditional compilation.</p>
+
+<p><code>PRI_COMPILER_GCC</code> will be defined as the GCC version number in three digit
+form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
+its version numbers are not consistent across builds for different systems.</p>
+
+<p>At least one of <code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_WINDOWS</code> will always be
+defined (both will be defined on Cygwin if <code>_WIN32</code> has been defined).</p>
 
 <p>On Apple platforms, <code>PRI_TARGET_DARWIN</code> will always be defined; one of
 <code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>
