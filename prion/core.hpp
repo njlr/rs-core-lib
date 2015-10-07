@@ -2,6 +2,31 @@
 
 // Compilation environment identification
 
+// MSVC is not actually supported yes; the macro is supplied for future development.
+// http://stackoverflow.com/questions/70013/how-to-detect-if-im-compiling-code-with-visual-studio-2008
+
+// Visual Studio  Visual C++  _MSC_VER  PRI_COMPILER_MSVC
+// VS 5           5.0         1100      500
+// VS 6           6.0         1200      600
+// VS 7           7.0         1300      700
+// VS 2003        7.1         1310      710
+// VS 2005        8.0         1400      800
+// VS 2008        9.0         1500      900
+// VS 2010        10.0        1600      1000
+// VS 2012        11.0        1700      1100
+// VS 2013        12.0        1800      1200
+// VS 2015        14.0        1900      1400
+
+#if defined(_MSC_VER)
+    #define PRI_COMPILER_MSVC (_MSC_VER >= 1900 ? _MSC_VER - 500 : _MSC_VER - 600)
+#elif defined(__GNUC__)
+    #if defined(__clang__)
+        #define PRI_COMPILER_CLANG 1
+    #else
+        #define PRI_COMPILER_GCC (100 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__)
+    #endif
+#endif
+
 #if defined(__CYGWIN__)
     #define PRI_TARGET_CYGWIN 1
     #define PRI_TARGET_UNIX 1
@@ -9,10 +34,11 @@
         #define PRI_TARGET_WINDOWS 1
     #endif
 #elif defined(_WIN32)
-    // We don't support MSVC yet, so we can assume Mingw
-    #define PRI_TARGET_MINGW 1
     #define PRI_TARGET_NATIVE_WINDOWS 1
     #define PRI_TARGET_WINDOWS 1
+    #if defined(PRI_COMPILER_GCC)
+        #define PRI_TARGET_MINGW 1
+    #endif
 #else
     #define PRI_TARGET_UNIX 1
     #if defined(__APPLE__)

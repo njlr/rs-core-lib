@@ -35,6 +35,8 @@ By Ross Smith
 
 ## Preprocessor macros ##
 
+* `#define PRI_COMPILER_CLANG 1`
+* `#define PRI_COMPILER_GCC [version]`
 * `#define PRI_TARGET_UNIX 1`
     * `#define PRI_TARGET_DARWIN 1`
         * `#define PRI_TARGET_MACOSX 1`
@@ -46,9 +48,14 @@ By Ross Smith
 * `#define PRI_TARGET_CYGWIN 1`
 
 Some of these will be defined to provide a consistent way to identify the
-target operating system for conditional compilation. At least one of
-`PRI_TARGET_UNIX` or `PRI_TARGET_WINDOWS` will always be defined (both will be
-defined on Cygwin if `_WIN32` has been defined).
+compiler and target operating system for conditional compilation.
+
+`PRI_COMPILER_GCC` will be defined as the GCC version number in three digit
+form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
+its version numbers are not consistent across builds for different systems.
+
+At least one of `PRI_TARGET_UNIX` or `PRI_TARGET_WINDOWS` will always be
+defined (both will be defined on Cygwin if `_WIN32` has been defined).
 
 On Apple platforms, `PRI_TARGET_DARWIN` will always be defined; one of
 `PRI_TARGET_IOS` or `PRI_TARGET_MACOSX` will also be defined.
