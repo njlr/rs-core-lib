@@ -174,7 +174,7 @@ floating point literal with no type suffix.
     * `sqrt2` _= &radic;2 = 1.4142_
     * `sqrt3` _= &radic;3 = 1.7321_
     * `sqrt5` _= &radic;5 = 2.2361_
-    * `sqrt2pi` _= &radic;(2&pi;) = 2.5066_ -->
+    * `sqrt_pi` _= &radic;(&pi;) = 1.7725_ -->
 * _Physical constants_
     * `atomic_mass_unit` _= 1.661&times;10<sup>-27</sup> kg_
     * `avogadro_constant` _= 6.022&times;10<sup>23</sup> mol<sup>-1</sup>_
@@ -304,7 +304,7 @@ negative, or if `T` is signed and the true result would be out of range.
 * `template <typename T> T int_sqrt(T t) noexcept`
 
 Returns the integer square root of the argument (the true square root
-truncated to an integer). This will return zero if the argument is negative.
+truncated to an integer). Behaviour is undefined if the argument is negative.
 
 * `template <typename T> constexpr T rotl(T t, int n) noexcept`
 * `template <typename T> constexpr T rotr(T t, int n) noexcept`
@@ -923,7 +923,7 @@ range will be clamped to the nearest end of the return type's range (for
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
 
-* `template <typename InputRange> string join_words(const InputRange& range, const string& delim = " ")`
+* `template <typename InputRange> string join_words(const InputRange& range, const string& delim = "")`
 * `template <typename OutputIterator> void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
 
 Join words into a string, using the given delimiter, or split a string into

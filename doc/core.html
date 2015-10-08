@@ -255,7 +255,7 @@ floating point literal with no type suffix.</p>
 <li><code>sqrt2</code> <em>= &radic;2 = 1.4142</em></li>
 <li><code>sqrt3</code> <em>= &radic;3 = 1.7321</em></li>
 <li><code>sqrt5</code> <em>= &radic;5 = 2.2361</em></li>
-<li><code>sqrt2pi</code> <em>= &radic;(2&pi;) = 2.5066</em> &#8211;&gt;</li>
+<li><code>sqrt_pi</code> <em>= &radic;(&pi;) = 1.7725</em> &#8211;&gt;</li>
 </ul></li>
 <li><em>Physical constants</em>
 
@@ -417,7 +417,7 @@ negative, or if <code>T</code> is signed and the true result would be out of ran
 </ul>
 
 <p>Returns the integer square root of the argument (the true square root
-truncated to an integer). This will return zero if the argument is negative.</p>
+truncated to an integer). Behaviour is undefined if the argument is negative.</p>
 
 <ul>
 <li><code>template &lt;typename T&gt; constexpr T <strong>rotl</strong>(T t, int n) noexcept</code></li>
@@ -1150,7 +1150,7 @@ range will be clamped to the nearest end of the return type&#8217;s range (for
 line feed is inserted after each block.</p>
 
 <ul>
-<li><code>template &lt;typename InputRange&gt; string <strong>join_words</strong>(const InputRange&amp; range, const string&amp; delim = &quot; &quot;)</code></li>
+<li><code>template &lt;typename InputRange&gt; string <strong>join_words</strong>(const InputRange&amp; range, const string&amp; delim = &quot;&quot;)</code></li>
 <li><code>template &lt;typename OutputIterator&gt; void <strong>split_words</strong>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
 </ul>
 

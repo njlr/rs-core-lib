@@ -232,7 +232,6 @@ namespace Prion {
     #if defined(PRI_TARGET_WINDOWS)
 
         inline wstring utf8_to_wstring(const u8string& ustr) {
-            using namespace PrionDetail;
             if (ustr.empty())
                 return {};
             int rc = MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), nullptr, 0);
@@ -244,7 +243,6 @@ namespace Prion {
         }
 
         inline u8string wstring_to_utf8(const wstring& wstr) {
-            using namespace PrionDetail;
             if (wstr.empty())
                 return {};
             int rc = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), nullptr, 0, nullptr, nullptr);
@@ -346,7 +344,7 @@ namespace Prion {
     PRI_DEFINE_CONSTANT(sqrt2,    1.41421356237309504880168872420969807856967187537695);
     PRI_DEFINE_CONSTANT(sqrt3,    1.73205080756887729352744634150587236694280525381038);
     PRI_DEFINE_CONSTANT(sqrt5,    2.23606797749978969640917366873127623544061835961153);
-    PRI_DEFINE_CONSTANT(sqrt2pi,  2.50662827463100050241576528481104525300698674060994);
+    PRI_DEFINE_CONSTANT(sqrt_pi,  1.77245385090551602729816748334114518279754945612239);
 
     // Physical constants
 
@@ -593,8 +591,6 @@ namespace Prion {
 
     template <typename T>
     T int_sqrt(T t) noexcept {
-        if (sign_of(t) < 0)
-            return 0;
         if (std::numeric_limits<T>::digits < std::numeric_limits<double>::digits)
             return T(floor(sqrt(double(t))));
         auto u = as_unsigned(t);
@@ -981,7 +977,8 @@ namespace Prion {
         int error() const noexcept { return err; }
         const char* function() const noexcept { return fun->data(); }
     protected:
-        SystemError(int error, const u8string& function, const u8string& message): std::runtime_error(message), err(error), fun(make_shared<u8string>(function)) {}
+        SystemError(int error, const u8string& function, const u8string& message):
+            std::runtime_error(message), err(error), fun(make_shared<u8string>(function)) {}
         static u8string assemble(int error, const u8string& function, const u8string& details);
     private:
         int err;
@@ -1010,9 +1007,12 @@ namespace Prion {
     class CrtError:
     public SystemError {
     public:
-        CrtError(int error, const char* function): SystemError(error, cstr(function), assemble(error, cstr(function), translate(error))) {}
-        CrtError(int error, const u8string& function): SystemError(error, function, assemble(error, function, translate(error))) {}
-        static u8string translate(int error) { PrionDetail::ForceUtf8 fu; return PrionDetail::trim_ws(cstr(strerror(error))); }
+        CrtError(int error, const char* function):
+            SystemError(error, cstr(function), assemble(error, cstr(function), translate(error))) {}
+        CrtError(int error, const u8string& function):
+            SystemError(error, function, assemble(error, function, translate(error))) {}
+        static u8string translate(int error)
+            { PrionDetail::ForceUtf8 fu; return PrionDetail::trim_ws(cstr(strerror(error))); }
     };
 
     #if defined(PRI_TARGET_WINDOWS)
@@ -1430,7 +1430,7 @@ namespace Prion {
     inline u8string hexdump(const string& str, size_t block = 0) { return hexdump(str.data(), str.size(), block); }
 
     template <typename InputRange>
-    string join_words(const InputRange& range, const string& delim = " ") {
+    string join_words(const InputRange& range, const string& delim = {}) {
         string result;
         for (auto& s: range) {
             result += s;

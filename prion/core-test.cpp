@@ -1919,12 +1919,12 @@ namespace {
 
         sv.clear();                      TEST_EQUAL(join_words(sv), "");
         sv = {"Hello"};                  TEST_EQUAL(join_words(sv), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv), "Hello world");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv), "Hello world again");
-        sv.clear();                      TEST_EQUAL(join_words(sv, ""), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(sv, ""), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, ""), "Helloworld");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv, ""), "Helloworldagain");
+        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv), "Helloworld");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv), "Helloworldagain");
+        sv.clear();                      TEST_EQUAL(join_words(sv, " "), "");
+        sv = {"Hello"};                  TEST_EQUAL(join_words(sv, " "), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, " "), "Hello world");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv, " "), "Hello world again");
         sv.clear();                      TEST_EQUAL(join_words(sv, "<*>"s), "");
         sv = {"Hello"};                  TEST_EQUAL(join_words(sv, "<*>"s), "Hello");
         sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, "<*>"s), "Hello<*>world");
