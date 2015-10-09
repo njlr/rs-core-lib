@@ -1444,8 +1444,10 @@ namespace Prion {
     template <typename OutputIterator>
     void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
         if (delim.empty()) {
-            if (! src.empty())
+            if (! src.empty()) {
                 *dst = src;
+                ++dst;
+            }
             return;
         }
         size_t i = 0, j = 0, size = src.size();
