@@ -2,20 +2,8 @@
 
 // Compilation environment identification
 
-// MSVC is not actually supported yes; the macro is supplied for future development.
+// MSVC is not actually supported yet; the macro is supplied for future development.
 // http://stackoverflow.com/questions/70013/how-to-detect-if-im-compiling-code-with-visual-studio-2008
-
-// Visual Studio  Visual C++  _MSC_VER  PRI_COMPILER_MSVC
-// VS 5           5.0         1100      500
-// VS 6           6.0         1200      600
-// VS 7           7.0         1300      700
-// VS 2003        7.1         1310      710
-// VS 2005        8.0         1400      800
-// VS 2008        9.0         1500      900
-// VS 2010        10.0        1600      1000
-// VS 2012        11.0        1700      1100
-// VS 2013        12.0        1800      1200
-// VS 2015        14.0        1900      1400
 
 #if defined(_MSC_VER)
     #define PRI_COMPILER_MSVC (_MSC_VER >= 1900 ? _MSC_VER - 500 : _MSC_VER - 600)
