@@ -733,15 +733,22 @@ recognized).</p>
 <h2 id="hashfunctions">Hash functions</h2>
 
 <ul>
-<li><code>template &lt;typename... Args&gt; void <strong>hash_combine</strong>(size_t&amp; hash, const Args&amp;... args) noexcept</code></li>
+<li><code>size_t <strong>hash_bytes</strong>(const void* ptr, size_t n)</code></li>
+<li><code>void <strong>hash_bytes</strong>(size_t&amp; hash, const void* ptr, size_t n)</code></li>
 <li><code>template &lt;typename... Args&gt; size_t <strong>hash_value</strong>(const Args&amp;... args) noexcept</code></li>
-<li><code>template &lt;typename Range&gt; void <strong>hash_range</strong>(size_t&amp; hash, const Range&amp; range) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; void <strong>hash_combine</strong>(size_t&amp; hash, const Args&amp;... args) noexcept</code></li>
 <li><code>template &lt;typename Range&gt; size_t <strong>hash_range</strong>(const Range&amp; range) noexcept</code></li>
+<li><code>template &lt;typename Range&gt; void <strong>hash_range</strong>(size_t&amp; hash, const Range&amp; range) noexcept</code></li>
 </ul>
 
 <p>Functions for combining hashes incrementally, or for generating the hash of a
 number of objects in one call, for use in implementing hash functions for
-compound types. All of these call <code>std::hash</code> for the element type.</p>
+compound types. The first version of each pair of functions (<code>hash_value()</code>
+and <code>hash_combine()</code> have different names to avoid overload resolution
+problems) calculates the hash of the supplied data; the second version takes
+an existing hash value and mixes it with additional data. All of these call
+<code>std::hash</code> for the element type (<code>hash_bytes()</code> calls <code>hash&lt;string&gt;</code>, or its
+underlying hash function if possible; calling it with a null pointer is safe).</p>
 
 <h2 id="ioutilities">I/O utilities</h2>
 
@@ -754,9 +761,9 @@ available).</p>
 </ul>
 
 <p>Attempts to detect whether standard output has been redirected to a file or
-pipe (<code>true</code>), or is going directly to a terminal (<code>false</code>). This is not
-always possible to detect reliably; this function is fairly reliable on Unix,
-less so on Windows.</p>
+pipe (true), or is going directly to a terminal (false). This is not always
+possible to detect reliably; this function is fairly reliable on Unix, less so
+on Windows.</p>
 
 <ul>
 <li><code>bool <strong>load_file</strong>(const string&amp; file, string&amp; dst)</code></li>
@@ -764,7 +771,8 @@ less so on Windows.</p>
 </ul>
 
 <p>Read a file&#8217;s contents into a string. The return value is true if everything
-went well, false if there was an error while opening or reading the file.</p>
+went well, false if there was an error while opening or reading the file. If
+the function returns false, the destination string will be cleared.</p>
 
 <ul>
 <li><code>bool <strong>save_file</strong>(const string&amp; file, const void* ptr, size_t n, bool append = false)</code></li>
@@ -1575,6 +1583,7 @@ function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type 
 <li><code>uint8_t* Uuid::<strong>end</strong>() noexcept</code></li>
 <li><code>const uint8_t* Uuid::<strong>end</strong>() const noexcept</code></li>
 <li><code>uint128_t Uuid::<strong>as_integer</strong>() const noexcept</code></li>
+<li><code>size_t <strong>hash</strong>() const noexcept</code></li>
 <li><code>u8string Uuid::<strong>str</strong>() const</code></li>
 </ul></li>
 <li><code>bool <strong>operator==</strong>(const Uuid&amp; lhs, const Uuid&amp; rhs) noexcept</code></li>
@@ -1584,6 +1593,7 @@ function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type 
 <li><code>bool <strong>operator&lt;=</strong>(const Uuid&amp; lhs, const Uuid&amp; rhs) noexcept</code></li>
 <li><code>bool <strong>operator&gt;=</strong>(const Uuid&amp; lhs, const Uuid&amp; rhs) noexcept</code></li>
 <li><code>std::ostream&amp; <strong>operator&lt;&lt;</strong>(std::ostream&amp; o, const Uuid&amp; u)</code></li>
+<li><code>class std::<strong>hash</strong>&lt;Uuid&gt;</code></li>
 </ul>
 
 <p>This class holds a standard 16 byte universally unique identifier (UUID).</p>
@@ -1591,7 +1601,7 @@ function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type 
 <p>The default constructor sets all bytes to zero. The second and third
 constructors accept explicit byte values, either as a list of 16 bytes, or in
 the standard breakdown format. The fourth constructor copies a UUID from a 128
-bit integer, in little endian order. The fifth constructor copies the next 16
+bit integer, in big endian order. The fifth constructor copies the next 16
 bytes from the location pointed to; a null pointer will set all bytes to zero.</p>
 
 <p>The sixth constructor parses the string representation of a UUID. It expects
@@ -1604,8 +1614,11 @@ characters that are not ASCII alphanumerics as delimiters. It will throw
 representation. Behaviour is undefined if the index to <code>operator[]</code> is greater
 than 15.</p>
 
-<p>The <code>as_integer()</code> function returns the UUID as a 128 bit integer, in little
+<p>The <code>as_integer()</code> function returns the UUID as a 128 bit integer, in big
 endian order.</p>
+
+<p>A specialization of <code>std::hash</code> is provided to allow <code>Uuid</code> to be used as the
+key in an unordered container.</p>
 
 <p>The <code>str()</code> function, and the output operator, format the UUID in the standard
 broken down hex representation, e.g. <code>&quot;01234567-89ab-cdef-0123-456789abcdef&quot;</code>.</p>

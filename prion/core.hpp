@@ -1072,11 +1072,19 @@ namespace Prion {
 
     // Hash functions
 
+    namespace PrionDetail {
+
+        inline void mix_hash(size_t& h1, size_t h2) noexcept {
+            h1 ^= h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2);
+        }
+
+    }
+
     inline void hash_combine(size_t&) noexcept {}
 
     template <typename T>
     void hash_combine(size_t& hash, const T& t) noexcept {
-        hash ^= std::hash<T>()(t) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        PrionDetail::mix_hash(hash, std::hash<T>()(t));
     }
 
     template <typename T, typename... Args>
@@ -1085,24 +1093,40 @@ namespace Prion {
         hash_combine(hash, args...);
     }
 
-    template <typename Range>
-    void hash_range(size_t& hash, const Range& range) noexcept {
-        for (auto&& x: range)
-            hash_combine(hash, x);
+    template <typename... Args>
+    size_t hash_value(const Args&... args) noexcept {
+        size_t hash = 0;
+        hash_combine(hash, args...);
+        return hash;
+    }
+
+    inline size_t hash_bytes(const void* ptr, size_t n) {
+        #if defined(PRI_COMPILER_CLANG)
+            return std::__murmur2_or_cityhash<size_t>()(ptr, n);
+        #elif defined(PRI_COMPILER_GCC)
+            return std::_Hash_impl::hash(ptr, n);
+        #else
+            string s(static_cast<const char*>(ptr), n);
+            return std::hash<string>()(s);
+        #endif
+    }
+
+    inline void hash_bytes(size_t& hash, const void* ptr, size_t n) {
+        PrionDetail::mix_hash(hash, hash_bytes(ptr, n));
     }
 
     template <typename Range>
     size_t hash_range(const Range& range) noexcept {
-        size_t hash(0);
-        hash_range(hash, range);
+        size_t hash = 0;
+        for (auto&& x: range)
+            hash_combine(hash, x);
         return hash;
     }
 
-    template <typename... Args>
-    size_t hash_value(const Args&... args) noexcept {
-        size_t hash(0);
-        hash_combine(hash, args...);
-        return hash;
+    template <typename Range>
+    void hash_range(size_t& hash, const Range& range) noexcept {
+        for (auto&& x: range)
+            hash_combine(hash, x);
     }
 
     // Keyword arguments
@@ -2181,6 +2205,7 @@ namespace Prion {
         uint8_t* end() noexcept { return bytes + 16; }
         const uint8_t* end() const noexcept { return bytes + 16; }
         uint128_t as_integer() const noexcept { return read_be<uint128_t>(bytes); }
+        size_t hash() const noexcept { return hash_bytes(bytes, 16); }
         u8string str() const;
         friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
         friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }
@@ -2449,3 +2474,14 @@ namespace Prion {
     inline string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
 
 }
+
+#define PRI_DEFINE_STD_HASH(T) \
+    namespace std { \
+        template <> struct hash<T> { \
+            using argument_type = T; \
+            using result_type = size_t; \
+            size_t operator()(const T& t) const noexcept { return t.hash(); } \
+        }; \
+    }
+
+PRI_DEFINE_STD_HASH(Prion::Uuid)

@@ -568,14 +568,21 @@ Simple function objects.
 
 ## Hash functions ##
 
-* `template <typename... Args> void hash_combine(size_t& hash, const Args&... args) noexcept`
+* `size_t hash_bytes(const void* ptr, size_t n)`
+* `void hash_bytes(size_t& hash, const void* ptr, size_t n)`
 * `template <typename... Args> size_t hash_value(const Args&... args) noexcept`
-* `template <typename Range> void hash_range(size_t& hash, const Range& range) noexcept`
+* `template <typename... Args> void hash_combine(size_t& hash, const Args&... args) noexcept`
 * `template <typename Range> size_t hash_range(const Range& range) noexcept`
+* `template <typename Range> void hash_range(size_t& hash, const Range& range) noexcept`
 
 Functions for combining hashes incrementally, or for generating the hash of a
 number of objects in one call, for use in implementing hash functions for
-compound types. All of these call `std::hash` for the element type.
+compound types. The first version of each pair of functions (`hash_value()`
+and `hash_combine()` have different names to avoid overload resolution
+problems) calculates the hash of the supplied data; the second version takes
+an existing hash value and mixes it with additional data. All of these call
+`std::hash` for the element type (`hash_bytes()` calls `hash<string>`, or its
+underlying hash function if possible; calling it with a null pointer is safe).
 
 ## I/O utilities ##
 
@@ -586,15 +593,16 @@ available).
 * `bool is_stdout_redirected() noexcept`
 
 Attempts to detect whether standard output has been redirected to a file or
-pipe (`true`), or is going directly to a terminal (`false`). This is not
-always possible to detect reliably; this function is fairly reliable on Unix,
-less so on Windows.
+pipe (true), or is going directly to a terminal (false). This is not always
+possible to detect reliably; this function is fairly reliable on Unix, less so
+on Windows.
 
 * `bool load_file(const string& file, string& dst)`
 * `bool load_file(const wstring& file, string& dst)` _(Native Windows only)_
 
 Read a file's contents into a string. The return value is true if everything
-went well, false if there was an error while opening or reading the file.
+went well, false if there was an error while opening or reading the file. If
+the function returns false, the destination string will be cleared.
 
 * `bool save_file(const string& file, const void* ptr, size_t n, bool append = false)`
 * `bool save_file(const string& file, const string& src, bool append = false)`
@@ -1187,6 +1195,7 @@ function (e.g. `type_name<int>()`), or as an object whose type is to be named
     * `uint8_t* Uuid::end() noexcept`
     * `const uint8_t* Uuid::end() const noexcept`
     * `uint128_t Uuid::as_integer() const noexcept`
+    * `size_t hash() const noexcept`
     * `u8string Uuid::str() const`
 * `bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept`
 * `bool operator!=(const Uuid& lhs, const Uuid& rhs) noexcept`
@@ -1195,13 +1204,14 @@ function (e.g. `type_name<int>()`), or as an object whose type is to be named
 * `bool operator<=(const Uuid& lhs, const Uuid& rhs) noexcept`
 * `bool operator>=(const Uuid& lhs, const Uuid& rhs) noexcept`
 * `std::ostream& operator<<(std::ostream& o, const Uuid& u)`
+* `class std::hash<Uuid>`
 
 This class holds a standard 16 byte universally unique identifier (UUID).
 
 The default constructor sets all bytes to zero. The second and third
 constructors accept explicit byte values, either as a list of 16 bytes, or in
 the standard breakdown format. The fourth constructor copies a UUID from a 128
-bit integer, in little endian order. The fifth constructor copies the next 16
+bit integer, in big endian order. The fifth constructor copies the next 16
 bytes from the location pointed to; a null pointer will set all bytes to zero.
 
 The sixth constructor parses the string representation of a UUID. It expects
@@ -1214,8 +1224,11 @@ The `begin()`, `end()`, and `operator[]` functions grant access to the byte
 representation. Behaviour is undefined if the index to `operator[]` is greater
 than 15.
 
-The `as_integer()` function returns the UUID as a 128 bit integer, in little
+The `as_integer()` function returns the UUID as a 128 bit integer, in big
 endian order.
+
+A specialization of `std::hash` is provided to allow `Uuid` to be used as the
+key in an unordered container.
 
 The `str()` function, and the output operator, format the UUID in the standard
 broken down hex representation, e.g. `"01234567-89ab-cdef-0123-456789abcdef"`.
