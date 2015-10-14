@@ -114,11 +114,22 @@
 #define TEST_MATCH(str, pattern) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, ::Test::regex_match(pattern, str), \
+        TEST_IMPL(local_test_status, ::Test::regex_match(pattern, str, true), \
             "regex match(" # str ", " # pattern ")"); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
             ::Test::print_fail(FAIL_POINT, "regex match(" # str ", " # pattern ") failed: lhs = ", str); \
+        } \
+    } while (false)
+
+#define TEST_MATCH_ICASE(str, pattern) \
+    do { \
+        bool local_test_status = false; \
+        TEST_IMPL(local_test_status, ::Test::regex_match(pattern, str, false), \
+            "regex match(" # str ", " # pattern ")"); \
+        if (! local_test_status) { \
+            ::Test::record_failure(); \
+            ::Test::print_fail(FAIL_POINT, "regex match(" # str ", " # pattern ", icase) failed: lhs = ", str); \
         } \
     } while (false)
 
@@ -203,6 +214,28 @@
         } \
         catch (const expect& exception) { \
             TEST_MATCH(exception.what(), pattern); \
+        } \
+        catch (const std::exception& ex) { \
+            ::Test::record_failure(); \
+            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+                ", got ", ex.what()); \
+        } \
+        catch (...) { \
+            ::Test::record_failure(); \
+            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+                ", got unknown exception"); \
+        } \
+    } while (false)
+
+#define TEST_THROW_MATCH_ICASE(expr, expect, pattern) \
+    do { \
+        try { \
+            expr; \
+            ::Test::record_failure(); \
+            ::Test::print_fail(FAIL_POINT, # expr, " failed to throw exception: expected ", # expect); \
+        } \
+        catch (const expect& exception) { \
+            TEST_MATCH_ICASE(exception.what(), pattern); \
         } \
         catch (const std::exception& ex) { \
             ::Test::record_failure(); \
@@ -332,8 +365,10 @@ struct Test {
         return i == e1 && j == e2;
     }
 
-    static bool regex_match(const std::string& pattern, const std::string& str) {
-        static constexpr int options = PCRE_DOTALL | PCRE_NEWLINE_LF | PCRE_UTF8;
+    static bool regex_match(const std::string& pattern, const std::string& str, bool case_sensitive) {
+        int options = PCRE_DOTALL | PCRE_NEWLINE_LF | PCRE_UTF8;
+        if (! case_sensitive)
+            options |= PCRE_CASELESS;
         const char* estr = nullptr;
         int epos = 0;
         std::shared_ptr<pcre> p(pcre_compile(pattern.data(), options, &estr, &epos, nullptr), pcre_free);
@@ -444,7 +479,7 @@ struct Test {
             std::cout << x_decor << rule << x_reset << std::endl;
             auto start = system_clock::now();
             for (auto&& test: test_functions()) {
-                if (regex_match(unit_pattern, test.first)) {
+                if (regex_match(unit_pattern, test.first, false)) {
                     std::cout << x_info << "Testing " << test.first << x_reset << std::endl;
                     test.second();
                     ++test_count;

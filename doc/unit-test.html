@@ -91,11 +91,13 @@ sizes, or any of the elements fail to match.</p>
 
 <ul>
 <li><code>#define <strong>TEST_MATCH</strong>(string, pattern)</code></li>
+<li><code>#define <strong>TEST_MATCH_ICASE</strong>(string, pattern)</code></li>
 </ul>
 
 <p>Evaluates the string expression, and searches it for the given PCRE regular
-expression (supplied as a string constant). The test fails if the string fails
-to match, or an exception is thrown.</p>
+expression (supplied as a string constant), optionally case sensitive or
+insensitive The test fails if the string fails to match, or an exception is
+thrown.</p>
 
 <ul>
 <li><code>#define <strong>TEST_NEAR</strong>(lhs, rhs)</code></li>
@@ -113,6 +115,7 @@ if any expression throws an exception.</p>
 <li><code>#define <strong>TEST_THROW</strong>(expression, exception)</code></li>
 <li><code>#define <strong>TEST_THROW_EQUAL</strong>(expression, exception, message)</code></li>
 <li><code>#define <strong>TEST_THROW_MATCH</strong>(expression, exception, pattern)</code></li>
+<li><code>#define <strong>TEST_THROW_MATCH_ICASE</strong>(expression, exception, pattern)</code></li>
 </ul>
 
 <p>Evaluate the expression, expecting it to throw an exception of the specified
