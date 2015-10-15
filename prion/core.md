@@ -383,10 +383,10 @@ All of them will always return false for bytes outside the ASCII range
 * `constexpr bool ascii_isalpha_w(char c) noexcept`
 * `constexpr bool ascii_ispunct_w(char c) noexcept`
 
-These behave the same as the corresodning functions without the `"_w"` suffix,
-except that the underscore character is counted as a letter instead of a
-punctuation mark. (The suffix is intended to suggest the `"\w"` regex element,
-which does much the same thing.)
+These behave the same as the corresponding functions without the `"_w"`
+suffix, except that the underscore character is counted as a letter instead of
+a punctuation mark. (The suffix is intended to suggest the `"\w"` regex
+element, which does much the same thing.)
 
 * `constexpr char ascii_tolower(char c) noexcept`
 * `constexpr char ascii_toupper(char c) noexcept`
