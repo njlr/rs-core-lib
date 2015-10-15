@@ -100,6 +100,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <typeinfo>
 #include <type_traits>
 #include <utility>
@@ -927,116 +928,29 @@ namespace Prion {
 
     // Exceptions
 
-    namespace PrionDetail {
-
-        #if defined(PRI_TARGET_ANY_WINDOWS)
-
-            class ForceUtf8 {
-            public:
-                ForceUtf8(): prev(setlocale(LC_CTYPE, "en_US.UTF-8")) {}
-                ~ForceUtf8() { if (prev) setlocale(LC_CTYPE, prev); }
-            private:
-                const char* prev;
-            };
-
-        #else
-
-            class ForceUtf8 {
-            public:
-                ForceUtf8(): prev(uselocale(nullptr)) { uselocale(newlocale(LC_CTYPE_MASK, "en_US.UTF-8", duplocale(prev))); }
-                ~ForceUtf8() { uselocale(prev); }
-            private:
-                locale_t prev;
-            };
-
-        #endif
-
-        inline string trim_ws(const string& s) {
-            size_t i = s.find_first_not_of(ascii_whitespace);
-            if (i == npos)
-                return {};
-            size_t j = s.find_last_not_of(ascii_whitespace);
-            return s.substr(i, j + 1 - i);
-        }
-
-    }
-
-    class SystemError:
-    public std::runtime_error {
-    public:
-        int error() const noexcept { return err; }
-        const char* function() const noexcept { return fun->data(); }
-    protected:
-        SystemError(int error, const u8string& function, const u8string& message):
-            std::runtime_error(message), err(error), fun(make_shared<u8string>(function)) {}
-        static u8string assemble(int error, const u8string& function, const u8string& details);
-    private:
-        int err;
-        shared_ptr<u8string> fun;
-    };
-
-    inline u8string SystemError::assemble(int error, const u8string& function, const u8string& details) {
-        u8string msg;
-        if (! function.empty())
-            msg += function;
-        if (error != 0) {
-            if (! msg.empty())
-                msg += ": ";
-            msg += "Error " + dec(error);
-        }
-        if (! details.empty()) {
-            if (! msg.empty())
-                msg += ": ";
-            msg += details;
-        }
-        if (msg.empty())
-            msg = "System call failed";
-        return msg;
-    }
-
-    class CrtError:
-    public SystemError {
-    public:
-        CrtError(int error, const char* function):
-            SystemError(error, cstr(function), assemble(error, cstr(function), translate(error))) {}
-        CrtError(int error, const u8string& function):
-            SystemError(error, function, assemble(error, function, translate(error))) {}
-        static u8string translate(int error)
-            { PrionDetail::ForceUtf8 fu; return PrionDetail::trim_ws(cstr(strerror(error))); }
-    };
-
     #if defined(PRI_TARGET_WINDOWS_API)
 
-        namespace PrionDetail {
-
-            class LocalBuffer {
-            public:
-                LocalBuffer(): ptr(nullptr) {}
-                ~LocalBuffer() { LocalFree(ptr); }
-                wchar_t* get() const { return static_cast<wchar_t*>(ptr); }
-                wchar_t* indirect() { return reinterpret_cast<wchar_t*>(&ptr); }
-            private:
-                void* ptr;
-            };
-
-        }
-
-        class WindowsError:
-        public SystemError {
+        class WindowsCategory:
+        public std::error_category {
         public:
-            WindowsError(uint32_t error, const char* function):
-                SystemError(int(error), cstr(function), assemble(int(error), cstr(function), translate(error))) {}
-            WindowsError(uint32_t error, const u8string& function):
-                SystemError(int(error), function, assemble(int(error), function, translate(error))) {}
-            static u8string translate(uint32_t error);
+            virtual u8string message(int ev) const {
+                static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+                wchar_t* wptr = nullptr;
+                auto units = FormatMessageW(flags, nullptr, ev, 0, (wchar_t*)&wptr, 0, nullptr);
+                shared_ptr<wchar_t> wshare(wptr, LocalFree);
+                int bytes = WideCharToMultiByte(CP_UTF8, 0, wptr, units, nullptr, 0, nullptr, nullptr);
+                string text(bytes, '\0');
+                WideCharToMultiByte(CP_UTF8, 0, wptr, units, &text[0], bytes, nullptr, nullptr);
+                if (! text.empty() && text.back() == '\n')
+                    text.pop_back();
+                return text;
+            }
+            virtual const char* name() const noexcept { return "Win32"; }
         };
 
-        inline u8string WindowsError::translate(uint32_t error) {
-            using namespace PrionDetail;
-            static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
-            LocalBuffer buf;
-            auto rc = FormatMessageW(flags, nullptr, error, 0, buf.indirect(), 0, nullptr);
-            return trim_ws(wstring_to_utf8(wstring(buf.get(), rc)));
+        inline const std::error_category& windows_category() noexcept {
+            static const WindowsCategory cat;
+            return cat;
         }
 
     #endif
@@ -1624,7 +1538,7 @@ namespace Prion {
             ConditionVariable() {
                 int rc = pthread_cond_init(&pcond, nullptr);
                 if (rc)
-                    throw CrtError(rc, "pthread_cond_init()");
+                    throw std::system_error(rc, std::generic_category(), "pthread_cond_init()");
             }
             ~ConditionVariable() noexcept { pthread_cond_destroy(&pcond); }
             void notify_all() noexcept { pthread_cond_broadcast(&pcond); }
@@ -1632,7 +1546,7 @@ namespace Prion {
             void wait(MutexLock& ml) {
                 int rc = pthread_cond_wait(&pcond, &ml.mx->pmutex);
                 if (rc)
-                    throw CrtError(rc, "pthread_cond_wait()");
+                    throw std::system_error(rc, std::generic_category(), "pthread_cond_wait()");
             }
             template <typename Pred> void wait(MutexLock& lock, Pred p) { while (! p()) wait(lock); }
             template <typename R, typename P, typename Pred> bool wait_for(MutexLock& lock, std::chrono::duration<R, P> t, Pred p) {
@@ -1667,7 +1581,7 @@ namespace Prion {
                     if (rc == ETIMEDOUT)
                         return p();
                     if (rc != 0)
-                        throw CrtError(rc, "pthread_cond_timedwait()");
+                        throw std::system_error(rc, std::generic_category(), "pthread_cond_timedwait()");
                     if (p())
                         return true;
                 }
@@ -1685,7 +1599,7 @@ namespace Prion {
                     state = thread_running;
                     int rc = pthread_create(&thread, nullptr, thread_callback, this);
                     if (rc)
-                        throw CrtError(rc, "pthread_create()");
+                        throw std::system_error(rc, std::generic_category(), "pthread_create()");
                 }
             }
             ~Thread() noexcept { if (state != thread_joined) pthread_join(thread, nullptr); }
@@ -1699,7 +1613,7 @@ namespace Prion {
                 int rc = pthread_join(thread, nullptr);
                 state = thread_joined;
                 if (rc)
-                    throw CrtError(rc, "pthread_join()");
+                    throw std::system_error(rc, std::generic_category(), "pthread_join()");
                 if (except)
                     std::rethrow_exception(except);
             }
@@ -1763,7 +1677,7 @@ namespace Prion {
             void notify_one() noexcept { WakeConditionVariable(&wcond); }
             void wait(MutexLock& lock) {
                 if (! SleepConditionVariableCS(&wcond, &lock.mx->wcrit, INFINITE))
-                    throw WindowsError(GetLastError(), "SleepConditionVariableCS()");
+                    throw std::system_error(GetLastError(), windows_category(), "SleepConditionVariableCS()");
             }
             template <typename Pred> void wait(MutexLock& lock, Pred p) { while (! p()) wait(lock); }
             template <typename R, typename P, typename Pred> bool wait_for(MutexLock& lock, std::chrono::duration<R, P> t, Pred p) {
@@ -1796,7 +1710,7 @@ namespace Prion {
                         if (status == ERROR_TIMEOUT)
                             return p();
                         else
-                            throw WindowsError(status, "SleepConditionVariableCS()");
+                            throw std::system_error(status, windows_category(), "SleepConditionVariableCS()");
                     }
                 }
             }
@@ -1813,7 +1727,7 @@ namespace Prion {
                     state = thread_running;
                     thread = CreateThread(nullptr, 0, thread_callback, this, 0, &key);
                     if (! thread)
-                        throw WindowsError(GetLastError(), "CreateThread()");
+                        throw std::system_error(GetLastError(), windows_category(), "CreateThread()");
                 }
             }
             ~Thread() noexcept {
@@ -1831,7 +1745,7 @@ namespace Prion {
                 auto rc = WaitForSingleObject(thread, INFINITE);
                 state = thread_joined;
                 if (rc == WAIT_FAILED)
-                    throw WindowsError(GetLastError(), "WaitForSingleObject()");
+                    throw std::system_error(GetLastError(), windows_category(), "WaitForSingleObject()");
                 if (except)
                     std::rethrow_exception(except);
             }

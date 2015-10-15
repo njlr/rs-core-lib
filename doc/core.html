@@ -678,36 +678,19 @@ a flag indicating whether or not the target was found.</p>
 <h2 id="exceptions">Exceptions</h2>
 
 <ul>
-<li><code>class <strong>SystemError</strong>: public std::runtime_error</code>
+<li><code>class <strong>WindowsCategory</strong>: public std::error_category</code>
 
 <ul>
-<li><code>int SystemError::<strong>error</strong>() const noexcept</code></li>
-<li><code>const char* SystemError::<strong>function</strong>() const noexcept</code></li>
+<li><code>virtual u8string WindowsCategory::<strong>message</strong>(int ev) const</code></li>
+<li><code>virtual const char* WindowsCategory::<strong>name</strong>() const noexcept</code></li>
 </ul></li>
-<li><code>class <strong>CrtError</strong>: public SystemError</code>
-
-<ul>
-<li><code>CrtError::<strong>CrtError</strong>(int error, const char* function)</code></li>
-<li><code>CrtError::<strong>CrtError</strong>(int error, const u8string&amp; function)</code></li>
-<li><code>static u8string CrtError::<strong>translate</strong>(int error)</code></li>
-</ul></li>
-<li><code>class <strong>WindowsError</strong>: public SystemError</code> <em>[Windows only]</em>
-
-<ul>
-<li><code>WindowsError::<strong>WindowsError</strong>(uint32_t error, const char* function)</code></li>
-<li><code>WindowsError::<strong>WindowsError</strong>(uint32_t error, const u8string&amp; function)</code></li>
-<li><code>static u8string WindowsError::<strong>translate</strong>(uint32_t error)</code></li>
-</ul></li>
+<li><code>const std::error_category&amp; <strong>windows_category</strong>() noexcept</code></li>
 </ul>
 
-<p>Exceptions thrown to report an error from a system call, or a function that
-uses the same error codes as a system call. <code>SystemError</code> is an abstract base
-class; <code>CrtError</code> is used for C and Unix standard library errors;
-<code>WindowsError</code> (only defined in Windows builds) is used for Win32 API errors.
-The <code>translate()</code> functions convert an error code into an error message; this
-is called by the constructor and included in the complete message
-(<code>translate()</code> may return an empty string if the error code is not
-recognized).</p>
+<p>An error category instance for translating Win32 API error codes; naturally
+this is only defined on Windows builds <code>(PRI_TARGET_WINDOWS_API</code>). (MSVC
+provides this through the standard <code>system_category()</code> instance, but GCC does
+not supply any equivalent.)</p>
 
 <h2 id="functionalutilities">Functional utilities</h2>
 
@@ -1293,9 +1276,9 @@ to wait on itself.</p>
 the same thread object from multiple other threads without synchronisation
 precautions.</p>
 
-<p>The constructor and the <code>wait()</code> function may throw <code>SystemError</code> or a derived
-class if anything goes wrong in the underlying native thread API, and <code>wait()</code>
-may rethrow as described above.</p>
+<p>The constructor and the <code>wait()</code> function may throw <code>std::system_error</code> if
+anything goes wrong in the underlying native thread API, and <code>wait()</code> may
+rethrow as described above.</p>
 
 <p>The <code>cpu_threads()</code> function returns the number of hardware threads available.</p>
 

@@ -534,26 +534,15 @@ a flag indicating whether or not the target was found.
 
 ## Exceptions ##
 
-* `class SystemError: public std::runtime_error`
-    * `int SystemError::error() const noexcept`
-    * `const char* SystemError::function() const noexcept`
-* `class CrtError: public SystemError`
-    * `CrtError::CrtError(int error, const char* function)`
-    * `CrtError::CrtError(int error, const u8string& function)`
-    * `static u8string CrtError::translate(int error)`
-* `class WindowsError: public SystemError` _[Windows only]_
-    * `WindowsError::WindowsError(uint32_t error, const char* function)`
-    * `WindowsError::WindowsError(uint32_t error, const u8string& function)`
-    * `static u8string WindowsError::translate(uint32_t error)`
+* `class WindowsCategory: public std::error_category`
+    * `virtual u8string WindowsCategory::message(int ev) const`
+    * `virtual const char* WindowsCategory::name() const noexcept`
+* `const std::error_category& windows_category() noexcept`
 
-Exceptions thrown to report an error from a system call, or a function that
-uses the same error codes as a system call. `SystemError` is an abstract base
-class; `CrtError` is used for C and Unix standard library errors;
-`WindowsError` (only defined in Windows builds) is used for Win32 API errors.
-The `translate()` functions convert an error code into an error message; this
-is called by the constructor and included in the complete message
-(`translate()` may return an empty string if the error code is not
-recognized).
+An error category instance for translating Win32 API error codes; naturally
+this is only defined on Windows builds `(PRI_TARGET_WINDOWS_API`). (MSVC
+provides this through the standard `system_category()` instance, but GCC does
+not supply any equivalent.)
 
 ## Functional utilities ##
 
@@ -1042,9 +1031,9 @@ Apart from `wait()`, the other methods can be safely called simultaneously on
 the same thread object from multiple other threads without synchronisation
 precautions.
 
-The constructor and the `wait()` function may throw `SystemError` or a derived
-class if anything goes wrong in the underlying native thread API, and `wait()`
-may rethrow as described above.
+The constructor and the `wait()` function may throw `std::system_error` if
+anything goes wrong in the underlying native thread API, and `wait()` may
+rethrow as described above.
 
 The `cpu_threads()` function returns the number of hardware threads available.
 

@@ -14,6 +14,7 @@
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <system_error>
 #include <type_traits>
 #include <unordered_set>
 #include <utility>
@@ -1291,25 +1292,17 @@ namespace {
 
     void check_exceptions() {
 
-        u8string s;
-        TRY(s = CrtError::translate(EDOM));
-        TEST_MATCH(s, "[Dd]omain");
-        try {
-            throw CrtError(EDOM, "SomeFunction()");
-        }
-        catch (const std::exception& ex) {
-            TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\): Error \\d+: .*[Dd]omain");
-        }
-
         #if defined(PRI_TARGET_WINDOWS_API)
 
-            TRY(s = WindowsError::translate(ERROR_INVALID_FUNCTION));
+            u8string s;
+
+            TRY(s = windows_category().message(ERROR_INVALID_FUNCTION));
             TEST_EQUAL(s, "Incorrect function.");
             try {
-                throw WindowsError(ERROR_INVALID_FUNCTION, "SomeFunction()");
+                throw std::system_error(ERROR_INVALID_FUNCTION, windows_category(), "SomeFunction()");
             }
             catch (const std::exception& ex) {
-                TEST_EQUAL(string(ex.what()), "SomeFunction(): Error 1: Incorrect function.");
+                TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\).+Incorrect function\\.$");
             }
 
         #endif
