@@ -941,8 +941,7 @@ namespace Prion {
                 int bytes = WideCharToMultiByte(CP_UTF8, 0, wptr, units, nullptr, 0, nullptr, nullptr);
                 string text(bytes, '\0');
                 WideCharToMultiByte(CP_UTF8, 0, wptr, units, &text[0], bytes, nullptr, nullptr);
-                if (! text.empty() && text.back() == '\n')
-                    text.pop_back();
+                text.resize(text.find_last_not_of(ascii_whitespace) + 1);
                 return text;
             }
             virtual const char* name() const noexcept { return "Win32"; }
