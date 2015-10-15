@@ -23,7 +23,7 @@
     #include <sys/time.h>
 #endif
 
-#if defined(PRI_TARGET_WINDOWS)
+#if defined(PRI_TARGET_WINDOWS_API)
     #include <windows.h>
 #endif
 
@@ -1301,7 +1301,7 @@ namespace {
             TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\): Error \\d+: .*[Dd]omain");
         }
 
-        #if defined(PRI_TARGET_WINDOWS)
+        #if defined(PRI_TARGET_WINDOWS_API)
 
             TRY(s = WindowsError::translate(ERROR_INVALID_FUNCTION));
             TEST_EQUAL(s, "Incorrect function.");
@@ -2262,7 +2262,7 @@ namespace {
 
         #endif
 
-        #if defined(PRI_TARGET_WINDOWS)
+        #if defined(PRI_TARGET_WINDOWS_API)
 
             static constexpr int64_t epoch = 11644473600ll;
             static constexpr int64_t freq = 10000000ll;

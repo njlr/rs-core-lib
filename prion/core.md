@@ -35,17 +35,21 @@ By Ross Smith
 
 ## Preprocessor macros ##
 
-* `#define PRI_COMPILER_CLANG 1`
-* `#define PRI_COMPILER_GCC [version]`
-* `#define PRI_TARGET_UNIX 1`
-    * `#define PRI_TARGET_DARWIN 1`
-        * `#define PRI_TARGET_MACOSX 1`
-        * `#define PRI_TARGET_IOS 1`
-    * `#define PRI_TARGET_LINUX 1`
-* `#define PRI_TARGET_WINDOWS 1`
-    * `#define PRI_TARGET_MINGW 1`
-    * `#define PRI_TARGET_NATIVE_WINDOWS 1`
-* `#define PRI_TARGET_CYGWIN 1`
+* _Compilers_
+    * `#define PRI_COMPILER_CLANG 1`
+    * `#define PRI_COMPILER_GCC [version]`
+* _Unix targets_
+    * `#define PRI_TARGET_UNIX 1` _- defined on all Unix builds_
+    * `#define PRI_TARGET_APPLE 1` _- defined on all Apple (Darwin) builds_
+    * `#define PRI_TARGET_IOS 1` _- defined on iOS builds_
+    * `#define PRI_TARGET_MACOSX 1` _- defined on Mac OS X builds_
+    * `#define PRI_TARGET_LINUX 1` _- defined on Linux builds_
+* _Windows targets_
+    * `#define PRI_TARGET_ANY_WINDOWS 1` _- defined on all Windows builds, including Cygwin_
+    * `#define PRI_TARGET_WINDOWS_API 1` _- defined if Win32 API is available_
+    * `#define PRI_TARGET_NATIVE_WINDOWS 1` _- defined on non-Cygwin native Win32 builds_
+    * `#define PRI_TARGET_CYGWIN 1` _- defined on Cygwin builds_
+    * `#define PRI_TARGET_MINGW 1` _- defined on native Win32 builds using Mingw_
 
 Some of these will be defined to provide a consistent way to identify the
 compiler and target operating system for conditional compilation.
@@ -54,16 +58,20 @@ compiler and target operating system for conditional compilation.
 form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
 its version numbers are not consistent across builds for different systems.
 
-At least one of `PRI_TARGET_UNIX` or `PRI_TARGET_WINDOWS` will always be
-defined (both will be defined on Cygwin if `_WIN32` has been defined).
+Exactly one of `PRI_TARGET_UNIX` or `PRI_TARGET_NATIVE_WINDOWS` will always be
+defined, indicating whether a build is intended to use the Posix or Win32
+operating system API. `PRI_TARGET_WINDOWS_API` is defined if the Win32 API is
+available; normally it will be the same as `PRI_TARGET_NATIVE_WINDOWS`, except
+that it will also be defined in Cygwin `-mwin32` builds, where both APIs are
+available. `PRI_TARGET_ANY_WINDOWS` is always defined on builds intended to
+run on the Windows OS, i.e. both native Win32 and Cygwin builds.
 
-On Apple platforms, `PRI_TARGET_DARWIN` will always be defined; one of
+Currently only Mingw builds are supported for native Windows targets, so
+`PRI_TARGET_MINGW` will always be defined if `PRI_TARGET_NATIVE_WINDOWS` is
+defined. I may add MSVC support in a future version.
+
+On Apple platforms, `PRI_TARGET_APPLE` will always be defined; one of
 `PRI_TARGET_IOS` or `PRI_TARGET_MACOSX` will also be defined.
-
-On Microsoft Windows, `PRI_TARGET_NATIVE_WINDOWS` will be defined on any build
-not targeting Cygwin. Currently only Mingw builds are supported for native
-Windows targets, so `PRI_TARGET_MINGW` will always be defined; I may add MSVC
-support in a future version.
 
 * `#define PRI_BOUNDS(range) std::begin(range), std::end(range)`
 
@@ -89,12 +97,11 @@ library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
 `PRI_LDLIB()` invocation, or in multiple invocations; link order is only
 preserved within a single invocation. Libraries that are needed only on
 specific targets can be prefixed with a target identifier, e.g.
-`PRI_LDLIB(mac: foo bar)` will link with `-lfoo -lbar` only in Mac OS X
-builds.
+`PRI_LDLIB(apple: foo bar)` will link with `-lfoo -lbar` only in OSX builds.
 
 Tag        | Build target    | Corresponding macro
 ---        | ------------    | -------------------
-`mac:`     | Mac OS X + iOS  | `PRI_TARGET_DARWIN`
+`apple:`   | Mac OS X + iOS  | `PRI_TARGET_APPLE`
 `linux:`   | Linux           | `PRI_TARGET_LINUX`
 `mingw:`   | Mingw           | `PRI_TARGET_MINGW`
 `cygwin:`  | Cygwin          | `PRI_TARGET_CYGWIN`

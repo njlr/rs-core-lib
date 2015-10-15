@@ -16,14 +16,16 @@
 #endif
 
 #if defined(__CYGWIN__)
+    #define PRI_TARGET_ANY_WINDOWS 1
     #define PRI_TARGET_CYGWIN 1
     #define PRI_TARGET_UNIX 1
     #if defined(_WIN32)
-        #define PRI_TARGET_WINDOWS 1
+        #define PRI_TARGET_WINDOWS_API 1
     #endif
 #elif defined(_WIN32)
+    #define PRI_TARGET_ANY_WINDOWS 1
     #define PRI_TARGET_NATIVE_WINDOWS 1
-    #define PRI_TARGET_WINDOWS 1
+    #define PRI_TARGET_WINDOWS_API 1
     #if defined(PRI_COMPILER_GCC)
         #define PRI_TARGET_MINGW 1
     #endif
@@ -31,7 +33,7 @@
     #define PRI_TARGET_UNIX 1
     #if defined(__APPLE__)
         // Target condition on Apple must be #if, not #ifdef
-        #define PRI_TARGET_DARWIN 1
+        #define PRI_TARGET_APPLE 1
         #include "TargetConditionals.h"
         #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
             #define PRI_TARGET_IOS 1
@@ -52,7 +54,7 @@
     #endif
 #endif
 
-#if defined(PRI_TARGET_WINDOWS)
+#if defined(PRI_TARGET_WINDOWS_API)
     #if ! defined(NOMINMAX)
         #define NOMINMAX 1
     #endif
@@ -110,12 +112,12 @@
     #include <sys/select.h>
     #include <sys/time.h>
     #include <unistd.h>
-    #if defined(PRI_TARGET_DARWIN)
+    #if defined(PRI_TARGET_APPLE)
         #include <mach/mach.h>
     #endif
 #endif
 
-#if defined(PRI_TARGET_WINDOWS)
+#if defined(PRI_TARGET_WINDOWS_API)
     #include <windows.h>
     #include <io.h>
 #endif
@@ -217,7 +219,7 @@ namespace Prion {
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
 
-    #if defined(PRI_TARGET_WINDOWS)
+    #if defined(PRI_TARGET_WINDOWS_API)
 
         inline wstring utf8_to_wstring(const u8string& ustr) {
             if (ustr.empty())
@@ -927,7 +929,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        #if defined(PRI_TARGET_WINDOWS) || defined(PRI_TARGET_CYGWIN)
+        #if defined(PRI_TARGET_ANY_WINDOWS)
 
             class ForceUtf8 {
             public:
@@ -1003,7 +1005,7 @@ namespace Prion {
             { PrionDetail::ForceUtf8 fu; return PrionDetail::trim_ws(cstr(strerror(error))); }
     };
 
-    #if defined(PRI_TARGET_WINDOWS)
+    #if defined(PRI_TARGET_WINDOWS_API)
 
         namespace PrionDetail {
 
@@ -1649,7 +1651,7 @@ namespace Prion {
                 if (nsc <= 0)
                     return false;
                 timespec ts;
-                #if defined(PRI_TARGET_DARWIN)
+                #if defined(PRI_TARGET_APPLE)
                     timeval tv;
                     gettimeofday(&tv, nullptr);
                     ts = {tv.tv_sec, 1000 * tv.tv_usec};
@@ -1703,7 +1705,7 @@ namespace Prion {
             }
             static size_t cpu_threads() noexcept {
                 size_t n = 0;
-                #if defined(PRI_TARGET_DARWIN)
+                #if defined(PRI_TARGET_APPLE)
                     mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
                     host_basic_info_data_t info;
                     if (host_info(mach_host_self(), HOST_BASIC_INFO,
@@ -2102,7 +2104,7 @@ namespace Prion {
 
     #endif
 
-    #if defined(PRI_TARGET_WINDOWS)
+    #if defined(PRI_TARGET_WINDOWS_API)
 
         inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
             using namespace std::chrono;

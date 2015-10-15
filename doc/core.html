@@ -46,26 +46,30 @@
 <h2 id="preprocessormacros">Preprocessor macros</h2>
 
 <ul>
+<li><em>Compilers</em>
+
+<ul>
 <li><code>#define <strong>PRI_COMPILER_CLANG</strong> 1</code></li>
 <li><code>#define <strong>PRI_COMPILER_GCC</strong> [version]</code></li>
-<li><code>#define <strong>PRI_TARGET_UNIX</strong> 1</code>
+</ul></li>
+<li><em>Unix targets</em>
 
 <ul>
-<li><code>#define <strong>PRI_TARGET_DARWIN</strong> 1</code>
+<li><code>#define <strong>PRI_TARGET_UNIX</strong> 1</code> <em>- defined on all Unix builds</em></li>
+<li><code>#define <strong>PRI_TARGET_APPLE</strong> 1</code> <em>- defined on all Apple (Darwin) builds</em></li>
+<li><code>#define <strong>PRI_TARGET_IOS</strong> 1</code> <em>- defined on iOS builds</em></li>
+<li><code>#define <strong>PRI_TARGET_MACOSX</strong> 1</code> <em>- defined on Mac OS X builds</em></li>
+<li><code>#define <strong>PRI_TARGET_LINUX</strong> 1</code> <em>- defined on Linux builds</em></li>
+</ul></li>
+<li><em>Windows targets</em>
 
 <ul>
-<li><code>#define <strong>PRI_TARGET_MACOSX</strong> 1</code></li>
-<li><code>#define <strong>PRI_TARGET_IOS</strong> 1</code></li>
+<li><code>#define <strong>PRI_TARGET_ANY_WINDOWS</strong> 1</code> <em>- defined on all Windows builds, including Cygwin</em></li>
+<li><code>#define <strong>PRI_TARGET_WINDOWS_API</strong> 1</code> <em>- defined if Win32 API is available</em></li>
+<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code> <em>- defined on non-Cygwin native Win32 builds</em></li>
+<li><code>#define <strong>PRI_TARGET_CYGWIN</strong> 1</code> <em>- defined on Cygwin builds</em></li>
+<li><code>#define <strong>PRI_TARGET_MINGW</strong> 1</code> <em>- defined on native Win32 builds using Mingw</em></li>
 </ul></li>
-<li><code>#define <strong>PRI_TARGET_LINUX</strong> 1</code></li>
-</ul></li>
-<li><code>#define <strong>PRI_TARGET_WINDOWS</strong> 1</code>
-
-<ul>
-<li><code>#define <strong>PRI_TARGET_MINGW</strong> 1</code></li>
-<li><code>#define <strong>PRI_TARGET_NATIVE_WINDOWS</strong> 1</code></li>
-</ul></li>
-<li><code>#define <strong>PRI_TARGET_CYGWIN</strong> 1</code></li>
 </ul>
 
 <p>Some of these will be defined to provide a consistent way to identify the
@@ -75,16 +79,20 @@ compiler and target operating system for conditional compilation.</p>
 form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
 its version numbers are not consistent across builds for different systems.</p>
 
-<p>At least one of <code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_WINDOWS</code> will always be
-defined (both will be defined on Cygwin if <code>_WIN32</code> has been defined).</p>
+<p>Exactly one of <code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_NATIVE_WINDOWS</code> will always be
+defined, indicating whether a build is intended to use the Posix or Win32
+operating system API. <code>PRI_TARGET_WINDOWS_API</code> is defined if the Win32 API is
+available; normally it will be the same as <code>PRI_TARGET_NATIVE_WINDOWS</code>, except
+that it will also be defined in Cygwin <code>-mwin32</code> builds, where both APIs are
+available. <code>PRI_TARGET_ANY_WINDOWS</code> is always defined on builds intended to
+run on the Windows OS, i.e. both native Win32 and Cygwin builds.</p>
 
-<p>On Apple platforms, <code>PRI_TARGET_DARWIN</code> will always be defined; one of
+<p>Currently only Mingw builds are supported for native Windows targets, so
+<code>PRI_TARGET_MINGW</code> will always be defined if <code>PRI_TARGET_NATIVE_WINDOWS</code> is
+defined. I may add MSVC support in a future version.</p>
+
+<p>On Apple platforms, <code>PRI_TARGET_APPLE</code> will always be defined; one of
 <code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>
-
-<p>On Microsoft Windows, <code>PRI_TARGET_NATIVE_WINDOWS</code> will be defined on any build
-not targeting Cygwin. Currently only Mingw builds are supported for native
-Windows targets, so <code>PRI_TARGET_MINGW</code> will always be defined; I may add MSVC
-support in a future version.</p>
 
 <ul>
 <li><code>#define <strong>PRI_BOUNDS</strong>(range) std::begin(range), std::end(range)</code></li>
@@ -116,8 +124,7 @@ library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo)</cod
 <code>PRI_LDLIB()</code> invocation, or in multiple invocations; link order is only
 preserved within a single invocation. Libraries that are needed only on
 specific targets can be prefixed with a target identifier, e.g.
-<code>PRI_LDLIB(mac: foo bar)</code> will link with <code>-lfoo -lbar</code> only in Mac OS X
-builds.</p>
+<code>PRI_LDLIB(apple: foo bar)</code> will link with <code>-lfoo -lbar</code> only in OSX builds.</p>
 
 <table>
 <colgroup>
@@ -136,9 +143,9 @@ builds.</p>
 
 <tbody>
 <tr>
-	<td style="text-align:left;"><code>mac:</code></td>
+	<td style="text-align:left;"><code>apple:</code></td>
 	<td style="text-align:left;">Mac OS X + iOS</td>
-	<td style="text-align:left;"><code>PRI_TARGET_DARWIN</code></td>
+	<td style="text-align:left;"><code>PRI_TARGET_APPLE</code></td>
 </tr>
 <tr>
 	<td style="text-align:left;"><code>linux:</code></td>
