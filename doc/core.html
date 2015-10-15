@@ -1017,15 +1017,9 @@ meaning. The <code>array_count()</code> version returns the same value, but only
 C-style arrays and is <code>constexpr</code>.</p>
 
 <ul>
-<li><code>void <strong>memswap</strong>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
-</ul>
-
-<p>Swap two blocks of memory. Behaviour is undefined if either pointer is null.</p>
-
-<ul>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>inseq</strong>(T t2)</code></li>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>inseq</strong>(T t1, T t2)</code></li>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>inseq</strong>(T t1, T t2, T delta)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>iota</strong>(T t2)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>iota</strong>(T t1, T t2)</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>iota</strong>(T t1, T t2, T delta)</code></li>
 </ul>
 
 <p>These generate arithmetic sequences. The iterator type is a forward iterator
@@ -1038,6 +1032,12 @@ open, containing <code>t1</code> but not <code>t2</code>; they will stop when <c
 true, or if <code>delta&lt;T()</code>, when <code>t2&lt;t</code> is no longer true. The sequences will be
 empty if <code>t1&lt;t2</code> is not true (or if <code>t2&lt;t1</code> is not true, when <code>delta&lt;T()</code>),
 and will always be empty if <code>delta=T()</code>.</p>
+
+<ul>
+<li><code>void <strong>memswap</strong>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
+</ul>
+
+<p>Swap two blocks of memory. Behaviour is undefined if either pointer is null.</p>
 
 <h2 id="scopeguards">Scope guards</h2>
 

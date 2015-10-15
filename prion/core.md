@@ -820,13 +820,9 @@ for `std::distance(begin(r), end(r))`, and `range_empty()` has the obvious
 meaning. The `array_count()` version returns the same value, but only works on
 C-style arrays and is `constexpr`.
 
-* `void memswap(void* ptr1, void* ptr2, size_t n) noexcept`
-
-Swap two blocks of memory. Behaviour is undefined if either pointer is null.
-
-* `template <typename T> Irange<[iterator]> inseq(T t2)`
-* `template <typename T> Irange<[iterator]> inseq(T t1, T t2)`
-* `template <typename T> Irange<[iterator]> inseq(T t1, T t2, T delta)`
+* `template <typename T> Irange<[iterator]> iota(T t2)`
+* `template <typename T> Irange<[iterator]> iota(T t1, T t2)`
+* `template <typename T> Irange<[iterator]> iota(T t1, T t2, T delta)`
 
 These generate arithmetic sequences. The iterator type is a forward iterator
 that dereferences to a `const T&`.
@@ -838,6 +834,10 @@ open, containing `t1` but not `t2`; they will stop when `t<t2` is no longer
 true, or if `delta<T()`, when `t2<t` is no longer true. The sequences will be
 empty if `t1<t2` is not true (or if `t2<t1` is not true, when `delta<T()`),
 and will always be empty if `delta=T()`.
+
+* `void memswap(void* ptr1, void* ptr2, size_t n) noexcept`
+
+Swap two blocks of memory. Behaviour is undefined if either pointer is null.
 
 ## Scope guards ##
 
