@@ -34,7 +34,7 @@
     #if defined(__APPLE__)
         // Target condition on Apple must be #if, not #ifdef
         #define PRI_TARGET_APPLE 1
-        #include "TargetConditionals.h"
+        #include <TargetConditionals.h>
         #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
             #define PRI_TARGET_IOS 1
         #elif TARGET_OS_MAC
