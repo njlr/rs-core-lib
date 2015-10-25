@@ -140,10 +140,12 @@ undoc:
 	rm -f doc/*.html
 
 clean:
-	rm -rf build/$(TARGET) *.stackdump __*
+	rm -rf build/$(TARGET) __test_*
+	rm -f *.stackdump
 
 cleanall:
-	rm -rf build doc *.stackdump __*
+	rm -rf build doc __test_*
+	rm -f *.stackdump
 
 dep:
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM */*.cpp \
@@ -243,7 +245,7 @@ endif
 endif
 uninstall:
 	rm -f $(PREFIX)/lib/$(notdir $(STATICLIB))
-	rm -rf $(PREFIX)/include/$(NAME)
+	if [ "$(PREFIX)" ]; then rm -rf $(PREFIX)/include/$(NAME); fi
 help-install: help-test
 	@echo "    install    = Install the application"
 	@echo "    symlinks   = Install the application using symlinks"
