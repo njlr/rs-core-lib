@@ -168,6 +168,15 @@ namespace Prion {
 
     // Functions needed early
 
+    template <typename Iterator>
+    struct Irange {
+        Iterator first, second;
+        constexpr Iterator begin() const { return first; }
+        constexpr Iterator end() const { return second; }
+    };
+
+    template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
+    template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
     constexpr auto as_signed(int128_t t) noexcept { return int128_t(t); }
     constexpr auto as_signed(uint128_t t) noexcept { return int128_t(t); }
@@ -855,75 +864,127 @@ namespace Prion {
         void abandon() noexcept { len = 0; ptr = nullptr; del = nullptr; }
     };
 
-    template <typename K, typename V>
+    namespace PrionDetail {
+
+        template <typename K, typename V>
+        void erase_multi(std::multimap<K, V>& map, const K& k, const V& v) noexcept {
+            auto eqr = map.equal_range(k);
+            auto i = eqr.first;
+            while (i != eqr.second) {
+                if (i->second == v)
+                    i = map.erase(i);
+                else
+                    ++i;
+            }
+        }
+
+        template <typename K, typename V>
+        void insert_multi(std::multimap<K, V>& map, const K& k, const V& v) {
+            auto eqr = map.equal_range(k);
+            auto i = std::find_if(eqr.first, eqr.second, [&] (const auto& pair) { return pair.second == v; });
+            if (i == eqr.second)
+                map.insert(eqr.second, std::make_pair(k, v));
+        }
+
+    }
+
+    template <typename T1, typename T2>
     class TwoWayMap {
+    private:
+        using forward_map = std::multimap<T1, T2>;
+        using reverse_map = std::multimap<T2, T1>;
+        forward_map fwd;
+        reverse_map rev;
+        T1 def1;
+        T2 def2;
     public:
-        using key_type = K;
-        using mapped_type = V;
-        TwoWayMap() = default;
-        V operator[](const K& k) const { return get(k); }
-        K operator[](const V& v) const { return get_key(v); }
+        using first_type = T1;
+        using second_type = T2;
+        TwoWayMap(): fwd(), rev(), def1{T1()}, def2{T2()} {}
+        TwoWayMap(const T1& default1, const T2& default2): fwd(), rev(), def1(default1), def2(default2) {}
+        T2 operator[](const T1& t1) const { return get1(t1); }
+        T1 operator[](const T2& t2) const { return get2(t2); }
         void clear() noexcept {
             fwd.clear();
             rev.clear();
         }
         bool empty() const noexcept { return fwd.empty(); }
-        V get(const K& k) const {
-            V v = V();
-            get(k, v);
-            return v;
+        void erase(const T1& t1, const T2& t2) noexcept {
+            auto eqr1 = fwd.equal_range(t1);
+            auto i = eqr1.first;
+            while (i != eqr1.second) {
+                if (i->second == t2) {
+                    fwd.erase(i);
+                    break;
+                }
+                ++i;
+            }
+            auto eqr2 = rev.equal_range(t2);
+            auto j = eqr2.first;
+            while (j != eqr2.second) {
+                if (j->second == t1) {
+                    rev.erase(j);
+                    break;
+                }
+                ++j;
+            }
         }
-        void erase(const K& k) noexcept {
-            auto f = fwd.find(k);
-            if (f == fwd.end())
-                return;
-            for (auto& v: f->second)
-                rev.erase(v);
-            fwd.erase(k);
+        void erase1(const T1& t1) noexcept {
+            auto range = irange(fwd.equal_range(t1));
+            for (auto& pair: range)
+                PrionDetail::erase_multi(rev, pair.second, pair.first);
+            fwd.erase(PRI_BOUNDS(range));
         }
-        void erase_value(const V& v) noexcept {
-            auto r = rev.find(v);
-            if (r == rev.end())
-                return;
-            auto f = fwd.find(r->second);
-            auto i = std::find(PRI_BOUNDS(f->second), v);
-            f->second.erase(i);
-            if (f->second.empty())
-                fwd.erase(f);
-            rev.erase(r);
+        void erase2(const T2& t2) noexcept {
+            auto range = irange(rev.equal_range(t2));
+            for (auto& pair: range)
+                PrionDetail::erase_multi(fwd, pair.second, pair.first);
+            rev.erase(PRI_BOUNDS(range));
         }
-        bool get(const K& k, V& v) const {
-            auto f = fwd.find(k);
-            if (f == fwd.end() || f->second.empty())
+        bool get1(const T1& t1, T2& t2) const {
+            auto ipair = fwd.equal_range(t1);
+            if (ipair.first == ipair.second)
                 return false;
-            v = f->second.front();
+            t2 = ipair.first->second;
             return true;
         }
-        K get_key(const V& v) const {
-            K k = K();
-            get_key(v, k);
-            return k;
+        T2 get1(const T1& t1) const {
+            T2 t2 = def2;
+            get1(t1, t2);
+            return t2;
         }
-        bool get_key(const V& v, K& k) const {
-            auto r = rev.find(v);
-            if (r == rev.end())
+        bool get2(const T2& t2, T1& t1) const {
+            auto ipair = rev.equal_range(t2);
+            if (ipair.first == ipair.second)
                 return false;
-            k = r->second;
+            t1 = ipair.first->second;
             return true;
         }
-        bool has(const K& k) const noexcept { return fwd.find(k) != fwd.end(); }
-        bool has_value(const V& v) const noexcept { return rev.find(v) != rev.end(); }
-        void insert(const K& k, const V& v) {
-            fwd[k].push_back(v);
-            rev[v] = k;
+        T1 get2(const T2& t2) const {
+            T1 t1 = def1;
+            get2(t2, t1);
+            return t1;
         }
-        template <typename... VS> void insert(const K& k, const V& v, const VS&... vs) {
-            insert(k, v);
-            insert(k, vs...);
+        bool has1(const T1& t1) const noexcept { return fwd.find(t1) != fwd.end(); }
+        bool has2(const T2& t2) const noexcept { return rev.find(t2) != rev.end(); }
+        void insert(const T1& t1, const T2& t2) {
+            PrionDetail::insert_multi(fwd, t1, t2);
+            PrionDetail::insert_multi(rev, t2, t1);
         }
-    private:
-        std::map<K, vector<V>> fwd;
-        std::map<V, K> rev;
+        template <typename InputRange1> void insert_range1(const InputRange1& r1, const T2& t2) {
+            for (auto& t1: r1)
+                insert(t1, t2);
+        }
+        template <typename InputRange2> void insert_range2(const T1& t1, const InputRange2& r2) {
+            for (auto& t2: r2)
+                insert(t1, t2);
+        }
+        template <typename InputRange1, typename InputRange2> void insert_ranges(const InputRange1& r1, const InputRange2& r2) {
+            if (! range_empty(r1) && ! range_empty(r2)) {
+                insert_range1(r1, *std::begin(r2));
+                insert_range2(*std::begin(r1), r2);
+            }
+        }
     };
 
     // Exceptions
@@ -1105,16 +1166,6 @@ namespace Prion {
 
     template <typename Container> AppendIterator<Container> append(Container& con) { return AppendIterator<Container>(con); }
     template <typename Container> AppendIterator<Container> overwrite(Container& con) { con.clear(); return AppendIterator<Container>(con); }
-
-    template <typename Iterator>
-    struct Irange {
-        Iterator first, second;
-        constexpr Iterator begin() const { return first; }
-        constexpr Iterator end() const { return second; }
-    };
-
-    template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
-    template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
     template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
     template <typename T> constexpr size_t array_count(T&&) { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
     template <typename Range> size_t range_count(const Range& r) { return std::distance(PRI_BOUNDS(r)); }

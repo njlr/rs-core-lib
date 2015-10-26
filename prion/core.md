@@ -490,47 +490,72 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 This will usually not give the same ordering as a lexicographical comparison
 using `T`'s less-than operator.
 
-* `template <typename K, typename V> class TwoWayMap`
-    * `using TwoWayMap::key_type = K`
-    * `using TwoWayMap::mapped_type = V`
+* `template <typename T1, typename T2> class TwoWayMap`
+    * `using TwoWayMap::first_type = T1`
+    * `using TwoWayMap::second_type = T2`
     * `TwoWayMap::TwoWayMap()`
+    * `TwoWayMap::TwoWayMap(const T1& default1, const T2& default2)`
     * `TwoWayMap::TwoWayMap(const TwoWayMap& m)`
     * `TwoWayMap::TwoWayMap(TwoWayMap&& m) noexcept`
     * `TwoWayMap::~TwoWayMap() noexcept`
     * `TwoWayMap& TwoWayMap::operator=(const TwoWayMap& m)`
     * `TwoWayMap& TwoWayMap::operator=(TwoWayMap&& m) noexcept`
-    * `V TwoWayMap::operator[](const K& k) const`
-    * `K TwoWayMap::operator[](const V& v) const`
+    * `T2 TwoWayMap::operator[](const T1& t1) const`
+    * `T1 TwoWayMap::operator[](const T2& t2) const`
     * `void TwoWayMap::clear() noexcept`
     * `bool TwoWayMap::empty() const noexcept`
-    * `void TwoWayMap::erase(const K& k) noexcept`
-    * `void TwoWayMap::erase_value(const V& v) noexcept`
-    * `V TwoWayMap::get(const K& k) const`
-    * `bool TwoWayMap::get(const K& k, V& v) const`
-    * `K TwoWayMap::get_key(const V& v) const`
-    * `bool TwoWayMap::get_key(const V& v, K& k) const`
-    * `bool TwoWayMap::has(const K& k) const noexcept`
-    * `bool TwoWayMap::has_value(const V& v) const noexcept`
-    * `void TwoWayMap::insert(const K& k, const V& v)`
-    * `template <typename... VS> void TwoWayMap::insert(const K& k, const V& v, const VS&... vs)`
+    * `void TwoWayMap::erase(const T1& t1, const T2& t2) noexcept`
+    * `void TwoWayMap::erase1(const T1& t1) noexcept`
+    * `void TwoWayMap::erase2(const T2& t2) noexcept`
+    * `bool TwoWayMap::get1(const T1& t1, T2& t2) const`
+    * `T2 TwoWayMap::get1(const T1& t1) const`
+    * `bool TwoWayMap::get2(const T2& t2, T1& t1) const`
+    * `T1 TwoWayMap::get2(const T2& t2) const`
+    * `bool TwoWayMap::has1(const T1& t1) const noexcept`
+    * `bool TwoWayMap::has2(const T2& t2) const noexcept`
+    * `void TwoWayMap::insert(const T1& t1, const T2& t2)`
+    * `template <typename InputRange1> void TwoWayMap::insert_range1(const InputRange1& r1, const T2& t2)`
+    * `template <typename InputRange2> void TwoWayMap::insert_range2(const T1& t1, const InputRange2& r2)`
+    * `template <typename InputRange1, typename InputRange2> void TwoWayMap::insert_ranges(const InputRange1& r1, const InputRange2& r2)`
 
-A simple two-way mapping, allowing lookup in either direction between the key
-and value types. Both types must be default constructible, fully copyable and
-movable, and totally ordered.
 
-Multiple values can be inserted for a given key; the first value associated
-with that key will be treated as the canonical value, and will be returned
-from a lookup by key, but all of the associated values will return the same
-key from a reverse lookup. Multiple values for a key can be inserted through a
-single variadic insert call, or through multiple separate inserts.
+A two-way associative container that allows lookup in either direction between
+the key and value types. Both types must be default constructible, fully
+copyable and movable, and totally ordered.
+
+This has multimap semantics: multiple values can be inserted for a given key,
+in either direction. The first value associated with that key will be treated
+as the canonical value, and will be returned from a lookup by key, but all of
+the associated values will return the same key from a reverse lookup. If the
+canonical value is erased, the next value for that key, if any, becomes the
+new canonical value.
+
+Optionally, default values for the two key types can be supplied to the
+constructor, to be returned as a fallback when a key is not found. The default
+constructor calls the default constructors of `T1` and `T2` for the fallback
+values.
+
+
+The `erase()` function erases only the specific pair supplied; any entries
+containing either of those keys matched with a different value on the other
+side will remain. The other two erase functions will erase all pairs that
+contain the given key.
+
+The first version of each of the `get[12]()` functions returns the canonical
+value for the given key, or the fallback value from the map's constructor if
+the key is not found. The second version updates the supplied reference if a
+value is found, or leaves it unchanged if not, and returns a flag indicating
+whether the key was found.
 
 The indexing operators are equivalent to the single argument versions of
-`get()` and `get_key()`; the operators will only be usable if the `K` and `V`
-types are distinguishable.
+`get[12]()`; the operators will only be usable if the two key types are
+distinguishable.
 
-The two-argument versions of `get()` and `get_key()` will update the second
-argument if the first was found, but leave it unchanged otherwise, and return
-a flag indicating whether or not the target was found.
+The `has[12]()` functions indicate whether a key is present.
+
+The `insert*()` functions insert one or more pairs. For `insert_ranges()`, the
+first item in each range becomes the canonical value for every key in the
+other range.
 
 ## Exceptions ##
 
