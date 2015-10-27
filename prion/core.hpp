@@ -2092,6 +2092,19 @@ namespace Prion {
 
     // Type properties
 
+    namespace PrionDetail {
+
+        template <typename T, size_t S = sizeof(T)> struct SelectBinaryType;
+        template <typename T> struct SelectBinaryType<T, 1> { using type = uint8_t; };
+        template <typename T> struct SelectBinaryType<T, 2> { using type = uint16_t; };
+        template <typename T> struct SelectBinaryType<T, 4> { using type = uint32_t; };
+        template <typename T> struct SelectBinaryType<T, 8> { using type = uint64_t; };
+        template <typename T> struct SelectBinaryType<T, 16> { using type = uint128_t; };
+
+    }
+
+    template <typename T> using BinaryType = typename PrionDetail::SelectBinaryType<T>::type;
+
     template <typename T1, typename T2> using CopyConst =
         std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
 

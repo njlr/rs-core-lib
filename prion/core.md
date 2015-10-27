@@ -1174,6 +1174,11 @@ For reference, the system time types are:
 
 ## Type properties ##
 
+* `template <typename T> using BinaryType = ...`
+
+Yields an unsigned integer type the same size as `T`. This will fail to
+compile if no such type exists.
+
 * `template <typename T1, typename T2> using CopyConst = ...`
 
 Yields a type created by transferring the `const` qualification (or lack of

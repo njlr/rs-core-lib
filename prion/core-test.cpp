@@ -2293,6 +2293,10 @@ namespace {
 
     void check_type_properties() {
 
+        TEST_TYPE(BinaryType<char>, uint8_t);
+        TEST_TYPE(BinaryType<float>, uint32_t);
+        TEST_TYPE(BinaryType<double>, uint64_t);
+
         {  using type = CopyConst<int, string>;              TEST_TYPE(type, string);        }
         {  using type = CopyConst<int, const string>;        TEST_TYPE(type, string);        }
         {  using type = CopyConst<const int, string>;        TEST_TYPE(type, const string);  }
