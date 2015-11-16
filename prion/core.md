@@ -79,15 +79,15 @@ Convenience macro for inserting the beginning and end of a range into an
 argument list.
 
 * `#define PRI_CHAR(C, T)`
+* `#define PRI_CSTR(S, T)`
 
-Resolves to a `constexpr` value equal to the character `C` as represented in
-the character type `T`; for example, `PRI_CHAR('A',wchar_t)` resolves to
-`L'A'`. `C` must be a simple character literal; `T` must be one of the four
-character types that can be used in strings (`char`, `char16_t`, `char32_t`,
-or `wchar_t`), or a template parameter type that will resolve to one of these
-four types. Behaviour is undefined if `T` is not one of those four types, or
-if the character `C` is not representable by a single code unit in all four
-types.
+These resolve to the character `C` as a `constexpr T`, or the C-style string
+literal `S` as a `constexpr const T*`. For example, `PRI_CHAR('A',wchar_t)`
+resolves to `L'A'`; `PRI_CSTR("Hello",char32_t)` resolves to `U"Hello"`. `C`
+must be a simple character literal; `T` must be one of the four character
+types that can be used in strings (`char`, `char16_t`, `char32_t`, or
+`wchar_t`). Behaviour is undefined if `T` is not one of those four types, or
+(for `PRI_CHAR`) if `C` is not representable by a single code unit.
 
 * `#define PRI_LDLIB(libs)`
 

@@ -136,6 +136,7 @@
 
 #define PRI_BOUNDS(range) std::begin(range), std::end(range)
 #define PRI_CHAR(C, T) (::Prion::PrionDetail::select_char<T>(C, u ## C, U ## C, L ## C))
+#define PRI_CSTR(S, T) (::Prion::PrionDetail::select_cstr<T>(S, u ## S, U ## S, L ## S))
 #define PRI_LDLIB(libs)
 #define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
@@ -198,12 +199,22 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        template <typename T> constexpr T select_char(char c, char16_t c16, char32_t c32, wchar_t wc) noexcept {
-            return std::is_same<T, char>::value ? c
-                : std::is_same<T, char16_t>::value ? c16
-                : std::is_same<T, char32_t>::value ? c32
-                : std::is_same<T, wchar_t>::value ? wc
-                : 0;
+        template <typename T>
+        constexpr T select_char(char c, char16_t c16, char32_t c32, wchar_t wc) noexcept {
+            return std::is_same<T, char>::value ? T(c)
+                : std::is_same<T, char16_t>::value ? T(c16)
+                : std::is_same<T, char32_t>::value ? T(c32)
+                : std::is_same<T, wchar_t>::value ? T(wc)
+                : T();
+        }
+
+        template <typename T>
+        constexpr const T* select_cstr(const char* c, const char16_t* c16, const char32_t* c32, const wchar_t* wc) noexcept {
+            return std::is_same<T, char>::value ? reinterpret_cast<const T*>(c)
+                : std::is_same<T, char16_t>::value ? reinterpret_cast<const T*>(c16)
+                : std::is_same<T, char32_t>::value ? reinterpret_cast<const T*>(c32)
+                : std::is_same<T, wchar_t>::value ? reinterpret_cast<const T*>(wc)
+                : nullptr;
         }
 
         template <typename T>

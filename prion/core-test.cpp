@@ -74,6 +74,11 @@ namespace {
         auto c3 = PRI_CHAR('A', char32_t);  TEST_TYPE_OF(c3, char32_t);  TEST_EQUAL(c3, U'A');
         auto c4 = PRI_CHAR('A', wchar_t);   TEST_TYPE_OF(c4, wchar_t);   TEST_EQUAL(c4, L'A');
 
+        auto cp1 = PRI_CSTR("Hello", char);      TEST_TYPE_OF(cp1, const char*);      TEST_EQUAL(cp1, "Hello");
+        auto cp2 = PRI_CSTR("Hello", char16_t);  TEST_TYPE_OF(cp2, const char16_t*);  TEST_EQUAL(cp2, u"Hello");
+        auto cp3 = PRI_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello");
+        auto cp4 = PRI_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello");
+
     }
 
     void check_algorithms() {

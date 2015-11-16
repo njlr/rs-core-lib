@@ -103,16 +103,16 @@ argument list.</p>
 
 <ul>
 <li><code>#define <strong>PRI_CHAR</strong>(C, T)</code></li>
+<li><code>#define <strong>PRI_CSTR</strong>(S, T)</code></li>
 </ul>
 
-<p>Resolves to a <code>constexpr</code> value equal to the character <code>C</code> as represented in
-the character type <code>T</code>; for example, <code>PRI_CHAR('A',wchar_t)</code> resolves to
-<code>L'A'</code>. <code>C</code> must be a simple character literal; <code>T</code> must be one of the four
-character types that can be used in strings (<code>char</code>, <code>char16_t</code>, <code>char32_t</code>,
-or <code>wchar_t</code>), or a template parameter type that will resolve to one of these
-four types. Behaviour is undefined if <code>T</code> is not one of those four types, or
-if the character <code>C</code> is not representable by a single code unit in all four
-types.</p>
+<p>These resolve to the character <code>C</code> as a <code>constexpr T</code>, or the C-style string
+literal <code>S</code> as a <code>constexpr const T*</code>. For example, <code>PRI_CHAR('A',wchar_t)</code>
+resolves to <code>L'A'</code>; <code>PRI_CSTR(&quot;Hello&quot;,char32_t)</code> resolves to <code>U&quot;Hello&quot;</code>. <code>C</code>
+must be a simple character literal; <code>T</code> must be one of the four character
+types that can be used in strings (<code>char</code>, <code>char16_t</code>, <code>char32_t</code>, or
+<code>wchar_t</code>). Behaviour is undefined if <code>T</code> is not one of those four types, or
+(for <code>PRI_CHAR</code>) if <code>C</code> is not representable by a single code unit.</p>
 
 <ul>
 <li><code>#define <strong>PRI_LDLIB</strong>(libs)</code></li>
