@@ -175,13 +175,14 @@ floating point literal with no type suffix.
 
 * _Mathematical constants_
     * `e` _= 2.7183_
-    * `ln2` _= log<sub>e</sub> 2 = 0.6931_
-    * `ln10` _= log<sub>e</sub> 10 = 2.3026_
+    * `ln_2` _= log<sub>e</sub> 2 = 0.6931_
+    * `ln_10` _= log<sub>e</sub> 10 = 2.3026_
     * `pi` _= &pi; = 3.1416_
-    * `sqrt2` _= &radic;2 = 1.4142_
-    * `sqrt3` _= &radic;3 = 1.7321_
-    * `sqrt5` _= &radic;5 = 2.2361_
-    * `sqrt_pi` _= &radic;(&pi;) = 1.7725_ -->
+    * `sqrt_2` _= &radic;2 = 1.4142_
+    * `sqrt_3` _= &radic;3 = 1.7321_
+    * `sqrt_5` _= &radic;5 = 2.2361_
+    * `sqrt_pi` _= &radic;&pi; = 1.7725_
+    * `sqrt_2pi` _= &radic;2&pi; = 2.5066_
 * _Physical constants_
     * `atomic_mass_unit` _= 1.661&times;10<sup>-27</sup> kg_
     * `avogadro_constant` _= 6.022&times;10<sup>23</sup> mol<sup>-1</sup>_
