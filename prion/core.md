@@ -73,11 +73,6 @@ defined. I may add MSVC support in a future version.
 On Apple platforms, `PRI_TARGET_APPLE` will always be defined; one of
 `PRI_TARGET_IOS` or `PRI_TARGET_MACOSX` will also be defined.
 
-* `#define PRI_BOUNDS(range) std::begin(range), std::end(range)`
-
-Convenience macro for inserting the beginning and end of a range into an
-argument list.
-
 * `#define PRI_CHAR(C, T)`
 * `#define PRI_CSTR(S, T)`
 

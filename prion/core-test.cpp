@@ -54,14 +54,14 @@ namespace {
         vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
         vector<u8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
 
-        TRY(std::transform(PRI_BOUNDS(iv), overwrite(result), PRI_OVERLOAD(f1)));
+        TRY(std::transform(iv.begin(), iv.end(), overwrite(result), PRI_OVERLOAD(f1)));
         TEST_EQUAL_RANGE(result, (vector<u8string>{"*", "**", "***", "****", "*****"}));
-        TRY(std::transform(PRI_BOUNDS(sv), overwrite(result), PRI_OVERLOAD(f1)));
+        TRY(std::transform(sv.begin(), sv.end(), overwrite(result), PRI_OVERLOAD(f1)));
         TEST_EQUAL_RANGE(result, (vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
 
         TRY(std::generate_n(overwrite(result), 3, PRI_OVERLOAD(f2)));
         TEST_EQUAL_RANGE(result, (vector<u8string>{"Hello", "Hello", "Hello"}));
-        TRY(std::transform(PRI_BOUNDS(sv), overwrite(result), PRI_OVERLOAD(f2)));
+        TRY(std::transform(sv.begin(), sv.end(), overwrite(result), PRI_OVERLOAD(f2)));
         TEST_EQUAL_RANGE(result, (vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
         auto of2 = PRI_OVERLOAD(f2);
         auto out = overwrite(result);
@@ -1575,38 +1575,38 @@ namespace {
         TEST_TYPE(RangeValue<Irange<const int*>>, int);
 
         s1 = "Hello";
-        TRY(std::copy(PRI_BOUNDS(s1), append(s2)));
+        TRY(std::copy(s1.begin(), s1.end(), append(s2)));
         TEST_EQUAL(s2, "Hello");
         s1 = " world";
-        TRY(std::copy(PRI_BOUNDS(s1), append(s2)));
+        TRY(std::copy(s1.begin(), s1.end(), append(s2)));
         TEST_EQUAL(s2, "Hello world");
         s1 = "Goodbye";
-        TRY(std::copy(PRI_BOUNDS(s1), overwrite(s2)));
+        TRY(std::copy(s1.begin(), s1.end(), overwrite(s2)));
         TEST_EQUAL(s2, "Goodbye");
 
         std::set<int> set1, set2;
         set1 = {1, 2, 3};
-        TRY(std::copy(PRI_BOUNDS(set1), append(set2)));
+        TRY(std::copy(set1.begin(), set1.end(), append(set2)));
         TEST_EQUAL(to_str(set2), "[1,2,3]");
         set1 = {4, 5, 6};
-        TRY(std::copy(PRI_BOUNDS(set1), append(set2)));
+        TRY(std::copy(set1.begin(), set1.end(), append(set2)));
         TEST_EQUAL(to_str(set2), "[1,2,3,4,5,6]");
         set1 = {1, 2, 3};
-        TRY(std::copy(PRI_BOUNDS(set1), append(set2)));
+        TRY(std::copy(set1.begin(), set1.end(), append(set2)));
         TEST_EQUAL(to_str(set2), "[1,2,3,4,5,6]");
         set1 = {7, 8, 9};
-        TRY(std::copy(PRI_BOUNDS(set1), overwrite(set2)));
+        TRY(std::copy(set1.begin(), set1.end(), overwrite(set2)));
         TEST_EQUAL(to_str(set2), "[7,8,9]");
 
         char array[] {'H','e','l','l','o'};
         const char* cp = array;
         auto av = array_range(array, sizeof(array));
-        TEST_EQUAL(std::distance(PRI_BOUNDS(av)), 5);
-        TRY(std::copy(PRI_BOUNDS(av), overwrite(s1)));
+        TEST_EQUAL(std::distance(av.begin(), av.end()), 5);
+        TRY(std::copy(av.begin(), av.end(), overwrite(s1)));
         TEST_EQUAL(s1, "Hello");
         auto avc = array_range(cp, sizeof(array));
-        TEST_EQUAL(std::distance(PRI_BOUNDS(avc)), 5);
-        TRY(std::copy(PRI_BOUNDS(avc), overwrite(s1)));
+        TEST_EQUAL(std::distance(avc.begin(), avc.end()), 5);
+        TRY(std::copy(avc.begin(), avc.end(), overwrite(s1)));
         TEST_EQUAL(s1, "Hello");
 
         TEST_EQUAL(array_count(""), 1);

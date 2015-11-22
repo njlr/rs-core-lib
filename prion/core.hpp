@@ -134,7 +134,6 @@
 
 // Other preprocessor macros
 
-#define PRI_BOUNDS(range) std::begin(range), std::end(range)
 #define PRI_CHAR(C, T) (::Prion::PrionDetail::select_char<T>(C, u ## C, U ## C, L ## C))
 #define PRI_CSTR(S, T) (::Prion::PrionDetail::select_cstr<T>(S, u ## S, U ## S, L ## S))
 #define PRI_LDLIB(libs)
@@ -230,7 +229,7 @@ namespace Prion {
             } while (y || s.size() < digits);
             if (neg)
                 s += '-';
-            std::reverse(PRI_BOUNDS(s));
+            std::reverse(s.begin(), s.end());
             return s;
         }
 
@@ -391,32 +390,32 @@ namespace Prion {
     // Algorithms
 
     template <typename Container, typename T> void con_remove(Container& con, const T& t) {
-        con.erase(std::remove(PRI_BOUNDS(con), t), con.end());
+        con.erase(std::remove(con.begin(), con.end(), t), con.end());
     }
 
     template <typename Container, typename Predicate> void con_remove_if(Container& con, Predicate p) {
-        con.erase(std::remove_if(PRI_BOUNDS(con), p), con.end());
+        con.erase(std::remove_if(con.begin(), con.end(), p), con.end());
     }
 
     template <typename Container, typename Predicate> void con_remove_if_not(Container& con, Predicate p) {
-        con.erase(std::remove_if(PRI_BOUNDS(con), [p] (const auto& x) { return ! p(x); }), con.end());
+        con.erase(std::remove_if(con.begin(), con.end(), [p] (const auto& x) { return ! p(x); }), con.end());
     }
 
     template <typename Container> void con_unique(Container& con) {
-        con.erase(std::unique(PRI_BOUNDS(con)), con.end());
+        con.erase(std::unique(con.begin(), con.end()), con.end());
     }
 
     template <typename Container, typename BinaryPredicate> void con_unique(Container& con, BinaryPredicate p) {
-        con.erase(std::unique(PRI_BOUNDS(con), p), con.end());
+        con.erase(std::unique(con.begin(), con.end(), p), con.end());
     }
 
     template <typename Container> void con_sort_unique(Container& con) {
-        std::sort(PRI_BOUNDS(con));
+        std::sort(con.begin(), con.end());
         con_unique(con);
     }
 
     template <typename Container, typename Compare> void con_sort_unique(Container& con, Compare cmp) {
-        std::sort(PRI_BOUNDS(con), cmp);
+        std::sort(con.begin(), con.end(), cmp);
         con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
     }
 
@@ -945,13 +944,13 @@ namespace Prion {
             auto range = irange(fwd.equal_range(t1));
             for (auto& pair: range)
                 PrionDetail::erase_multi(rev, pair.second, pair.first);
-            fwd.erase(PRI_BOUNDS(range));
+            fwd.erase(range.begin(), range.end());
         }
         void erase2(const T2& t2) noexcept {
             auto range = irange(rev.equal_range(t2));
             for (auto& pair: range)
                 PrionDetail::erase_multi(fwd, pair.second, pair.first);
-            rev.erase(PRI_BOUNDS(range));
+            rev.erase(range.begin(), range.end());
         }
         bool get1(const T1& t1, T2& t2) const {
             auto ipair = fwd.equal_range(t1);
@@ -992,9 +991,10 @@ namespace Prion {
                 insert(t1, t2);
         }
         template <typename InputRange1, typename InputRange2> void insert_ranges(const InputRange1& r1, const InputRange2& r2) {
+            using std::begin;
             if (! range_empty(r1) && ! range_empty(r2)) {
-                insert_range1(r1, *std::begin(r2));
-                insert_range2(*std::begin(r1), r2);
+                insert_range1(r1, *begin(r2));
+                insert_range2(*begin(r1), r2);
             }
         }
     };
@@ -1180,8 +1180,20 @@ namespace Prion {
     template <typename Container> AppendIterator<Container> overwrite(Container& con) { con.clear(); return AppendIterator<Container>(con); }
     template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
     template <typename T> constexpr size_t array_count(T&&) { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
-    template <typename Range> size_t range_count(const Range& r) { return std::distance(PRI_BOUNDS(r)); }
-    template <typename Range> bool range_empty(const Range& r) { return std::begin(r) == std::end(r); }
+
+    template <typename Range>
+    size_t range_count(const Range& r) {
+        using std::begin;
+        using std::end;
+        return std::distance(begin(r), end(r));
+    }
+
+    template <typename Range>
+    bool range_empty(const Range& r) {
+        using std::begin;
+        using std::end;
+        return begin(r) == end(r);
+    }
 
     inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {
         if (ptr1 == ptr2)
@@ -1348,13 +1360,13 @@ namespace Prion {
 
     inline string ascii_lowercase(const string& str) {
         auto result = str;
-        std::transform(PRI_BOUNDS(result), std::begin(result), ascii_tolower);
+        std::transform(result.begin(), result.end(), result.begin(), ascii_tolower);
         return result;
     }
 
     inline string ascii_uppercase(const string& str) {
         auto result = str;
-        std::transform(PRI_BOUNDS(result), std::begin(result), ascii_toupper);
+        std::transform(result.begin(), result.end(), result.begin(), ascii_toupper);
         return result;
     }
 
@@ -2297,7 +2309,7 @@ namespace Prion {
         Version v{0, 0, 0};
         if (s.empty())
             return v;
-        auto i = std::begin(s), e = std::end(s);
+        auto i = s.begin(), e = s.end();
         unsigned n = 0;
         while (n < 3) {
             auto j = std::find_if_not(i, e, ascii_isdigit);
