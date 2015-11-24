@@ -1961,6 +1961,7 @@ namespace {
         TEST_EQUAL(to_str("Hello"s), "Hello");
         TEST_EQUAL(to_str(""), "");
         TEST_EQUAL(to_str("Hello"), "Hello");
+        TEST_EQUAL(to_str('X'), "X");
 
         sv.clear();
         iv.clear();

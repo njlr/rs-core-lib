@@ -1550,6 +1550,7 @@ namespace Prion {
         template <> struct ObjectToString<string> { string operator()(const string& t) const { return t; } };
         template <> struct ObjectToString<char*> { string operator()(char* t) const { return t ? string(t) : string(); } };
         template <> struct ObjectToString<const char*> { string operator()(const char* t) const { return t ? string(t) : string(); } };
+        template <> struct ObjectToString<char> { string operator()(char t) const { return {t}; } };
 
     }
 
