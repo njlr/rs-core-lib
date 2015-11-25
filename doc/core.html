@@ -1017,23 +1017,6 @@ meaning. The <code>array_count()</code> version returns the same value, but only
 C-style arrays and is <code>constexpr</code>.</p>
 
 <ul>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>iota</strong>(T t2)</code></li>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>iota</strong>(T t1, T t2)</code></li>
-<li><code>template &lt;typename T&gt; Irange&lt;[iterator]&gt; <strong>iota</strong>(T t1, T t2, T delta)</code></li>
-</ul>
-
-<p>These generate arithmetic sequences. The iterator type is a forward iterator
-that dereferences to a <code>const T&amp;</code>.</p>
-
-<p>The first two versions use <code>++t</code> to generate the next value in the sequence
-(the first starts with <code>T()</code>); the third uses <code>t+=delta</code>. <code>T</code> must be totally
-ordered and support the relevant arithmetic operators. The sequences are half
-open, containing <code>t1</code> but not <code>t2</code>; they will stop when <code>t&lt;t2</code> is no longer
-true, or if <code>delta&lt;T()</code>, when <code>t2&lt;t</code> is no longer true. The sequences will be
-empty if <code>t1&lt;t2</code> is not true (or if <code>t2&lt;t1</code> is not true, when <code>delta&lt;T()</code>),
-and will always be empty if <code>delta=T()</code>.</p>
-
-<ul>
 <li><code>void <strong>memswap</strong>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
 </ul>
 

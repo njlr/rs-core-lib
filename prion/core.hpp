@@ -1262,10 +1262,6 @@ namespace Prion {
 
     }
 
-    template <typename T> inline Irange<PrionDetail::UnitSequenceIterator<T>> iota(T t2) { return {{T(), t2}, {}}; }
-    template <typename T> inline Irange<PrionDetail::UnitSequenceIterator<T>> iota(T t1, T t2) { return {{t1, t2}, {}}; }
-    template <typename T> inline Irange<PrionDetail::DeltaSequenceIterator<T>> iota(T t1, T t2, T delta) { return {{t1, t2, delta}, {}}; }
-
     // Scope guards
 
     // Based on ideas from Evgeny Panasyuk (https://github.com/panaseleus/stack_unwinding)
