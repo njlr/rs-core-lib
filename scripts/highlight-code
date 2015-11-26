@@ -80,16 +80,19 @@ for file in sys.argv[1:]:
             result += source[pos:]
             break
         result += source[pos:precode.start()]
-        result += precode.group(1)
-        lines = precode.group(2).splitlines()
-        for line in lines:
-            docitem = docitem_pattern.match(line)
-            if docitem and docitem.group(2):
-                result += docitem.group(1)
-                result += highlight(docitem.group(2))
-            else:
-                result += line
-        result += precode.group(3)
+        if precode.group().find('') == -1:
+            result += precode.group(1)
+            lines = precode.group(2).splitlines()
+            for line in lines:
+                docitem = docitem_pattern.match(line)
+                if docitem and docitem.group(2):
+                    result += docitem.group(1)
+                    result += highlight(docitem.group(2))
+                else:
+                    result += line
+            result += precode.group(3)
+        else:
+            result += precode.group(0)
         pos = precode.end()
 
     with open(file, 'w', encoding='utf-8', newline='\n') as f:
