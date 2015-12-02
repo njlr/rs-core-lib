@@ -674,7 +674,7 @@ Xterm cursor movement and output formatting codes.
 
 Functions for generating variable Xterm codes. The RGB levels passed to the
 `xt_colour[_bg]()` functions are in the form of a 3 digit number from 111 to
-666; each digit is clamped to a range of 0-5, yielding 216 different colours.
+666; each digit is clamped to a range of 1-6, yielding 216 different colours.
 The grey level passed to the `xt_grey[_bg]()` functions is clamped to a range
 of 1-24.
 
@@ -926,6 +926,10 @@ trailing characters that are not part of a number, and will return zero if the
 string is empty or does not contain a valid number. Results that are out of
 range will be clamped to the nearest end of the return type's range (for
 `fpnum()` this will normally be positive or negative infinity).
+
+* `u8string dent(size_t depth)`
+
+Returns a string containing `4*depth` spaces, for indentation.
 
 * `u8string hexdump(const void* ptr, size_t n, size_t block = 0)`
 * `u8string hexdump(const string& str, size_t block = 0)`

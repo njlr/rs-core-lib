@@ -1394,6 +1394,7 @@ namespace Prion {
     inline long long decnum(const string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
     inline unsigned long long hexnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
     inline double fpnum(const string& str) noexcept { return strtod(str.data(), nullptr); }
+    inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
 
     namespace PrionDetail {
 
