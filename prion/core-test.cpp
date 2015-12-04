@@ -83,16 +83,39 @@ namespace {
 
     void check_algorithms() {
 
-        std::string s;
+        std::string s1, s2;
+        int c;
+
+        s1 = "";               s2 = "";               TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 0);
+        s1 = "";               s2 = "hello";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
+        s1 = "hello";          s2 = "";               TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
+        s1 = "hello";          s2 = "world";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
+        s1 = "hello";          s2 = "hello";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 0);
+        s1 = "hello";          s2 = "goodbye";        TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
+        s1 = "hello";          s2 = "hello world";    TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
+        s1 = "hello world";    s2 = "hello";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
+        s1 = "hello goodbye";  s2 = "hello world";    TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
+        s1 = "hello world";    s2 = "hello goodbye";  TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
+        s1 = "";               s2 = "";               TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 0);
+        s1 = "";               s2 = "hello";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
+        s1 = "hello";          s2 = "";               TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
+        s1 = "hello";          s2 = "world";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
+        s1 = "hello";          s2 = "hello";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 0);
+        s1 = "hello";          s2 = "goodbye";        TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
+        s1 = "hello";          s2 = "hello world";    TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
+        s1 = "hello world";    s2 = "hello";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
+        s1 = "hello goodbye";  s2 = "hello world";    TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
+        s1 = "hello world";    s2 = "hello goodbye";  TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
+
         const auto same_case = [] (char a, char b) { return ascii_isupper(a) == ascii_isupper(b); };
 
-        s = "abcabcabc";        TRY(con_remove(s, 'c'));                        TEST_EQUAL(s, "ababab");
-        s = "abc123abc123";     TRY(con_remove_if(s, ascii_isalpha));           TEST_EQUAL(s, "123123");
-        s = "abc123abc123";     TRY(con_remove_if_not(s, ascii_isalpha));       TEST_EQUAL(s, "abcabc");
-        s = "abbcccddddeeeee";  TRY(con_unique(s));                             TEST_EQUAL(s, "abcde");
-        s = "ABCabcABCabc";     TRY(con_unique(s, same_case));                  TEST_EQUAL(s, "AaAa");
-        s = "abcdeabcdabcaba";  TRY(con_sort_unique(s));                        TEST_EQUAL(s, "abcde");
-        s = "abcdeabcdabcaba";  TRY(con_sort_unique(s, std::greater<char>()));  TEST_EQUAL(s, "edcba");
+        s1 = "abcabcabc";        TRY(con_remove(s1, 'c'));                        TEST_EQUAL(s1, "ababab");
+        s1 = "abc123abc123";     TRY(con_remove_if(s1, ascii_isalpha));           TEST_EQUAL(s1, "123123");
+        s1 = "abc123abc123";     TRY(con_remove_if_not(s1, ascii_isalpha));       TEST_EQUAL(s1, "abcabc");
+        s1 = "abbcccddddeeeee";  TRY(con_unique(s1));                             TEST_EQUAL(s1, "abcde");
+        s1 = "ABCabcABCabc";     TRY(con_unique(s1, same_case));                  TEST_EQUAL(s1, "AaAa");
+        s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1));                        TEST_EQUAL(s1, "abcde");
+        s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1, std::greater<char>()));  TEST_EQUAL(s1, "edcba");
 
     }
 
@@ -2369,51 +2392,132 @@ namespace {
 
     void check_version_number() {
 
-        Version v, w;
+        Version v;
+
+        TEST_EQUAL(v[0], 0);
+        TEST_EQUAL(v[1], 0);
+        TEST_EQUAL(v[2], 0);
+        TEST_EQUAL(v.major(), 0);
+        TEST_EQUAL(v.minor(), 0);
+        TEST_EQUAL(v.patch(), 0);
+        TEST_EQUAL(v.suffix(), "");
+        TEST_EQUAL(v.str(), "0.0");
+        TEST_EQUAL(v.str(0), "");
+        TEST_EQUAL(v.str(1), "0");
+        TEST_EQUAL(v.str(2), "0.0");
+        TEST_EQUAL(v.str(3), "0.0.0");
+        TEST_EQUAL(v.str(4), "0.0.0.0");
+        TEST_EQUAL(v.to32(), 0);
+
+        TRY((v = {42}));
+        TEST_EQUAL(v[0], 42);
+        TEST_EQUAL(v[1], 0);
+        TEST_EQUAL(v[2], 0);
+        TEST_EQUAL(v.major(), 42);
+        TEST_EQUAL(v.minor(), 0);
+        TEST_EQUAL(v.patch(), 0);
+        TEST_EQUAL(v.suffix(), "");
+        TEST_EQUAL(v.str(), "42.0");
+        TEST_EQUAL(v.to32(), 0x2a000000);
+
+        TRY((v = {42,"beta"}));
+        TEST_EQUAL(v[0], 42);
+        TEST_EQUAL(v[1], 0);
+        TEST_EQUAL(v[2], 0);
+        TEST_EQUAL(v.major(), 42);
+        TEST_EQUAL(v.minor(), 0);
+        TEST_EQUAL(v.patch(), 0);
+        TEST_EQUAL(v.suffix(), "beta");
+        TEST_EQUAL(v.str(), "42.0beta");
+        TEST_EQUAL(v.to32(), 0x2a000000);
 
         TRY((v = {1,2,3}));
         TEST_EQUAL(v[0], 1);
         TEST_EQUAL(v[1], 2);
         TEST_EQUAL(v[2], 3);
+        TEST_EQUAL(v.major(), 1);
+        TEST_EQUAL(v.minor(), 2);
+        TEST_EQUAL(v.patch(), 3);
+        TEST_EQUAL(v.suffix(), "");
         TEST_EQUAL(v.str(), "1.2.3");
+        TEST_EQUAL(v.str(0), "1.2.3");
+        TEST_EQUAL(v.str(1), "1.2.3");
+        TEST_EQUAL(v.str(2), "1.2.3");
+        TEST_EQUAL(v.str(3), "1.2.3");
+        TEST_EQUAL(v.str(4), "1.2.3.0");
+        TEST_EQUAL(v.to32(), 0x01020300);
 
-        TRY((w = 2));
-        TEST_EQUAL(w[0], 2);
-        TEST_EQUAL(w[1], 0);
-        TEST_EQUAL(w[2], 0);
-        TEST_EQUAL(w.str(), "2.0.0");
+        TRY((v = {1,2,3,"beta"}));
+        TEST_EQUAL(v[0], 1);
+        TEST_EQUAL(v[1], 2);
+        TEST_EQUAL(v[2], 3);
+        TEST_EQUAL(v.major(), 1);
+        TEST_EQUAL(v.minor(), 2);
+        TEST_EQUAL(v.patch(), 3);
+        TEST_EQUAL(v.suffix(), "beta");
+        TEST_EQUAL(v.str(), "1.2.3beta");
+        TEST_EQUAL(v.str(0), "1.2.3beta");
+        TEST_EQUAL(v.str(1), "1.2.3beta");
+        TEST_EQUAL(v.str(2), "1.2.3beta");
+        TEST_EQUAL(v.str(3), "1.2.3beta");
+        TEST_EQUAL(v.str(4), "1.2.3.0beta");
+        TEST_EQUAL(v.to32(), 0x01020300);
 
-        TEST(! (v == w));
-        TEST(v != w);
-        TEST(v < w);
-        TEST(! (v > w));
-        TEST(v <= w);
-        TEST(! (v >= w));
+        TRY(v = Version::from32(0x12345678));
+        TEST_EQUAL(v[0], 18);
+        TEST_EQUAL(v[1], 52);
+        TEST_EQUAL(v[2], 86);
+        TEST_EQUAL(v[3], 120);
+        TEST_EQUAL(v.major(), 18);
+        TEST_EQUAL(v.minor(), 52);
+        TEST_EQUAL(v.patch(), 86);
+        TEST_EQUAL(v.suffix(), "");
+        TEST_EQUAL(v.str(), "18.52.86.120");
+        TEST_EQUAL(v.to32(), 0x12345678);
 
-        TRY(v = Version::from(0));           TEST_EQUAL(v, (Version{0,0,0}));
-        TRY(v = Version::from(1));           TEST_EQUAL(v, (Version{0,0,1}));
-        TRY(v = Version::from(12));          TEST_EQUAL(v, (Version{0,1,2}));
-        TRY(v = Version::from(123));         TEST_EQUAL(v, (Version{1,2,3}));
-        TRY(v = Version::from(1234));        TEST_EQUAL(v, (Version{12,3,4}));
-        TRY(v = Version::from(0x0, 16));     TEST_EQUAL(v, (Version{0,0,0}));
-        TRY(v = Version::from(0x1, 16));     TEST_EQUAL(v, (Version{0,0,1}));
-        TRY(v = Version::from(0x12, 16));    TEST_EQUAL(v, (Version{0,1,2}));
-        TRY(v = Version::from(0x123, 16));   TEST_EQUAL(v, (Version{1,2,3}));
-        TRY(v = Version::from(0x1234, 16));  TEST_EQUAL(v, (Version{18,3,4}));
+        TRY(v = Version(""));
+        TEST_EQUAL(v[0], 0);
+        TEST_EQUAL(v[1], 0);
+        TEST_EQUAL(v[2], 0);
+        TEST_EQUAL(v.major(), 0);
+        TEST_EQUAL(v.minor(), 0);
+        TEST_EQUAL(v.patch(), 0);
+        TEST_EQUAL(v.suffix(), "");
+        TEST_EQUAL(v.str(), "0.0");
+        TEST_EQUAL(v.to32(), 0);
 
-        TRY(v = Version::parse(""));           TEST_EQUAL(v, (Version{0,0,0}));
-        TRY(v = Version::parse("1"));          TEST_EQUAL(v, (Version{1,0,0}));
-        TRY(v = Version::parse("1xyz"));       TEST_EQUAL(v, (Version{1,0,0}));
-        TRY(v = Version::parse("1.xyz"));      TEST_EQUAL(v, (Version{1,0,0}));
-        TRY(v = Version::parse("1.2"));        TEST_EQUAL(v, (Version{1,2,0}));
-        TRY(v = Version::parse("1.2xyz"));     TEST_EQUAL(v, (Version{1,2,0}));
-        TRY(v = Version::parse("1.2.xyz"));    TEST_EQUAL(v, (Version{1,2,0}));
-        TRY(v = Version::parse("1.2.3"));      TEST_EQUAL(v, (Version{1,2,3}));
-        TRY(v = Version::parse("1.2.3xyz"));   TEST_EQUAL(v, (Version{1,2,3}));
-        TRY(v = Version::parse("1.2.3.xyz"));  TEST_EQUAL(v, (Version{1,2,3}));
+        TRY(v = Version("1.2.3"));
+        TEST_EQUAL(v[0], 1);
+        TEST_EQUAL(v[1], 2);
+        TEST_EQUAL(v[2], 3);
+        TEST_EQUAL(v.major(), 1);
+        TEST_EQUAL(v.minor(), 2);
+        TEST_EQUAL(v.patch(), 3);
+        TEST_EQUAL(v.suffix(), "");
+        TEST_EQUAL(v.str(), "1.2.3");
+        TEST_EQUAL(v.to32(), 0x01020300);
 
-        TEST_THROW(Version::parse("-1"), std::invalid_argument);
-        TEST_THROW(Version::parse("xyz"), std::invalid_argument);
+        TRY(v = Version("1.2.3beta"));
+        TEST_EQUAL(v[0], 1);
+        TEST_EQUAL(v[1], 2);
+        TEST_EQUAL(v[2], 3);
+        TEST_EQUAL(v.major(), 1);
+        TEST_EQUAL(v.minor(), 2);
+        TEST_EQUAL(v.patch(), 3);
+        TEST_EQUAL(v.suffix(), "beta");
+        TEST_EQUAL(v.str(), "1.2.3beta");
+        TEST_EQUAL(v.to32(), 0x01020300);
+
+        TRY(v = Version("beta"));
+        TEST_EQUAL(v[0], 0);
+        TEST_EQUAL(v[1], 0);
+        TEST_EQUAL(v[2], 0);
+        TEST_EQUAL(v.major(), 0);
+        TEST_EQUAL(v.minor(), 0);
+        TEST_EQUAL(v.patch(), 0);
+        TEST_EQUAL(v.suffix(), "beta");
+        TEST_EQUAL(v.str(), "0.0beta");
+        TEST_EQUAL(v.to32(), 0);
 
     }
 

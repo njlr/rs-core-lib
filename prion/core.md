@@ -212,6 +212,12 @@ accuracy for the physical ones.
 
 ## Algorithms ##
 
+* `template <typename Range1, typename Range2> int compare_3way(const Range1& r1, const Range2& r2)`
+* `template <typename Range1, typename Range2, typename Compare> int compare_3way(const Range1& r1, const Range2& r2, Compare cmp)`
+
+Compare two ranges, returning -1 if the first range is less than the second,
+zero if they are equal, and +1 if the first range is greater.
+
 * `template <typename Container, typename T> void con_remove(Container& con, const T& t)`
 * `template <typename Container, typename Predicate> void con_remove_if(Container& con, Predicate p)`
 * `template <typename Container, typename Predicate> void con_remove_if_not(Container& con, Predicate p)`
@@ -1255,20 +1261,26 @@ Generates a random version 4 UUID.
 
 ## Version number ##
 
-* `struct Version`
-    * `unsigned Version::major`
-    * `unsigned Version::minor`
-    * `unsigned Version::patch`
-    * `Version(unsigned x = 0, unsigned y = 0, unsigned z = 0)`
-    * `unsigned& Version::operator[](size_t i) noexcept`
-    * `const unsigned& Version::operator[](size_t i) const noexcept`
-    * `unsigned* Version::begin() noexcept`
+* `class Version`
+    * `using Version::value_type = unsigned`
+    * `Version::Version() noexcept`
+    * `template <typename... Args> Version::Version(unsigned n, Args... args)`
+    * `explicit Version::Version(const u8string& s)`
+    * `Version::Version(const Version& v)`
+    * `Version::Version(Version&& v) noexcept`
+    * `Version::~Version() noexcept`
+    * `Version& Version::operator=(const Version& v)`
+    * `Version& Version::operator=(Version&& v) noexcept`
+    * `unsigned Version::operator[](size_t i) const noexcept`
     * `const unsigned* Version::begin() const noexcept`
-    * `unsigned* Version::end() noexcept`
     * `const unsigned* Version::end() const noexcept`
-    * `u8string Version::str() const`
-    * `static Version Version::from(int n, int scale = 10) noexcept`
-    * `static Version Version::parse(const u8string& s)`
+    * `unsigned Version::major() const noexcept`
+    * `unsigned Version::minor() const noexcept`
+    * `unsigned Version::patch() const noexcept`
+    * `string Version::str(size_t min_elements = 2) const`
+    * `string Version::suffix() const`
+    * `uint32_t Version::to32() const noexcept`
+    * `static Version Version::from32(uint32_t n) noexcept`
 * `bool operator==(const Version& lhs, const Version& rhs) noexcept`
 * `bool operator!=(const Version& lhs, const Version& rhs) noexcept`
 * `bool operator<(const Version& lhs, const Version& rhs) noexcept;`
@@ -1277,17 +1289,22 @@ Generates a random version 4 UUID.
 * `bool operator>=(const Version& lhs, const Version& rhs) noexcept`
 * `std::ostream& operator<<(std::ostream& o, const Version& v)`
 
-A simple three-part version number. The `begin()` and `end()` functions, and
-the index and comparison operators, have their usual meanings for a fixed size
-array. The `str()` function and the output operator format the version number
-as a string, in the usual `"x.y.z"` format.
+A version number, represented as an array of integers optionally followed by a
+trailing string (e.g. `1.2.3beta`). The default constructor sets the version
+number to zero; the second constructor expects one or more integers followed
+by a string; the third constructor parses a string (a string that does not
+start with an integer is assumed to start with an implicit zero). Results are
+unspecified if a version number element is too big to fit in an `unsigned
+int`.
 
-The `from()` function extracts a version number compressed into an integer,
-e.g. 123 will be interpreted as version `1.2.3`. The `scale` argument is
-usually 10, 16, 100, or 256. The result is unspecified if `n<0` or `scale<2`.
+The indexing operator returns the requested element; it will return zero if
+the index is out of range for the stored array. The `major()`, `minor()`, and
+`patch()` functions return elements 0, 1, and 2. The `suffix()` function
+returns the trailing string element.
 
-The `parse()` function parses a version number in the same format; missing
-elements are assumed to be zero, and any text after the third number is
-ignored. An empty string will be interpreted as version 0.0.0; otherwise, it
-will throw `std::invalid_argument` if the string does not start with an
-integer.
+The `str()` function (and the output operator) formats the version number in
+the conventional form; a minimum number of elements can be requested. The
+`to32()` and `from32()` functions pack or unpack the version into a 32 bit
+integer, with one byte per element (e.g. version `1.2.3` becomes
+`0x01020300`); `to32()` truncates elements higher than 255 and ignores the
+string element.

@@ -389,32 +389,59 @@ namespace Prion {
 
     // Algorithms
 
-    template <typename Container, typename T> void con_remove(Container& con, const T& t) {
+    template <typename Range1, typename Range2, typename Compare>
+    int compare_3way(const Range1& r1, const Range2& r2, Compare cmp) {
+        using std::begin;
+        using std::end;
+        auto i = begin(r1), e1 = end(r1);
+        auto j = begin(r2), e2 = end(r2);
+        for (; i != e1 && j != e2; ++i, ++j) {
+            if (cmp(*i, *j))
+                return -1;
+            else if (cmp(*j, *i))
+                return 1;
+        }
+        return i != e1 ? 1 : j != e2 ? -1 : 0;
+    }
+
+    template <typename Range1, typename Range2>
+    int compare_3way(const Range1& r1, const Range2& r2) {
+        return compare_3way(r1, r2, std::less<>());
+    }
+
+    template <typename Container, typename T>
+    void con_remove(Container& con, const T& t) {
         con.erase(std::remove(con.begin(), con.end(), t), con.end());
     }
 
-    template <typename Container, typename Predicate> void con_remove_if(Container& con, Predicate p) {
+    template <typename Container, typename Predicate>
+    void con_remove_if(Container& con, Predicate p) {
         con.erase(std::remove_if(con.begin(), con.end(), p), con.end());
     }
 
-    template <typename Container, typename Predicate> void con_remove_if_not(Container& con, Predicate p) {
+    template <typename Container, typename Predicate>
+    void con_remove_if_not(Container& con, Predicate p) {
         con.erase(std::remove_if(con.begin(), con.end(), [p] (const auto& x) { return ! p(x); }), con.end());
     }
 
-    template <typename Container> void con_unique(Container& con) {
+    template <typename Container>
+    void con_unique(Container& con) {
         con.erase(std::unique(con.begin(), con.end()), con.end());
     }
 
-    template <typename Container, typename BinaryPredicate> void con_unique(Container& con, BinaryPredicate p) {
+    template <typename Container, typename BinaryPredicate>
+    void con_unique(Container& con, BinaryPredicate p) {
         con.erase(std::unique(con.begin(), con.end(), p), con.end());
     }
 
-    template <typename Container> void con_sort_unique(Container& con) {
+    template <typename Container>
+    void con_sort_unique(Container& con) {
         std::sort(con.begin(), con.end());
         con_unique(con);
     }
 
-    template <typename Container, typename Compare> void con_sort_unique(Container& con, Compare cmp) {
+    template <typename Container, typename Compare>
+    void con_sort_unique(Container& con, Compare cmp) {
         std::sort(con.begin(), con.end(), cmp);
         con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
     }
@@ -2274,70 +2301,86 @@ namespace Prion {
 
     // Version number
 
-    struct Version:
+    class Version:
     public LessThanComparable<Version> {
-        unsigned major;
-        unsigned minor;
-        unsigned patch;
-        Version(unsigned x = 0, unsigned y = 0, unsigned z = 0): major(x), minor(y), patch(z) {}
-        unsigned& operator[](size_t i) noexcept { return begin()[i]; }
-        const unsigned& operator[](size_t i) const noexcept { return begin()[i]; }
-        unsigned* begin() noexcept { return &major; }
-        const unsigned* begin() const noexcept { return &major; }
-        unsigned* end() noexcept { return begin() + 3; }
-        const unsigned* end() const noexcept { return begin() + 3; }
-        u8string str() const { return dec(major) + '.' + dec(minor) + '.' + dec(patch); }
-        static Version from(int n, int scale = 10) noexcept;
-        static Version parse(const u8string& s);
+    public:
+        using value_type = unsigned;
+        Version() noexcept {}
+        template <typename... Args> Version(unsigned n, Args... args) { append(n, args...); trim(); }
+        explicit Version(const u8string& s);
+        unsigned operator[](size_t i) const noexcept { return i < ver.size() ? ver[i] : 0; }
+        const unsigned* begin() const noexcept { return ver.data(); }
+        const unsigned* end() const noexcept { return ver.data() + ver.size(); }
+        unsigned major() const noexcept { return (*this)[0]; }
+        unsigned minor() const noexcept { return (*this)[1]; }
+        unsigned patch() const noexcept { return (*this)[2]; }
+        string str(size_t min_elements = 2) const;
+        string suffix() const { return suf; }
+        uint32_t to32() const noexcept;
+        static Version from32(uint32_t n) noexcept;
+        friend bool operator==(const Version& lhs, const Version& rhs) noexcept
+            { return lhs.ver == rhs.ver && lhs.suf == rhs.suf; }
+        friend bool operator<(const Version& lhs, const Version& rhs) noexcept
+            { int c = compare_3way(lhs.ver, rhs.ver); return c == 0 ? lhs.suf < rhs.suf : c == -1; }
+    private:
+        vector<unsigned> ver;
+        u8string suf;
+        template <typename... Args> void append(unsigned n, Args... args) { ver.push_back(n); append(args...); }
+        void append(const u8string& s) { suf = s; }
+        void append() {}
+        void trim() { while (! ver.empty() && ver.back() == 0) ver.pop_back(); }
     };
 
-    inline Version Version::from(int n, int scale) noexcept {
-        Version v{0, 0, 0};
-        if (scale < 1)
-            return v;
-        v.patch = n % scale;
-        n /= scale;
-        v.minor = n % scale;
-        n /= scale;
-        v.major = n;
-        return v;
-    }
-
-    inline Version Version::parse(const u8string& s) {
-        Version v{0, 0, 0};
-        if (s.empty())
-            return v;
-        auto i = s.begin(), e = s.end();
-        unsigned n = 0;
-        while (n < 3) {
-            auto j = std::find_if_not(i, e, ascii_isdigit);
-            if (j == i)
+    inline Version::Version(const u8string& s) {
+        auto i = s.begin(), end = s.end();
+        while (i != end) {
+            auto j = std::find_if_not(i, end, ascii_isdigit);
+            if (i == j)
                 break;
-            v[n++] = unsigned(decnum(string(i, j)));
-            if (j == e || *j != '.')
+            ver.push_back(unsigned(decnum(u8string(i, j))));
+            i = j;
+            if (i == end || *i != '.')
                 break;
-            i = j + 1;
+            ++i;
+            if (i == end || ! ascii_isdigit(*i))
+                break;
         }
-        if (n == 0)
-            throw std::invalid_argument("Invalid version: " + s);
+        suf.assign(i, end);
+    }
+
+    inline string Version::str(size_t min_elements) const {
+        string s;
+        for (auto& v: ver)
+            s += to_str(v) + '.';
+        for (size_t i = ver.size(); i < min_elements; ++i)
+            s += "0.";
+        if (! s.empty())
+            s.pop_back();
+        s += suf;
+        return s;
+    }
+
+    inline uint32_t Version::to32() const noexcept {
+        uint32_t v = 0;
+        for (size_t i = 0; i < 4; ++i)
+            v = (v << 8) | ((*this)[i] & 0xff);
         return v;
     }
 
-    inline bool operator==(const Version& lhs, const Version& rhs) noexcept {
-        return lhs.major == rhs.major && lhs.minor == rhs.minor && lhs.patch == rhs.patch;
+    inline Version Version::from32(uint32_t n) noexcept {
+        Version v;
+        for (int i = 24; i >= 0 && n != 0; i -= 8)
+            v.ver.push_back((n >> i) & 0xff);
+        return v;
     }
 
-    inline bool operator<(const Version& lhs, const Version& rhs) noexcept {
-        if (lhs.major != rhs.major)
-            return lhs.major < rhs.major;
-        else if (lhs.minor != rhs.minor)
-            return lhs.minor < rhs.minor;
-        else
-            return lhs.patch < rhs.patch;
+    inline std::ostream& operator<<(std::ostream& o, const Version& v) {
+        return o << v.str();
     }
 
-    inline std::ostream& operator<<(std::ostream& o, const Version& v) { return o << v.str(); }
-    inline u8string to_str(const Version& v) { return v.str(); }
+    inline u8string to_str(const Version& v) {
+        return v.str();
+    }
 
     // I/O utilities
 
