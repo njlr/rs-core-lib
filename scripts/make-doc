@@ -31,6 +31,7 @@ with open(src, 'r', encoding='utf-8') as s:
 
 lines = md.splitlines()
 title = lines[0].strip('# ')
+title = re.sub(r'\[([^()\[\]]+)\]\([^()\[\]]+\)', r'\1', title)
 html = head.format(title)
 html += markdown.markdown(md, extensions=mdexts)
 html += tail
