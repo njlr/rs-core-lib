@@ -1,6 +1,3 @@
-Title: Test Utilities
-CSS: style.css
-
 # Test Utilities #
 
 By Ross Smith

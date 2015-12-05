@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8"/>
-	<title>Test Utilities</title>
-	<link type="text/css" rel="stylesheet" href="style.css"/>
+    <meta charset="utf-8"/>
+    <title>Test Utilities</title>
+    <link type="text/css" rel="stylesheet" href="style.css"/>
 </head>
-<body>
-
-<h1 id="testutilities">Test Utilities</h1>
-
+<h2 id="test-utilities">Test Utilities</h2>
 <p>By Ross Smith</p>
-
 <ul>
-<li><code>#include &quot;prion/unit-test.hpp&quot;</code></li>
+<li><code>#include "prion/unit-test.hpp"</code></li>
 </ul>
-
 <p>A typical test module will look something like this:</p>
-
-<pre><code>#include &quot;project/module.hpp&quot;
-#include &quot;prion/unit-test.hpp&quot;
+<pre><code>#include "project/module.hpp"
+#include "prion/unit-test.hpp"
 TEST_MAIN;
 TEST_MODULE(project, module) {
     int answer;
@@ -26,46 +20,35 @@ TEST_MODULE(project, module) {
     TEST_EQUAL(answer, 42);
 }
 </code></pre>
-
 <p>Plase note that all of the macros here may evaluate their arguments more than
 once.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_MAIN</code></strong></li>
 </ul>
-
 <p>Supplies the main function for a test program. This must appear at global
 scope in one module if there is no user-supplied <code>main()</code> function. The main
 function will check for a <code>UNIT</code> environment variable, parsing it as a PCRE
-regular expression, and only the tests whose name (in <em>&#8220;project/module&#8221;</em> form)
+regular expression, and only the tests whose name (in <em>"project/module"</em> form)
 contains the pattern will be run. The return value from <code>TEST_MAIN</code> is zero on
 success, 1 if any tests failed.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_MODULE</code></strong><code>(project, module)</code></li>
 </ul>
-
 <p>This supplies the function signature for a module test function (see above for
 typical usage).</p>
-
 <ul>
 <li><code>#define</code> <strong><code>FAIL</code></strong><code>(message)</code></li>
 </ul>
-
 <p>Generates a test failure, with the specified error message (a string
 constant).</p>
-
 <ul>
 <li><code>#define</code> <strong><code>MESSAGE</code></strong><code>(message)</code></li>
 </ul>
-
 <p>Emits a message, as for <code>FAIL()</code>, but does not count this as a test failure.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>REQUIRE</code></strong><code>(expression)</code></li>
 <li><code>#define</code> <strong><code>TEST</code></strong><code>(expression)</code></li>
 </ul>
-
 <p>Evaluate the expression, expecting it to return a boolean value, or something
 that can be explicitly converted to a boolean. The test fails if the return
 value is false, or the expression throws an exception. The <code>REQUIRE()</code> macro
@@ -73,13 +56,11 @@ differs from <code>TEST()</code> in that it will return from the calling functio
 test fails; this is intended for situations where a failed test indicates that
 something is so badly wrong that further testing would be pointless or
 impossible.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_COMPARE</code></strong><code>(lhs, op, rhs)</code></li>
 <li><code>#define</code> <strong><code>TEST_EQUAL</code></strong><code>(lhs, rhs)</code></li>
 <li><code>#define</code> <strong><code>TEST_EQUAL_RANGE</code></strong><code>(lhs, rhs)</code></li>
 </ul>
-
 <p>Evaluate the two expressions and compare the results, failing if the specified
 comparison is false, or if either expression (or the comparison itself) throws
 an exception. <code>TEST_COMPARE()</code> applies the given comparison operator, and is
@@ -88,57 +69,45 @@ if it fails. <code>TEST_EQUAL()</code> is shorthand for <code>TEST_COMPARE(lhs,=
 <code>TEST_EQUAL_RANGE()</code> expects the expressions to evaluate to ranges, and
 performs a memberwise equality comparison, failing if the ranges are different
 sizes, or any of the elements fail to match.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_MATCH</code></strong><code>(string, pattern)</code></li>
 <li><code>#define</code> <strong><code>TEST_MATCH_ICASE</code></strong><code>(string, pattern)</code></li>
 </ul>
-
 <p>Evaluates the string expression, and searches it for the given PCRE regular
 expression (supplied as a string constant), optionally case sensitive or
 insensitive The test fails if the string fails to match, or an exception is
 thrown.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_NEAR</code></strong><code>(lhs, rhs)</code></li>
 <li><code>#define</code> <strong><code>TEST_NEAR_EPSILON</code></strong><code>(lhs, rhs, tolerance)</code></li>
 <li><code>#define</code> <strong><code>TEST_NEAR_RANGE</code></strong><code>(lhs, rhs)</code></li>
 <li><code>#define</code> <strong><code>TEST_NEAR_EPSILON_RANGE</code></strong><code>(lhs, rhs, tolerance)</code></li>
 </ul>
-
 <p>Evaluate two floating point expressions, or two ranges of floating point
 values, and compare them for approximate equality. The test fails if the
-values differ by more than the tolerance (defaulting to 10<sup>&#8211;6</sup>), or
+values differ by more than the tolerance (defaulting to 10<sup>-6</sup>), or
 if any expression throws an exception.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_THROW</code></strong><code>(expression, exception)</code></li>
 <li><code>#define</code> <strong><code>TEST_THROW_EQUAL</code></strong><code>(expression, exception, message)</code></li>
 <li><code>#define</code> <strong><code>TEST_THROW_MATCH</code></strong><code>(expression, exception, pattern)</code></li>
 <li><code>#define</code> <strong><code>TEST_THROW_MATCH_ICASE</code></strong><code>(expression, exception, pattern)</code></li>
 </ul>
-
 <p>Evaluate the expression, expecting it to throw an exception of the specified
 type (or a derived type). The test fails if the expression fails to throw an
 exception, or throws an exception of the wrong type. The second and third
-macros also check the exception&#8217;s error message (obtained from its <code>what()</code>
+macros also check the exception's error message (obtained from its <code>what()</code>
 method) for either an exact string match or a regular expression.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TEST_TYPE</code></strong><code>(type1, type2)</code></li>
 <li><code>#define</code> <strong><code>TEST_TYPE_OF</code></strong><code>(object, type)</code></li>
 <li><code>#define</code> <strong><code>TEST_TYPES_OF</code></strong><code>(object1, object2)</code></li>
 </ul>
-
 <p>Compare two types, failing if they are not the same. The <code>std::decay</code>
 transformation is applied before comparing them.</p>
-
 <ul>
 <li><code>#define</code> <strong><code>TRY</code></strong><code>(expression)</code></li>
 </ul>
-
 <p>This simply evaluates the expression, ignoring any result. The test fails if
-an exception is thrown.</p>
-
-</body>
+an exception is thrown.</p></body>
 </html>

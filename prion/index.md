@@ -1,12 +1,9 @@
-Title: Prion Library
-CSS: style.css
-
 # Prion Library #
 
 #### Minimal common utilities by Ross Smith ####
 
-* [`"prion/core.hpp"`](core.html) -- Core utilities.
-* [`"prion/unit-test.hpp"`](unit-test.html) -- Unit testing utilities.
+* [`"prion/core.hpp"`](core.html) - Core utilities.
+* [`"prion/unit-test.hpp"`](unit-test.html) - Unit testing utilities.
 
 Prion is a header-only library that basically represents the absolute minimum
 set of common utilities that I've found a common need for in other projects,

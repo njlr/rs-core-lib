@@ -27,8 +27,6 @@ LDFLAGS      :=
 LDLIBS       :=
 EXE          :=
 DEPENDS      := dependencies.make
-MD           := multimarkdown
-MDFLAGS      := --process-html
 STATICLIB    := build/$(TARGET)/lib$(NAME).a
 SOURCES      := $(wildcard $(NAME)/*.c $(NAME)/*.cpp)
 APPSOURCES   := $(wildcard $(NAME)/app-*.cpp)
@@ -313,12 +311,14 @@ $(NAME)/library.hpp: $(LIBHEADERS)
 ifeq ($(DOCINDEX),)
 doc/index.html: $(DOCSOURCES)
 	@mkdir -p $(dir $@)
-	$(SCRIPTS)/make-index | $(MD) $(MDFLAGS) > $@
+	$(SCRIPTS)/make-index > __index__.md
+	$(SCRIPTS)/make-doc __index__.md $@
+	rm __index__.md
 endif
 
 doc/%.html: $(NAME)/%.md
 	@mkdir -p $(dir $@)
-	$(MD) $(MDFLAGS) $< > $@
+	$(SCRIPTS)/make-doc $< $@
 
 doc/style.css: $(SCRIPTS)/style.css
 	@mkdir -p $(dir $@)

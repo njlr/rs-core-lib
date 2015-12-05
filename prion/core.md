@@ -1,6 +1,3 @@
-Title: Core Utilities
-CSS: style.css
-
 # Core Utilities #
 
 By Ross Smith
@@ -9,29 +6,7 @@ By Ross Smith
 
 ## Contents ##
 
-* [Preprocessor macros][]
-* [Basic types][]
-* [Constants][]
-* [Algorithms][]
-* [Arithmetic literals][]
-* [Arithmetic functions][]
-* [Byte order][]
-* [Character functions][]
-* [Containers][]
-* [Exceptions][]
-* [Functional utilities][]
-* [Hash functions][]
-* [I/O utilities][]
-* [Keyword arguments][]
-* [Mixins][]
-* [Range utilities][]
-* [Scope guards][]
-* [String functions][]
-* [Threads][]
-* [Time and date functions][]
-* [Type properties][]
-* [UUID][]
-* [Version number][]
+[TOC]
 
 ## Preprocessor macros ##
 
@@ -173,44 +148,42 @@ The values quoted for the following constants are approximate; the values
 actually supplied are accurate to at least `long double` precision for the
 mathematical constants, or to the best known accuracy for the physical ones.
 
-Constant                         | Value
---------                         | -----
-**Mathematical constants**       ||
-**`e`**                          | 2.7183
-**`ln_2`**                       | log<sub>e</sub> 2 = 0.6931
-**`ln_10`**                      | log<sub>e</sub> 10 = 2.3026
-**`pi`**                         | &pi; = 3.1416
-**`sqrt_2`**                     | &radic;2 = 1.4142
-**`sqrt_3`**                     | &radic;3 = 1.7321
-**`sqrt_5`**                     | &radic;5 = 2.2361
-**`sqrt_pi`**                    | &radic;&pi; = 1.7725
-**`sqrt_2pi`**                   | &radic;2&pi; = 2.5066
-**Physical constants**           ||
-**`atomic_mass_unit`**           | 1.661&times;10<sup>-27</sup> kg
-**`avogadro_constant`**          | 6.022&times;10<sup>23</sup> mol<sup>-1</sup>
-**`boltzmann_constant`**         | 1.381&times;10<sup>-23</sup> J K<sup>-1</sup>
-**`elementary_charge`**          | 1.602&times;10<sup>-19</sup> C
-**`gas_constant`**               | 8.314 J mol<sup>-1</sup> K<sup>-1</sup>
-**`gravitational_constant`**     | 6.674&times;10<sup>-11</sup> m<sup>3</sup> kg<sup>-1</sup> s<sup>-2</sup>
-**`planck_constant`**            | 6.626&times;10<sup>-34</sup> J s
-**`speed_of_light`**             | 2.998&times;10<sup>8</sup> m s<sup>-1</sup>
-**`stefan_boltzmann_constant`**  | 5.670&times;10<sup>-8</sup> W m<sup>-2</sup> K<sup>-4</sup>
-**Astronomical constants**       ||
-**`earth_mass`**                 | 5.972&times;10<sup>24</sup> kg
-**`earth_radius`**               | 6.371&times;10<sup>6</sup> m
-**`jupiter_mass`**               | 1.899&times;10<sup>27</sup> kg
-**`jupiter_radius`**             | 6.991&times;10<sup>7</sup> m
-**`solar_mass`**                 | 1.989&times;10<sup>30</sup> kg
-**`solar_radius`**               | 6.963&times;10<sup>8</sup> m
-**`solar_luminosity`**           | 3.846&times;10<sup>26</sup> W
-**`solar_temperature`**          | 5778 K
-**`astronomical_unit`**          | 1.496&times;10<sup>11</sup> m
-**`light_year`**                 | 9.461&times;10<sup>15</sup> m
-**`parsec`**                     | 3.086&times;10<sup>16</sup> m
-**`julian_day`**                 | 86400 s
-**`julian_year`**                | 31557600 s
-**`sidereal_year`**              | 31558150 s
-**`tropical_year`**              | 31556925 s
+* _Mathematical constants_
+    * **`e`** _= 2.7183_
+    * **`ln_2`** _= log<sub>e</sub> 2 = 0.6931_
+    * **`ln_10`** _= log<sub>e</sub> 10 = 2.3026_
+    * **`pi`** _= &pi; = 3.1416_
+    * **`sqrt_2`** _= &radic;2 = 1.4142_
+    * **`sqrt_3`** _= &radic;3 = 1.7321_
+    * **`sqrt_5`** _= &radic;5 = 2.2361_
+    * **`sqrt_pi`** _= &radic;&pi; = 1.7725_
+    * **`sqrt_2pi`** _= &radic;2&pi; = 2.5066_
+* _Physical constants_
+    * **`atomic_mass_unit`** _= 1.661&times;10<sup>-27</sup> kg_
+    * **`avogadro_constant`** _= 6.022&times;10<sup>23</sup> mol<sup>-1</sup>_
+    * **`boltzmann_constant`** _= 1.381&times;10<sup>-23</sup> J K<sup>-1</sup>_
+    * **`elementary_charge`** _= 1.602&times;10<sup>-19</sup> C_
+    * **`gas_constant`** _= 8.314 J mol<sup>-1</sup> K<sup>-1</sup>_
+    * **`gravitational_constant`** _= 6.674&times;10<sup>-11</sup> m<sup>3</sup> kg<sup>-1</sup> s<sup>-2</sup>_
+    * **`planck_constant`** _= 6.626&times;10<sup>-34</sup> J s_
+    * **`speed_of_light`** _= 2.998&times;10<sup>8</sup> m s<sup>-1</sup>_
+    * **`stefan_boltzmann_constant`** _= 5.670&times;10<sup>-8</sup> W m<sup>-2</sup> K<sup>-4</sup>_
+* _Astronomical constants_
+    * **`earth_mass`** _= 5.972&times;10<sup>24</sup> kg_
+    * **`earth_radius`** _= 6.371&times;10<sup>6</sup> m_
+    * **`jupiter_mass`** _= 1.899&times;10<sup>27</sup> kg_
+    * **`jupiter_radius`** _= 6.991&times;10<sup>7</sup> m_
+    * **`solar_mass`** _= 1.989&times;10<sup>30</sup> kg_
+    * **`solar_radius`** _= 6.963&times;10<sup>8</sup> m_
+    * **`solar_luminosity`** _= 3.846&times;10<sup>26</sup> W_
+    * **`solar_temperature`** _= 5778 K_
+    * **`astronomical_unit`** _= 1.496&times;10<sup>11</sup> m_
+    * **`light_year`** _= 9.461&times;10<sup>15</sup> m_
+    * **`parsec`** _= 3.086&times;10<sup>16</sup> m_
+    * **`julian_day`** _= 86400 s_
+    * **`julian_year`** _= 31557600 s_
+    * **`sidereal_year`** _= 31558150 s_
+    * **`tropical_year`** _= 31556925 s_
 
 ## Algorithms ##
 
@@ -348,30 +321,18 @@ byte order.
 
 Convert a number between the native byte order and big or little endian.
 
-* `template <typename T> T` **`read_be`**
-    `(const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> T` **`read_be`**
-    `(const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`read_be`**
-    `(T& t, const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`read_be`**
-    `(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> T` **`read_le`**
-    `(const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> T` **`read_le`**
-    `(const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`read_le`**
-    `(T& t, const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`read_le`**
-    `(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`write_be`**
-    `(T t, void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`write_be`**
-    `(T t, void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`write_le`**
-    `(T t, void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`write_le`**
-    `(T t, void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> T` **`read_be`**`(const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> T` **`read_be`**`(const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`read_be`**`(T& t, const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`read_be`**`(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> T` **`read_le`**`(const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> T` **`read_le`**`(const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`read_le`**`(T& t, const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`read_le`**`(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`write_be`**`(T t, void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`write_be`**`(T t, void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`write_le`**`(T t, void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`write_le`**`(T t, void* ptr, size_t ofs, size_t len) noexcept`
 
 Read or write an integer from a block of bytes, in big endian or little endian
 order. The versions that take only a pointer deduce the size from the integer
@@ -423,12 +384,10 @@ extremely high values.
     * `using SimpleBuffer::`**`const_iterator`** `= const T*`
     * `using SimpleBuffer::`**`const_reference`** `= const T&`
     * `using SimpleBuffer::`**`delete_function`** `= std::function<void(T*)>`
-    * `using SimpleBuffer::`**`difference_type`**
-        `= ptrdiff_t`
+    * `using SimpleBuffer::`**`difference_type`** `= ptrdiff_t`
     * `using SimpleBuffer::`**`iterator`** `= T*`
     * `using SimpleBuffer::`**`reference`** `= T&`
-    * `using SimpleBuffer::`**`size_type`**
-        `= size_t`
+    * `using SimpleBuffer::`**`size_type`** `= size_t`
     * `using SimpleBuffer::`**`value_type`** `= T`
     * `SimpleBuffer::`**`SimpleBuffer`**`() noexcept`
     * `explicit SimpleBuffer::`**`SimpleBuffer`**`(size_t n)`
@@ -606,15 +565,12 @@ Simple function objects.
 
 ## Hash functions ##
 
-* `size_t` **`hash_bytes`**
-    `(const void* ptr, size_t n)`
-* `void` **`hash_bytes`**
-    `(size_t& hash, const void* ptr, size_t n)`
+* `size_t` **`hash_bytes`**`(const void* ptr, size_t n)`
+* `void` **`hash_bytes`**`(size_t& hash, const void* ptr, size_t n)`
 * `template <typename... Args> size_t` **`hash_value`**`(const Args&... args) noexcept`
 * `template <typename... Args> void` **`hash_combine`**`(size_t& hash, const Args&... args) noexcept`
 * `template <typename Range> size_t` **`hash_range`**`(const Range& range) noexcept`
-* `template <typename Range> void` **`hash_range`**
-    `(size_t& hash, const Range& range) noexcept`
+* `template <typename Range> void` **`hash_range`**`(size_t& hash, const Range& range) noexcept`
 
 Functions for combining hashes incrementally, or for generating the hash of a
 number of objects in one call, for use in implementing hash functions for
@@ -639,21 +595,16 @@ possible to detect reliably; this function is fairly reliable on Unix, less so
 on Windows.
 
 * `bool` **`load_file`**`(const string& file, string& dst)`
-* `bool` **`load_file`**
-    `(const wstring& file, string& dst)` _(Native Windows only)_
+* `bool` **`load_file`**`(const wstring& file, string& dst)` _(Native Windows only)_
 
 Read a file's contents into a string. The return value is true if everything
 went well, false if there was an error while opening or reading the file. If
 the function returns false, the destination string will be cleared.
 
-* `bool` **`save_file`**
-    `(const string& file, const void* ptr, size_t n, bool append = false)`
-* `bool` **`save_file`**
-    `(const string& file, const string& src, bool append = false)`
-* `bool` **`save_file`**
-    `(const wstring& file, const void* ptr, size_t n, bool append = false)` _(Native Windows only)_
-* `bool` **`save_file`**
-    `(const wstring& file, const string& src, bool append = false)` _(Native Windows only)_
+* `bool` **`save_file`**`(const string& file, const void* ptr, size_t n, bool append = false)`
+* `bool` **`save_file`**`(const string& file, const string& src, bool append = false)`
+* `bool` **`save_file`**`(const wstring& file, const void* ptr, size_t n, bool append = false)` _(Native Windows only)_
+* `bool` **`save_file`**`(const wstring& file, const string& src, bool append = false)` _(Native Windows only)_
 
 Write a string's contents into a file, optionally appending it to the file
 instead of overwriting it if it already exists (if the file does not exist,
@@ -763,68 +714,26 @@ would normally just be repetitive boilerplate (similar to the ones in Boost).
 They all use the CRTP idiom; a class `T` should derived from `Mixin<T>` to
 automatically generate the desired boilerplate code.
 
-<table>
-    <thead>
-        <tr>
-            <th>Mixin</th>
-            <th>Requires</th>
-            <th>Defines</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><code>EqualityComparable&lt;T&gt;</code></td>
-            <td><code>t1==t2</code></td>
-            <td><code>t1!=t2</code></td>
-        </tr>
-        <tr>
-            <td><code>LessThanComparable&lt;T&gt;</code></td>
-            <td><code>t1==t2<br>t1&lt;t2</code></td>
-            <td><code>t1!=t2<br>t1&gt;t2<br>t1&lt;=t2<br>t1&gt;=t2</code></td>
-        </tr>
-        <tr>
-            <td><code>InputIterator&lt;T,CV&gt;</code></td>
-            <td><code>\*t<br>++t<br>t1==t2</code></td>
-            <td><code>t-&gt;<br>t++<br>t1!=t2</code></td>
-        </tr>
-        <tr>
-            <td><code>OutputIterator&lt;T&gt;</code></td>
-            <td><code>t=v</code></td>
-            <td><code>\*t<br>++t<br>t++</code></td>
-        </tr>
-        <tr>
-            <td><code>ForwardIterator&lt;T,CV&gt;</code></td>
-            <td><code>\*t<br>++t<br>t1==t2</code></td>
-            <td><code>t-&gt;<br>t++<br>t1!=t2</code></td>
-        </tr>
-        <tr>
-            <td><code>BidirectionalIterator&lt;T,CV&gt;</code></td>
-            <td><code>\*t<br>++t<br>\--t<br>t1==t2</code></td>
-            <td><code>t-&gt;<br>t++<br>t\--<br>t1!=t2</code></td>
-        </tr>
-        <tr>
-            <td><code>RandomAccessIterator&lt;T,CV&gt;</code></td>
-            <td><code>\*t<br>++t<br>\--t<br>t+=n<br>t1-t2<br>t1==t2<br>t1&lt;t2</code></td>
-            <td><code>t-&gt;<br>t[n]<br>t++<br>t\--<br>t-=n<br>t+n<br>n+t<br>t-n<br>t1!=t2<br>t1&gt;t2<br>t1&lt;=t2<br>t1&gt;=t2</code></td>
-        </tr>
-    </tbody>
-</table>
+Mixin                                | Requires                                   | Defines
+-----                                | --------                                   | -------
+**`EqualityComparable`**`<T>`        | `t1==t2`                                   | `t1!=t2`
+**`LessThanComparable`**`<T>`        | `t1==t2 t1<t2`                             | `t1!=t2 t1>t2 t1<=t2 t1>=t2`
+**`InputIterator`**`<T,CV>`          | `*t ++t t1==t2`                            | `t-> t++ t1!=t2`
+**`OutputIterator`**`<T>`            | `t=v`                                      | `*t ++t t++`
+**`ForwardIterator`**`<T,CV>`        | `*t ++t t1==t2`                            | `t-> t++ t1!=t2`
+**`BidirectionalIterator`**`<T,CV>`  | `*t ++t --t t1==t2`                        | `t-> t++ t-- t1!=t2`
+**`RandomAccessIterator`**`<T,CV>`   | `*t ++t --t t+=n`<br>`t1-t2 t1==t2 t1<t2`  | `t-> t[n] t++ t-- t-=n t+n n+t t-n`<br>`t1!=t2 t1>t2 t1<=t2 t1>=t2`
 
 In the iterator mixins, `CV` is either `V` or `const V`, where `V` is the
 iterator's value type, depending on whether a mutable or const iterator is
 required. In addition to the operators listed in the table above, all iterator
 mixins supply the standard member types:
 
-* `using` **`difference_type`**
-    `= ptrdiff_t`
-* `using` **`iterator_category`**
-    `= [standard iterator tag type]`
-* `using` **`pointer`**
-    `= CV*`
-* `using` **`reference`**
-    `= CV&`
-* `using` **`value_type`**
-    `= std::remove_const_t<CV>`
+* `using` **`difference_type`** `= ptrdiff_t`
+* `using` **`iterator_category`** `= [standard iterator tag type]`
+* `using` **`pointer`** `= CV*`
+* `using` **`reference`** `= CV&`
+* `using` **`value_type`** `= std::remove_const_t<CV>`
 
 ## Range utilities ##
 
@@ -843,8 +752,7 @@ The iterator and value types of a range.
 
 A wrapper for a pair of iterators, usable as a range in standard algorithms.
 
-* `template <typename T> constexpr Irange<T*>` **`array_range`**
-    `(T* ptr, size_t len)`
+* `template <typename T> constexpr Irange<T*>` **`array_range`**`(T* ptr, size_t len)`
 
 Returns `irange(ptr,ptr+len)`.
 
@@ -973,10 +881,8 @@ Returns a string containing `4*depth` spaces, for indentation.
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
 
-* `template <typename InputRange> string` **`join_words`**
-    `(const InputRange& range, const string& delim = "")`
-* `template <typename OutputIterator> void` **`split_words`**
-    `(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
+* `template <typename InputRange> string` **`join_words`**`(const InputRange& range, const string& delim = "")`
+* `template <typename OutputIterator> void` **`split_words`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
 
 Join words into a string, using the given delimiter, or split a string into
 words, discarding any sequence of delimiter characters. The dereferenced
@@ -1102,10 +1008,8 @@ values that do not represent a valid date.
 This is passed to the conversion functions to indicate whether a broken down
 date is expressed in UTC or the local time zone.
 
-* `u8string` **`format_date`**
-    `(system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)`
-* `u8string` **`format_date`**
-    `(system_clock::time_point tp, const u8string& format, ZoneFlag z = utc_date)`
+* `u8string` **`format_date`**`(system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)`
+* `u8string` **`format_date`**`(system_clock::time_point tp, const u8string& format, ZoneFlag z = utc_date)`
 
 These convert a time point into a broken down date and format it. The first
 version writes the date in ISO 8601 format (`"yyyy-mm-dd hh:mm:ss"`). If
@@ -1119,21 +1023,21 @@ is a limitation of `strftime()`).
 
 For reference, the portable subset of the `strftime()` formatting codes are:
 
-| Code  | Description                          | Code   | Description                          |
-| ----  | -----------                          | ----   | -----------                          |
-|       **Date elements**                      ||       **Weekday elements**                   ||
-| `%Y`  | Year number                          | `%a`   | Local weekday abbreviation           |
-| `%y`  | Last 2 digits of the year (`00-99`)  | `%w`   | Sunday-based weekday number (`0-6`)  |
-| `%m`  | Month number (`00-12`)               | `%A`   | Local weekday name                   |
-| `%B`  | Local month name                     | `%U`   | Sunday-based week number (`00-53`)   |
-| `%b`  | Local month abbreviation             | `%W`   | Monday-based week number (`00-53`)   |
-| `%d`  | Day of the month (`01-31`)           |        **Other elements**                     ||
-|       **Time of day elements**               || `%c`  | Local standard date/time format      |
-| `%H`  | Hour on 24-hour clock (`00-23`)      | `%x`   | Local standard date format           |
-| `%I`  | Hour on 12-hour clock (`01-12`)      | `%X`   | Local standard time format           |
-| `%p`  | Local equivalent of a.m./p.m.        | `%j`   | Day of the year (`001-366`)          |
-| `%M`  | Minute (`00-59`)                     | `%Z`   | Time zone name                       |
-| `%S`  | Second (`00-60`)                     | `%z`   | Time zone offset                     |
+| Code  | Description                          | Code    | Description                          |
+| ----  | -----------                          | ----    | -----------                          |
+|       **Date elements**                      | |       **Weekday elements**                   | |
+| `%Y`  | Year number                          | `%a`    | Local weekday abbreviation           |
+| `%y`  | Last 2 digits of the year (`00-99`)  | `%w`    | Sunday-based weekday number (`0-6`)  |
+| `%m`  | Month number (`00-12`)               | `%A`    | Local weekday name                   |
+| `%B`  | Local month name                     | `%U`    | Sunday-based week number (`00-53`)   |
+| `%b`  | Local month abbreviation             | `%W`    | Monday-based week number (`00-53`)   |
+| `%d`  | Day of the month (`01-31`)           |         **Other elements**                     | |
+|       **Time of day elements**               | | `%c`  | Local standard date/time format      |
+| `%H`  | Hour on 24-hour clock (`00-23`)      | `%x`    | Local standard date format           |
+| `%I`  | Hour on 12-hour clock (`01-12`)      | `%X`    | Local standard time format           |
+| `%p`  | Local equivalent of a.m./p.m.        | `%j`    | Day of the year (`001-366`)          |
+| `%M`  | Minute (`00-59`)                     | `%Z`    | Time zone name                       |
+| `%S`  | Second (`00-60`)                     | `%z`    | Time zone offset                     |
 
 * `template <typename R, typename P> u8string` **`format_time`**`(const duration<R, P>& time, int prec = 0)`
 
@@ -1141,8 +1045,7 @@ Formats a time duration in Julian years, days, hours, minutes, seconds, and
 (if `prec>0`) fractions of a second. Results are unspecified if the number of
 years in `time` does not fit in a signed 32-bit integer.
 
-* `system_clock::time_point` **`make_date`**
-    `(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept`
+* `system_clock::time_point` **`make_date`**`(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept`
 
 Converts a broken down date into a time point.
 
@@ -1216,8 +1119,7 @@ const string>` yields `string`, while `CopyConst<const int, string>` yields
 Converts one type to another, only if the conversion is implicit.
 
 * `string` **`demangle`**`(const string& name)`
-* `string` **`type_name`**
-    `(const std::type_info& t)`
+* `string` **`type_name`**`(const std::type_info& t)`
 * `template <typename T> string` **`type_name`**`()`
 * `template <typename T> string` **`type_name`**`(const T&)`
 
