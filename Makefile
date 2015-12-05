@@ -319,7 +319,6 @@ endif
 doc/%.html: $(NAME)/%.md
 	@mkdir -p $(dir $@)
 	$(MD) $(MDFLAGS) $< > $@
-	$(SCRIPTS)/highlight-code $@
 
 doc/style.css: $(SCRIPTS)/style.css
 	@mkdir -p $(dir $@)

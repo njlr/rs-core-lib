@@ -16,16 +16,16 @@
 #endif
 
 #if defined(__CYGWIN__)
-    #define PRI_TARGET_ANY_WINDOWS 1
+    #define PRI_TARGET_ANYWINDOWS 1
     #define PRI_TARGET_CYGWIN 1
     #define PRI_TARGET_UNIX 1
     #if defined(_WIN32)
-        #define PRI_TARGET_WINDOWS_API 1
+        #define PRI_TARGET_WIN32 1
     #endif
 #elif defined(_WIN32)
-    #define PRI_TARGET_ANY_WINDOWS 1
-    #define PRI_TARGET_NATIVE_WINDOWS 1
-    #define PRI_TARGET_WINDOWS_API 1
+    #define PRI_TARGET_ANYWINDOWS 1
+    #define PRI_TARGET_WINDOWS 1
+    #define PRI_TARGET_WIN32 1
     #if defined(PRI_COMPILER_GCC)
         #define PRI_TARGET_MINGW 1
     #endif
@@ -54,7 +54,7 @@
     #endif
 #endif
 
-#if defined(PRI_TARGET_WINDOWS_API)
+#if defined(PRI_TARGET_WIN32)
     #if ! defined(NOMINMAX)
         #define NOMINMAX 1
     #endif
@@ -118,7 +118,7 @@
     #endif
 #endif
 
-#if defined(PRI_TARGET_WINDOWS_API)
+#if defined(PRI_TARGET_WIN32)
     #include <windows.h>
     #include <io.h>
 #endif
@@ -239,7 +239,7 @@ namespace Prion {
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
 
-    #if defined(PRI_TARGET_WINDOWS_API)
+    #if defined(PRI_TARGET_WIN32)
 
         inline wstring utf8_to_wstring(const u8string& ustr) {
             if (ustr.empty())
@@ -1028,7 +1028,7 @@ namespace Prion {
 
     // Exceptions
 
-    #if defined(PRI_TARGET_WINDOWS_API)
+    #if defined(PRI_TARGET_WIN32)
 
         class WindowsCategory:
         public std::error_category {
@@ -2117,7 +2117,7 @@ namespace Prion {
 
     #endif
 
-    #if defined(PRI_TARGET_WINDOWS_API)
+    #if defined(PRI_TARGET_WIN32)
 
         inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
             using namespace std::chrono;
@@ -2390,7 +2390,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        #if defined(PRI_TARGET_NATIVE_WINDOWS)
+        #if defined(PRI_TARGET_WINDOWS)
             extern "C" int _isatty(int fd);
         #endif
 

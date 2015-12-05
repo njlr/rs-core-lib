@@ -36,20 +36,20 @@ By Ross Smith
 ## Preprocessor macros ##
 
 * _Compilers_
-    * `#define PRI_COMPILER_CLANG 1`
-    * `#define PRI_COMPILER_GCC [version]`
+    * `#define` **`PRI_COMPILER_CLANG`** `1`
+    * `#define` **`PRI_COMPILER_GCC`** `[version]`
 * _Unix targets_
-    * `#define PRI_TARGET_UNIX 1` _- defined on all Unix builds_
-    * `#define PRI_TARGET_APPLE 1` _- defined on all Apple (Darwin) builds_
-    * `#define PRI_TARGET_IOS 1` _- defined on iOS builds_
-    * `#define PRI_TARGET_MACOSX 1` _- defined on Mac OS X builds_
-    * `#define PRI_TARGET_LINUX 1` _- defined on Linux builds_
+    * `#define` **`PRI_TARGET_UNIX`** `1` _-- defined on all Unix/Posix builds_
+    * `#define` **`PRI_TARGET_APPLE`** `1` _-- defined on all Apple (Darwin) builds_
+    * `#define` **`PRI_TARGET_IOS`** `1` _-- defined on iOS builds_
+    * `#define` **`PRI_TARGET_MACOSX`** `1` _-- defined on Mac OS X builds_
+    * `#define` **`PRI_TARGET_LINUX`** `1` _-- defined on Linux builds_
 * _Windows targets_
-    * `#define PRI_TARGET_ANY_WINDOWS 1` _- defined on all Windows builds, including Cygwin_
-    * `#define PRI_TARGET_WINDOWS_API 1` _- defined if Win32 API is available_
-    * `#define PRI_TARGET_NATIVE_WINDOWS 1` _- defined on non-Cygwin native Win32 builds_
-    * `#define PRI_TARGET_CYGWIN 1` _- defined on Cygwin builds_
-    * `#define PRI_TARGET_MINGW 1` _- defined on native Win32 builds using Mingw_
+    * `#define` **`PRI_TARGET_WINDOWS`** `1` _-- defined on non-Cygwin native Windows builds_
+    * `#define` **`PRI_TARGET_ANYWINDOWS`** `1` _-- defined on all Windows builds, including Cygwin_
+    * `#define` **`PRI_TARGET_WIN32`** `1` _-- defined if the Win32 API is available_
+    * `#define` **`PRI_TARGET_CYGWIN`** `1` _-- defined on Cygwin builds_
+    * `#define` **`PRI_TARGET_MINGW`** `1` _-- defined on native Win32 builds using Mingw_
 
 Some of these will be defined to provide a consistent way to identify the
 compiler and target operating system for conditional compilation.
@@ -58,23 +58,23 @@ compiler and target operating system for conditional compilation.
 form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
 its version numbers are not consistent across builds for different systems.
 
-Exactly one of `PRI_TARGET_UNIX` or `PRI_TARGET_NATIVE_WINDOWS` will always be
+Exactly one of `PRI_TARGET_UNIX` or `PRI_TARGET_WINDOWS` will always be
 defined, indicating whether a build is intended to use the Posix or Win32
-operating system API. `PRI_TARGET_WINDOWS_API` is defined if the Win32 API is
-available; normally it will be the same as `PRI_TARGET_NATIVE_WINDOWS`, except
-that it will also be defined in Cygwin `-mwin32` builds, where both APIs are
-available. `PRI_TARGET_ANY_WINDOWS` is always defined on builds intended to
-run on the Windows OS, i.e. both native Win32 and Cygwin builds.
+operating system API. `PRI_TARGET_WIN32` is defined if the Win32 API is
+available; normally it will be the same as `PRI_TARGET_WINDOWS`, except that
+it will also be defined in Cygwin `-mwin32` builds, where both APIs are
+available. `PRI_TARGET_ANYWINDOWS` is always defined on builds intended to run
+on the Windows OS, i.e. both native Win32 and Cygwin builds.
 
 Currently only Mingw builds are supported for native Windows targets, so
-`PRI_TARGET_MINGW` will always be defined if `PRI_TARGET_NATIVE_WINDOWS` is
-defined. I may add MSVC support in a future version.
+`PRI_TARGET_MINGW` will always be defined if `PRI_TARGET_WINDOWS` is defined.
+I may add MSVC support in a future version.
 
 On Apple platforms, `PRI_TARGET_APPLE` will always be defined; one of
 `PRI_TARGET_IOS` or `PRI_TARGET_MACOSX` will also be defined.
 
-* `#define PRI_CHAR(C, T)`
-* `#define PRI_CSTR(S, T)`
+* `#define` **`PRI_CHAR`**`(C, T)`
+* `#define` **`PRI_CSTR`**`(S, T)`
 
 These resolve to the character `C` as a `constexpr T`, or the C-style string
 literal `S` as a `constexpr const T*`. For example, `PRI_CHAR('A',wchar_t)`
@@ -84,7 +84,7 @@ types that can be used in strings (`char`, `char16_t`, `char32_t`, or
 `wchar_t`). Behaviour is undefined if `T` is not one of those four types, or
 (for `PRI_CHAR`) if `C` is not representable by a single code unit.
 
-* `#define PRI_LDLIB(libs)`
+* `#define` **`PRI_LDLIB`**`(libs)`
 
 This instructs the makefile to link with one or more static libraries. Specify
 library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
@@ -92,7 +92,8 @@ library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
 `PRI_LDLIB()` invocation, or in multiple invocations; link order is only
 preserved within a single invocation. Libraries that are needed only on
 specific targets can be prefixed with a target identifier, e.g.
-`PRI_LDLIB(apple: foo bar)` will link with `-lfoo -lbar` only in OSX builds.
+`PRI_LDLIB(apple: foo bar)` will link with `-lfoo -lbar` for Apple targets
+only.
 
 Tag        | Build target    | Corresponding macro
 ---        | ------------    | -------------------
@@ -105,62 +106,62 @@ Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate
 `PRI_LDLIB()` line for each target.
 
-* `#define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }`
+* `#define` **`PRI_OVERLOAD`**`(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }`
 
 Creates a function object wrapping a set of overloaded functions, that can be
 passed to a context expecting a function (such as an STL algorithm) without
 having to explicitly resolve the overload at the call site. (From an idea by
 Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)
 
-* `#define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)`
+* `#define` **`PRI_STATIC_ASSERT`**`(expr) static_assert((expr), # expr)`
 
 Shorthand for `static_assert`, using the assertion expression as the error
 message. (A planned change in C++17 will make this unnecessary.)
 
 ## Basic types ##
 
-* `using std::basic_string`
-* `using std::string`
-* `using std::u16string`
-* `using std::u32string`
-* `using std::wstring`
-* `using std::shared_ptr`
-* `using std::unique_ptr`
-* `using std::make_shared`
-* `using std::make_unique`
-* `using std::vector`
+* `using std::`**`basic_string`**
+* `using std::`**`string`**
+* `using std::`**`u16string`**
+* `using std::`**`u32string`**
+* `using std::`**`wstring`**
+* `using std::`**`shared_ptr`**
+* `using std::`**`unique_ptr`**
+* `using std::`**`make_shared`**
+* `using std::`**`make_unique`**
+* `using std::`**`vector`**
 
 Imported for convenience.
 
-* `using u8string = std::string`
+* `using` **`u8string`** `= std::string`
 
-We use `u8string` for strings that are expected to be in UTF-8 (or ASCII,
-since any ASCII string is also valid UTF-8), while plain `string` is used
-where the string is expected to be in some non-Unicode encoding, or where the
-string is being used simply as an array of bytes rather than encoded text.
+Use `u8string` for strings that are expected to be in UTF-8 (or ASCII, since
+any ASCII string is also valid UTF-8), while plain `string` is used where the
+string is expected to be in some non-Unicode encoding, or where the string is
+being used simply as an array of bytes rather than encoded text.
 
-* `using int128_t = __int128`
-* `using uint128_t = unsigned __int128`
+* `using` **`int128_t`** `= [signed 128 bit integer]`
+* `using` **`uint128_t`** `= [unsigned 128 bit integer]`
 
-Named for consistency.
+Aliases for the compiler's 128 bit integer types (e.g. `__int128`).
 
 ## Constants ##
 
-* `constexpr const char* ascii_whitespace = "\t\n\v\f\r "`
+* `constexpr const char*` **`ascii_whitespace`** `= "\t\n\v\f\r "`
 
 ASCII whitespace characters.
 
-* `constexpr size_t npos = string::npos`
+* `constexpr size_t` **`npos`** `= string::npos`
 
 Defined for convenience. Following the conventions established by the standard
 library, this value is often used as a function argument to mean "as large as
 possible", or as a return value to mean "not found".
 
-* `#define PRI_DEFINE_CONSTANT(name, value)`
-    * `static constexpr double name = value`
-    * `static constexpr float name ## _f = value ## f`
-    * `static constexpr long double name ## _ld = value ## l`
-    * `template <typename T> constexpr T c_ ## name() noexcept`
+* `#define` **`PRI_DEFINE_CONSTANT`**`(name, value)`
+    * `static constexpr double` **`name`** `= value`
+    * `static constexpr float` **`name ## _f`** `= value ## f`
+    * `static constexpr long double` **`name ## _ld`** `= value ## l`
+    * `template <typename T> constexpr T` **`c_ ## name`**`() noexcept`
 
 Defines a floating point constant, in several forms. This generates a set of
 three named constants (for the three standard floating point types), and a
@@ -168,63 +169,64 @@ function template that converts the long double value by default (with
 specializations for the standard types). The `value` argument must be a
 floating point literal with no type suffix.
 
-* _Mathematical constants_
-    * `e` _= 2.7183_
-    * `ln_2` _= log<sub>e</sub> 2 = 0.6931_
-    * `ln_10` _= log<sub>e</sub> 10 = 2.3026_
-    * `pi` _= &pi; = 3.1416_
-    * `sqrt_2` _= &radic;2 = 1.4142_
-    * `sqrt_3` _= &radic;3 = 1.7321_
-    * `sqrt_5` _= &radic;5 = 2.2361_
-    * `sqrt_pi` _= &radic;&pi; = 1.7725_
-    * `sqrt_2pi` _= &radic;2&pi; = 2.5066_
-* _Physical constants_
-    * `atomic_mass_unit` _= 1.661&times;10<sup>-27</sup> kg_
-    * `avogadro_constant` _= 6.022&times;10<sup>23</sup> mol<sup>-1</sup>_
-    * `boltzmann_constant` _= 1.381&times;10<sup>-23</sup> J K<sup>-1</sup>_
-    * `elementary_charge` _= 1.602&times;10<sup>-19</sup> C_
-    * `gas_constant` _= 8.314 J mol<sup>-1</sup> K<sup>-1</sup>_
-    * `gravitational_constant` _= 6.674&times;10<sup>-11</sup> m<sup>3</sup> kg<sup>-1</sup> s<sup>-2</sup>_
-    * `planck_constant` _= 6.626&times;10<sup>-34</sup> J s_
-    * `speed_of_light` _= 2.998&times;10<sup>8</sup> m s<sup>-1</sup>_
-    * `stefan_boltzmann_constant` _= 5.670&times;10<sup>-8</sup> W m<sup>-2</sup> K<sup>-4</sup>_
-* _Astronomical constants_
-    * `earth_mass` _= 5.972&times;10<sup>24</sup> kg_
-    * `earth_radius` _= 6.371&times;10<sup>6</sup> m_
-    * `jupiter_mass` _= 1.899&times;10<sup>27</sup> kg_
-    * `jupiter_radius` _= 6.991&times;10<sup>7</sup> m_
-    * `solar_mass` _= 1.989&times;10<sup>30</sup> kg_
-    * `solar_radius` _= 6.963&times;10<sup>8</sup> m_
-    * `solar_luminosity` _= 3.846&times;10<sup>26</sup> W_
-    * `solar_temperature` _= 5778 K_
-    * `astronomical_unit` _= 1.496&times;10<sup>11</sup> m_
-    * `light_year` _= 9.461&times;10<sup>15</sup> m_
-    * `parsec` _= 3.086&times;10<sup>16</sup> m_
-    * `julian_day` _= 86400 s_
-    * `julian_year` _= 31557600 s_
-    * `sidereal_year` _= 31558150 s_
-    * `tropical_year` _= 31556925 s_
+The values quoted for the following constants are approximate; the values
+actually supplied are accurate to at least `long double` precision for the
+mathematical constants, or to the best known accuracy for the physical ones.
 
-Constants defined using the macro above. The values quoted here are
-approximate; the values actually supplied are accurate to at least `long
-double` precision for the mathematical constants, or to the best known
-accuracy for the physical ones.
+Constant                         | Value
+--------                         | -----
+**Mathematical constants**       ||
+**`e`**                          | 2.7183
+**`ln_2`**                       | log<sub>e</sub> 2 = 0.6931
+**`ln_10`**                      | log<sub>e</sub> 10 = 2.3026
+**`pi`**                         | &pi; = 3.1416
+**`sqrt_2`**                     | &radic;2 = 1.4142
+**`sqrt_3`**                     | &radic;3 = 1.7321
+**`sqrt_5`**                     | &radic;5 = 2.2361
+**`sqrt_pi`**                    | &radic;&pi; = 1.7725
+**`sqrt_2pi`**                   | &radic;2&pi; = 2.5066
+**Physical constants**           ||
+**`atomic_mass_unit`**           | 1.661&times;10<sup>-27</sup> kg
+**`avogadro_constant`**          | 6.022&times;10<sup>23</sup> mol<sup>-1</sup>
+**`boltzmann_constant`**         | 1.381&times;10<sup>-23</sup> J K<sup>-1</sup>
+**`elementary_charge`**          | 1.602&times;10<sup>-19</sup> C
+**`gas_constant`**               | 8.314 J mol<sup>-1</sup> K<sup>-1</sup>
+**`gravitational_constant`**     | 6.674&times;10<sup>-11</sup> m<sup>3</sup> kg<sup>-1</sup> s<sup>-2</sup>
+**`planck_constant`**            | 6.626&times;10<sup>-34</sup> J s
+**`speed_of_light`**             | 2.998&times;10<sup>8</sup> m s<sup>-1</sup>
+**`stefan_boltzmann_constant`**  | 5.670&times;10<sup>-8</sup> W m<sup>-2</sup> K<sup>-4</sup>
+**Astronomical constants**       ||
+**`earth_mass`**                 | 5.972&times;10<sup>24</sup> kg
+**`earth_radius`**               | 6.371&times;10<sup>6</sup> m
+**`jupiter_mass`**               | 1.899&times;10<sup>27</sup> kg
+**`jupiter_radius`**             | 6.991&times;10<sup>7</sup> m
+**`solar_mass`**                 | 1.989&times;10<sup>30</sup> kg
+**`solar_radius`**               | 6.963&times;10<sup>8</sup> m
+**`solar_luminosity`**           | 3.846&times;10<sup>26</sup> W
+**`solar_temperature`**          | 5778 K
+**`astronomical_unit`**          | 1.496&times;10<sup>11</sup> m
+**`light_year`**                 | 9.461&times;10<sup>15</sup> m
+**`parsec`**                     | 3.086&times;10<sup>16</sup> m
+**`julian_day`**                 | 86400 s
+**`julian_year`**                | 31557600 s
+**`sidereal_year`**              | 31558150 s
+**`tropical_year`**              | 31556925 s
 
 ## Algorithms ##
 
-* `template <typename Range1, typename Range2> int compare_3way(const Range1& r1, const Range2& r2)`
-* `template <typename Range1, typename Range2, typename Compare> int compare_3way(const Range1& r1, const Range2& r2, Compare cmp)`
+* `template <typename Range1, typename Range2> int` **`compare_3way`**`(const Range1& r1, const Range2& r2)`
+* `template <typename Range1, typename Range2, typename Compare> int` **`compare_3way`**`(const Range1& r1, const Range2& r2, Compare cmp)`
 
 Compare two ranges, returning -1 if the first range is less than the second,
 zero if they are equal, and +1 if the first range is greater.
 
-* `template <typename Container, typename T> void con_remove(Container& con, const T& t)`
-* `template <typename Container, typename Predicate> void con_remove_if(Container& con, Predicate p)`
-* `template <typename Container, typename Predicate> void con_remove_if_not(Container& con, Predicate p)`
-* `template <typename Container> void con_unique(Container& con)`
-* `template <typename Container, typename BinaryPredicate> void con_unique(Container& con, BinaryPredicate p)`
-* `template <typename Container> void con_sort_unique(Container& con)`
-* `template <typename Container, typename Compare> void con_sort_unique(Container& con, Compare cmp)`
+* `template <typename Container, typename T> void` **`con_remove`**`(Container& con, const T& t)`
+* `template <typename Container, typename Predicate> void` **`con_remove_if`**`(Container& con, Predicate p)`
+* `template <typename Container, typename Predicate> void` **`con_remove_if_not`**`(Container& con, Predicate p)`
+* `template <typename Container> void` **`con_unique`**`(Container& con)`
+* `template <typename Container, typename BinaryPredicate> void` **`con_unique`**`(Container& con, BinaryPredicate p)`
+* `template <typename Container> void` **`con_sort_unique`**`(Container& con)`
+* `template <typename Container, typename Compare> void` **`con_sort_unique`**`(Container& con, Compare cmp)`
 
 These carry out the same algorithms as the similarly named STL functions,
 except that unwanted elements are removed from the container rather than
@@ -237,18 +239,18 @@ of `std::unique()`, has equality semantics).
 
 These are all in `namespace Prion::Literals`.
 
-* `template <char... CS> constexpr int128_t operator"" _s128() noexcept`
-* `template <char... CS> constexpr uint128_t operator"" _u128() noexcept`
+* `template <char... CS> constexpr int128_t` **`operator"" _s128`**`() noexcept`
+* `template <char... CS> constexpr uint128_t` **`operator"" _u128`**`() noexcept`
 
 Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
 usual `"0x"` prefix) are supported as well as decimal ones.
 
-* `constexpr float operator"" _degf(long double x) noexcept`
-* `constexpr float operator"" _degf(unsigned long long x) noexcept`
-* `constexpr double operator"" _deg(long double x) noexcept`
-* `constexpr double operator"" _deg(unsigned long long x) noexcept`
-* `constexpr long double operator"" _degl(long double x) noexcept`
-* `constexpr long double operator"" _degl(unsigned long long x) noexcept`
+* `constexpr float` **`operator"" _degf`**`(long double x) noexcept`
+* `constexpr float` **`operator"" _degf`**`(unsigned long long x) noexcept`
+* `constexpr double` **`operator"" _deg(`**`long double x) noexcept`
+* `constexpr double` **`operator"" _deg(`**`unsigned long long x) noexcept`
+* `constexpr long double` **`operator"" _degl`**`(long double x) noexcept`
+* `constexpr long double` **`operator"" _degl`**`(unsigned long long x) noexcept`
 
 Angle literals, converting degrees to radians.
 
@@ -258,37 +260,37 @@ Some of these duplicate functionality already in the standard library; this is
 to ensure that the functions are available for 128 bit integers even if the
 standard library implementation doesn't support them.
 
-* `template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept`
-* `template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept`
+* `template <typename T, typename... Args> constexpr T` **`static_min`**`(T t, Args... args) noexcept`
+* `template <typename T, typename... Args> constexpr T` **`static_max`**`(T t, Args... args) noexcept`
 
 Compile time maximum and minimum functions.
 
-* `template <typename T> T abs(T t) noexcept`
+* `template <typename T> T` **`abs`**`(T t) noexcept`
 
 Absolute value function. `Prion::abs()` is the same as `std::abs()` except for
 adding 128 bit integer support.
 
-* `template <typename T> constexpr std::make_signed_t<T> as_signed(T t) noexcept`
-* `template <typename T> constexpr std::make_unsigned_t<T> as_unsigned(T t) noexcept`
+* `template <typename T> constexpr std::make_signed_t<T>` **`as_signed`**`(T t) noexcept`
+* `template <typename T> constexpr std::make_unsigned_t<T>` **`as_unsigned`**`(T t) noexcept`
 
 These return their argument converted to a signed or unsigned value of the
 same size (the argument is returned unchanged if `T` already had the desired
 signedness). Behaviour is undefined if `T` is not an integer or enumeration
 type.
 
-* `template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept`
+* `template <typename T, typename T2, typename T3> constexpr T` **`clamp`**`(const T& x, const T2& min, const T3& max) noexcept`
 
 Clamps a value to a fixed range. This returns `static_cast<T>(min)` if
 `t<min`, `static_cast<T>(max)` if `t>max`, otherwise `t`.
 
-* `template <typename T> constexpr T degrees(T rad) noexcept`
-* `template <typename T> constexpr T radians(T deg) noexcept`
+* `template <typename T> constexpr T` **`degrees`**`(T rad) noexcept`
+* `template <typename T> constexpr T` **`radians`**`(T deg) noexcept`
 
 Convert between degrees and radians.
 
-* `template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept`
-* `template <typename T> T quo(T lhs, T rhs) noexcept`
-* `template <typename T> T rem(T lhs, T rhs) noexcept`
+* `template <typename T> std::pair<T, T>` **`divide`**`(T lhs, T rhs) noexcept`
+* `template <typename T> T` **`quo`**`(T lhs, T rhs) noexcept`
+* `template <typename T> T` **`rem`**`(T lhs, T rhs) noexcept`
 
 These perform floor division operations: if the division is not exact, the
 remainder is always positive (regardless of the signs of the arguments), and
@@ -297,67 +299,79 @@ rounding errors). The pair returned by `divide()` contains the quotient and
 remainder. For all three functions, behaviour is undefined if `rhs=0` or the
 quotient is out of `T`'s representable range.
 
-* `template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)`
+* `template <typename T1, typename T2> constexpr T2` **`interpolate`**`(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)`
 
 Returns the value of `y` corresponding to `x`, by interpolating or
 extrapolating the line between `(x1,y1)` and `(x2,y2)`. Behaviour is undefined
 if `x1==x2` and `y1!=y2`, or if either type is not an arithmetic type; the
 result is unspecified if either type is not floating point.
 
-* `template <typename T> T int_power(T x, T y) noexcept`
+* `template <typename T> T` **`int_power`**`(T x, T y) noexcept`
 
 Calculates <code>x<sup>y</sup></code> for integer types.
 <code>0<sup>0</sup></code> will return 1. Behaviour is undefined if `y` is
 negative, or if `T` is signed and the true result would be out of range.
 
-* `template <typename T> T int_sqrt(T t) noexcept`
+* `template <typename T> T` **`int_sqrt`**`(T t) noexcept`
 
 Returns the integer square root of the argument (the true square root
 truncated to an integer). Behaviour is undefined if the argument is negative.
 
-* `template <typename T> constexpr T rotl(T t, int n) noexcept`
-* `template <typename T> constexpr T rotr(T t, int n) noexcept`
+* `template <typename T> constexpr T` **`rotl`**`(T t, int n) noexcept`
+* `template <typename T> constexpr T` **`rotr`**`(T t, int n) noexcept`
 
 Bitwise rotate left or right. As for the standard shift operators, behaviour
 is undefined if `n` is negative or greater than or equal to the number of bits
 in `T`.
 
-* `template <typename T2, typename T1> T2 round(T1 value) noexcept`
+* `template <typename T2, typename T1> T2` **`round`**`(T1 value) noexcept`
 
 Rounds the value to the nearest integer, and returns the resulting value
 converted to the return type (which must be specified explicitly). Halves are
 rounded up (toward positive infinity). The usual arithmetic rules apply if the
 result is not representable by the return type.
 
-* `template <typename T> constexpr int sign_of(T t) noexcept`
+* `template <typename T> constexpr int` **`sign_of`**`(T t) noexcept`
 
 Returns the sign of its argument (-1 if `t<0`, 0 if `t=0`, 1 if `t>0`).
 
 ## Byte order ##
 
-* `static constexpr bool big_endian_target`
-* `static constexpr bool little_endian_target`
+* `static constexpr bool` **`big_endian_target`**
+* `static constexpr bool` **`little_endian_target`**
 
 One of these will be true and the other false, reflecting the target system's
 byte order.
 
-* `template <typename T> T big_endian(T t) noexcept`
-* `template <typename T> T little_endian(T t) noexcept`
+* `template <typename T> T` **`big_endian`**`(T t) noexcept`
+* `template <typename T> T` **`little_endian`**`(T t) noexcept`
 
 Convert a number between the native byte order and big or little endian.
 
-* `template <typename T> T read_be(const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> T read_be(const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void read_be(T& t, const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void read_be(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> T read_le(const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> T read_le(const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void read_le(T& t, const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void read_le(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void write_be(T t, void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void write_be(T t, void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void write_le(T t, void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void write_le(T t, void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> T` **`read_be`**
+    `(const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> T` **`read_be`**
+    `(const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`read_be`**
+    `(T& t, const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`read_be`**
+    `(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> T` **`read_le`**
+    `(const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> T` **`read_le`**
+    `(const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`read_le`**
+    `(T& t, const void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`read_le`**
+    `(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`write_be`**
+    `(T t, void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`write_be`**
+    `(T t, void* ptr, size_t ofs, size_t len) noexcept`
+* `template <typename T> void` **`write_le`**
+    `(T t, void* ptr, size_t ofs = 0) noexcept`
+* `template <typename T> void` **`write_le`**
+    `(T t, void* ptr, size_t ofs, size_t len) noexcept`
 
 Read or write an integer from a block of bytes, in big endian or little endian
 order. The versions that take only a pointer deduce the size from the integer
@@ -365,38 +379,38 @@ type; the other versions take an offset and length in bytes.
 
 ## Character functions ##
 
-* `constexpr bool ascii_isalnum(char c) noexcept`
-* `constexpr bool ascii_isalpha(char c) noexcept`
-* `constexpr bool ascii_iscntrl(char c) noexcept`
-* `constexpr bool ascii_isdigit(char c) noexcept`
-* `constexpr bool ascii_isgraph(char c) noexcept`
-* `constexpr bool ascii_islower(char c) noexcept`
-* `constexpr bool ascii_isprint(char c) noexcept`
-* `constexpr bool ascii_ispunct(char c) noexcept`
-* `constexpr bool ascii_isspace(char c) noexcept`
-* `constexpr bool ascii_isupper(char c) noexcept`
-* `constexpr bool ascii_isxdigit(char c) noexcept`
+* `constexpr bool` **`ascii_isalnum`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isalpha`**`(char c) noexcept`
+* `constexpr bool` **`ascii_iscntrl`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isdigit`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isgraph`**`(char c) noexcept`
+* `constexpr bool` **`ascii_islower`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isprint`**`(char c) noexcept`
+* `constexpr bool` **`ascii_ispunct`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isspace`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isupper`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isxdigit`**`(char c) noexcept`
 
 These are simple ASCII-only versions of the standard character type functions.
 All of them will always return false for bytes outside the ASCII range
 (0-127).
 
-* `constexpr bool ascii_isalnum_w(char c) noexcept`
-* `constexpr bool ascii_isalpha_w(char c) noexcept`
-* `constexpr bool ascii_ispunct_w(char c) noexcept`
+* `constexpr bool` **`ascii_isalnum_w`**`(char c) noexcept`
+* `constexpr bool` **`ascii_isalpha_w`**`(char c) noexcept`
+* `constexpr bool` **`ascii_ispunct_w`**`(char c) noexcept`
 
 These behave the same as the corresponding functions without the `"_w"`
 suffix, except that the underscore character is counted as a letter instead of
 a punctuation mark. (The suffix is intended to suggest the `"\w"` regex
 element, which does much the same thing.)
 
-* `constexpr char ascii_tolower(char c) noexcept`
-* `constexpr char ascii_toupper(char c) noexcept`
+* `constexpr char` **`ascii_tolower`**`(char c) noexcept`
+* `constexpr char` **`ascii_toupper`**`(char c) noexcept`
 
 Simple ASCII-only case conversion functions. All non-ASCII characters are left
 unchanged.
 
-* `template <typename T> constexpr T char_to(char c) noexcept`
+* `template <typename T> constexpr T` **`char_to`**`(char c) noexcept`
 
 A simple conversion function that casts a `char` to a larger integer type by
 first passing it through `unsigned char`, to ensure that characters with the
@@ -405,58 +419,60 @@ extremely high values.
 
 ## Containers ##
 
-* `template <typename T> class SimpleBuffer`
-    * `using SimpleBuffer::const_iterator = const T*`
-    * `using SimpleBuffer::const_reference = const T&`
-    * `using SimpleBuffer::delete_function = std::function<void(T*)>`
-    * `using SimpleBuffer::difference_type = ptrdiff_t`
-    * `using SimpleBuffer::iterator = T*`
-    * `using SimpleBuffer::reference = T&`
-    * `using SimpleBuffer::size_type = size_t`
-    * `using SimpleBuffer::value_type = T`
-    * `SimpleBuffer::SimpleBuffer() noexcept`
-    * `explicit SimpleBuffer::SimpleBuffer(size_t n)`
-    * `SimpleBuffer::SimpleBuffer(size_t n, T t)`
-    * `SimpleBuffer::SimpleBuffer(T* p, size_t n) noexcept`
-    * `SimpleBuffer::SimpleBuffer(T* p, size_t n, delete_function d)`
-    * `SimpleBuffer::SimpleBuffer(const SimpleBuffer& sb)`
-    * `SimpleBuffer::SimpleBuffer(SimpleBuffer&& sb) noexcept`
-    * `SimpleBuffer::~SimpleBuffer() noexcept`
-    * `SimpleBuffer& SimpleBuffer::operator=(const SimpleBuffer& sb)`
-    * `SimpleBuffer& SimpleBuffer::operator=(SimpleBuffer&& sb) noexcept`
-    * `T& SimpleBuffer::operator[](size_t i) noexcept`
-    * `const T& SimpleBuffer::operator[](size_t i) const noexcept`
-    * `void SimpleBuffer::assign(size_t n)`
-    * `void SimpleBuffer::assign(size_t n, T t)`
-    * `void SimpleBuffer::assign(T* p, size_t n) noexcept`
-    * `void SimpleBuffer::assign(T* p, size_t n, delete_function d)`
-    * `T& SimpleBuffer::at(size_t i)`
-    * `const T& SimpleBuffer::at(size_t i) const`
-    * `T* SimpleBuffer::begin() noexcept`
-    * `const T* SimpleBuffer::begin() const noexcept`
-    * `const T* SimpleBuffer::cbegin() const noexcept`
-    * `T* SimpleBuffer::data() noexcept`
-    * `const T* SimpleBuffer::data() const noexcept`
-    * `const T* SimpleBuffer::cdata() const noexcept`
-    * `T* SimpleBuffer::end() noexcept`
-    * `const T* SimpleBuffer::end() const noexcept`
-    * `const T* SimpleBuffer::cend() const noexcept`
-    * `size_t SimpleBuffer::bytes() const noexcept`
-    * `size_t SimpleBuffer::capacity() const noexcept`
-    * `void SimpleBuffer::clear() noexcept`
-    * `void SimpleBuffer::copy(const T* p, size_t n)`
-    * `void SimpleBuffer::copy(const T* p1, const T* p2)`
-    * `bool SimpleBuffer::empty() const noexcept`
-    * `size_t SimpleBuffer::max_size() const noexcept`
-    * `size_t SimpleBuffer::size() const noexcept`
-    * `void SimpleBuffer::swap(SimpleBuffer& sb2) noexcept`
-* `bool operator==(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool operator!=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool operator<(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool operator>(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool operator<=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool operator>=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `void swap(SimpleBuffer& sb1, SimpleBuffer& sb2) noexcept`
+* `template <typename T> class` **`SimpleBuffer`**
+    * `using SimpleBuffer::`**`const_iterator`** `= const T*`
+    * `using SimpleBuffer::`**`const_reference`** `= const T&`
+    * `using SimpleBuffer::`**`delete_function`** `= std::function<void(T*)>`
+    * `using SimpleBuffer::`**`difference_type`**
+        `= ptrdiff_t`
+    * `using SimpleBuffer::`**`iterator`** `= T*`
+    * `using SimpleBuffer::`**`reference`** `= T&`
+    * `using SimpleBuffer::`**`size_type`**
+        `= size_t`
+    * `using SimpleBuffer::`**`value_type`** `= T`
+    * `SimpleBuffer::`**`SimpleBuffer`**`() noexcept`
+    * `explicit SimpleBuffer::`**`SimpleBuffer`**`(size_t n)`
+    * `SimpleBuffer::`**`SimpleBuffer`**`(size_t n, T t)`
+    * `SimpleBuffer::`**`SimpleBuffer`**`(T* p, size_t n) noexcept`
+    * `SimpleBuffer::`**`SimpleBuffer`**`(T* p, size_t n, delete_function d)`
+    * `SimpleBuffer::`**`SimpleBuffer`**`(const SimpleBuffer& sb)`
+    * `SimpleBuffer::`**`SimpleBuffer`**`(SimpleBuffer&& sb) noexcept`
+    * `SimpleBuffer::`**`~SimpleBuffer`**`() noexcept`
+    * `SimpleBuffer& SimpleBuffer::`**`operator=`**`(const SimpleBuffer& sb)`
+    * `SimpleBuffer& SimpleBuffer::`**`operator=`**`(SimpleBuffer&& sb) noexcept`
+    * `T& SimpleBuffer::`**`operator[]`**`(size_t i) noexcept`
+    * `const T& SimpleBuffer::`**`operator[]`**`(size_t i) const noexcept`
+    * `void SimpleBuffer::`**`assign`**`(size_t n)`
+    * `void SimpleBuffer::`**`assign`**`(size_t n, T t)`
+    * `void SimpleBuffer::`**`assign`**`(T* p, size_t n) noexcept`
+    * `void SimpleBuffer::`**`assign`**`(T* p, size_t n, delete_function d)`
+    * `T& SimpleBuffer::`**`at`**`(size_t i)`
+    * `const T& SimpleBuffer::`**`at`**`(size_t i) const`
+    * `T* SimpleBuffer::`**`begin`**`() noexcept`
+    * `const T* SimpleBuffer::`**`begin`**`() const noexcept`
+    * `const T* SimpleBuffer::`**`cbegin`**`() const noexcept`
+    * `T* SimpleBuffer::`**`data`**`() noexcept`
+    * `const T* SimpleBuffer::`**`data`**`() const noexcept`
+    * `const T* SimpleBuffer::`**`cdata`**`() const noexcept`
+    * `T* SimpleBuffer::`**`end`**`() noexcept`
+    * `const T* SimpleBuffer::`**`end`**`() const noexcept`
+    * `const T* SimpleBuffer::`**`cend`**`() const noexcept`
+    * `size_t SimpleBuffer::`**`bytes`**`() const noexcept`
+    * `size_t SimpleBuffer::`**`capacity`**`() const noexcept`
+    * `void SimpleBuffer::`**`clear`**`() noexcept`
+    * `void SimpleBuffer::`**`copy`**`(const T* p, size_t n)`
+    * `void SimpleBuffer::`**`copy`**`(const T* p1, const T* p2)`
+    * `bool SimpleBuffer::`**`empty`**`() const noexcept`
+    * `size_t SimpleBuffer::`**`max_size`**`() const noexcept`
+    * `size_t SimpleBuffer::`**`size`**`() const noexcept`
+    * `void SimpleBuffer::`**`swap`**`(SimpleBuffer& sb2) noexcept`
+* `bool` **`operator==`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool` **`operator!=`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool` **`operator<`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool` **`operator>`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool` **`operator<=`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `bool` **`operator>=`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
+* `void` **`swap`**`(SimpleBuffer& sb1, SimpleBuffer& sb2) noexcept`
 
 This is a simple dynamically allocated array. The element type `T` must be
 trivially copyable; the implementation will use `memcpy()` wherever possible
@@ -492,33 +508,33 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 This will usually not give the same ordering as a lexicographical comparison
 using `T`'s less-than operator.
 
-* `template <typename T1, typename T2> class TwoWayMap`
-    * `using TwoWayMap::first_type = T1`
-    * `using TwoWayMap::second_type = T2`
-    * `TwoWayMap::TwoWayMap()`
-    * `TwoWayMap::TwoWayMap(const T1& default1, const T2& default2)`
-    * `TwoWayMap::TwoWayMap(const TwoWayMap& m)`
-    * `TwoWayMap::TwoWayMap(TwoWayMap&& m) noexcept`
-    * `TwoWayMap::~TwoWayMap() noexcept`
-    * `TwoWayMap& TwoWayMap::operator=(const TwoWayMap& m)`
-    * `TwoWayMap& TwoWayMap::operator=(TwoWayMap&& m) noexcept`
-    * `T2 TwoWayMap::operator[](const T1& t1) const`
-    * `T1 TwoWayMap::operator[](const T2& t2) const`
-    * `void TwoWayMap::clear() noexcept`
-    * `bool TwoWayMap::empty() const noexcept`
-    * `void TwoWayMap::erase(const T1& t1, const T2& t2) noexcept`
-    * `void TwoWayMap::erase1(const T1& t1) noexcept`
-    * `void TwoWayMap::erase2(const T2& t2) noexcept`
-    * `bool TwoWayMap::get1(const T1& t1, T2& t2) const`
-    * `T2 TwoWayMap::get1(const T1& t1) const`
-    * `bool TwoWayMap::get2(const T2& t2, T1& t1) const`
-    * `T1 TwoWayMap::get2(const T2& t2) const`
-    * `bool TwoWayMap::has1(const T1& t1) const noexcept`
-    * `bool TwoWayMap::has2(const T2& t2) const noexcept`
-    * `void TwoWayMap::insert(const T1& t1, const T2& t2)`
-    * `template <typename InputRange1> void TwoWayMap::insert_range1(const InputRange1& r1, const T2& t2)`
-    * `template <typename InputRange2> void TwoWayMap::insert_range2(const T1& t1, const InputRange2& r2)`
-    * `template <typename InputRange1, typename InputRange2> void TwoWayMap::insert_ranges(const InputRange1& r1, const InputRange2& r2)`
+* `template <typename T1, typename T2> class` **`TwoWayMap`**
+    * `using TwoWayMap::`**`first_type`** `= T1`
+    * `using TwoWayMap::`**`second_type`** `= T2`
+    * `TwoWayMap::`**`TwoWayMap`**`()`
+    * `TwoWayMap::`**`TwoWayMap`**`(const T1& default1, const T2& default2)`
+    * `TwoWayMap::`**`TwoWayMap`**`(const TwoWayMap& m)`
+    * `TwoWayMap::`**`TwoWayMap`**`(TwoWayMap&& m) noexcept`
+    * `TwoWayMap::`**`~TwoWayMap`**`() noexcept`
+    * `TwoWayMap& TwoWayMap::`**`operator=`**`(const TwoWayMap& m)`
+    * `TwoWayMap& TwoWayMap::`**`operator=`**`(TwoWayMap&& m) noexcept`
+    * `T2 TwoWayMap::`**`operator[]`**`(const T1& t1) const`
+    * `T1 TwoWayMap::`**`operator[]`**`(const T2& t2) const`
+    * `void TwoWayMap::`**`clear`**`() noexcept`
+    * `bool TwoWayMap::`**`empty`**`() const noexcept`
+    * `void TwoWayMap::`**`erase`**`(const T1& t1, const T2& t2) noexcept`
+    * `void TwoWayMap::`**`erase1`**`(const T1& t1) noexcept`
+    * `void TwoWayMap::`**`erase2`**`(const T2& t2) noexcept`
+    * `bool TwoWayMap::`**`get1`**`(const T1& t1, T2& t2) const`
+    * `T2 TwoWayMap::`**`get1`**`(const T1& t1) const`
+    * `bool TwoWayMap::`**`get2`**`(const T2& t2, T1& t1) const`
+    * `T1 TwoWayMap::`**`get2`**`(const T2& t2) const`
+    * `bool TwoWayMap::`**`has1`**`(const T1& t1) const noexcept`
+    * `bool TwoWayMap::`**`has2`**`(const T2& t2) const noexcept`
+    * `void TwoWayMap::`**`insert`**`(const T1& t1, const T2& t2)`
+    * `template <typename InputRange1> void TwoWayMap::`**`insert_range1`**`(const InputRange1& r1, const T2& t2)`
+    * `template <typename InputRange2> void TwoWayMap::`**`insert_range2`**`(const T1& t1, const InputRange2& r2)`
+    * `template <typename InputRange1, typename InputRange2> void TwoWayMap::`**`insert_ranges`**`(const InputRange1& r1, const InputRange2& r2)`
 
 
 A two-way associative container that allows lookup in either direction between
@@ -536,7 +552,6 @@ Optionally, default values for the two key types can be supplied to the
 constructor, to be returned as a fallback when a key is not found. The default
 constructor calls the default constructors of `T1` and `T2` for the fallback
 values.
-
 
 The `erase()` function erases only the specific pair supplied; any entries
 containing either of those keys matched with a different value on the other
@@ -561,42 +576,45 @@ other range.
 
 ## Exceptions ##
 
-* `class WindowsCategory: public std::error_category`
-    * `virtual u8string WindowsCategory::message(int ev) const`
-    * `virtual const char* WindowsCategory::name() const noexcept`
-* `const std::error_category& windows_category() noexcept`
+* `class` **`WindowsCategory`**`: public std::error_category`
+    * `virtual u8string WindowsCategory::`**`message`**`(int ev) const`
+    * `virtual const char* WindowsCategory::`**`name`**`() const noexcept`
+* `const std::error_category&` **`windows_category`**`() noexcept`
 
 An error category instance for translating Win32 API error codes; naturally
-this is only defined on Windows builds `(PRI_TARGET_WINDOWS_API`). (MSVC
+this is only defined on Windows builds `(PRI_TARGET_WIN32`). (MSVC
 provides this through the standard `system_category()` instance, but GCC does
 not supply any equivalent.)
 
 ## Functional utilities ##
 
-* `template <typename F> std::function<...> stdfun(F& lambda)`
+* `template <typename F> std::function<...>` **`stdfun`**`(F& lambda)`
 
 Wraps a lambda in a `std::function` with the appropriate signature.
 
-* `struct DoNothing`
-    * `void operator()() const noexcept {}`
-    * `template <typename T> void operator()(T&) const noexcept {}`
-    * `template <typename T> void operator()(const T&) const noexcept {}`
-* `constexpr DoNothing do_nothing`
-* `struct Identity`
-    * `template <typename T> T& operator()(T& t) const noexcept { return t; }`
-    * `template <typename T> const T& operator()(const T& t) const noexcept { return t; }`
-* `constexpr Identity identity`
+* `struct` **`DoNothing`**
+    * `void` **`operator()`**`() const noexcept {}`
+    * `template <typename T> void` **`operator()`**`(T&) const noexcept {}`
+    * `template <typename T> void` **`operator()`**`(const T&) const noexcept {}`
+* `constexpr DoNothing` **`do_nothing`**
+* `struct` **`Identity`**
+    * `template <typename T> T&` **`operator()`**`(T& t) const noexcept { return t; }`
+    * `template <typename T> const T&` **`operator()`**`(const T& t) const noexcept { return t; }`
+* `constexpr Identity` **`identity`**
 
 Simple function objects.
 
 ## Hash functions ##
 
-* `size_t hash_bytes(const void* ptr, size_t n)`
-* `void hash_bytes(size_t& hash, const void* ptr, size_t n)`
-* `template <typename... Args> size_t hash_value(const Args&... args) noexcept`
-* `template <typename... Args> void hash_combine(size_t& hash, const Args&... args) noexcept`
-* `template <typename Range> size_t hash_range(const Range& range) noexcept`
-* `template <typename Range> void hash_range(size_t& hash, const Range& range) noexcept`
+* `size_t` **`hash_bytes`**
+    `(const void* ptr, size_t n)`
+* `void` **`hash_bytes`**
+    `(size_t& hash, const void* ptr, size_t n)`
+* `template <typename... Args> size_t` **`hash_value`**`(const Args&... args) noexcept`
+* `template <typename... Args> void` **`hash_combine`**`(size_t& hash, const Args&... args) noexcept`
+* `template <typename Range> size_t` **`hash_range`**`(const Range& range) noexcept`
+* `template <typename Range> void` **`hash_range`**
+    `(size_t& hash, const Range& range) noexcept`
 
 Functions for combining hashes incrementally, or for generating the hash of a
 number of objects in one call, for use in implementing hash functions for
@@ -613,70 +631,75 @@ Functions that take a file name have overloads that take a UTF-16 string in
 native Windows builds (not on Cygwin, where the `_wfopen()` function is not
 available).
 
-* `bool is_stdout_redirected() noexcept`
+* `bool` **`is_stdout_redirected`**`() noexcept`
 
 Attempts to detect whether standard output has been redirected to a file or
 pipe (true), or is going directly to a terminal (false). This is not always
 possible to detect reliably; this function is fairly reliable on Unix, less so
 on Windows.
 
-* `bool load_file(const string& file, string& dst)`
-* `bool load_file(const wstring& file, string& dst)` _(Native Windows only)_
+* `bool` **`load_file`**`(const string& file, string& dst)`
+* `bool` **`load_file`**
+    `(const wstring& file, string& dst)` _(Native Windows only)_
 
 Read a file's contents into a string. The return value is true if everything
 went well, false if there was an error while opening or reading the file. If
 the function returns false, the destination string will be cleared.
 
-* `bool save_file(const string& file, const void* ptr, size_t n, bool append = false)`
-* `bool save_file(const string& file, const string& src, bool append = false)`
-* `bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false)` _(Native Windows only)_
-* `bool save_file(const wstring& file, const string& src, bool append = false)` _(Native Windows only)_
+* `bool` **`save_file`**
+    `(const string& file, const void* ptr, size_t n, bool append = false)`
+* `bool` **`save_file`**
+    `(const string& file, const string& src, bool append = false)`
+* `bool` **`save_file`**
+    `(const wstring& file, const void* ptr, size_t n, bool append = false)` _(Native Windows only)_
+* `bool` **`save_file`**
+    `(const wstring& file, const string& src, bool append = false)` _(Native Windows only)_
 
 Write a string's contents into a file, optionally appending it to the file
 instead of overwriting it if it already exists (if the file does not exist,
 the `append` flag has no effect). The return value is true if everything went
 well, false if there was an error while opening or writing the file.
 
-* `constexpr const char* xt_up           = "<esc>[A"    = Cursor up`
-* `constexpr const char* xt_down         = "<esc>[B"    = Cursor down`
-* `constexpr const char* xt_right        = "<esc>[C"    = Cursor right`
-* `constexpr const char* xt_left         = "<esc>[D"    = Cursor left`
-* `constexpr const char* xt_erase_left   = "<esc>[1K"   = Erase left`
-* `constexpr const char* xt_erase_right  = "<esc>[K"    = Erase right`
-* `constexpr const char* xt_erase_above  = "<esc>[1J"   = Erase above`
-* `constexpr const char* xt_erase_below  = "<esc>[J"    = Erase below`
-* `constexpr const char* xt_erase_line   = "<esc>[2K"   = Erase line`
-* `constexpr const char* xt_clear        = "<esc>[2J"   = Clear screen`
-* `constexpr const char* xt_reset        = "<esc>[0m"   = Reset attributes`
-* `constexpr const char* xt_bold         = "<esc>[1m"   = Bold`
-* `constexpr const char* xt_under        = "<esc>[4m"   = Underline`
-* `constexpr const char* xt_black        = "<esc>[30m"  = Black foreground`
-* `constexpr const char* xt_red          = "<esc>[31m"  = Red foreground`
-* `constexpr const char* xt_green        = "<esc>[32m"  = Green foreground`
-* `constexpr const char* xt_yellow       = "<esc>[33m"  = Yellow foreground`
-* `constexpr const char* xt_blue         = "<esc>[34m"  = Blue foreground`
-* `constexpr const char* xt_magenta      = "<esc>[35m"  = Magenta foreground`
-* `constexpr const char* xt_cyan         = "<esc>[36m"  = Cyan foreground`
-* `constexpr const char* xt_white        = "<esc>[37m"  = White foreground`
-* `constexpr const char* xt_black_bg     = "<esc>[40m"  = Black background`
-* `constexpr const char* xt_red_bg       = "<esc>[41m"  = Red background`
-* `constexpr const char* xt_green_bg     = "<esc>[42m"  = Green background`
-* `constexpr const char* xt_yellow_bg    = "<esc>[43m"  = Yellow background`
-* `constexpr const char* xt_blue_bg      = "<esc>[44m"  = Blue background`
-* `constexpr const char* xt_magenta_bg   = "<esc>[45m"  = Magenta background`
-* `constexpr const char* xt_cyan_bg      = "<esc>[46m"  = Cyan background`
-* `constexpr const char* xt_white_bg     = "<esc>[47m"  = White background`
+* `constexpr const char*` **`xt_up`** `=           <esc> [A    = Cursor up`
+* `constexpr const char*` **`xt_down`** `=         <esc> [B    = Cursor down`
+* `constexpr const char*` **`xt_right`** `=        <esc> [C    = Cursor right`
+* `constexpr const char*` **`xt_left`** `=         <esc> [D    = Cursor left`
+* `constexpr const char*` **`xt_erase_left`** `=   <esc> [1K   = Erase left`
+* `constexpr const char*` **`xt_erase_right`** `=  <esc> [K    = Erase right`
+* `constexpr const char*` **`xt_erase_above`** `=  <esc> [1J   = Erase above`
+* `constexpr const char*` **`xt_erase_below`** `=  <esc> [J    = Erase below`
+* `constexpr const char*` **`xt_erase_line`** `=   <esc> [2K   = Erase line`
+* `constexpr const char*` **`xt_clear`** `=        <esc> [2J   = Clear screen`
+* `constexpr const char*` **`xt_reset`** `=        <esc> [0m   = Reset attributes`
+* `constexpr const char*` **`xt_bold`** `=         <esc> [1m   = Bold`
+* `constexpr const char*` **`xt_under`** `=        <esc> [4m   = Underline`
+* `constexpr const char*` **`xt_black`** `=        <esc> [30m  = Black foreground`
+* `constexpr const char*` **`xt_red`** `=          <esc> [31m  = Red foreground`
+* `constexpr const char*` **`xt_green`** `=        <esc> [32m  = Green foreground`
+* `constexpr const char*` **`xt_yellow`** `=       <esc> [33m  = Yellow foreground`
+* `constexpr const char*` **`xt_blue`** `=         <esc> [34m  = Blue foreground`
+* `constexpr const char*` **`xt_magenta`** `=      <esc> [35m  = Magenta foreground`
+* `constexpr const char*` **`xt_cyan`** `=         <esc> [36m  = Cyan foreground`
+* `constexpr const char*` **`xt_white`** `=        <esc> [37m  = White foreground`
+* `constexpr const char*` **`xt_black_bg`** `=     <esc> [40m  = Black background`
+* `constexpr const char*` **`xt_red_bg`** `=       <esc> [41m  = Red background`
+* `constexpr const char*` **`xt_green_bg`** `=     <esc> [42m  = Green background`
+* `constexpr const char*` **`xt_yellow_bg`** `=    <esc> [43m  = Yellow background`
+* `constexpr const char*` **`xt_blue_bg`** `=      <esc> [44m  = Blue background`
+* `constexpr const char*` **`xt_magenta_bg`** `=   <esc> [45m  = Magenta background`
+* `constexpr const char*` **`xt_cyan_bg`** `=      <esc> [46m  = Cyan background`
+* `constexpr const char*` **`xt_white_bg`** `=     <esc> [47m  = White background`
 
 Xterm cursor movement and output formatting codes.
 
-* `string xt_move_up(int n)      = "<esc>[<n>A"             = Cursor up n spaces`
-* `string xt_move_down(int n)    = "<esc>[<n>B"             = Cursor down n spaces`
-* `string xt_move_right(int n)   = "<esc>[<n>C"             = Cursor right n spaces`
-* `string xt_move_left(int n)    = "<esc>[<n>D"             = Cursor left n spaces`
-* `string xt_colour(int rgb)     = "<esc>[38;5;<16-231>m"   = Set foreground colour to an RGB value`
-* `string xt_colour_bg(int rgb)  = "<esc>[48;5;<16-231>m"   = Set background colour to an RGB value`
-* `string xt_grey(int grey)      = "<esc>[38;5;<232-255>m"  = Set foreground colour to a grey level`
-* `string xt_grey_bg(int grey)   = "<esc>[48;5;<232-255>m"  = Set background colour to a grey level`
+* `string` **`xt_move_up`**`(int n)      = <esc> [<n>A             = Cursor up n spaces`
+* `string` **`xt_move_down`**`(int n)    = <esc> [<n>B             = Cursor down n spaces`
+* `string` **`xt_move_right`**`(int n)   = <esc> [<n>C             = Cursor right n spaces`
+* `string` **`xt_move_left`**`(int n)    = <esc> [<n>D             = Cursor left n spaces`
+* `string` **`xt_colour`**`(int rgb)     = <esc> [38;5;<16-231>m   = Set foreground colour to an RGB value`
+* `string` **`xt_colour_bg`**`(int rgb)  = <esc> [48;5;<16-231>m   = Set background colour to an RGB value`
+* `string` **`xt_grey`**`(int grey)      = <esc> [38;5;<232-255>m  = Set foreground colour to a grey level`
+* `string` **`xt_grey_bg`**`(int grey)   = <esc> [48;5;<232-255>m  = Set background colour to a grey level`
 
 Functions for generating variable Xterm codes. The RGB levels passed to the
 `xt_colour[_bg]()` functions are in the form of a 3 digit number from 111 to
@@ -686,9 +709,9 @@ of 1-24.
 
 ## Keyword arguments ##
 
-* `template <typename K> struct Kwarg`
-    * `template <typename A> ... Kwarg::operator=(const A& arg) const`
-* `template <typename K, typename V, typename... Args> bool kwget(const Kwarg<K>& key, V& var, const Args&... args)`
+* `template <typename K> struct` **`Kwarg`**
+    * `template <typename A> ... Kwarg::`**`operator=`**`(const A& arg) const`
+* `template <typename K, typename V, typename... Args> bool` **`kwget`**`(const Kwarg<K>& key, V& var, const Args&... args)`
 
 This provides a simple implementation of variadic keyword arguments for C++
 functions.
@@ -792,68 +815,75 @@ iterator's value type, depending on whether a mutable or const iterator is
 required. In addition to the operators listed in the table above, all iterator
 mixins supply the standard member types:
 
-* `using difference_type = ptrdiff_t`
-* `using iterator_category = [standard iterator tag type]`
-* `using pointer = CV*`
-* `using reference = CV&`
-* `using value_type = std::remove_const_t<CV>`
+* `using` **`difference_type`**
+    `= ptrdiff_t`
+* `using` **`iterator_category`**
+    `= [standard iterator tag type]`
+* `using` **`pointer`**
+    `= CV*`
+* `using` **`reference`**
+    `= CV&`
+* `using` **`value_type`**
+    `= std::remove_const_t<CV>`
 
 ## Range utilities ##
 
-* `template <typename Range> using RangeIterator = ...`
-* `template <typename Range> using RangeValue = ...`
+* `template <typename Range> using` **`RangeIterator`** `= ...`
+* `template <typename Range> using` **`RangeValue`** `= ...`
 
 The iterator and value types of a range.
 
-* `template <typename Iterator> struct Irange`
-    * `Iterator Irange::first`
-    * `Iterator Irange::second`
-    * `constexpr Iterator Irange::begin() const { return first; }`
-    * `constexpr Iterator Irange::end() const { return second; }`
-* `template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j)`
-* `template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p)`
+* `template <typename Iterator> struct` **`Irange`**
+    * `Iterator Irange::`**`first`**
+    * `Iterator Irange::`**`second`**
+    * `constexpr Iterator Irange::`**`begin`**`() const { return first; }`
+    * `constexpr Iterator Irange::`**`end`**`() const { return second; }`
+* `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const Iterator& i, const Iterator& j)`
+* `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const std::pair<Iterator, Iterator>& p)`
 
 A wrapper for a pair of iterators, usable as a range in standard algorithms.
 
-* `template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len)`
+* `template <typename T> constexpr Irange<T*>` **`array_range`**
+    `(T* ptr, size_t len)`
 
-Returns `irange(ptr, ptr + len)`.
+Returns `irange(ptr,ptr+len)`.
 
-* `template <typename Container> [output iterator] append(Container& con)`
-* `template <typename Container> [output iterator] overwrite(Container& con)`
+* `template <typename Container> [output iterator]` **`append`**`(Container& con)`
+* `template <typename Container> [output iterator]` **`overwrite`**`(Container& con)`
 
 These create output iterators that will append elements to a standard
 container. The `append()` function is similar to `std::back_inserter()` (but
 supports containers without `push_back()`), while `overwrite()` will first
 clear the container and then return the append iterator.
 
-* `template <typename T, size_t N> constexpr size_t array_count(T[N])`
-* `template <typename Range> size_t range_count(const Range& r)`
-* `template <typename Range> bool range_empty(const Range& r)`
+* `template <typename T, size_t N> constexpr size_t` **`array_count`**`(T[N])`
+* `template <typename Range> size_t` **`range_count`**`(const Range& r)`
+* `template <typename Range> bool` **`range_empty`**`(const Range& r)`
 
 Return the length of a range. The `range_count()` function is just shorthand
-for `std::distance(begin(r), end(r))`, and `range_empty()` has the obvious
+for `std::distance(begin(r),end(r))`, and `range_empty()` has the obvious
 meaning. The `array_count()` version returns the same value, but only works on
 C-style arrays and is `constexpr`.
 
-* `void memswap(void* ptr1, void* ptr2, size_t n) noexcept`
+* `void` **`memswap`**`(void* ptr1, void* ptr2, size_t n) noexcept`
 
-Swap two blocks of memory. Behaviour is undefined if either pointer is null.
+Swap two blocks of memory. This will work if the two ranges overlap or are the
+same, but behaviour is undefined if either pointer is null.
 
 ## Scope guards ##
 
-* `class ScopeExit`
-    * `using ScopeExit::callback = std::function<void()>`
-    * `explicit ScopeExit::ScopeExit(callback f)`
-    * `ScopeExit::~ScopeExit() noexcept`
-* `class ScopeSuccess`
-    * `using ScopeSuccess::callback = std::function<void()>`
-    * `explicit ScopeSuccess::ScopeSuccess(callback f)`
-    * `ScopeSuccess::~ScopeSuccess() noexcept`
-* `class ScopeFailure`
-    * `using ScopeFailure::callback = std::function<void()>`
-    * `explicit ScopeFailure::ScopeFailure(callback f)`
-    * `ScopeFailure::~ScopeFailure() noexcept`
+* `class` **`ScopeExit`**
+    * `using ScopeExit::`**`callback`** `= std::function<void()>`
+    * `explicit ScopeExit::`**`ScopeExit`**`(callback f)`
+    * `ScopeExit::`**`~ScopeExit`**`() noexcept`
+* `class` **`ScopeSuccess`**
+    * `using ScopeSuccess::`**`callback`** `= std::function<void()>`
+    * `explicit ScopeSuccess::`**`ScopeSuccess`**`(callback f)`
+    * `ScopeSuccess::`**`~ScopeSuccess`**`() noexcept`
+* `class` **`ScopeFailure`**
+    * `using ScopeFailure::`**`callback`** `= std::function<void()>`
+    * `explicit ScopeFailure::`**`ScopeFailure`**`(callback f)`
+    * `ScopeFailure::`**`~ScopeFailure`**`() noexcept`
 
 These store a function object, to be called when the guard is destroyed.
 `ScopeExit` calls the function unconditionally, `ScopeSuccess` calls it only
@@ -867,13 +897,13 @@ destructor are silently ignored (normally the function should be written so as
 not to throw anything). Passing `nullptr` for the function will quietly do
 nothing.
 
-* `class Transaction`
-    * `using Transaction::callback = std::function<void()>`
-    * `Transaction::Transaction() noexcept`
-    * `Transaction::~Transaction() noexcept`
-    * `void Transaction::call(callback func, callback undo)`
-    * `void Transaction::commit() noexcept`
-    * `void Transaction::rollback() noexcept`
+* `class` **`Transaction`**
+    * `using Transaction::`**`callback`** `= std::function<void()>`
+    * `Transaction::`**`Transaction`**`() noexcept`
+    * `Transaction::`**`~Transaction`**`() noexcept`
+    * `void Transaction::`**`call`**`(callback func, callback undo)`
+    * `void Transaction::`**`commit`**`() noexcept`
+    * `void Transaction::`**`rollback`**`() noexcept`
 
 This holds a stack of "undo" operations, to be carried out if anything goes
 wrong during a sequence of operations. The `call()` function accepts two
@@ -895,33 +925,33 @@ constructed `Transaction`.
 
 ## String functions ##
 
-* `string ascii_lowercase(const string& s)`
-* `string ascii_uppercase(const string& s)`
-* `string ascii_titlecase(const string& s)`
+* `string` **`ascii_lowercase`**`(const string& s)`
+* `string` **`ascii_uppercase`**`(const string& s)`
+* `string` **`ascii_titlecase`**`(const string& s)`
 
 Simple ASCII-only case conversion functions. All non-ASCII characters are left
 unchanged.
 
-* `template <typename C> basic_string<C> cstr(const C* ptr)`
-* `template <typename C> basic_string<C> cstr(const C* ptr, size_t n)`
+* `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr)`
+* `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr, size_t n)`
 
 These construct a string from a pointer to a null-terminated character
 sequence, or a pointer and a length. They differ from the corresponding string
 constructors in that passing a null pointer will yield an empty string instead
 of undefined behaviour.
 
-* `template <typename C> size_t cstr_size(const C* ptr)`
+* `template <typename C> size_t` **`cstr_size`**`(const C* ptr)`
 
 Returns the length of a null-terminated string (a generalized version of
 `strlen()`). This will return zero if the pointer is null.
 
-* `template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T))`
-* `template <typename T> u8string dec(T x, size_t digits = 1)`
-* `template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T))`
-* `unsigned long long binnum(const string& str) noexcept`
-* `long long decnum(const string& str) noexcept`
-* `unsigned long long hexnum(const string& str) noexcept`
-* `double fpnum(const string& str) noexcept`
+* `template <typename T> u8string` **`bin`**`(T x, size_t digits = 8 * sizeof(T))`
+* `template <typename T> u8string` **`dec`**`(T x, size_t digits = 1)`
+* `template <typename T> u8string` **`hex`**`(T x, size_t digits = 2 * sizeof(T))`
+* `unsigned long long` **`binnum`**`(const string& str) noexcept`
+* `long long` **`decnum`**`(const string& str) noexcept`
+* `unsigned long long` **`hexnum`**`(const string& str) noexcept`
+* `double` **`fpnum`**`(const string& str) noexcept`
 
 Simple string and number conversion functions. The `bin()`, `dec()`, and
 `hex()` functions convert an integer to a binary, decimal, or hexadecimal
@@ -933,30 +963,32 @@ string is empty or does not contain a valid number. Results that are out of
 range will be clamped to the nearest end of the return type's range (for
 `fpnum()` this will normally be positive or negative infinity).
 
-* `u8string dent(size_t depth)`
+* `u8string` **`dent`**`(size_t depth)`
 
 Returns a string containing `4*depth` spaces, for indentation.
 
-* `u8string hexdump(const void* ptr, size_t n, size_t block = 0)`
-* `u8string hexdump(const string& str, size_t block = 0)`
+* `u8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
+* `u8string` **`hexdump`**`(const string& str, size_t block = 0)`
 
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
 
-* `template <typename InputRange> string join_words(const InputRange& range, const string& delim = "")`
-* `template <typename OutputIterator> void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
+* `template <typename InputRange> string` **`join_words`**
+    `(const InputRange& range, const string& delim = "")`
+* `template <typename OutputIterator> void` **`split_words`**
+    `(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
 
 Join words into a string, using the given delimiter, or split a string into
 words, discarding any sequence of delimiter characters. The dereferenced
 iterators must be assignment compatible with `string`.
 
-* `string quote(const string& str, bool allow_8bit = false)`
+* `string` **`quote`**`(const string& str, bool allow_8bit = false)`
 
 Returns a quoted string; internal quotes, backslashes, control characters, and
 non-ASCII characters are escaped. If the `allow_8bit` flag is set, bytes in
 the 128-255 range are passed through unchanged instead of being escaped.
 
-* `template <typename T> string to_str(const T& t)`
+* `template <typename T> string` **`to_str`**`(const T& t)`
 
 Formats an object as a string. For most types this uses the type's output
 stream operator. For strings, including character arrays and pointers, the
@@ -966,8 +998,8 @@ strings) are serialized in a format similar to a JSON array (e.g.
 `"[1,2,3]"`), or an object (e.g. `"{1:a,2:b,3:c}"`) if the range's value type
 is a pair; `to_str()` is called recursively on each range element.
 
-* `wstring utf8_to_wstring(const u8string& ustr)` _(Windows only)_
-* `u8string wstring_to_utf8(const wstring& wstr)` _(Windows only)_
+* `wstring` **`utf8_to_wstring`**`(const u8string& ustr)` _(Windows only)_
+* `u8string` **`wstring_to_utf8`**`(const wstring& wstr)` _(Windows only)_
 
 These are only defined on Windows, and provide conversions between UTF-8 and
 the native UTF-16 API. They are minimal wrappers for `MultiByteToWideChar()`
@@ -979,44 +1011,43 @@ will be garbage if the input was not valid Unicode.
 This section of the library exists because some of the compilers I need to
 support don't implement C++11 threads yet.
 
-* `class Mutex`
-    * `Mutex::Mutex() noexcept`
-    * `Mutex::~Mutex() noexcept`
-    * `void Mutex::lock() noexcept`
-    * `bool Mutex::try_lock() noexcept`
-    * `void Mutex::unlock() noexcept`
-* `class MutexLock`
-    * `explicit MutexLock::MutexLock(Mutex& m) noexcept`
-    * `MutexLock::~MutexLock() noexcept`
+* `class` **`Mutex`**
+    * `Mutex::`**`Mutex`**`() noexcept`
+    * `Mutex::`**`~Mutex`**`() noexcept`
+    * `void Mutex::`**`lock`**`() noexcept`
+    * `bool Mutex::`**`try_lock`**`() noexcept`
+    * `void Mutex::`**`unlock`**`() noexcept`
+* `class` **`MutexLock`**
+    * `explicit MutexLock::`**`MutexLock`**`(Mutex& m) noexcept`
+    * `MutexLock::`**`~MutexLock`**`() noexcept`
 
 Mutex and exclusive lock.
 
-* `class ConditionVariable`
-    * `ConditionVariable::ConditionVariable()`
-    * `ConditionVariable::~ConditionVariable() noexcept`
-    * `void ConditionVariable::notify_all() noexcept`
-    * `void ConditionVariable::notify_one() noexcept`
-    * `void ConditionVariable::wait(MutexLock& lock)`
-    * `template <typename Pred> void ConditionVariable::wait(MutexLock& lock, Pred p)`
-    * `template <typename R, typename P, typename Pred> bool ConditionVariable::wait_for(MutexLock& lock, std::chrono::duration<R, P> t, Pred p)`
+* `class` **`ConditionVariable`**
+    * `ConditionVariable::`**`ConditionVariable`**`()`
+    * `ConditionVariable::`**`~ConditionVariable`**`() noexcept`
+    * `void ConditionVariable::`**`notify_all`**`() noexcept`
+    * `void ConditionVariable::`**`notify_one`**`() noexcept`
+    * `void ConditionVariable::`**`wait`**`(MutexLock& lock)`
+    * `template <typename Pred> void ConditionVariable::`**`wait`**`(MutexLock& lock, Pred p)`
+    * `template <typename R, typename P, typename Pred> bool ConditionVariable::`**`wait_for`**`(MutexLock& lock, std::chrono::duration<R, P> t, Pred p)`
 
 Condition variable.
 
 * `class Thread`
-    * `using Thread::callback = std::function<void()>`
-    * `using Thread::id_type = ...`
-    * `Thread::Thread() noexcept`
-    * `explicit Thread::Thread(callback f)`
-    * `Thread::Thread(Thread&& t)`
-    * `Thread::~Thread() noexcept`
-    * `Thread& Thread::operator=(Thread&& t)`
-    * `Thread::id_type Thread::get_id() const noexcept`
-    * `bool Thread::poll() noexcept`
-    * `void Thread::wait()`
-    * `size_t Thread::cpu_threads() noexcept`
-    * `static Thread::id_type Thread::current() noexcept`
-    * `void Thread::yield() noexcept`
-
+    * `using Thread::`**`callback`** `= std::function<void()>`
+    * `using Thread::`**`id_type`** `= ...`
+    * `Thread::`**`Thread`**`() noexcept`
+    * `explicit Thread::`**`Thread`**`(callback f)`
+    * `Thread::`**`Thread`**`(Thread&& t)`
+    * `Thread::`**`~Thread`**`() noexcept`
+    * `Thread& Thread::`**`operator=`**`(Thread&& t)`
+    * `Thread::id_type Thread::`**`get_id`**`() const noexcept`
+    * `bool Thread::`**`poll`**`() noexcept`
+    * `void Thread::`**`wait`**`()`
+    * `size_t Thread::`**`cpu_threads`**`() noexcept`
+    * `static Thread::id_type Thread::`**`current`**`() noexcept`
+    * `void Thread::`**`yield`**`() noexcept`
 
 This is a wrapper for an operating system thread. The constructor accepts a
 callback function, which will be called as the thread's payload. If a null
@@ -1064,15 +1095,17 @@ return a broken down date, results are unspecified if the date is outside the
 range of a `time_t` (1970-2038 on 32-bit systems), or if the fields are set to
 values that do not represent a valid date.
 
-* `enum ZoneFlag`
-    * `utc_date`
-    * `local_date`
+* `enum` **`ZoneFlag`**
+    * **`utc_date`**
+    * **`local_date`**
 
 This is passed to the conversion functions to indicate whether a broken down
 date is expressed in UTC or the local time zone.
 
-* `u8string format_date(std::chrono::system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)`
-* `u8string format_date(std::chrono::system_clock::time_point tp, const u8string& format, ZoneFlag z = utc_date)`
+* `u8string` **`format_date`**
+    `(system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)`
+* `u8string` **`format_date`**
+    `(system_clock::time_point tp, const u8string& format, ZoneFlag z = utc_date)`
 
 These convert a time point into a broken down date and format it. The first
 version writes the date in ISO 8601 format (`"yyyy-mm-dd hh:mm:ss"`). If
@@ -1102,42 +1135,43 @@ For reference, the portable subset of the `strftime()` formatting codes are:
 | `%M`  | Minute (`00-59`)                     | `%Z`   | Time zone name                       |
 | `%S`  | Second (`00-60`)                     | `%z`   | Time zone offset                     |
 
-* `template <typename R, typename P> u8string format_time(const duration<R, P>& time, int prec = 0)`
+* `template <typename R, typename P> u8string` **`format_time`**`(const duration<R, P>& time, int prec = 0)`
 
 Formats a time duration in Julian years, days, hours, minutes, seconds, and
 (if `prec>0`) fractions of a second. Results are unspecified if the number of
 years in `time` does not fit in a signed 32-bit integer.
 
-* `system_clock::time_point make_date(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept`
+* `system_clock::time_point` **`make_date`**
+    `(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept`
 
 Converts a broken down date into a time point.
 
-* `template <typename R, typename P> void sleep_for(std::chrono::duration<R, P> t) noexcept`
-* `void sleep_for(double t) noexcept`
+* `template <typename R, typename P> void` **`sleep_for`**`(std::chrono::duration<R, P> t) noexcept`
+* `void` **`sleep_for`**`(double t) noexcept`
 
 Suspend the current thread for the specified interval, supplied either as a
 duration or a number of seconds. Calling this with a duration less than or
 equal to zero will cause the thread to yield its time slice. Resolution is
 system dependent. Behaviour is undefined if the duration exceeds 31 days.
 
-* `template <typename R, typename P> double to_seconds(const duration<R, P>& d) noexcept`
-* `template <typename R, typename P> void from_seconds(double s, duration<R, P>& d) noexcept`
+* `template <typename R, typename P> double` **`to_seconds`**`(const duration<R, P>& d) noexcept`
+* `template <typename R, typename P> void` **`from_seconds`**`(double s, duration<R, P>& d) noexcept`
 
 Convenience functions to convert between a `duration` and a floating point
 number of seconds.
 
 * _Unix_
-    * `template <typename R, typename P> timespec duration_to_timespec(const duration<R, P>& d) noexcept`
-    * `template <typename R, typename P> timeval duration_to_timeval(const duration<R, P>& d) noexcept`
-    * `timespec timepoint_to_timespec(const system_clock::time_point& tp) noexcept`
-    * `timeval timepoint_to_timeval(const system_clock::time_point& tp) noexcept`
-    * `template <typename R, typename P> void timespec_to_duration(const timespec& ts, duration<R, P>& d) noexcept`
-    * `system_clock::time_point timespec_to_timepoint(const timespec& ts) noexcept`
-    * `template <typename R, typename P> void timeval_to_duration(const timeval& tv, duration<R, P>& d) noexcept`
-    * `system_clock::time_point timeval_to_timepoint(const timeval& tv) noexcept`
+    * `template <typename R, typename P> timespec` **`duration_to_timespec`**`(const duration<R, P>& d) noexcept`
+    * `template <typename R, typename P> timeval` **`duration_to_timeval`**`(const duration<R, P>& d) noexcept`
+    * `timespec` **`timepoint_to_timespec`**`(const system_clock::time_point& tp) noexcept`
+    * `timeval` **`timepoint_to_timeval`**`(const system_clock::time_point& tp) noexcept`
+    * `template <typename R, typename P> void` **`timespec_to_duration`**`(const timespec& ts, duration<R, P>& d) noexcept`
+    * `system_clock::time_point` **`timespec_to_timepoint`**`(const timespec& ts) noexcept`
+    * `template <typename R, typename P> void` **`timeval_to_duration`**`(const timeval& tv, duration<R, P>& d) noexcept`
+    * `system_clock::time_point` **`timeval_to_timepoint`**`(const timeval& tv) noexcept`
 * _Windows_
-    * `system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept`
-    * `void timepoint_to_filetime(const system_clock::time_point& tp, FILETIME& ft) noexcept`
+    * `system_clock::time_point` **`filetime_to_timepoint`**`(const FILETIME& ft) noexcept`
+    * `void` **`timepoint_to_filetime`**`(const system_clock::time_point& tp, FILETIME& ft) noexcept`
 
 Conversion functions between C++ chrono types and system API types. Some of
 them return their result through a reference argument instead of a return
@@ -1150,41 +1184,42 @@ For reference, the system time types are:
 
 * _Unix_
     * `#include <time.h>`
-        * `struct timespec`
-            * `time_t timespec::tv_sec [seconds]`
-            * `long timespec::tv_nsec [nanoseconds]`
+        * `struct` **`timespec`**
+            * `time_t timespec::`**`tv_sec`** `[seconds]`
+            * `long timespec::`**`tv_nsec`** `[nanoseconds]`
     * `#include <sys/time.h>`
-        * `struct timeval`
-            * `time_t timeval::tv_sec [seconds]`
-            * `suseconds_t timeval::tv_usec [microseconds]`
+        * `struct` **`timeval`**
+            * `time_t timeval::`**`tv_sec`** `[seconds]`
+            * `suseconds_t timeval::`**`tv_usec`** `[microseconds]`
 * _Windows_
     * `#include <windows.h>`
-        * `struct FILETIME`
-            * `DWORD FILETIME::dwLowDateTime [low 32 bits]`
-            * `DWORD FILETIME::dwHighDateTime [high 32 bits]`
+        * `struct` **`FILETIME`**
+            * `DWORD FILETIME::`**`dwLowDateTime`** `[low 32 bits]`
+            * `DWORD FILETIME::`**`dwHighDateTime`** `[high 32 bits]`
 
 ## Type properties ##
 
-* `template <typename T> using BinaryType = ...`
+* `template <typename T> using` **`BinaryType`** `= ...`
 
 Yields an unsigned integer type the same size as `T`. This will fail to
 compile if no such type exists.
 
-* `template <typename T1, typename T2> using CopyConst = ...`
+* `template <typename T1, typename T2> using` **`CopyConst`** `= ...`
 
 Yields a type created by transferring the `const` qualification (or lack of
 it) from `T1` to the unqualified type of `T2`. For example, `CopyConst<int,
 const string>` yields `string`, while `CopyConst<const int, string>` yields
 `const string`.
 
-* `template <typename T2, typename T1> T2 implicit_cast(const T1& t)`
+* `template <typename T2, typename T1> T2` **`implicit_cast`**`(const T1& t)`
 
 Converts one type to another, only if the conversion is implicit.
 
-* `string demangle(const string& name)`
-* `string type_name(const std::type_info& t)`
-* `template <typename T> string type_name()`
-* `template <typename T> string type_name(const T&)`
+* `string` **`demangle`**`(const string& name)`
+* `string` **`type_name`**
+    `(const std::type_info& t)`
+* `template <typename T> string` **`type_name`**`()`
+* `template <typename T> string` **`type_name`**`(const T&)`
 
 Demangle a type name. The original mangled name can be supplied as an explicit
 string, as a `std::type_info` object, as a type argument to a template
@@ -1193,35 +1228,35 @@ function (e.g. `type_name<int>()`), or as an object whose type is to be named
 
 ## UUID ##
 
-* `class Uuid`
-    * `Uuid::Uuid() noexcept`
-    * `Uuid::Uuid(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f, uint8_t g, uint8_t h, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept`
-    * `Uuid::Uuid(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept`
-    * `explicit Uuid::Uuid(uint128_t u) noexcept`
-    * `explicit Uuid::Uuid(const uint8_t* ptr) noexcept`
-    * `explicit Uuid::Uuid(const string& s)`
-    * `Uuid::Uuid(const Uuid& u) noexcept`
-    * `Uuid::Uuid(Uuid&& u) noexcept`
-    * `Uuid::~Uuid() noexcept`
-    * `Uuid& Uuid::operator=(const Uuid& u) noexcept`
-    * `Uuid& Uuid::operator=(Uuid&& u) noexcept`
-    * `uint8_t& Uuid::operator[](size_t i) noexcept`
-    * `const uint8_t& Uuid::operator[](size_t i) const noexcept`
-    * `uint8_t* Uuid::begin() noexcept`
-    * `const uint8_t* Uuid::begin() const noexcept`
-    * `uint8_t* Uuid::end() noexcept`
-    * `const uint8_t* Uuid::end() const noexcept`
-    * `uint128_t Uuid::as_integer() const noexcept`
-    * `size_t hash() const noexcept`
-    * `u8string Uuid::str() const`
-* `bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept`
-* `bool operator!=(const Uuid& lhs, const Uuid& rhs) noexcept`
-* `bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept`
-* `bool operator>(const Uuid& lhs, const Uuid& rhs) noexcept`
-* `bool operator<=(const Uuid& lhs, const Uuid& rhs) noexcept`
-* `bool operator>=(const Uuid& lhs, const Uuid& rhs) noexcept`
-* `std::ostream& operator<<(std::ostream& o, const Uuid& u)`
-* `class std::hash<Uuid>`
+* `class` **`Uuid`**
+    * `Uuid::`**`Uuid`**`() noexcept`
+    * `Uuid::`**`Uuid`**`(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f, uint8_t g, uint8_t h, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept`
+    * `Uuid::`**`Uuid`**`(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept`
+    * `explicit Uuid::`**`Uuid`**`(uint128_t u) noexcept`
+    * `explicit Uuid::`**`Uuid`**`(const uint8_t* ptr) noexcept`
+    * `explicit Uuid::`**`Uuid`**`(const string& s)`
+    * `Uuid::`**`Uuid`**`(const Uuid& u) noexcept`
+    * `Uuid::`**`Uuid`**`(Uuid&& u) noexcept`
+    * `Uuid::`**`~Uuid`**`() noexcept`
+    * `Uuid& Uuid::`**`operator=`**`(const Uuid& u) noexcept`
+    * `Uuid& Uuid::`**`operator=`**`(Uuid&& u) noexcept`
+    * `uint8_t& Uuid::`**`operator[](`**`size_t i) noexcept`
+    * `const uint8_t& Uuid::`**`operator[]`**`(size_t i) const noexcept`
+    * `uint8_t* Uuid::`**`begin`**`() noexcept`
+    * `const uint8_t* Uuid::`**`begin`**`() const noexcept`
+    * `uint8_t* Uuid::`**`end`**`() noexcept`
+    * `const uint8_t* Uuid::`**`end`**`() const noexcept`
+    * `uint128_t Uuid::`**`as_integer`**`() const noexcept`
+    * `size_t Uuid::`**`hash`**`() const noexcept`
+    * `u8string Uuid::`**`str`**`() const`
+* `bool` **`operator==`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
+* `bool` **`operator!=`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
+* `bool` **`operator<`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
+* `bool` **`operator>`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
+* `bool` **`operator<=`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
+* `bool` **`operator>=`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
+* `std::ostream&` **`operator<<`**`(std::ostream& o, const Uuid& u)`
+* `class std::`**`hash`**`<Uuid>`
 
 This class holds a standard 16 byte universally unique identifier (UUID).
 
@@ -1253,41 +1288,41 @@ broken down hex representation, e.g. `"01234567-89ab-cdef-0123-456789abcdef"`.
 The comparison operators perform the natural bytewise lexicographical
 comparisons.
 
-* `struct RandomUuid`
-    * `using result_type = RandomUuid::Uuid`
-    * `template <typename Rng> Uuid RandomUuid::operator()(Rng& rng) const`
+* `struct` **`RandomUuid`**
+    * `using RandomUuid::`**`result_type`** `= RandomUuid::Uuid`
+    * `template <typename Rng> Uuid RandomUuid::`**`operator()`**`(Rng& rng) const`
 
 Generates a random version 4 UUID.
 
 ## Version number ##
 
-* `class Version`
-    * `using Version::value_type = unsigned`
-    * `Version::Version() noexcept`
-    * `template <typename... Args> Version::Version(unsigned n, Args... args)`
-    * `explicit Version::Version(const u8string& s)`
-    * `Version::Version(const Version& v)`
-    * `Version::Version(Version&& v) noexcept`
-    * `Version::~Version() noexcept`
-    * `Version& Version::operator=(const Version& v)`
-    * `Version& Version::operator=(Version&& v) noexcept`
-    * `unsigned Version::operator[](size_t i) const noexcept`
-    * `const unsigned* Version::begin() const noexcept`
-    * `const unsigned* Version::end() const noexcept`
-    * `unsigned Version::major() const noexcept`
-    * `unsigned Version::minor() const noexcept`
-    * `unsigned Version::patch() const noexcept`
-    * `string Version::str(size_t min_elements = 2) const`
-    * `string Version::suffix() const`
-    * `uint32_t Version::to32() const noexcept`
-    * `static Version Version::from32(uint32_t n) noexcept`
-* `bool operator==(const Version& lhs, const Version& rhs) noexcept`
-* `bool operator!=(const Version& lhs, const Version& rhs) noexcept`
-* `bool operator<(const Version& lhs, const Version& rhs) noexcept;`
-* `bool operator>(const Version& lhs, const Version& rhs) noexcept`
-* `bool operator<=(const Version& lhs, const Version& rhs) noexcept`
-* `bool operator>=(const Version& lhs, const Version& rhs) noexcept`
-* `std::ostream& operator<<(std::ostream& o, const Version& v)`
+* `class` **`Version`**
+    * `using Version::`**`value_type`** `= unsigned`
+    * `Version::`**`Version`**`() noexcept`
+    * `template <typename... Args> Version::`**`Version`**`(unsigned n, Args... args)`
+    * `explicit Version::`**`Version`**`(const u8string& s)`
+    * `Version::`**`Version`**`(const Version& v)`
+    * `Version::`**`Version`**`(Version&& v) noexcept`
+    * `Version::`**`~Version`**`() noexcept`
+    * `Version& Version::`**`operator=`**`(const Version& v)`
+    * `Version& Version::`**`operator=`**`(Version&& v) noexcept`
+    * `unsigned Version::`**`operator[]`**`(size_t i) const noexcept`
+    * `const unsigned* Version::`**`begin`**`() const noexcept`
+    * `const unsigned* Version::`**`end`**`() const noexcept`
+    * `unsigned Version::`**`major`**`() const noexcept`
+    * `unsigned Version::`**`minor`**`() const noexcept`
+    * `unsigned Version::`**`patch`**`() const noexcept`
+    * `string Version::`**`str`**`(size_t min_elements = 2) const`
+    * `string Version::`**`suffix`**`() const`
+    * `uint32_t Version::`**`to32`**`() const noexcept`
+    * `static Version Version::`**`from32`**`(uint32_t n) noexcept`
+* `bool` **`operator==`**`(const Version& lhs, const Version& rhs) noexcept`
+* `bool` **`operator!=`**`(const Version& lhs, const Version& rhs) noexcept`
+* `bool` **`operator<`**`(const Version& lhs, const Version& rhs) noexcept;`
+* `bool` **`operator>`**`(const Version& lhs, const Version& rhs) noexcept`
+* `bool` **`operator<=`**`(const Version& lhs, const Version& rhs) noexcept`
+* `bool` **`operator>=`**`(const Version& lhs, const Version& rhs) noexcept`
+* `std::ostream&` **`operator<<`**`(std::ostream& o, const Version& v)`
 
 A version number, represented as an array of integers optionally followed by a
 trailing string (e.g. `1.2.3beta`). The default constructor sets the version

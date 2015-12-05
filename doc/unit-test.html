@@ -31,7 +31,7 @@ TEST_MODULE(project, module) {
 once.</p>
 
 <ul>
-<li><code>#define <strong>TEST_MAIN</strong></code></li>
+<li><code>#define</code> <strong><code>TEST_MAIN</code></strong></li>
 </ul>
 
 <p>Supplies the main function for a test program. This must appear at global
@@ -42,28 +42,28 @@ contains the pattern will be run. The return value from <code>TEST_MAIN</code> i
 success, 1 if any tests failed.</p>
 
 <ul>
-<li><code>#define <strong>TEST_MODULE</strong>(project, module)</code></li>
+<li><code>#define</code> <strong><code>TEST_MODULE</code></strong><code>(project, module)</code></li>
 </ul>
 
 <p>This supplies the function signature for a module test function (see above for
 typical usage).</p>
 
 <ul>
-<li><code>#define <strong>FAIL</strong>(message)</code></li>
+<li><code>#define</code> <strong><code>FAIL</code></strong><code>(message)</code></li>
 </ul>
 
 <p>Generates a test failure, with the specified error message (a string
 constant).</p>
 
 <ul>
-<li><code>#define <strong>MESSAGE</strong>(message)</code></li>
+<li><code>#define</code> <strong><code>MESSAGE</code></strong><code>(message)</code></li>
 </ul>
 
 <p>Emits a message, as for <code>FAIL()</code>, but does not count this as a test failure.</p>
 
 <ul>
-<li><code>#define <strong>REQUIRE</strong>(expression)</code></li>
-<li><code>#define <strong>TEST</strong>(expression)</code></li>
+<li><code>#define</code> <strong><code>REQUIRE</code></strong><code>(expression)</code></li>
+<li><code>#define</code> <strong><code>TEST</code></strong><code>(expression)</code></li>
 </ul>
 
 <p>Evaluate the expression, expecting it to return a boolean value, or something
@@ -75,9 +75,9 @@ something is so badly wrong that further testing would be pointless or
 impossible.</p>
 
 <ul>
-<li><code>#define <strong>TEST_COMPARE</strong>(lhs, op, rhs)</code></li>
-<li><code>#define <strong>TEST_EQUAL</strong>(lhs, rhs)</code></li>
-<li><code>#define <strong>TEST_EQUAL_RANGE</strong>(lhs, rhs)</code></li>
+<li><code>#define</code> <strong><code>TEST_COMPARE</code></strong><code>(lhs, op, rhs)</code></li>
+<li><code>#define</code> <strong><code>TEST_EQUAL</code></strong><code>(lhs, rhs)</code></li>
+<li><code>#define</code> <strong><code>TEST_EQUAL_RANGE</code></strong><code>(lhs, rhs)</code></li>
 </ul>
 
 <p>Evaluate the two expressions and compare the results, failing if the specified
@@ -90,8 +90,8 @@ performs a memberwise equality comparison, failing if the ranges are different
 sizes, or any of the elements fail to match.</p>
 
 <ul>
-<li><code>#define <strong>TEST_MATCH</strong>(string, pattern)</code></li>
-<li><code>#define <strong>TEST_MATCH_ICASE</strong>(string, pattern)</code></li>
+<li><code>#define</code> <strong><code>TEST_MATCH</code></strong><code>(string, pattern)</code></li>
+<li><code>#define</code> <strong><code>TEST_MATCH_ICASE</code></strong><code>(string, pattern)</code></li>
 </ul>
 
 <p>Evaluates the string expression, and searches it for the given PCRE regular
@@ -100,10 +100,10 @@ insensitive The test fails if the string fails to match, or an exception is
 thrown.</p>
 
 <ul>
-<li><code>#define <strong>TEST_NEAR</strong>(lhs, rhs)</code></li>
-<li><code>#define <strong>TEST_NEAR_EPSILON</strong>(lhs, rhs, tolerance)</code></li>
-<li><code>#define <strong>TEST_NEAR_RANGE</strong>(lhs, rhs)</code></li>
-<li><code>#define <strong>TEST_NEAR_EPSILON_RANGE</strong>(lhs, rhs, tolerance)</code></li>
+<li><code>#define</code> <strong><code>TEST_NEAR</code></strong><code>(lhs, rhs)</code></li>
+<li><code>#define</code> <strong><code>TEST_NEAR_EPSILON</code></strong><code>(lhs, rhs, tolerance)</code></li>
+<li><code>#define</code> <strong><code>TEST_NEAR_RANGE</code></strong><code>(lhs, rhs)</code></li>
+<li><code>#define</code> <strong><code>TEST_NEAR_EPSILON_RANGE</code></strong><code>(lhs, rhs, tolerance)</code></li>
 </ul>
 
 <p>Evaluate two floating point expressions, or two ranges of floating point
@@ -112,10 +112,10 @@ values differ by more than the tolerance (defaulting to 10<sup>&#8211;6</sup>), 
 if any expression throws an exception.</p>
 
 <ul>
-<li><code>#define <strong>TEST_THROW</strong>(expression, exception)</code></li>
-<li><code>#define <strong>TEST_THROW_EQUAL</strong>(expression, exception, message)</code></li>
-<li><code>#define <strong>TEST_THROW_MATCH</strong>(expression, exception, pattern)</code></li>
-<li><code>#define <strong>TEST_THROW_MATCH_ICASE</strong>(expression, exception, pattern)</code></li>
+<li><code>#define</code> <strong><code>TEST_THROW</code></strong><code>(expression, exception)</code></li>
+<li><code>#define</code> <strong><code>TEST_THROW_EQUAL</code></strong><code>(expression, exception, message)</code></li>
+<li><code>#define</code> <strong><code>TEST_THROW_MATCH</code></strong><code>(expression, exception, pattern)</code></li>
+<li><code>#define</code> <strong><code>TEST_THROW_MATCH_ICASE</code></strong><code>(expression, exception, pattern)</code></li>
 </ul>
 
 <p>Evaluate the expression, expecting it to throw an exception of the specified
@@ -125,16 +125,16 @@ macros also check the exception&#8217;s error message (obtained from its <code>w
 method) for either an exact string match or a regular expression.</p>
 
 <ul>
-<li><code>#define <strong>TEST_TYPE</strong>(type1, type2)</code></li>
-<li><code>#define <strong>TEST_TYPE_OF</strong>(object, type)</code></li>
-<li><code>#define <strong>TEST_TYPES_OF</strong>(object1, object2)</code></li>
+<li><code>#define</code> <strong><code>TEST_TYPE</code></strong><code>(type1, type2)</code></li>
+<li><code>#define</code> <strong><code>TEST_TYPE_OF</code></strong><code>(object, type)</code></li>
+<li><code>#define</code> <strong><code>TEST_TYPES_OF</code></strong><code>(object1, object2)</code></li>
 </ul>
 
 <p>Compare two types, failing if they are not the same. The <code>std::decay</code>
 transformation is applied before comparing them.</p>
 
 <ul>
-<li><code>#define <strong>TRY</strong>(expression)</code></li>
+<li><code>#define</code> <strong><code>TRY</code></strong><code>(expression)</code></li>
 </ul>
 
 <p>This simply evaluates the expression, ignoring any result. The test fails if

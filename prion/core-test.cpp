@@ -24,7 +24,7 @@
     #include <sys/time.h>
 #endif
 
-#if defined(PRI_TARGET_WINDOWS_API)
+#if defined(PRI_TARGET_WIN32)
     #include <windows.h>
 #endif
 
@@ -1322,7 +1322,7 @@ namespace {
 
     void check_exceptions() {
 
-        #if defined(PRI_TARGET_WINDOWS_API)
+        #if defined(PRI_TARGET_WIN32)
 
             u8string s;
 
@@ -1463,7 +1463,7 @@ namespace {
         TEST_EQUAL(s, "Hello world\nGoodbye\n");
         TEST(! load_file("__no_such_file__", s));
 
-        #if defined(PRI_TARGET_NATIVE_WINDOWS)
+        #if defined(PRI_TARGET_WINDOWS)
 
             wstring wfile = L"__test__";
 
@@ -2264,7 +2264,7 @@ namespace {
 
         #endif
 
-        #if defined(PRI_TARGET_WINDOWS_API)
+        #if defined(PRI_TARGET_WIN32)
 
             static constexpr int64_t epoch = 11644473600ll;
             static constexpr int64_t freq = 10000000ll;
