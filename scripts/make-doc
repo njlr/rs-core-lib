@@ -4,7 +4,7 @@ import markdown
 import re
 import sys
 
-mdexts = ['markdown.extensions.tables', 'markdown.extensions.toc(baselevel=2)']
+mdexts = ['markdown.extensions.extra', 'markdown.extensions.toc']
 
 head = '''<!DOCTYPE html>
 <html>

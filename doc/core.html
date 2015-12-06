@@ -6,12 +6,12 @@
     <link type="text/css" rel="stylesheet" href="style.css"/>
 </head>
 <body>
-<h2 id="core-utilities">Core Utilities</h2>
+<h1 id="core-utilities">Core Utilities</h1>
 <p>By Ross Smith</p>
 <ul>
 <li><code>#include "prion/core.hpp"</code></li>
 </ul>
-<h3 id="contents">Contents</h3>
+<h2 id="contents">Contents</h2>
 <div class="toc">
 <ul>
 <li><a href="#core-utilities">Core Utilities</a><ul>
@@ -43,7 +43,7 @@
 </li>
 </ul>
 </div>
-<h3 id="preprocessor-macros">Preprocessor macros</h3>
+<h2 id="preprocessor-macros">Preprocessor macros</h2>
 <ul>
 <li><em>Compilers</em><ul>
 <li><code>#define</code> <strong><code>PRI_COMPILER_CLANG</code></strong> <code>1</code></li>
@@ -152,7 +152,7 @@ Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)</p>
 </ul>
 <p>Shorthand for <code>static_assert</code>, using the assertion expression as the error
 message. (A planned change in C++17 will make this unnecessary.)</p>
-<h3 id="basic-types">Basic types</h3>
+<h2 id="basic-types">Basic types</h2>
 <ul>
 <li><code>using std::</code><strong><code>basic_string</code></strong></li>
 <li><code>using std::</code><strong><code>string</code></strong></li>
@@ -178,7 +178,7 @@ being used simply as an array of bytes rather than encoded text.</p>
 <li><code>using</code> <strong><code>uint128_t</code></strong> <code>= [unsigned 128 bit integer]</code></li>
 </ul>
 <p>Aliases for the compiler's 128 bit integer types (e.g. <code>__int128</code>).</p>
-<h3 id="constants">Constants</h3>
+<h2 id="constants">Constants</h2>
 <ul>
 <li><code>constexpr const char*</code> <strong><code>ascii_whitespace</code></strong> <code>= "\t\n\v\f\r "</code></li>
 </ul>
@@ -250,7 +250,7 @@ mathematical constants, or to the best known accuracy for the physical ones.</p>
 </ul>
 </li>
 </ul>
-<h3 id="algorithms">Algorithms</h3>
+<h2 id="algorithms">Algorithms</h2>
 <ul>
 <li><code>template &lt;typename Range1, typename Range2&gt; int</code> <strong><code>compare_3way</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2)</code></li>
 <li><code>template &lt;typename Range1, typename Range2, typename Compare&gt; int</code> <strong><code>compare_3way</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2, Compare cmp)</code></li>
@@ -272,7 +272,7 @@ shuffled to the end. The <code>con_sort_unique()</code> functions perform a sort
 by removing equivalent elements from the container; like <code>std::sort()</code>, its
 predicate has less-than semantics (whereas that of <code>con_unique()</code>, like that
 of <code>std::unique()</code>, has equality semantics).</p>
-<h3 id="arithmetic-literals">Arithmetic literals</h3>
+<h2 id="arithmetic-literals">Arithmetic literals</h2>
 <p>These are all in <code>namespace Prion::Literals</code>.</p>
 <ul>
 <li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator"" _s128</code></strong><code>() noexcept</code></li>
@@ -289,7 +289,7 @@ usual <code>"0x"</code> prefix) are supported as well as decimal ones.</p>
 <li><code>constexpr long double</code> <strong><code>operator"" _degl</code></strong><code>(unsigned long long x) noexcept</code></li>
 </ul>
 <p>Angle literals, converting degrees to radians.</p>
-<h3 id="arithmetic-functions">Arithmetic functions</h3>
+<h2 id="arithmetic-functions">Arithmetic functions</h2>
 <p>Some of these duplicate functionality already in the standard library; this is
 to ensure that the functions are available for 128 bit integers even if the
 standard library implementation doesn't support them.</p>
@@ -368,7 +368,7 @@ result is not representable by the return type.</p>
 <li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>sign_of</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Returns the sign of its argument (-1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
-<h3 id="byte-order">Byte order</h3>
+<h2 id="byte-order">Byte order</h2>
 <ul>
 <li><code>static constexpr bool</code> <strong><code>big_endian_target</code></strong></li>
 <li><code>static constexpr bool</code> <strong><code>little_endian_target</code></strong></li>
@@ -397,7 +397,7 @@ byte order.</p>
 <p>Read or write an integer from a block of bytes, in big endian or little endian
 order. The versions that take only a pointer deduce the size from the integer
 type; the other versions take an offset and length in bytes.</p>
-<h3 id="character-functions">Character functions</h3>
+<h2 id="character-functions">Character functions</h2>
 <ul>
 <li><code>constexpr bool</code> <strong><code>ascii_isalnum</code></strong><code>(char c) noexcept</code></li>
 <li><code>constexpr bool</code> <strong><code>ascii_isalpha</code></strong><code>(char c) noexcept</code></li>
@@ -436,7 +436,7 @@ unchanged.</p>
 first passing it through <code>unsigned char</code>, to ensure that characters with the
 high bit set end up as integers in the 128-255 range, and not as negative or
 extremely high values.</p>
-<h3 id="containers">Containers</h3>
+<h2 id="containers">Containers</h2>
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>SimpleBuffer</code></strong><ul>
 <li><code>using SimpleBuffer::</code><strong><code>const_iterator</code></strong> <code>= const T*</code></li>
@@ -580,7 +580,7 @@ distinguishable.</p>
 <p>The <code>insert*()</code> functions insert one or more pairs. For <code>insert_ranges()</code>, the
 first item in each range becomes the canonical value for every key in the
 other range.</p>
-<h3 id="exceptions">Exceptions</h3>
+<h2 id="exceptions">Exceptions</h2>
 <ul>
 <li><code>class</code> <strong><code>WindowsCategory</code></strong><code>: public std::error_category</code><ul>
 <li><code>virtual u8string WindowsCategory::</code><strong><code>message</code></strong><code>(int ev) const</code></li>
@@ -593,7 +593,7 @@ other range.</p>
 this is only defined on Windows builds <code>(PRI_TARGET_WIN32</code>). (MSVC
 provides this through the standard <code>system_category()</code> instance, but GCC does
 not supply any equivalent.)</p>
-<h3 id="functional-utilities">Functional utilities</h3>
+<h2 id="functional-utilities">Functional utilities</h2>
 <ul>
 <li><code>template &lt;typename F&gt; std::function&lt;...&gt;</code> <strong><code>stdfun</code></strong><code>(F&amp; lambda)</code></li>
 </ul>
@@ -614,7 +614,7 @@ not supply any equivalent.)</p>
 <li><code>constexpr Identity</code> <strong><code>identity</code></strong></li>
 </ul>
 <p>Simple function objects.</p>
-<h3 id="hash-functions">Hash functions</h3>
+<h2 id="hash-functions">Hash functions</h2>
 <ul>
 <li><code>size_t</code> <strong><code>hash_bytes</code></strong><code>(const void* ptr, size_t n)</code></li>
 <li><code>void</code> <strong><code>hash_bytes</code></strong><code>(size_t&amp; hash, const void* ptr, size_t n)</code></li>
@@ -631,7 +631,7 @@ problems) calculates the hash of the supplied data; the second version takes
 an existing hash value and mixes it with additional data. All of these call
 <code>std::hash</code> for the element type (<code>hash_bytes()</code> calls <code>hash&lt;string&gt;</code>, or its
 underlying hash function if possible; calling it with a null pointer is safe).</p>
-<h3 id="io-utilities">I/O utilities</h3>
+<h2 id="io-utilities">I/O utilities</h2>
 <p>Functions that take a file name have overloads that take a UTF-16 string in
 native Windows builds (not on Cygwin, where the <code>_wfopen()</code> function is not
 available).</p>
@@ -706,7 +706,7 @@ well, false if there was an error while opening or writing the file.</p>
 666; each digit is clamped to a range of 1-6, yielding 216 different colours.
 The grey level passed to the <code>xt_grey[_bg]()</code> functions is clamped to a range
 of 1-24.</p>
-<h3 id="keyword-arguments">Keyword arguments</h3>
+<h2 id="keyword-arguments">Keyword arguments</h2>
 <ul>
 <li><code>template &lt;typename K&gt; struct</code> <strong><code>Kwarg</code></strong><ul>
 <li><code>template &lt;typename A&gt; ... Kwarg::</code><strong><code>operator=</code></strong><code>(const A&amp; arg) const</code></li>
@@ -753,7 +753,7 @@ public:
 
 Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768, win_visible);
 </code></pre>
-<h3 id="mixins">Mixins</h3>
+<h2 id="mixins">Mixins</h2>
 <p>These are convenience base classes that define members and operators that
 would normally just be repetitive boilerplate (similar to the ones in Boost).
 They all use the CRTP idiom; a class <code>T</code> should derived from <code>Mixin&lt;T&gt;</code> to
@@ -815,7 +815,7 @@ mixins supply the standard member types:</p>
 <li><code>using</code> <strong><code>reference</code></strong> <code>= CV&amp;</code></li>
 <li><code>using</code> <strong><code>value_type</code></strong> <code>= std::remove_const_t&lt;CV&gt;</code></li>
 </ul>
-<h3 id="range-utilities">Range utilities</h3>
+<h2 id="range-utilities">Range utilities</h2>
 <ul>
 <li><code>template &lt;typename Range&gt; using</code> <strong><code>RangeIterator</code></strong> <code>= ...</code></li>
 <li><code>template &lt;typename Range&gt; using</code> <strong><code>RangeValue</code></strong> <code>= ...</code></li>
@@ -859,7 +859,7 @@ C-style arrays and is <code>constexpr</code>.</p>
 </ul>
 <p>Swap two blocks of memory. This will work if the two ranges overlap or are the
 same, but behaviour is undefined if either pointer is null.</p>
-<h3 id="scope-guards">Scope guards</h3>
+<h2 id="scope-guards">Scope guards</h2>
 <ul>
 <li><code>class</code> <strong><code>ScopeExit</code></strong><ul>
 <li><code>using ScopeExit::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
@@ -917,7 +917,7 @@ called since the last <code>call()</code>.</p>
 <code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and any
 newly added function pairs become part of a new cycle, equivalent to a newly
 constructed <code>Transaction</code>.</p>
-<h3 id="string-functions">String functions</h3>
+<h2 id="string-functions">String functions</h2>
 <ul>
 <li><code>string</code> <strong><code>ascii_lowercase</code></strong><code>(const string&amp; s)</code></li>
 <li><code>string</code> <strong><code>ascii_uppercase</code></strong><code>(const string&amp; s)</code></li>
@@ -997,7 +997,7 @@ is a pair; <code>to_str()</code> is called recursively on each range element.</p
 the native UTF-16 API. They are minimal wrappers for <code>MultiByteToWideChar()</code>
 and <code>WideCharToMultiByte()</code>. These do not do any error checking; the output
 will be garbage if the input was not valid Unicode.</p>
-<h3 id="threads">Threads</h3>
+<h2 id="threads">Threads</h2>
 <p>This section of the library exists because some of the compilers I need to
 support don't implement C++11 threads yet.</p>
 <ul>
@@ -1077,7 +1077,7 @@ rethrow as described above.</p>
 <p>The <code>cpu_threads()</code> function returns the number of hardware threads available.</p>
 <p>The <code>yield()</code> function causes the current thread to yield its scheduler time
 slice.</p>
-<h3 id="time-and-date-functions">Time and date functions</h3>
+<h2 id="time-and-date-functions">Time and date functions</h2>
 <p>In this documentation, the <code>std::chrono::</code> prefix on the standard date and
 time types is left out for brevity. For all functions here that accept or
 return a broken down date, results are unspecified if the date is outside the
@@ -1276,7 +1276,7 @@ type.</p>
 </ul>
 </li>
 </ul>
-<h3 id="type-properties">Type properties</h3>
+<h2 id="type-properties">Type properties</h2>
 <ul>
 <li><code>template &lt;typename T&gt; using</code> <strong><code>BinaryType</code></strong> <code>= ...</code></li>
 </ul>
@@ -1303,7 +1303,7 @@ const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;con
 string, as a <code>std::type_info</code> object, as a type argument to a template
 function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type is to be named
 (e.g. <code>type_name(42)</code>).</p>
-<h3 id="uuid">UUID</h3>
+<h2 id="uuid">UUID</h2>
 <ul>
 <li><code>class</code> <strong><code>Uuid</code></strong><ul>
 <li><code>Uuid::</code><strong><code>Uuid</code></strong><code>() noexcept</code></li>
@@ -1367,7 +1367,7 @@ comparisons.</p>
 </li>
 </ul>
 <p>Generates a random version 4 UUID.</p>
-<h3 id="version-number">Version number</h3>
+<h2 id="version-number">Version number</h2>
 <ul>
 <li><code>class</code> <strong><code>Version</code></strong><ul>
 <li><code>using Version::</code><strong><code>value_type</code></strong> <code>= unsigned</code></li>
