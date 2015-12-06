@@ -307,14 +307,14 @@ $(NAME)/library.hpp: $(LIBHEADERS)
 	echo $(sort $(LIBHEADERS)) | tr ' ' '\n' | sed -E 's/.+/#include "&"/' >> $@
 
 ifeq ($(DOCINDEX),)
-doc/index.html: $(DOCSOURCES)
+doc/index.html: $(DOCSOURCES) $(SCRIPTS)/make-doc $(SCRIPTS)/make-index
 	@mkdir -p $(dir $@)
 	$(SCRIPTS)/make-index > __index__.md
 	$(SCRIPTS)/make-doc __index__.md $@
 	rm __index__.md
 endif
 
-doc/%.html: $(NAME)/%.md
+doc/%.html: $(NAME)/%.md $(SCRIPTS)/make-doc
 	@mkdir -p $(dir $@)
 	$(SCRIPTS)/make-doc $< $@
 
