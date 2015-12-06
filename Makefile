@@ -138,12 +138,10 @@ undoc:
 	rm -f doc/*.html
 
 clean:
-	rm -rf build/$(TARGET) __test_*
-	rm -f *.stackdump
+	rm -rf build/$(TARGET) *.stackdump __test_*
 
 cleanall:
-	rm -rf build doc __test_*
-	rm -f *.stackdump
+	rm -rf build doc *.stackdump __test_*
 
 dep:
 	$(CXX) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM */*.cpp \
