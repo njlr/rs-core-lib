@@ -2346,6 +2346,7 @@ namespace Prion {
                 break;
         }
         suf.assign(i, end);
+        trim();
     }
 
     inline string Version::str(size_t min_elements) const {
@@ -2371,6 +2372,7 @@ namespace Prion {
         Version v;
         for (int i = 24; i >= 0 && n != 0; i -= 8)
             v.ver.push_back((n >> i) & 0xff);
+        v.trim();
         return v;
     }
 
