@@ -1913,6 +1913,23 @@ namespace {
         TEST_EQUAL(fpnum("1e9999"), HUGE_VAL);
         TEST_EQUAL(fpnum("-1e9999"), - HUGE_VAL);
 
+        TEST_EQUAL(fp_format(0), "0");
+        TEST_EQUAL(fp_format(0, 'e', 3), "0.000e0");
+        TEST_EQUAL(fp_format(42, 'e', 3), "4.200e1");
+        TEST_EQUAL(fp_format(-42, 'e', 3), "-4.200e1");
+        TEST_EQUAL(fp_format(1.23456e8, 'e', 3), "1.235e8");
+        TEST_EQUAL(fp_format(1.23456e-6, 'e', 3), "1.235e-6");
+        TEST_EQUAL(fp_format(0, 'f', 3), "0.000");
+        TEST_EQUAL(fp_format(42, 'f', 3), "42.000");
+        TEST_EQUAL(fp_format(-42, 'f', 3), "-42.000");
+        TEST_EQUAL(fp_format(1.23456e8, 'f', 3), "123456000.000");
+        TEST_EQUAL(fp_format(1.23456e-6, 'f', 3), "0.000");
+        TEST_EQUAL(fp_format(0, 'g', 3), "0");
+        TEST_EQUAL(fp_format(42, 'g', 3), "42");
+        TEST_EQUAL(fp_format(-42, 'g', 3), "-42");
+        TEST_EQUAL(fp_format(1.23456e8, 'g', 3), "1.23e8");
+        TEST_EQUAL(fp_format(1.23456e-6, 'g', 3), "1.23e-6");
+
         TEST_EQUAL(hexdump(""s), "");
         TEST_EQUAL(hexdump(""s, 5), "");
         TEST_EQUAL(hexdump("Hello world!"s), "48 65 6c 6c 6f 20 77 6f 72 6c 64 21");

@@ -875,6 +875,12 @@ range will be clamped to the nearest end of the return type's range (for
 
 Returns a string containing `4*depth` spaces, for indentation.
 
+* `u8string` **`fp_format`**`(double x, char mode = 'g', int prec = 6)`
+
+Simple floating point formatting, caalling `snprintf()` internally. This will
+throw `std::invalid_argument` if the mode is not one of `[eEfFgG]`; it may
+throw `std::system_error` under implementation defined circumstances.
+
 * `u8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
 * `u8string` **`hexdump`**`(const string& str, size_t block = 0)`
 

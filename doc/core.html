@@ -961,6 +961,12 @@ range will be clamped to the nearest end of the return type's range (for
 </ul>
 <p>Returns a string containing <code>4*depth</code> spaces, for indentation.</p>
 <ul>
+<li><code>u8string</code> <strong><code>fp_format</code></strong><code>(double x, char mode = 'g', int prec = 6)</code></li>
+</ul>
+<p>Simple floating point formatting, caalling <code>snprintf()</code> internally. This will
+throw <code>std::invalid_argument</code> if the mode is not one of <code>[eEfFgG]</code>; it may
+throw <code>std::system_error</code> under implementation defined circumstances.</p>
+<ul>
 <li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
 <li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
 </ul>

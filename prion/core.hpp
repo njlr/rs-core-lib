@@ -198,6 +198,12 @@ namespace Prion {
 
     namespace PrionDetail {
 
+        inline void append_hex_byte(uint8_t b, string& s) {
+            static constexpr const char* digits = "0123456789abcdef";
+            s += digits[b / 16];
+            s += digits[b % 16];
+        }
+
         template <typename T>
         constexpr T select_char(char c, char16_t c16, char32_t c32, wchar_t wc) noexcept {
             return std::is_same<T, char>::value ? T(c)
@@ -238,6 +244,28 @@ namespace Prion {
     template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
+
+    inline string quote(const string& str, bool allow_8bit = false) {
+        string result = "\"";
+        for (auto c: str) {
+            auto b = uint8_t(c);
+            if (c == 0)                        result += "\\0";
+            else if (c == '\t')                result += "\\t";
+            else if (c == '\n')                result += "\\n";
+            else if (c == '\f')                result += "\\f";
+            else if (c == '\r')                result += "\\r";
+            else if (c == '\"')                result += "\\\"";
+            else if (c == '\\')                result += "\\\\";
+            else if (c >= 0x20 && c <= 0x7e)   result += c;
+            else if (allow_8bit && b >= 0x80)  result += c;
+            else {
+                result += "\\x";
+                PrionDetail::append_hex_byte(b, result);
+            }
+        }
+        result += '\"';
+        return result;
+    }
 
     #if defined(PRI_TARGET_WIN32)
 
@@ -1423,14 +1451,35 @@ namespace Prion {
     inline double fpnum(const string& str) noexcept { return strtod(str.data(), nullptr); }
     inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
 
-    namespace PrionDetail {
-
-        inline void append_hex_byte(uint8_t b, string& s) {
-            static constexpr const char* digits = "0123456789abcdef";
-            s += digits[b / 16];
-            s += digits[b % 16];
+    inline u8string fp_format(double x, char mode = 'g', int prec = 6) {
+        using namespace std::literals;
+        if ("eEfFgG"s.find(mode) == npos)
+            throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
+        u8string buf(20, '\0'), fmt = "%.*"s + mode;
+        int rc = 0;
+        for (;;) {
+            rc = snprintf(&buf[0], buf.size(), fmt.data(), prec, x);
+            if (rc < 0)
+                throw std::system_error(errno, std::generic_category(), "snprintf()");
+            if (size_t(rc) < buf.size())
+                break;
+            buf.resize(2 * buf.size());
         }
-
+        buf.resize(rc);
+        if (mode != 'f' && mode != 'F') {
+            size_t p = buf.find_first_of("eE");
+            if (p != npos) {
+                ++p;
+                if (buf[p] == '+')
+                    buf.erase(p, 1);
+                else if (buf[p] == '-')
+                    ++p;
+                size_t q = std::min(buf.find_first_not_of('0', p), buf.size() - 1);
+                if (q > p)
+                    buf.erase(p, q - p);
+            }
+        }
+        return buf;
     }
 
     inline u8string hexdump(const void* ptr, size_t n, size_t block = 0) {
@@ -1487,28 +1536,6 @@ namespace Prion {
             *dst = src.substr(i, j - i);
             ++dst;
         }
-    }
-
-    inline string quote(const string& str, bool allow_8bit = false) {
-        string result = "\"";
-        for (auto c: str) {
-            auto b = uint8_t(c);
-            if (c == 0)                        result += "\\0";
-            else if (c == '\t')                result += "\\t";
-            else if (c == '\n')                result += "\\n";
-            else if (c == '\f')                result += "\\f";
-            else if (c == '\r')                result += "\\r";
-            else if (c == '\"')                result += "\\\"";
-            else if (c == '\\')                result += "\\\\";
-            else if (c >= 0x20 && c <= 0x7e)   result += c;
-            else if (allow_8bit && b >= 0x80)  result += c;
-            else {
-                result += "\\x";
-                PrionDetail::append_hex_byte(b, result);
-            }
-        }
-        result += '\"';
-        return result;
     }
 
     template <typename T> string to_str(const T& t);
