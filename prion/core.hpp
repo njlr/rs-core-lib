@@ -1451,11 +1451,19 @@ namespace Prion {
     inline double fpnum(const string& str) noexcept { return strtod(str.data(), nullptr); }
     inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
 
-    inline u8string fp_format(double x, char mode = 'g', int prec = 6) {
+    template <typename T>
+    u8string fp_format(T t, char mode = 'g', int prec = 6) {
+        PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
         using namespace std::literals;
-        if ("eEfFgG"s.find(mode) == npos)
+        if ("eEfFgGzZ"s.find(mode) == npos)
             throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
-        u8string buf(20, '\0'), fmt = "%.*"s + mode;
+        u8string buf(20, '\0'), fmt;
+        switch (mode) {
+            case 'z':  fmt = "%#.*g"s; break;
+            case 'Z':  fmt = "%#.*G"s; break;
+            default:   fmt = "%.*"s + mode; break;
+        }
+        auto x = double(t);
         int rc = 0;
         for (;;) {
             rc = snprintf(&buf[0], buf.size(), fmt.data(), prec, x);
@@ -1468,7 +1476,13 @@ namespace Prion {
         buf.resize(rc);
         if (mode != 'f' && mode != 'F') {
             size_t p = buf.find_first_of("eE");
-            if (p != npos) {
+            if (p == npos)
+                p = buf.size();
+            if (buf[p - 1] == '.') {
+                buf.erase(p - 1, 1);
+                --p;
+            }
+            if (p < buf.size()) {
                 ++p;
                 if (buf[p] == '+')
                     buf.erase(p, 1);
@@ -1480,6 +1494,66 @@ namespace Prion {
             }
         }
         return buf;
+    }
+
+    namespace PrionDetail {
+
+        constexpr const char* si_prefixes = "KMGTPEZY";
+
+    }
+
+    template <typename T>
+    T from_si(const u8string& str) {
+        PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
+        using limits = std::numeric_limits<T>;
+        char* next = nullptr;
+        errno = 0;
+        double x = strtod(str.data(), &next);
+        if (errno == ERANGE && fabs(x) == HUGE_VAL)
+            throw std::range_error("Out of range: " + str);
+        else if (errno == ERANGE)
+            x = 0;
+        else if (next == str.data())
+            throw std::invalid_argument("Invalid number: " + str);
+        auto endp = str.data() + str.size();
+        while (next != endp && ascii_isspace(*next))
+            ++next;
+        if (next == endp || ! ascii_isalpha(*next))
+            return x;
+        auto ptr = strchr(PrionDetail::si_prefixes, ascii_toupper(*next));
+        if (ptr == nullptr)
+            throw std::invalid_argument("Unknown suffix: " + str);
+        x *= pow(10.0, 3 * (ptr - PrionDetail::si_prefixes + 1));
+        if (x < double(limits::min()) || x > double(limits::max()))
+            throw std::range_error("Out of range: " + str);
+        return T(x);
+    }
+
+    inline double si_to_f(const u8string& str) { return from_si<double>(str); }
+    inline intmax_t si_to_i(const u8string& str) { return from_si<intmax_t>(str); }
+
+    template <typename T>
+    u8string to_si(T t, int prec = 3, const u8string& delim = "") {
+        PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
+        auto x = double(t);
+        if (x == 0)
+            return fp_format(x, 'z', prec);
+        int step = clamp(int(floor(log10(fabs(x)) / 3.0)), 0, 8);
+        x *= pow(10.0, - 3 * step);
+        u8string str = fp_format(x, 'z', prec);
+        auto p = str.data() + size_t(str[0] == '-');
+        if (step < 8 && strcmp(p, "1000") == 0) {
+            ++step;
+            x *= 0.001;
+            str = fp_format(x, 'z', prec);
+        }
+        if (step > 0)
+            str += delim;
+        if (step == 1)
+            str += 'k';
+        else if (step >= 2)
+            str += PrionDetail::si_prefixes[step - 1];
+        return str;
     }
 
     inline u8string hexdump(const void* ptr, size_t n, size_t block = 0) {

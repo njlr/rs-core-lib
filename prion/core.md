@@ -875,11 +875,38 @@ range will be clamped to the nearest end of the return type's range (for
 
 Returns a string containing `4*depth` spaces, for indentation.
 
-* `u8string` **`fp_format`**`(double x, char mode = 'g', int prec = 6)`
+* `template <typename T> u8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
 
-Simple floating point formatting, caalling `snprintf()` internally. This will
-throw `std::invalid_argument` if the mode is not one of `[eEfFgG]`; it may
-throw `std::system_error` under implementation defined circumstances.
+Simple floating point formatting, by calling `snprintf()`. `T` must be an
+arithmetic type; it will be converted to `double` internally. The special
+format `'z'` is the same as `'g'` except that trailing zeros are not stripped.
+This will throw `std::invalid_argument` if the mode is not one of
+`[eEfFgGzZ]`; it may throw `std::system_error` under implementation defined
+circumstances.
+
+* `template <typename T> T` **`from_si`**`(const u8string& str)`
+* `double` **`si_to_f`**`(const u8string& str)`
+* `intmax_t` **`si_to_i`**`(const u8string& str)`
+* `template <typename T> u8string` **`to_si`**`(T t, int prec = 3, const u8string& delim = "")`
+
+Convert between numbers and a string representation tagged with an SI prefix.
+In both template functions `T` must be an arithmetic type; `si_to_f()` and
+`si_to_i()` are just shorthand for the corresponding instantiation of
+`from_si()`.
+
+The `from_si()` function converts a string to a number; for example, `"1.23k"`
+will yield 1230. Only SI prefix tags representing positive powers of 10 are
+recognised, starting from `"k"`, not fractional ones; tag letters are case
+insensitive; whitespace between the number and the tag letter is ignored, as
+is anything after a single letter. This will throw `std::invalid_argument` if
+the string does not start with a valid number or a tag letter is not
+recognised, or `std::range_error` if the result is too big for the return
+type.
+
+The `to_si()` function converts a number to a string with an SI prefix
+appended. The tag letter will be chosen so that the numeric part is greater
+than or equal to 1 and less than 1000, if possible. Optionally a delimiter can
+be inserted between the number and letter.
 
 * `u8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
 * `u8string` **`hexdump`**`(const string& str, size_t block = 0)`

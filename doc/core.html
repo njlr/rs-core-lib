@@ -961,11 +961,36 @@ range will be clamped to the nearest end of the return type's range (for
 </ul>
 <p>Returns a string containing <code>4*depth</code> spaces, for indentation.</p>
 <ul>
-<li><code>u8string</code> <strong><code>fp_format</code></strong><code>(double x, char mode = 'g', int prec = 6)</code></li>
+<li><code>template &lt;typename T&gt; u8string</code> <strong><code>fp_format</code></strong><code>(T t, char mode = 'g', int prec = 6)</code></li>
 </ul>
-<p>Simple floating point formatting, caalling <code>snprintf()</code> internally. This will
-throw <code>std::invalid_argument</code> if the mode is not one of <code>[eEfFgG]</code>; it may
-throw <code>std::system_error</code> under implementation defined circumstances.</p>
+<p>Simple floating point formatting, by calling <code>snprintf()</code>. <code>T</code> must be an
+arithmetic type; it will be converted to <code>double</code> internally. The special
+format <code>'z'</code> is the same as <code>'g'</code> except that trailing zeros are not stripped.
+This will throw <code>std::invalid_argument</code> if the mode is not one of
+<code>[eEfFgGzZ]</code>; it may throw <code>std::system_error</code> under implementation defined
+circumstances.</p>
+<ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>from_si</code></strong><code>(const u8string&amp; str)</code></li>
+<li><code>double</code> <strong><code>si_to_f</code></strong><code>(const u8string&amp; str)</code></li>
+<li><code>intmax_t</code> <strong><code>si_to_i</code></strong><code>(const u8string&amp; str)</code></li>
+<li><code>template &lt;typename T&gt; u8string</code> <strong><code>to_si</code></strong><code>(T t, int prec = 3, const u8string&amp; delim = "")</code></li>
+</ul>
+<p>Convert between numbers and a string representation tagged with an SI prefix.
+In both template functions <code>T</code> must be an arithmetic type; <code>si_to_f()</code> and
+<code>si_to_i()</code> are just shorthand for the corresponding instantiation of
+<code>from_si()</code>.</p>
+<p>The <code>from_si()</code> function converts a string to a number; for example, <code>"1.23k"</code>
+will yield 1230. Only SI prefix tags representing positive powers of 10 are
+recognised, starting from <code>"k"</code>, not fractional ones; tag letters are case
+insensitive; whitespace between the number and the tag letter is ignored, as
+is anything after a single letter. This will throw <code>std::invalid_argument</code> if
+the string does not start with a valid number or a tag letter is not
+recognised, or <code>std::range_error</code> if the result is too big for the return
+type.</p>
+<p>The <code>to_si()</code> function converts a number to a string with an SI prefix
+appended. The tag letter will be chosen so that the numeric part is greater
+than or equal to 1 and less than 1000, if possible. Optionally a delimiter can
+be inserted between the number and letter.</p>
 <ul>
 <li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
 <li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
