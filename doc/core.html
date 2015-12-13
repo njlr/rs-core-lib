@@ -643,12 +643,13 @@ pipe (true), or is going directly to a terminal (false). This is not always
 possible to detect reliably; this function is fairly reliable on Unix, less so
 on Windows.</p>
 <ul>
-<li><code>bool</code> <strong><code>load_file</code></strong><code>(const string&amp; file, string&amp; dst)</code></li>
-<li><code>bool</code> <strong><code>load_file</code></strong><code>(const wstring&amp; file, string&amp; dst)</code> <em>(Native Windows only)</em></li>
+<li><code>bool</code> <strong><code>load_file</code></strong><code>(const string&amp; file, string&amp; dst, size_t limit = npos)</code></li>
+<li><code>bool</code> <strong><code>load_file</code></strong><code>(const wstring&amp; file, string&amp; dst, size_t limit = npos)</code> <em>(Native Windows only)</em></li>
 </ul>
-<p>Read a file's contents into a string. The return value is true if everything
-went well, false if there was an error while opening or reading the file. If
-the function returns false, the destination string will be cleared.</p>
+<p>Read a file's contents into a string. Optionally, a maximum number of bytes
+can be specified The return value is true if everything went well, false if
+there was an error while opening or reading the file. If the function returns
+false, the destination string will be cleared.</p>
 <ul>
 <li><code>bool</code> <strong><code>save_file</code></strong><code>(const string&amp; file, const void* ptr, size_t n, bool append = false)</code></li>
 <li><code>bool</code> <strong><code>save_file</code></strong><code>(const string&amp; file, const string&amp; src, bool append = false)</code></li>

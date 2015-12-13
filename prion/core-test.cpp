@@ -1450,32 +1450,46 @@ namespace {
 
     void check_io_utilities() {
 
-        string file = "__test__", s;
-        TempFile tempfile(file);
+        string s, readme = "README.md", testfile = "__test__", nofile = "__no_such_file__";
+        TempFile tempfile(testfile);
 
-        TEST(load_file("README.md"s, s));
+        TEST(load_file(readme, s));
         TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
-        TEST(save_file(file, "Hello world\n"s));
-        TEST(load_file(file, s));
+        TEST(load_file(readme, s, 100));
+        TEST_EQUAL(s.size(), 100);
+        TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
+        TEST(load_file(readme, s, 10));
+        TEST_EQUAL(s.size(), 10);
+        TEST_EQUAL(s.substr(0, 18), "# Prion Li");
+
+        TEST(save_file(testfile, "Hello world\n"s));
+        TEST(load_file(testfile, s));
         TEST_EQUAL(s, "Hello world\n");
-        TEST(save_file(file, "Goodbye\n"s, true));
-        TEST(load_file(file, s));
+        TEST(save_file(testfile, "Goodbye\n"s, true));
+        TEST(load_file(testfile, s));
         TEST_EQUAL(s, "Hello world\nGoodbye\n");
-        TEST(! load_file("__no_such_file__", s));
+        TEST(! load_file(nofile, s));
 
         #if defined(PRI_TARGET_WINDOWS)
 
-            wstring wfile = L"__test__";
+            wstring wreadme = L"README.md", wtestfile = L"__test__", wnofile = L"__no_such_file__";
 
-            TEST(load_file(L"README.md"s, s));
+            TEST(load_file(wreadme, s));
             TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
-            TEST(save_file(wfile, "Hello world\n"s));
-            TEST(load_file(wfile, s));
+            TEST(load_file(wreadme, s, 100));
+            TEST_EQUAL(s.size(), 100);
+            TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
+            TEST(load_file(wreadme, s, 10));
+            TEST_EQUAL(s.size(), 10);
+            TEST_EQUAL(s.substr(0, 18), "# Prion Li");
+
+            TEST(save_file(wtestfile, "Hello world\n"s));
+            TEST(load_file(wtestfile, s));
             TEST_EQUAL(s, "Hello world\n");
-            TEST(save_file(wfile, "Goodbye\n"s, true));
-            TEST(load_file(wfile, s));
+            TEST(save_file(wtestfile, "Goodbye\n"s, true));
+            TEST(load_file(wtestfile, s));
             TEST_EQUAL(s, "Hello world\nGoodbye\n");
-            TEST(! load_file(L"__no_such_file__", s));
+            TEST(! load_file(wnofile, s));
 
         #endif
 

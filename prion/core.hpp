@@ -2497,12 +2497,12 @@ namespace Prion {
             extern "C" int _isatty(int fd);
         #endif
 
-        inline bool load_file_helper(FILE* fp, string& dst) {
+        inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
             static constexpr size_t bufsize = 65536;
             size_t offset = 0;
-            while (! (feof(fp) || ferror(fp))) {
-                dst.resize(offset + bufsize, 0);
-                offset += fread(&dst[0] + offset, 1, bufsize, fp);
+            while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
+                dst.resize(std::min(offset + bufsize, limit), 0);
+                offset += fread(&dst[0] + offset, 1, dst.size() - offset, fp);
             }
             dst.resize(offset);
             return ! ferror(fp);
@@ -2520,13 +2520,13 @@ namespace Prion {
 
     #if defined(PRI_TARGET_UNIX)
 
-        inline bool load_file(const string& file, string& dst) {
+        inline bool load_file(const string& file, string& dst, size_t limit = npos) {
             dst.clear();
             FILE* fp = fopen(file.data(), "rb");
             if (! fp)
                 return false;
             ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::load_file_helper(fp, dst);
+            return PrionDetail::load_file_helper(fp, dst, limit);
         }
 
         inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
@@ -2539,13 +2539,13 @@ namespace Prion {
 
     #else
 
-        inline bool load_file(const wstring& file, string& dst) {
+        inline bool load_file(const wstring& file, string& dst, size_t limit = npos) {
             dst.clear();
             FILE* fp = _wfopen(file.data(), L"rb");
             if (! fp)
                 return false;
             ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::load_file_helper(fp, dst);
+            return PrionDetail::load_file_helper(fp, dst, limit);
         }
 
         inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
@@ -2556,7 +2556,8 @@ namespace Prion {
             return PrionDetail::save_file_helper(fp, ptr, n);
         }
 
-        inline bool load_file(const string& file, string& dst) { return load_file(utf8_to_wstring(file), dst); }
+        inline bool load_file(const string& file, string& dst, size_t limit = npos)
+            { return load_file(utf8_to_wstring(file), dst, limit); }
         inline bool save_file(const string& file, const void* ptr, size_t n, bool append)
             { return save_file(utf8_to_wstring(file), ptr, n, append); }
         inline bool save_file(const wstring& file, const string& src, bool append = false)

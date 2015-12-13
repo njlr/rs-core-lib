@@ -594,12 +594,13 @@ pipe (true), or is going directly to a terminal (false). This is not always
 possible to detect reliably; this function is fairly reliable on Unix, less so
 on Windows.
 
-* `bool` **`load_file`**`(const string& file, string& dst)`
-* `bool` **`load_file`**`(const wstring& file, string& dst)` _(Native Windows only)_
+* `bool` **`load_file`**`(const string& file, string& dst, size_t limit = npos)`
+* `bool` **`load_file`**`(const wstring& file, string& dst, size_t limit = npos)` _(Native Windows only)_
 
-Read a file's contents into a string. The return value is true if everything
-went well, false if there was an error while opening or reading the file. If
-the function returns false, the destination string will be cleared.
+Read a file's contents into a string. Optionally, a maximum number of bytes
+can be specified The return value is true if everything went well, false if
+there was an error while opening or reading the file. If the function returns
+false, the destination string will be cleared.
 
 * `bool` **`save_file`**`(const string& file, const void* ptr, size_t n, bool append = false)`
 * `bool` **`save_file`**`(const string& file, const string& src, bool append = false)`
