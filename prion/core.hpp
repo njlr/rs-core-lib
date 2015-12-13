@@ -1454,14 +1454,14 @@ namespace Prion {
     template <typename T>
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
         PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
-        using namespace std::literals;
-        if ("eEfFgGzZ"s.find(mode) == npos)
+        static const u8string modes = "eEfFgGzZ";
+        if (modes.find(mode) == npos)
             throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
         u8string buf(20, '\0'), fmt;
         switch (mode) {
-            case 'z':  fmt = "%#.*g"s; break;
-            case 'Z':  fmt = "%#.*G"s; break;
-            default:   fmt = "%.*"s + mode; break;
+            case 'z':  fmt = "%#.*g"; break;
+            case 'Z':  fmt = "%#.*G"; break;
+            default:   fmt = u8string("%.*") + mode; break;
         }
         auto x = double(t);
         int rc = 0;
