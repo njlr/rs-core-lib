@@ -101,6 +101,7 @@
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <tuple>
 #include <typeinfo>
 #include <type_traits>
 #include <utility>
@@ -1084,21 +1085,6 @@ namespace Prion {
 
     // Functional utilities
 
-    // stdfun() is based on an idea by Victor Laskin
-    // http://vitiy.info/c11-functional-decomposition-easy-way-to-do-aop/
-
-    namespace PrionDetail {
-
-        template <typename F> struct FunctionTraits:
-            FunctionTraits<decltype(&F::operator())> {};
-        template <typename T, typename RT, typename... Args> struct FunctionTraits<RT(T::*)(Args...) const>
-            { using function = std::function<RT(Args...)>; };
-
-    }
-
-    template <typename F> typename PrionDetail::FunctionTraits<F>::function stdfun(F& lambda)
-        { return static_cast<typename PrionDetail::FunctionTraits<F>::function>(lambda); }
-
     struct DoNothing {
         void operator()() const noexcept {}
         template <typename T> void operator()(T&) const noexcept {}
@@ -1112,6 +1098,60 @@ namespace Prion {
 
     constexpr DoNothing do_nothing {};
     constexpr Identity identity {};
+
+    // Function traits are based on code by Kennytm and Victor Laskin
+    // http://stackoverflow.com/questions/7943525/is-it-possible-to-figure-out-the-parameter-type-and-return-type-of-a-lambda
+    // http://vitiy.info/c11-functional-decomposition-easy-way-to-do-aop/
+    // Tuple invocation is based on code from Cppreference.com
+    // http://en.cppreference.com/w/cpp/utility/integer_sequence
+
+    namespace PrionDetail {
+
+        template <typename Function>
+        struct FunctionTraits:
+        FunctionTraits<decltype(&Function::operator())> {};
+
+        template <typename ReturnType, typename... Args>
+        struct FunctionTraits<ReturnType (Args...)> {
+            static constexpr size_t arity = sizeof...(Args);
+            using argument_tuple = std::tuple<Args...>;
+            using result_type = ReturnType;
+            using std_function = std::function<result_type(Args...)>;
+        };
+
+        template <typename ReturnType, typename... Args>
+        struct FunctionTraits<ReturnType (*)(Args...)>:
+        FunctionTraits<ReturnType (Args...)> {};
+
+        template <typename ClassType, typename ReturnType, typename... Args>
+        struct FunctionTraits<ReturnType (ClassType::*)(Args...)>:
+        FunctionTraits<ReturnType (Args...)> {};
+
+        template <typename ClassType, typename ReturnType, typename... Args>
+        struct FunctionTraits<ReturnType (ClassType::*)(Args...) const>:
+        FunctionTraits<ReturnType (Args...)> {};
+
+        template <typename Function, typename Tuple, size_t... Indices>
+        decltype(auto) invoke_helper(Function&& f, Tuple&& t, std::index_sequence<Indices...>) {
+            return f(std::get<Indices>(std::forward<Tuple>(t))...);
+        }
+
+    }
+
+    template <typename Function> struct Arity
+        { static constexpr size_t value = PrionDetail::FunctionTraits<Function>::arity; };
+    template <typename Function> using ArgumentTuple = typename PrionDetail::FunctionTraits<Function>::argument_tuple;
+    template <typename Function, size_t Index> using ArgumentType = std::tuple_element_t<Index, ArgumentTuple<Function>>;
+    template <typename Function> using ResultType = typename PrionDetail::FunctionTraits<Function>::result_type;
+    template <typename Function> using StdFunction = typename PrionDetail::FunctionTraits<Function>::std_function;
+    template <typename Function> StdFunction<Function> stdfun(Function& lambda) { return StdFunction<Function>(lambda); }
+
+    template<typename Function, typename Tuple>
+    decltype(auto) invoke(Function&& f, Tuple&& t) {
+        constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
+        return PrionDetail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t),
+            std::make_index_sequence<size>{});
+    }
 
     // Hash functions
 

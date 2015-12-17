@@ -495,7 +495,6 @@ using `T`'s less-than operator.
     * `template <typename InputRange2> void TwoWayMap::`**`insert_range2`**`(const T1& t1, const InputRange2& r2)`
     * `template <typename InputRange1, typename InputRange2> void TwoWayMap::`**`insert_ranges`**`(const InputRange1& r1, const InputRange2& r2)`
 
-
 A two-way associative container that allows lookup in either direction between
 the key and value types. Both types must be default constructible, fully
 copyable and movable, and totally ordered.
@@ -547,10 +546,6 @@ not supply any equivalent.)
 
 ## Functional utilities ##
 
-* `template <typename F> std::function<...>` **`stdfun`**`(F& lambda)`
-
-Wraps a lambda in a `std::function` with the appropriate signature.
-
 * `struct` **`DoNothing`**
     * `void` **`operator()`**`() const noexcept {}`
     * `template <typename T> void` **`operator()`**`(T&) const noexcept {}`
@@ -561,7 +556,26 @@ Wraps a lambda in a `std::function` with the appropriate signature.
     * `template <typename T> const T&` **`operator()`**`(const T& t) const noexcept { return t; }`
 * `constexpr Identity` **`identity`**
 
-Simple function objects.
+Trivial function objects.
+
+* `template <typename Function> struct` **`Arity`**
+    * `static constexpr size_t Arity::`**`value`**
+* `template <typename Function> using` **`ArgumentTuple`** `= [tuple type]`
+* `template <typename Function, size_t Index> using` **`ArgumentType`** `= [type of given argument]`
+* `template <typename Function> using` **`ResultType`** `= [result type]`
+* `template <typename Function> using` **`StdFunction`** `= std::function<...>`
+
+Properties of a function type. This will work with ordinary functions (if not
+overloaded), function pointers, function objects, lambda expressions, and
+`std::function` instantiations.
+
+* `template <typename Function> StdFunction<Function>` **`stdfun`**`(Function& f)`
+
+Wraps a function in the appropriate standard function type.
+
+* `template<typename Function, typename Tuple> decltype(auto)` **`invoke`**`(Function&& f, Tuple&& t)`
+
+Calls a function, passing a tuple as the argument list.
 
 ## Hash functions ##
 
