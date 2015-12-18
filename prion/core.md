@@ -308,6 +308,22 @@ result is not representable by the return type.
 
 Returns the sign of its argument (-1 if `t<0`, 0 if `t=0`, 1 if `t>0`).
 
+## Bitmask operations ##
+
+* `constexpr size_t bits_set(uint64_t x) noexcept`
+
+Returns the number of 1 bits in `x`.
+
+* `constexpr size_t binary_size(uint64_t x) noexcept`
+
+Returns the size of the argument in bits (i.e. the index of the highest 1 bit
+plus 1, or zero if the argument is zero).
+
+* `constexpr uint64_t letter_to_mask(char c) noexcept`
+
+Converts a letter to a mask with bit 0-51 set. The result is unspecified if
+the argument is not an ASCII letter.
+
 ## Byte order ##
 
 * `static constexpr bool` **`big_endian_target`**

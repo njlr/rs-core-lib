@@ -705,6 +705,35 @@ namespace {
 
     }
 
+    void check_bitmask_operations() {
+
+        TEST_EQUAL(binary_size(0), 0);
+        TEST_EQUAL(binary_size(1), 1);
+        TEST_EQUAL(binary_size(0x8000), 16);
+        TEST_EQUAL(binary_size(0x8888), 16);
+        TEST_EQUAL(binary_size(0xffff), 16);
+        TEST_EQUAL(binary_size(0x8000000000000000ull), 64);
+        TEST_EQUAL(binary_size(0xffffffffffffffffull), 64);
+
+        TEST_EQUAL(bits_set(0), 0);
+        TEST_EQUAL(bits_set(1), 1);
+        TEST_EQUAL(bits_set(0x8000), 1);
+        TEST_EQUAL(bits_set(0x8888), 4);
+        TEST_EQUAL(bits_set(0xffff), 16);
+        TEST_EQUAL(bits_set(0x8000000000000000ull), 1);
+        TEST_EQUAL(bits_set(0xffffffffffffffffull), 64);
+
+        TEST_EQUAL(letter_to_mask('A'), 1);
+        TEST_EQUAL(letter_to_mask('B'), 2);
+        TEST_EQUAL(letter_to_mask('C'), 4);
+        TEST_EQUAL(letter_to_mask('Z'), 0x2000000ull);
+        TEST_EQUAL(letter_to_mask('a'), 0x4000000ull);
+        TEST_EQUAL(letter_to_mask('b'), 0x8000000ull);
+        TEST_EQUAL(letter_to_mask('c'), 0x10000000ull);
+        TEST_EQUAL(letter_to_mask('z'), 0x8000000000000ull);
+
+    }
+
     void check_byte_order() {
 
         union { uint16_t u; uint8_t b[2]; } union16;
@@ -2733,6 +2762,7 @@ TEST_MODULE(prion, core) {
     check_algorithms();
     check_arithmetic_literals();
     check_arithmetic_functions();
+    check_bitmask_operations();
     check_byte_order();
     check_character_functions();
     check_containers();

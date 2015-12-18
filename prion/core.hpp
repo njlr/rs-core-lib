@@ -676,6 +676,13 @@ namespace Prion {
         return T(result);
     }
 
+    // Bitmask operations
+
+    constexpr size_t binary_size(uint64_t x) noexcept { return x == 0 ? 0 : 8 * sizeof(x) - __builtin_clzll(x); }
+    constexpr size_t bits_set(uint64_t x) noexcept { return __builtin_popcountll(x); }
+    constexpr uint64_t letter_to_mask(char c) noexcept
+        { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
+
     // Byte order
 
     #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
@@ -1063,7 +1070,8 @@ namespace Prion {
         public std::error_category {
         public:
             virtual u8string message(int ev) const {
-                static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+                static constexpr uint32_t flags =
+                    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
                 wchar_t* wptr = nullptr;
                 auto units = FormatMessageW(flags, nullptr, ev, 0, (wchar_t*)&wptr, 0, nullptr);
                 shared_ptr<wchar_t> wshare(wptr, LocalFree);
