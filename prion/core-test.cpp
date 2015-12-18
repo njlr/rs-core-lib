@@ -1359,8 +1359,6 @@ namespace {
     using tuple1 = std::tuple<char>;
     using tuple2 = std::tuple<size_t, char>;
 
-    const u8string empty_string = {};
-
     u8string fa0() { return "hello"; }
     u8string fa1(char c) { return {c}; }
     u8string fa2(size_t n, char c) { return u8string(n, c); }
@@ -1388,10 +1386,6 @@ namespace {
     auto fe0 = [] () -> u8string { return "hello"; };
     auto fe1 = [] (char c) -> u8string { return {c}; };
     auto fe2 = [] (size_t n, char c) -> u8string { return u8string(n, c); };
-
-    auto ff0 = [&] () -> u8string { return empty_string + "hello"; };
-    auto ff1 = [&] (char c) -> u8string { return empty_string + u8string{c}; };
-    auto ff2 = [&] (size_t n, char c) -> u8string { return empty_string + u8string(n, c); };
 
     void check_functional_utilities() {
 
@@ -1428,28 +1422,24 @@ namespace {
         TEST_EQUAL(fc0(), "hello");  TEST_EQUAL(fc1('a'), "a");  TEST_EQUAL(fc2(5, 'z'), "zzzzz");
         TEST_EQUAL(fd0(), "hello");  TEST_EQUAL(fd1('a'), "a");  TEST_EQUAL(fd2(5, 'z'), "zzzzz");
         TEST_EQUAL(fe0(), "hello");  TEST_EQUAL(fe1('a'), "a");  TEST_EQUAL(fe2(5, 'z'), "zzzzz");
-        TEST_EQUAL(ff0(), "hello");  TEST_EQUAL(ff1('a'), "a");  TEST_EQUAL(ff2(5, 'z'), "zzzzz");
 
         using FTA0 = decltype(fa0);  using FTA1 = decltype(fa1);  using FTA2 = decltype(fa2);
         using FTB0 = decltype(fb0);  using FTB1 = decltype(fb1);  using FTB2 = decltype(fb2);
         using FTC0 = decltype(fc0);  using FTC1 = decltype(fc1);  using FTC2 = decltype(fc2);
         using FTD0 = decltype(fd0);  using FTD1 = decltype(fd1);  using FTD2 = decltype(fd2);
         using FTE0 = decltype(fe0);  using FTE1 = decltype(fe1);  using FTE2 = decltype(fe2);
-        using FTF0 = decltype(ff0);  using FTF1 = decltype(ff1);  using FTF2 = decltype(ff2);
 
         TEST_EQUAL(Arity<FTA0>::value, 0);  TEST_EQUAL(Arity<FTA1>::value, 1);  TEST_EQUAL(Arity<FTA2>::value, 2);
         TEST_EQUAL(Arity<FTB0>::value, 0);  TEST_EQUAL(Arity<FTB1>::value, 1);  TEST_EQUAL(Arity<FTB2>::value, 2);
         TEST_EQUAL(Arity<FTC0>::value, 0);  TEST_EQUAL(Arity<FTC1>::value, 1);  TEST_EQUAL(Arity<FTC2>::value, 2);
         TEST_EQUAL(Arity<FTD0>::value, 0);  TEST_EQUAL(Arity<FTD1>::value, 1);  TEST_EQUAL(Arity<FTD2>::value, 2);
         TEST_EQUAL(Arity<FTE0>::value, 0);  TEST_EQUAL(Arity<FTE1>::value, 1);  TEST_EQUAL(Arity<FTE2>::value, 2);
-        TEST_EQUAL(Arity<FTF0>::value, 0);  TEST_EQUAL(Arity<FTF1>::value, 1);  TEST_EQUAL(Arity<FTF2>::value, 2);
 
         TEST_TYPE(ArgumentTuple<FTA0>, tuple0);  TEST_TYPE(ArgumentTuple<FTA1>, tuple1);  TEST_TYPE(ArgumentTuple<FTA2>, tuple2);
         TEST_TYPE(ArgumentTuple<FTB0>, tuple0);  TEST_TYPE(ArgumentTuple<FTB1>, tuple1);  TEST_TYPE(ArgumentTuple<FTB2>, tuple2);
         TEST_TYPE(ArgumentTuple<FTC0>, tuple0);  TEST_TYPE(ArgumentTuple<FTC1>, tuple1);  TEST_TYPE(ArgumentTuple<FTC2>, tuple2);
         TEST_TYPE(ArgumentTuple<FTD0>, tuple0);  TEST_TYPE(ArgumentTuple<FTD1>, tuple1);  TEST_TYPE(ArgumentTuple<FTD2>, tuple2);
         TEST_TYPE(ArgumentTuple<FTE0>, tuple0);  TEST_TYPE(ArgumentTuple<FTE1>, tuple1);  TEST_TYPE(ArgumentTuple<FTE2>, tuple2);
-        TEST_TYPE(ArgumentTuple<FTF0>, tuple0);  TEST_TYPE(ArgumentTuple<FTF1>, tuple1);  TEST_TYPE(ArgumentTuple<FTF2>, tuple2);
 
         { using T = ArgumentType<FTA1, 0>; TEST_TYPE(T, char); }
         { using T = ArgumentType<FTA2, 0>; TEST_TYPE(T, size_t); }
@@ -1466,16 +1456,12 @@ namespace {
         { using T = ArgumentType<FTE1, 0>; TEST_TYPE(T, char); }
         { using T = ArgumentType<FTE2, 0>; TEST_TYPE(T, size_t); }
         { using T = ArgumentType<FTE2, 1>; TEST_TYPE(T, char); }
-        { using T = ArgumentType<FTF1, 0>; TEST_TYPE(T, char); }
-        { using T = ArgumentType<FTF2, 0>; TEST_TYPE(T, size_t); }
-        { using T = ArgumentType<FTF2, 1>; TEST_TYPE(T, char); }
 
         TEST_TYPE(ResultType<FTA0>, u8string);  TEST_TYPE(ResultType<FTA1>, u8string);  TEST_TYPE(ResultType<FTA2>, u8string);
         TEST_TYPE(ResultType<FTB0>, u8string);  TEST_TYPE(ResultType<FTB1>, u8string);  TEST_TYPE(ResultType<FTB2>, u8string);
         TEST_TYPE(ResultType<FTC0>, u8string);  TEST_TYPE(ResultType<FTC1>, u8string);  TEST_TYPE(ResultType<FTC2>, u8string);
         TEST_TYPE(ResultType<FTD0>, u8string);  TEST_TYPE(ResultType<FTD1>, u8string);  TEST_TYPE(ResultType<FTD2>, u8string);
         TEST_TYPE(ResultType<FTE0>, u8string);  TEST_TYPE(ResultType<FTE1>, u8string);  TEST_TYPE(ResultType<FTE2>, u8string);
-        TEST_TYPE(ResultType<FTF0>, u8string);  TEST_TYPE(ResultType<FTF1>, u8string);  TEST_TYPE(ResultType<FTF2>, u8string);
 
         auto t0 = tuple0{};
         auto t1 = tuple1{'a'};
@@ -1486,7 +1472,6 @@ namespace {
         TEST_EQUAL(invoke(fc0, t0), "hello");  TEST_EQUAL(invoke(fc1, t1), "a");  TEST_EQUAL(invoke(fc2, t2), "zzzzz");
         TEST_EQUAL(invoke(fd0, t0), "hello");  TEST_EQUAL(invoke(fd1, t1), "a");  TEST_EQUAL(invoke(fd2, t2), "zzzzz");
         TEST_EQUAL(invoke(fe0, t0), "hello");  TEST_EQUAL(invoke(fe1, t1), "a");  TEST_EQUAL(invoke(fe2, t2), "zzzzz");
-        TEST_EQUAL(invoke(ff0, t0), "hello");  TEST_EQUAL(invoke(ff1, t1), "a");  TEST_EQUAL(invoke(ff2, t2), "zzzzz");
 
         auto lf1 = [] (int x) { return x * x; };
         auto sf1 = stdfun(lf1);
