@@ -595,6 +595,11 @@ an existing hash value and mixes it with additional data. All of these call
 `std::hash` for the element type (`hash_bytes()` calls `hash<string>`, or its
 underlying hash function if possible; calling it with a null pointer is safe).
 
+* `template <typename... Args> struct` **`TupleHash`**
+    * `size_t` **`operator()`**`(const std::tuple<Args...>& t) const`
+
+Hash function for a tuple.
+
 ## I/O utilities ##
 
 Functions that take a file name have overloads that take a UTF-16 string in

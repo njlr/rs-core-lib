@@ -1212,6 +1212,10 @@ namespace Prion {
             hash_combine(hash, x);
     }
 
+    template <typename... Args> struct TupleHash
+        { size_t operator()(const std::tuple<Args...>& t) const { return invoke(hash_value<Args...>, t); } };
+    template <typename... Args> struct TupleHash<std::tuple<Args...>>: TupleHash<Args...> {};
+
     // Keyword arguments
 
     namespace PrionDetail {

@@ -648,6 +648,13 @@ problems) calculates the hash of the supplied data; the second version takes
 an existing hash value and mixes it with additional data. All of these call
 <code>std::hash</code> for the element type (<code>hash_bytes()</code> calls <code>hash&lt;string&gt;</code>, or its
 underlying hash function if possible; calling it with a null pointer is safe).</p>
+<ul>
+<li><code>template &lt;typename... Args&gt; struct</code> <strong><code>TupleHash</code></strong><ul>
+<li><code>size_t</code> <strong><code>operator()</code></strong><code>(const std::tuple&lt;Args...&gt;&amp; t) const</code></li>
+</ul>
+</li>
+</ul>
+<p>Hash function for a tuple.</p>
 <h2 id="io-utilities">I/O utilities</h2>
 <p>Functions that take a file name have overloads that take a UTF-16 string in
 native Windows builds (not on Cygwin, where the <code>_wfopen()</code> function is not
