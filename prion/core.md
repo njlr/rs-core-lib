@@ -1183,6 +1183,13 @@ it) from `T1` to the unqualified type of `T2`. For example, `CopyConst<int,
 const string>` yields `string`, while `CopyConst<const int, string>` yields
 `const string`.
 
+* `template <size_t Bits> using` **`SignedInteger`** `= [signed integer type]`
+* `template <size_t Bits> using` **`UnsignedInteger`** `= [unsigned integer type]`
+
+Signed and unsigned integer types with the specified number of bits (the same
+types as `int8_t`, `int16_t`, etc). These will fail to compile if `Bits` is
+not a power of 2 in the supported range (8-128).
+
 * `template <typename T2, typename T1> bool` **`is`**`(const T1* ptr) noexcept`
 * `template <typename T2, typename T1> bool` **`is`**`(const unique_ptr<T1>& ptr) noexcept`
 * `template <typename T2, typename T1> bool` **`is`**`(const shared_ptr<T1>& ptr) noexcept`

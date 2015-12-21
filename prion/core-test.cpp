@@ -2558,6 +2558,17 @@ namespace {
         {  using type = CopyConst<const int, string>;        TEST_TYPE(type, const string);  }
         {  using type = CopyConst<const int, const string>;  TEST_TYPE(type, const string);  }
 
+        TEST_TYPE(SignedInteger<8>, int8_t);
+        TEST_TYPE(SignedInteger<16>, int16_t);
+        TEST_TYPE(SignedInteger<32>, int32_t);
+        TEST_TYPE(SignedInteger<64>, int64_t);
+        TEST_TYPE(SignedInteger<128>, int128_t);
+        TEST_TYPE(UnsignedInteger<8>, uint8_t);
+        TEST_TYPE(UnsignedInteger<16>, uint16_t);
+        TEST_TYPE(UnsignedInteger<32>, uint32_t);
+        TEST_TYPE(UnsignedInteger<64>, uint64_t);
+        TEST_TYPE(UnsignedInteger<128>, uint128_t);
+
         shared_ptr<Base> b1 = make_shared<Derived1>();
         shared_ptr<Base> b2 = make_shared<Derived2>();
 

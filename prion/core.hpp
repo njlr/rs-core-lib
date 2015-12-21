@@ -2296,16 +2296,18 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        template <typename T, size_t S = sizeof(T)> struct SelectBinaryType;
-        template <typename T> struct SelectBinaryType<T, 1> { using type = uint8_t; };
-        template <typename T> struct SelectBinaryType<T, 2> { using type = uint16_t; };
-        template <typename T> struct SelectBinaryType<T, 4> { using type = uint32_t; };
-        template <typename T> struct SelectBinaryType<T, 8> { using type = uint64_t; };
-        template <typename T> struct SelectBinaryType<T, 16> { using type = uint128_t; };
+        template <size_t Bits> struct IntegerType;
+        template <> struct IntegerType<8> { using signed_type = int8_t; using unsigned_type = uint8_t; };
+        template <> struct IntegerType<16> { using signed_type = int16_t; using unsigned_type = uint16_t; };
+        template <> struct IntegerType<32> { using signed_type = int32_t; using unsigned_type = uint32_t; };
+        template <> struct IntegerType<64> { using signed_type = int64_t; using unsigned_type = uint64_t; };
+        template <> struct IntegerType<128> { using signed_type = int128_t; using unsigned_type = uint128_t; };
 
     }
 
-    template <typename T> using BinaryType = typename PrionDetail::SelectBinaryType<T>::type;
+    template <typename T> using BinaryType = typename PrionDetail::IntegerType<8 * sizeof(T)>::unsigned_type;
+    template <size_t Bits> using SignedInteger = typename PrionDetail::IntegerType<Bits>::signed_type;
+    template <size_t Bits> using UnsignedInteger = typename PrionDetail::IntegerType<Bits>::unsigned_type;
 
     template <typename T1, typename T2> using CopyConst =
         std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;

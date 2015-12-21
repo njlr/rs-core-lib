@@ -1362,6 +1362,13 @@ it) from <code>T1</code> to the unqualified type of <code>T2</code>. For example
 const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;const int, string&gt;</code> yields
 <code>const string</code>.</p>
 <ul>
+<li><code>template &lt;size_t Bits&gt; using</code> <strong><code>SignedInteger</code></strong> <code>= [signed integer type]</code></li>
+<li><code>template &lt;size_t Bits&gt; using</code> <strong><code>UnsignedInteger</code></strong> <code>= [unsigned integer type]</code></li>
+</ul>
+<p>Signed and unsigned integer types with the specified number of bits (the same
+types as <code>int8_t</code>, <code>int16_t</code>, etc). These will fail to compile if <code>Bits</code> is
+not a power of 2 in the supported range (8-128).</p>
+<ul>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1* ptr) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
