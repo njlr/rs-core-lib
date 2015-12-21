@@ -1169,9 +1169,9 @@ For reference, the system time types are:
             * `DWORD FILETIME::`**`dwLowDateTime`** `[low 32 bits]`
             * `DWORD FILETIME::`**`dwHighDateTime`** `[high 32 bits]`
 
-## Type properties ##
+## Type manipulation ##
 
-* `template <typename T> using` **`BinaryType`** `= ...`
+* `template <typename T> using` **`BinaryType`** `= [unsigned integer type]`
 
 Yields an unsigned integer type the same size as `T`. This will fail to
 compile if no such type exists.
@@ -1183,9 +1183,26 @@ it) from `T1` to the unqualified type of `T2`. For example, `CopyConst<int,
 const string>` yields `string`, while `CopyConst<const int, string>` yields
 `const string`.
 
+* `template <typename T2, typename T1> bool` **`is`**`(const T1* ptr) noexcept`
+* `template <typename T2, typename T1> bool` **`is`**`(const unique_ptr<T1>& ptr) noexcept`
+* `template <typename T2, typename T1> bool` **`is`**`(const shared_ptr<T1>& ptr) noexcept`
+* `template <typename T2, typename T1> T2&` **`as`**`(const T1* ptr)`
+* `template <typename T2, typename T1> T2&` **`as`**`(const unique_ptr<T1>& ptr)`
+* `template <typename T2, typename T1> T2&` **`as`**`(const shared_ptr<T1>& ptr)`
+
+These are simple wrappers around `dynamic_cast`. The `is()` function returns
+true if the pointer's target has the requested dynamic type; `as()` returns a
+reference to the object converted to the requested dynamic type, or throws
+`std::bad_cast` if the `dynamic_cast` fails.
+
+* `template <typename T2, typename T1> T2` **`binary_cast`**`(const T1& t) noexcept`
 * `template <typename T2, typename T1> T2` **`implicit_cast`**`(const T1& t)`
 
-Converts one type to another, only if the conversion is implicit.
+Type conversions. The `binary_cast()` operation does a simple bitwise copy
+from one type to another; it will fail to compile if the two types have
+different sizes, but does no other safety checks. The `implicit_cast()`
+operation performs the conversion only if it would be allowed as an implicit
+conversion.
 
 * `string` **`demangle`**`(const string& name)`
 * `string` **`type_name`**`(const std::type_info& t)`

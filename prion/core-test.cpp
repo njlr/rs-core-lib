@@ -2531,7 +2531,23 @@ namespace {
 
     }
 
-    void check_type_properties() {
+    class Base {
+    public:
+        virtual ~Base() noexcept {}
+        virtual int get() const = 0;
+    };
+
+    class Derived1: public Base {
+    public:
+        virtual int get() const { return 1; }
+    };
+
+    class Derived2: public Base {
+    public:
+        virtual int get() const { return 2; }
+    };
+
+    void check_type_manipulation() {
 
         TEST_TYPE(BinaryType<char>, uint8_t);
         TEST_TYPE(BinaryType<float>, uint32_t);
@@ -2541,6 +2557,25 @@ namespace {
         {  using type = CopyConst<int, const string>;        TEST_TYPE(type, string);        }
         {  using type = CopyConst<const int, string>;        TEST_TYPE(type, const string);  }
         {  using type = CopyConst<const int, const string>;  TEST_TYPE(type, const string);  }
+
+        shared_ptr<Base> b1 = make_shared<Derived1>();
+        shared_ptr<Base> b2 = make_shared<Derived2>();
+
+        TEST(is<Derived1>(b1));
+        TEST(! is<Derived1>(b2));
+        TEST(! is<Derived2>(b1));
+        TEST(is<Derived2>(b2));
+
+        TEST_EQUAL(as<Derived1>(b1).get(), 1);
+        TEST_THROW(as<Derived2>(b1).get(), std::bad_cast);
+        TEST_THROW(as<Derived1>(b2).get(), std::bad_cast);
+        TEST_EQUAL(as<Derived2>(b2).get(), 2);
+
+        int16_t i;
+        uint16_t u;
+
+        i = 42;      TRY(u = binary_cast<uint16_t>(i));  TEST_EQUAL(u, 42);
+        i = -32767;  TRY(u = binary_cast<uint16_t>(i));  TEST_EQUAL(u, 32769);
 
         u8string s;
 
@@ -2776,7 +2811,7 @@ TEST_MODULE(prion, core) {
     check_string_functions();
     check_threads();
     check_time_and_date_functions();
-    check_type_properties();
+    check_type_manipulation();
     check_uuid();
     check_version_number();
 

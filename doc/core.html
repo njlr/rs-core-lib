@@ -37,7 +37,7 @@
 <li><a href="#string-functions">String functions</a></li>
 <li><a href="#threads">Threads</a></li>
 <li><a href="#time-and-date-functions">Time and date functions</a></li>
-<li><a href="#type-properties">Type properties</a></li>
+<li><a href="#type-manipulation">Type manipulation</a></li>
 <li><a href="#uuid">UUID</a></li>
 <li><a href="#version-number">Version number</a></li>
 </ul>
@@ -1348,9 +1348,9 @@ type.</p>
 </ul>
 </li>
 </ul>
-<h2 id="type-properties">Type properties</h2>
+<h2 id="type-manipulation">Type manipulation</h2>
 <ul>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>BinaryType</code></strong> <code>= ...</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BinaryType</code></strong> <code>= [unsigned integer type]</code></li>
 </ul>
 <p>Yields an unsigned integer type the same size as <code>T</code>. This will fail to
 compile if no such type exists.</p>
@@ -1362,9 +1362,26 @@ it) from <code>T1</code> to the unqualified type of <code>T2</code>. For example
 const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;const int, string&gt;</code> yields
 <code>const string</code>.</p>
 <ul>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1* ptr) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const T1* ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr)</code></li>
+</ul>
+<p>These are simple wrappers around <code>dynamic_cast</code>. The <code>is()</code> function returns
+true if the pointer's target has the requested dynamic type; <code>as()</code> returns a
+reference to the object converted to the requested dynamic type, or throws
+<code>std::bad_cast</code> if the <code>dynamic_cast</code> fails.</p>
+<ul>
+<li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>binary_cast</code></strong><code>(const T1&amp; t) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>implicit_cast</code></strong><code>(const T1&amp; t)</code></li>
 </ul>
-<p>Converts one type to another, only if the conversion is implicit.</p>
+<p>Type conversions. The <code>binary_cast()</code> operation does a simple bitwise copy
+from one type to another; it will fail to compile if the two types have
+different sizes, but does no other safety checks. The <code>implicit_cast()</code>
+operation performs the conversion only if it would be allowed as an implicit
+conversion.</p>
 <ul>
 <li><code>string</code> <strong><code>demangle</code></strong><code>(const string&amp; name)</code></li>
 <li><code>string</code> <strong><code>type_name</code></strong><code>(const std::type_info&amp; t)</code></li>
