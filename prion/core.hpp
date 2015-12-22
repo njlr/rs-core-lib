@@ -2313,7 +2313,7 @@ namespace Prion {
         std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
 
     template <typename T2, typename T1> bool is(const T1* ptr) noexcept
-        { return dynamic_cast<T2*>(ptr.get()) != nullptr; }
+        { return dynamic_cast<T2*>(ptr) != nullptr; }
     template <typename T2, typename T1> bool is(const unique_ptr<T1>& ptr) noexcept
         { return dynamic_cast<T2*>(ptr.get()) != nullptr; }
     template <typename T2, typename T1> bool is(const shared_ptr<T1>& ptr) noexcept
