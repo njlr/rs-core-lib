@@ -1505,7 +1505,6 @@ namespace Prion {
 
     template <typename T>
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
-        PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
         static const u8string modes = "eEfFgGzZ";
         if (modes.find(mode) == npos)
             throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
@@ -1556,7 +1555,6 @@ namespace Prion {
 
     template <typename T>
     T from_si(const u8string& str) {
-        PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
         using limits = std::numeric_limits<T>;
         char* next = nullptr;
         errno = 0;
@@ -1586,7 +1584,6 @@ namespace Prion {
 
     template <typename T>
     u8string to_si(T t, int prec = 3, const u8string& delim = "") {
-        PRI_STATIC_ASSERT(std::is_arithmetic<T>::value);
         auto x = double(t);
         if (x == 0)
             return fp_format(x, 'z', prec);
