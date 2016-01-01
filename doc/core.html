@@ -1369,17 +1369,23 @@ const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;con
 types as <code>int8_t</code>, <code>int16_t</code>, etc). These will fail to compile if <code>Bits</code> is
 not a power of 2 in the supported range (8-128).</p>
 <ul>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1&amp; ref) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1* ptr) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
-<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const T1* ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(T1&amp; ref)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; const T2&amp;</code> <strong><code>as</code></strong><code>(const T1&amp; ref)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(T1* ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; const T2&amp;</code> <strong><code>as</code></strong><code>(const T1* ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(unique_ptr&lt;T1&gt;&amp; ptr)</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(shared_ptr&lt;T1&gt;&amp; ptr)</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr)</code></li>
 </ul>
 <p>These are simple wrappers around <code>dynamic_cast</code>. The <code>is()</code> function returns
-true if the pointer's target has the requested dynamic type; <code>as()</code> returns a
-reference to the object converted to the requested dynamic type, or throws
-<code>std::bad_cast</code> if the <code>dynamic_cast</code> fails.</p>
+true if the pointer or reference's target has the requested dynamic type;
+<code>as()</code> returns a reference to the object converted to the requested dynamic
+type, or throws <code>std::bad_cast</code> if the <code>dynamic_cast</code> fails.</p>
 <ul>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>binary_cast</code></strong><code>(const T1&amp; t) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>implicit_cast</code></strong><code>(const T1&amp; t)</code></li>

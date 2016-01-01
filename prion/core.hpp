@@ -2309,16 +2309,28 @@ namespace Prion {
     template <typename T1, typename T2> using CopyConst =
         std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
 
+    template <typename T2, typename T1> bool is(const T1& ref) noexcept
+        { return dynamic_cast<const T2*>(&ref) != nullptr; }
     template <typename T2, typename T1> bool is(const T1* ptr) noexcept
-        { return dynamic_cast<T2*>(ptr) != nullptr; }
+        { return dynamic_cast<const T2*>(ptr) != nullptr; }
     template <typename T2, typename T1> bool is(const unique_ptr<T1>& ptr) noexcept
-        { return dynamic_cast<T2*>(ptr.get()) != nullptr; }
+        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
     template <typename T2, typename T1> bool is(const shared_ptr<T1>& ptr) noexcept
-        { return dynamic_cast<T2*>(ptr.get()) != nullptr; }
+        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
 
-    template <typename T2, typename T1> T2& as(const T1* ptr)
+    template <typename T2, typename T1> T2& as(T1& ref)
+        { return dynamic_cast<T2&>(ref); }
+    template <typename T2, typename T1> const T2& as(const T1& ref)
+        { return dynamic_cast<const T2&>(ref); }
+    template <typename T2, typename T1> T2& as(T1* ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> const T2& as(const T1* ptr)
+        { if (ptr) return dynamic_cast<const T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(unique_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
     template <typename T2, typename T1> T2& as(const unique_ptr<T1>& ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(shared_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
     template <typename T2, typename T1> T2& as(const shared_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }

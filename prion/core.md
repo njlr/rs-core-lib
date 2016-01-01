@@ -1190,17 +1190,23 @@ Signed and unsigned integer types with the specified number of bits (the same
 types as `int8_t`, `int16_t`, etc). These will fail to compile if `Bits` is
 not a power of 2 in the supported range (8-128).
 
+* `template <typename T2, typename T1> bool` **`is`**`(const T1& ref) noexcept`
 * `template <typename T2, typename T1> bool` **`is`**`(const T1* ptr) noexcept`
 * `template <typename T2, typename T1> bool` **`is`**`(const unique_ptr<T1>& ptr) noexcept`
 * `template <typename T2, typename T1> bool` **`is`**`(const shared_ptr<T1>& ptr) noexcept`
-* `template <typename T2, typename T1> T2&` **`as`**`(const T1* ptr)`
+* `template <typename T2, typename T1> T2&` **`as`**`(T1& ref)`
+* `template <typename T2, typename T1> const T2&` **`as`**`(const T1& ref)`
+* `template <typename T2, typename T1> T2&` **`as`**`(T1* ptr)`
+* `template <typename T2, typename T1> const T2&` **`as`**`(const T1* ptr)`
+* `template <typename T2, typename T1> T2&` **`as`**`(unique_ptr<T1>& ptr)`
 * `template <typename T2, typename T1> T2&` **`as`**`(const unique_ptr<T1>& ptr)`
+* `template <typename T2, typename T1> T2&` **`as`**`(shared_ptr<T1>& ptr)`
 * `template <typename T2, typename T1> T2&` **`as`**`(const shared_ptr<T1>& ptr)`
 
 These are simple wrappers around `dynamic_cast`. The `is()` function returns
-true if the pointer's target has the requested dynamic type; `as()` returns a
-reference to the object converted to the requested dynamic type, or throws
-`std::bad_cast` if the `dynamic_cast` fails.
+true if the pointer or reference's target has the requested dynamic type;
+`as()` returns a reference to the object converted to the requested dynamic
+type, or throws `std::bad_cast` if the `dynamic_cast` fails.
 
 * `template <typename T2, typename T1> T2` **`binary_cast`**`(const T1& t) noexcept`
 * `template <typename T2, typename T1> T2` **`implicit_cast`**`(const T1& t)`

@@ -2577,10 +2577,20 @@ namespace {
         TEST(! is<Derived2>(b1));
         TEST(is<Derived2>(b2));
 
+        TEST(is<Derived1>(*b1));
+        TEST(! is<Derived1>(*b2));
+        TEST(! is<Derived2>(*b1));
+        TEST(is<Derived2>(*b2));
+
         TEST_EQUAL(as<Derived1>(b1).get(), 1);
         TEST_THROW(as<Derived2>(b1).get(), std::bad_cast);
         TEST_THROW(as<Derived1>(b2).get(), std::bad_cast);
         TEST_EQUAL(as<Derived2>(b2).get(), 2);
+
+        TEST_EQUAL(as<Derived1>(*b1).get(), 1);
+        TEST_THROW(as<Derived2>(*b1).get(), std::bad_cast);
+        TEST_THROW(as<Derived1>(*b2).get(), std::bad_cast);
+        TEST_EQUAL(as<Derived2>(*b2).get(), 2);
 
         int16_t i;
         uint16_t u;
