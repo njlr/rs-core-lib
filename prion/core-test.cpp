@@ -51,6 +51,13 @@ namespace {
 
     void check_macros() {
 
+        int n = 42;
+        auto assert1 = [n] { PRI_ASSERT(n == 42); };
+        auto assert2 = [n] { PRI_ASSERT(n == 6 * 9); };
+
+        TRY(assert1());
+        TEST_THROW_MATCH(assert2(), std::logic_error, "\\bcore-test\\.cpp:\\d+\\b.+\\bn == 6 \\* 9\\b");
+
         vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
         vector<u8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
 

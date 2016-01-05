@@ -86,6 +86,13 @@ I may add MSVC support in a future version.</p>
 <p>On Apple platforms, <code>PRI_TARGET_APPLE</code> will always be defined; one of
 <code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>
 <ul>
+<li><code>#define</code> <strong><code>PRI_ASSERT</code></strong><code>(expr)</code></li>
+</ul>
+<p>A simple assertion macro for quick and dirty debugging. If the expression
+(explicitly cast to <code>bool</code>) is false, this throws a <code>std::logic_error</code>
+exception, with a message containing the text of the expression and the source
+code location.</p>
+<ul>
 <li><code>#define</code> <strong><code>PRI_CHAR</code></strong><code>(C, T)</code></li>
 <li><code>#define</code> <strong><code>PRI_CSTR</code></strong><code>(S, T)</code></li>
 </ul>

@@ -135,6 +135,11 @@
 
 // Other preprocessor macros
 
+#define PRI_ASSERT(expr) do { \
+    if (! static_cast<bool>(expr)) \
+        throw std::logic_error(std::string("Assertion failure [") + __FILE__ + ":" + ::Prion::dec(__LINE__) + "]: " + # expr); \
+} while (false)
+
 #define PRI_CHAR(C, T) (::Prion::PrionDetail::select_char<T>(C, u ## C, U ## C, L ## C))
 #define PRI_CSTR(S, T) (::Prion::PrionDetail::select_cstr<T>(S, u ## S, U ## S, L ## S))
 #define PRI_LDLIB(libs)
