@@ -875,29 +875,11 @@ namespace Prion {
         SimpleBuffer(const SimpleBuffer& sb): len(sb.len), ptr(new T[len]) { memcpy(ptr, sb.ptr, bytes()); }
         SimpleBuffer(SimpleBuffer&& sb) noexcept: len(sb.len), ptr(sb.ptr), del(sb.del) { sb.abandon(); }
         ~SimpleBuffer() noexcept { clear(); }
-        SimpleBuffer& operator=(const SimpleBuffer& sb) {
-            SimpleBuffer temp(sb);
-            swap(temp);
-            return *this;
-        }
-        SimpleBuffer& operator=(SimpleBuffer&& sb) noexcept {
-            clear();
-            len = sb.len;
-            ptr = sb.ptr;
-            del = std::move(sb.del);
-            sb.abandon();
-            return *this;
-        }
+        SimpleBuffer& operator=(const SimpleBuffer& sb);
+        SimpleBuffer& operator=(SimpleBuffer&& sb) noexcept;
         T& operator[](size_t i) noexcept { return ptr[i]; }
         const T& operator[](size_t i) const noexcept { return ptr[i]; }
-        void assign(size_t n) {
-            if (n != len) {
-                T* temp = new T[n];
-                clear();
-                len = n;
-                ptr = temp;
-            }
-        }
+        void assign(size_t n);
         void assign(size_t n, T t) { assign(n); std::fill_n(ptr, n, t); }
         void assign(T* p, size_t n) noexcept { clear(); len = n; ptr = p; del = PrionDetail::FreeMemory(); }
         void assign(T* p, size_t n, delete_function d) { SimpleBuffer temp(p, n, d); swap(temp); }
@@ -943,129 +925,32 @@ namespace Prion {
         void abandon() noexcept { len = 0; ptr = nullptr; del = nullptr; }
     };
 
-    namespace PrionDetail {
-
-        template <typename K, typename V>
-        void erase_multi(std::multimap<K, V>& map, const K& k, const V& v) noexcept {
-            auto eqr = map.equal_range(k);
-            auto i = eqr.first;
-            while (i != eqr.second) {
-                if (i->second == v)
-                    i = map.erase(i);
-                else
-                    ++i;
-            }
+        template <typename T>
+        SimpleBuffer<T>& SimpleBuffer<T>::operator=(const SimpleBuffer<T>& sb) {
+            SimpleBuffer temp(sb);
+            swap(temp);
+            return *this;
         }
 
-        template <typename K, typename V>
-        void insert_multi(std::multimap<K, V>& map, const K& k, const V& v) {
-            auto eqr = map.equal_range(k);
-            auto i = std::find_if(eqr.first, eqr.second, [&] (const auto& pair) { return pair.second == v; });
-            if (i == eqr.second)
-                map.insert(eqr.second, std::make_pair(k, v));
+        template <typename T>
+        SimpleBuffer<T>& SimpleBuffer<T>::operator=(SimpleBuffer<T>&& sb) noexcept {
+            clear();
+            len = sb.len;
+            ptr = sb.ptr;
+            del = std::move(sb.del);
+            sb.abandon();
+            return *this;
         }
 
-    }
-
-    template <typename T1, typename T2>
-    class TwoWayMap {
-    private:
-        using forward_map = std::multimap<T1, T2>;
-        using reverse_map = std::multimap<T2, T1>;
-        forward_map fwd;
-        reverse_map rev;
-        T1 def1;
-        T2 def2;
-    public:
-        using first_type = T1;
-        using second_type = T2;
-        TwoWayMap(): fwd(), rev(), def1{T1()}, def2{T2()} {}
-        TwoWayMap(const T1& default1, const T2& default2): fwd(), rev(), def1(default1), def2(default2) {}
-        T2 operator[](const T1& t1) const { return get1(t1); }
-        T1 operator[](const T2& t2) const { return get2(t2); }
-        void clear() noexcept {
-            fwd.clear();
-            rev.clear();
-        }
-        bool empty() const noexcept { return fwd.empty(); }
-        void erase(const T1& t1, const T2& t2) noexcept {
-            auto eqr1 = fwd.equal_range(t1);
-            auto i = eqr1.first;
-            while (i != eqr1.second) {
-                if (i->second == t2) {
-                    fwd.erase(i);
-                    break;
-                }
-                ++i;
-            }
-            auto eqr2 = rev.equal_range(t2);
-            auto j = eqr2.first;
-            while (j != eqr2.second) {
-                if (j->second == t1) {
-                    rev.erase(j);
-                    break;
-                }
-                ++j;
+        template <typename T>
+        void SimpleBuffer<T>::assign(size_t n) {
+            if (n != len) {
+                T* temp = new T[n];
+                clear();
+                len = n;
+                ptr = temp;
             }
         }
-        void erase1(const T1& t1) noexcept {
-            auto range = irange(fwd.equal_range(t1));
-            for (auto& pair: range)
-                PrionDetail::erase_multi(rev, pair.second, pair.first);
-            fwd.erase(range.begin(), range.end());
-        }
-        void erase2(const T2& t2) noexcept {
-            auto range = irange(rev.equal_range(t2));
-            for (auto& pair: range)
-                PrionDetail::erase_multi(fwd, pair.second, pair.first);
-            rev.erase(range.begin(), range.end());
-        }
-        bool get1(const T1& t1, T2& t2) const {
-            auto ipair = fwd.equal_range(t1);
-            if (ipair.first == ipair.second)
-                return false;
-            t2 = ipair.first->second;
-            return true;
-        }
-        T2 get1(const T1& t1) const {
-            T2 t2 = def2;
-            get1(t1, t2);
-            return t2;
-        }
-        bool get2(const T2& t2, T1& t1) const {
-            auto ipair = rev.equal_range(t2);
-            if (ipair.first == ipair.second)
-                return false;
-            t1 = ipair.first->second;
-            return true;
-        }
-        T1 get2(const T2& t2) const {
-            T1 t1 = def1;
-            get2(t2, t1);
-            return t1;
-        }
-        bool has1(const T1& t1) const noexcept { return fwd.find(t1) != fwd.end(); }
-        bool has2(const T2& t2) const noexcept { return rev.find(t2) != rev.end(); }
-        void insert(const T1& t1, const T2& t2) {
-            PrionDetail::insert_multi(fwd, t1, t2);
-            PrionDetail::insert_multi(rev, t2, t1);
-        }
-        template <typename InputRange1> void insert_range1(const InputRange1& r1, const T2& t2) {
-            for (auto& t1: r1)
-                insert(t1, t2);
-        }
-        template <typename InputRange2> void insert_range2(const T1& t1, const InputRange2& r2) {
-            for (auto& t2: r2)
-                insert(t1, t2);
-        }
-        template <typename InputRange1, typename InputRange2> void insert_ranges(const InputRange1& r1, const InputRange2& r2) {
-            using std::begin;
-            if (! range_empty(r1) && ! range_empty(r2)) {
-                insert_range1(r1, *begin(r2));
-                insert_range2(*begin(r1), r2);
-            }
-        }
-    };
 
     // Exceptions
 

@@ -543,66 +543,6 @@ referenced data.</p>
 <p>The comparison operators perform bytewise comparison by calling <code>memcmp()</code>.
 This will usually not give the same ordering as a lexicographical comparison
 using <code>T</code>'s less-than operator.</p>
-<ul>
-<li><code>template &lt;typename T1, typename T2&gt; class</code> <strong><code>TwoWayMap</code></strong><ul>
-<li><code>using TwoWayMap::</code><strong><code>first_type</code></strong> <code>= T1</code></li>
-<li><code>using TwoWayMap::</code><strong><code>second_type</code></strong> <code>= T2</code></li>
-<li><code>TwoWayMap::</code><strong><code>TwoWayMap</code></strong><code>()</code></li>
-<li><code>TwoWayMap::</code><strong><code>TwoWayMap</code></strong><code>(const T1&amp; default1, const T2&amp; default2)</code></li>
-<li><code>TwoWayMap::</code><strong><code>TwoWayMap</code></strong><code>(const TwoWayMap&amp; m)</code></li>
-<li><code>TwoWayMap::</code><strong><code>TwoWayMap</code></strong><code>(TwoWayMap&amp;&amp; m) noexcept</code></li>
-<li><code>TwoWayMap::</code><strong><code>~TwoWayMap</code></strong><code>() noexcept</code></li>
-<li><code>TwoWayMap&amp; TwoWayMap::</code><strong><code>operator=</code></strong><code>(const TwoWayMap&amp; m)</code></li>
-<li><code>TwoWayMap&amp; TwoWayMap::</code><strong><code>operator=</code></strong><code>(TwoWayMap&amp;&amp; m) noexcept</code></li>
-<li><code>T2 TwoWayMap::</code><strong><code>operator[]</code></strong><code>(const T1&amp; t1) const</code></li>
-<li><code>T1 TwoWayMap::</code><strong><code>operator[]</code></strong><code>(const T2&amp; t2) const</code></li>
-<li><code>void TwoWayMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
-<li><code>bool TwoWayMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
-<li><code>void TwoWayMap::</code><strong><code>erase</code></strong><code>(const T1&amp; t1, const T2&amp; t2) noexcept</code></li>
-<li><code>void TwoWayMap::</code><strong><code>erase1</code></strong><code>(const T1&amp; t1) noexcept</code></li>
-<li><code>void TwoWayMap::</code><strong><code>erase2</code></strong><code>(const T2&amp; t2) noexcept</code></li>
-<li><code>bool TwoWayMap::</code><strong><code>get1</code></strong><code>(const T1&amp; t1, T2&amp; t2) const</code></li>
-<li><code>T2 TwoWayMap::</code><strong><code>get1</code></strong><code>(const T1&amp; t1) const</code></li>
-<li><code>bool TwoWayMap::</code><strong><code>get2</code></strong><code>(const T2&amp; t2, T1&amp; t1) const</code></li>
-<li><code>T1 TwoWayMap::</code><strong><code>get2</code></strong><code>(const T2&amp; t2) const</code></li>
-<li><code>bool TwoWayMap::</code><strong><code>has1</code></strong><code>(const T1&amp; t1) const noexcept</code></li>
-<li><code>bool TwoWayMap::</code><strong><code>has2</code></strong><code>(const T2&amp; t2) const noexcept</code></li>
-<li><code>void TwoWayMap::</code><strong><code>insert</code></strong><code>(const T1&amp; t1, const T2&amp; t2)</code></li>
-<li><code>template &lt;typename InputRange1&gt; void TwoWayMap::</code><strong><code>insert_range1</code></strong><code>(const InputRange1&amp; r1, const T2&amp; t2)</code></li>
-<li><code>template &lt;typename InputRange2&gt; void TwoWayMap::</code><strong><code>insert_range2</code></strong><code>(const T1&amp; t1, const InputRange2&amp; r2)</code></li>
-<li><code>template &lt;typename InputRange1, typename InputRange2&gt; void TwoWayMap::</code><strong><code>insert_ranges</code></strong><code>(const InputRange1&amp; r1, const InputRange2&amp; r2)</code></li>
-</ul>
-</li>
-</ul>
-<p>A two-way associative container that allows lookup in either direction between
-the key and value types. Both types must be default constructible, fully
-copyable and movable, and totally ordered.</p>
-<p>This has multimap semantics: multiple values can be inserted for a given key,
-in either direction. The first value associated with that key will be treated
-as the canonical value, and will be returned from a lookup by key, but all of
-the associated values will return the same key from a reverse lookup. If the
-canonical value is erased, the next value for that key, if any, becomes the
-new canonical value.</p>
-<p>Optionally, default values for the two key types can be supplied to the
-constructor, to be returned as a fallback when a key is not found. The default
-constructor calls the default constructors of <code>T1</code> and <code>T2</code> for the fallback
-values.</p>
-<p>The <code>erase()</code> function erases only the specific pair supplied; any entries
-containing either of those keys matched with a different value on the other
-side will remain. The other two erase functions will erase all pairs that
-contain the given key.</p>
-<p>The first version of each of the <code>get[12]()</code> functions returns the canonical
-value for the given key, or the fallback value from the map's constructor if
-the key is not found. The second version updates the supplied reference if a
-value is found, or leaves it unchanged if not, and returns a flag indicating
-whether the key was found.</p>
-<p>The indexing operators are equivalent to the single argument versions of
-<code>get[12]()</code>; the operators will only be usable if the two key types are
-distinguishable.</p>
-<p>The <code>has[12]()</code> functions indicate whether a key is present.</p>
-<p>The <code>insert*()</code> functions insert one or more pairs. For <code>insert_ranges()</code>, the
-first item in each range becomes the canonical value for every key in the
-other range.</p>
 <h2 id="exceptions">Exceptions</h2>
 <ul>
 <li><code>class</code> <strong><code>WindowsCategory</code></strong><code>: public std::error_category</code><ul>
