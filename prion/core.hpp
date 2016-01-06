@@ -952,6 +952,33 @@ namespace Prion {
             }
         }
 
+    template <typename T>
+    class Stacklike {
+    public:
+        using iterator = typename vector<T>::iterator;
+        using const_iterator = typename vector<T>::const_iterator;
+        Stacklike() = default;
+        Stacklike(Stacklike&& s) = default;
+        ~Stacklike() noexcept { clear(); }
+        Stacklike& operator=(Stacklike&& s) { if (&s != this) { clear(); stack = std::move(s.stack); } return *this; }
+        iterator begin() noexcept { return stack.begin(); }
+        const_iterator begin() const noexcept { return stack.cbegin(); }
+        const_iterator cbegin() const noexcept { return stack.cbegin(); }
+        void clear() noexcept { while (! stack.empty()) stack.pop_back(); }
+        bool empty() const noexcept { return stack.empty(); }
+        iterator end() noexcept { return stack.end(); }
+        const_iterator end() const noexcept { return stack.cend(); }
+        const_iterator cend() const noexcept { return stack.cend(); }
+        void pop() noexcept { if (! stack.empty()) stack.pop(); }
+        void push(const T& t) { stack.push_back(t); }
+        void push(T&& t) { stack.push_back(std::move(t)); }
+        size_t size() const noexcept { return stack.size(); }
+    private:
+        vector<T> stack;
+        Stacklike(const Stacklike&) = delete;
+        Stacklike& operator=(const Stacklike&) = delete;
+    };
+
     // Exceptions
 
     #if defined(PRI_TARGET_WIN32)

@@ -490,6 +490,30 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 This will usually not give the same ordering as a lexicographical comparison
 using `T`'s less-than operator.
 
+* `template <typename T> class` **`Stacklike`**
+    * `using Stacklike<T>::`**`iterator`** `= [random access iterator]`
+    * `using Stacklike<T>::`**`const_iterator`** `= [random access iterator]`
+    * `Stacklike<T>::`**`Stacklike`**`()`
+    * `Stacklike<T>::`**`Stacklike`**`(Stacklike&& s)`
+    * `Stacklike<T>::`**`~Stacklike`**`()`
+    * `Stacklike& Stacklike<T>::`**`operator=`**`(Stacklike&& s)`
+    * `iterator Stacklike<T>::`**`begin`**`() noexcept`
+    * `const_iterator Stacklike<T>::`**`begin`**`() const noexcept`
+    * `const_iterator Stacklike<T>::`**`cbegin`**`() const noexcept`
+    * `void Stacklike<T>::`**`clear`**`() noexcept`
+    * `bool Stacklike<T>::`**`empty`**`() const noexcept`
+    * `iterator Stacklike<T>::`**`end`**`() noexcept`
+    * `const_iterator Stacklike<T>::`**`end`**`() const noexcept`
+    * `const_iterator Stacklike<T>::`**`cend`**`() const noexcept`
+    * `void Stacklike<T>::`**`pop`**`() noexcept`
+    * `void Stacklike<T>::`**`push`**`(const T& t)`
+    * `void Stacklike<T>::`**`push`**`(T&& t)`
+    * `size_t Stacklike<T>::`**`size`**`() const noexcept`
+
+A simple LIFO container, whose main function is to ensure that its elements
+are destroyed in reverse order of insertion (this is not guaranteed by any
+standard container, but is often useful for RAII).
+
 ## Exceptions ##
 
 * `class` **`WindowsCategory`**`: public std::error_category`

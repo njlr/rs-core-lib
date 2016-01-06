@@ -1158,6 +1158,21 @@ namespace {
 
     }
 
+    class TopTail {
+    public:
+        TopTail(): sp(nullptr), ch() {}
+        TopTail(u8string& s, char c): sp(&s), ch(c) { s += '+'; s += c; }
+        ~TopTail() { term(); }
+        TopTail(TopTail&& t): sp(t.sp), ch(t.ch) { t.sp = nullptr; }
+        TopTail& operator=(TopTail&& t) { if (&t != this) { term(); sp = t.sp; ch = t.ch; t.sp = nullptr; } return *this; }
+    private:
+        u8string* sp;
+        char ch;
+        TopTail(const TopTail&) = delete;
+        TopTail& operator=(const TopTail&) = delete;
+        void term() { if (sp) { *sp += '-'; *sp += ch; sp = nullptr; } }
+    };
+
     void check_containers() {
 
         using buf = SimpleBuffer<int32_t>;
@@ -1229,6 +1244,23 @@ namespace {
         TEST_EQUAL(bp->size(), 10);
         TEST_EQUAL(bp->at(0), 99);
         TEST_EQUAL(b1.size(), 0);
+
+        Stacklike<TopTail> st;
+        u8string s;
+
+        TEST(st.empty());
+        TRY(st.push(TopTail(s, 'a')));
+        TEST_EQUAL(st.size(), 1);
+        TEST_EQUAL(s, "+a");
+        TRY(st.push(TopTail(s, 'b')));
+        TEST_EQUAL(st.size(), 2);
+        TEST_EQUAL(s, "+a+b");
+        TRY(st.push(TopTail(s, 'c')));
+        TEST_EQUAL(st.size(), 3);
+        TEST_EQUAL(s, "+a+b+c");
+        TRY(st.clear());
+        TEST(st.empty());
+        TEST_EQUAL(s, "+a+b+c-c-b-a");
 
     }
 
