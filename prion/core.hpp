@@ -154,6 +154,16 @@
     T& operator=(const T&) = delete; \
     T& operator=(T&&) = delete;
 
+// Must be used in the global namespace
+#define PRI_DEFINE_STD_HASH(T) \
+    namespace std { \
+        template <> struct hash<T> { \
+            using argument_type = T; \
+            using result_type = size_t; \
+            size_t operator()(const T& t) const noexcept { return t.hash(); } \
+        }; \
+    }
+
 namespace Prion {
 
     // Basic types
@@ -172,17 +182,11 @@ namespace Prion {
     using int128_t = __int128;
     using uint128_t = unsigned __int128;
 
-    // Functions needed early
+    // Things needed early
 
-    template <typename Iterator>
-    struct Irange {
-        Iterator first, second;
-        constexpr Iterator begin() const { return first; }
-        constexpr Iterator end() const { return second; }
-    };
+    constexpr const char* ascii_whitespace = "\t\n\v\f\r ";
+    constexpr size_t npos = string::npos;
 
-    template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
-    template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
     constexpr auto as_signed(int128_t t) noexcept { return int128_t(t); }
     constexpr auto as_signed(uint128_t t) noexcept { return int128_t(t); }
@@ -299,553 +303,7 @@ namespace Prion {
 
     #endif
 
-    // Mixins
-
-    template <typename T>
-    struct EqualityComparable {
-        friend bool operator!=(const T& lhs, const T& rhs) noexcept { return ! (lhs == rhs); }
-    };
-
-    template <typename T>
-    struct LessThanComparable:
-    EqualityComparable<T> {
-        friend bool operator>(const T& lhs, const T& rhs) noexcept { return rhs < lhs; }
-        friend bool operator<=(const T& lhs, const T& rhs) noexcept { return ! (rhs < lhs); }
-        friend bool operator>=(const T& lhs, const T& rhs) noexcept { return ! (lhs < rhs); }
-    };
-
-    template <typename T, typename CV>
-    struct InputIterator:
-    EqualityComparable<T> {
-        using difference_type = ptrdiff_t;
-        using iterator_category = std::input_iterator_tag;
-        using pointer = CV*;
-        using reference = CV&;
-        using value_type = std::remove_const_t<CV>;
-        CV* operator->() const noexcept { return &*static_cast<const T&>(*this); }
-        friend T operator++(T& t, int) { T rc = t; ++t; return rc; }
-    };
-
-    template <typename T>
-    struct OutputIterator {
-        using difference_type = void;
-        using iterator_category = std::output_iterator_tag;
-        using pointer = void;
-        using reference = void;
-        using value_type = void;
-        T& operator*() noexcept { return static_cast<T&>(*this); }
-        friend T& operator++(T& t) noexcept { return t; }
-        friend T operator++(T& t, int) noexcept { return t; }
-    };
-
-    template <typename T, typename CV>
-    struct ForwardIterator:
-    InputIterator<T, CV> {
-        using iterator_category = std::forward_iterator_tag;
-    };
-
-    template <typename T, typename CV>
-    struct BidirectionalIterator:
-    ForwardIterator<T, CV> {
-        using iterator_category = std::bidirectional_iterator_tag;
-        friend T operator--(T& t, int) { T rc = t; --t; return rc; }
-    };
-
-    template <typename T, typename CV>
-    struct RandomAccessIterator:
-    BidirectionalIterator<T, CV>,
-    LessThanComparable<T> {
-        using iterator_category = std::random_access_iterator_tag;
-        CV& operator[](ptrdiff_t i) const noexcept { T t = static_cast<const T&>(*this); t += i; return *t; }
-        friend T& operator-=(T& lhs, ptrdiff_t rhs) noexcept { return lhs += - rhs; }
-        friend T operator+(const T& lhs, ptrdiff_t rhs) { T t = lhs; t += rhs; return t; }
-        friend T operator+(ptrdiff_t lhs, const T& rhs) { T t = rhs; t += lhs; return t; }
-        friend T operator-(const T& lhs, ptrdiff_t rhs) { T t = lhs; t -= rhs; return t; }
-    };
-
-    // Constants
-
-    constexpr const char* ascii_whitespace = "\t\n\v\f\r ";
-    constexpr size_t npos = string::npos;
-
-    #define PRI_DEFINE_CONSTANT(name, value) \
-        static constexpr double name = value; \
-        static constexpr float name ## _f = value ## f; \
-        static constexpr long double name ## _ld = value ## l; \
-        template <typename T> constexpr T c_ ## name() noexcept __attribute__((unused)); \
-        template <> constexpr float c_ ## name<float>() noexcept __attribute__((unused)); \
-        template <> constexpr double c_ ## name<double>() noexcept __attribute__((unused)); \
-        template <typename T> constexpr T c_ ## name() noexcept { return static_cast<T>(name ## _ld); } \
-        template <> constexpr float c_ ## name<float>() noexcept { return name ## _f; } \
-        template <> constexpr double c_ ## name<double>() noexcept { return name; }
-
-    // Mathematical constants
-
-    PRI_DEFINE_CONSTANT(e,         2.71828182845904523536028747135266249775724709369996);
-    PRI_DEFINE_CONSTANT(ln_2,      0.69314718055994530941723212145817656807550013436026);
-    PRI_DEFINE_CONSTANT(ln_10,     2.30258509299404568401799145468436420760110148862877);
-    PRI_DEFINE_CONSTANT(pi,        3.14159265358979323846264338327950288419716939937511);
-    PRI_DEFINE_CONSTANT(sqrt_2,    1.41421356237309504880168872420969807856967187537695);
-    PRI_DEFINE_CONSTANT(sqrt_3,    1.73205080756887729352744634150587236694280525381038);
-    PRI_DEFINE_CONSTANT(sqrt_5,    2.23606797749978969640917366873127623544061835961153);
-    PRI_DEFINE_CONSTANT(sqrt_pi,   1.77245385090551602729816748334114518279754945612239);
-    PRI_DEFINE_CONSTANT(sqrt_2pi,  2.50662827463100050241576528481104525300698674060994);
-
-    // Physical constants
-
-    PRI_DEFINE_CONSTANT(atomic_mass_unit,           1.660538921e-27);  // kg
-    PRI_DEFINE_CONSTANT(avogadro_constant,          6.02214129e23);    // mol^-1
-    PRI_DEFINE_CONSTANT(boltzmann_constant,         1.3806488e-23);    // J K^-1
-    PRI_DEFINE_CONSTANT(elementary_charge,          1.602176565e-19);  // C
-    PRI_DEFINE_CONSTANT(gas_constant,               8.3144621);        // J mol^-1 K^-1
-    PRI_DEFINE_CONSTANT(gravitational_constant,     6.67384e-11);      // m^3 kg^-1 s^-2
-    PRI_DEFINE_CONSTANT(planck_constant,            6.62606957e-34);   // J s
-    PRI_DEFINE_CONSTANT(speed_of_light,             299792458.0);      // m s^-1
-    PRI_DEFINE_CONSTANT(stefan_boltzmann_constant,  5.670373e-8);      // W m^-2 K^-4
-
-    // Astronomical constants
-
-    PRI_DEFINE_CONSTANT(earth_mass,         5.97219e24);          // kg
-    PRI_DEFINE_CONSTANT(earth_radius,       6.3710e6);            // m
-    PRI_DEFINE_CONSTANT(jupiter_mass,       1.8986e27);           // kg
-    PRI_DEFINE_CONSTANT(jupiter_radius,     6.9911e7);            // m
-    PRI_DEFINE_CONSTANT(solar_mass,         1.98855e30);          // kg
-    PRI_DEFINE_CONSTANT(solar_radius,       6.96342e8);           // m
-    PRI_DEFINE_CONSTANT(solar_luminosity,   3.846e26);            // W
-    PRI_DEFINE_CONSTANT(solar_temperature,  5778.0);              // K
-    PRI_DEFINE_CONSTANT(astronomical_unit,  1.49597870700e11);    // m
-    PRI_DEFINE_CONSTANT(light_year,         9.4607304725808e15);  // m
-    PRI_DEFINE_CONSTANT(parsec,             3.08567758149e16);    // m
-    PRI_DEFINE_CONSTANT(julian_day,         86400.0);             // s
-    PRI_DEFINE_CONSTANT(julian_year,        31557600.0);          // s
-    PRI_DEFINE_CONSTANT(sidereal_year,      31558149.7635);       // s
-    PRI_DEFINE_CONSTANT(tropical_year,      31556925.19);         // s
-
-    // Algorithms
-
-    template <typename Range1, typename Range2, typename Compare>
-    int compare_3way(const Range1& r1, const Range2& r2, Compare cmp) {
-        using std::begin;
-        using std::end;
-        auto i = begin(r1), e1 = end(r1);
-        auto j = begin(r2), e2 = end(r2);
-        for (; i != e1 && j != e2; ++i, ++j) {
-            if (cmp(*i, *j))
-                return -1;
-            else if (cmp(*j, *i))
-                return 1;
-        }
-        return i != e1 ? 1 : j != e2 ? -1 : 0;
-    }
-
-    template <typename Range1, typename Range2>
-    int compare_3way(const Range1& r1, const Range2& r2) {
-        return compare_3way(r1, r2, std::less<>());
-    }
-
-    template <typename Container, typename T>
-    void con_remove(Container& con, const T& t) {
-        con.erase(std::remove(con.begin(), con.end(), t), con.end());
-    }
-
-    template <typename Container, typename Predicate>
-    void con_remove_if(Container& con, Predicate p) {
-        con.erase(std::remove_if(con.begin(), con.end(), p), con.end());
-    }
-
-    template <typename Container, typename Predicate>
-    void con_remove_if_not(Container& con, Predicate p) {
-        con.erase(std::remove_if(con.begin(), con.end(), [p] (const auto& x) { return ! p(x); }), con.end());
-    }
-
-    template <typename Container>
-    void con_unique(Container& con) {
-        con.erase(std::unique(con.begin(), con.end()), con.end());
-    }
-
-    template <typename Container, typename BinaryPredicate>
-    void con_unique(Container& con, BinaryPredicate p) {
-        con.erase(std::unique(con.begin(), con.end(), p), con.end());
-    }
-
-    template <typename Container>
-    void con_sort_unique(Container& con) {
-        std::sort(con.begin(), con.end());
-        con_unique(con);
-    }
-
-    template <typename Container, typename Compare>
-    void con_sort_unique(Container& con, Compare cmp) {
-        std::sort(con.begin(), con.end(), cmp);
-        con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
-    }
-
-    // Arithmetic literals
-
-    namespace PrionDetail {
-
-        template <char C> constexpr uint128_t digit_value() noexcept
-            { return uint128_t(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
-
-        template <uint128_t Base, char C, char... CS>
-        struct BaseInteger {
-            using prev_type = BaseInteger<Base, CS...>;
-            static constexpr uint128_t scale = Base * prev_type::scale;
-            static constexpr uint128_t value = digit_value<C>() * scale + prev_type::value;
-        };
-
-        template <uint128_t Base, char C>
-        struct BaseInteger<Base, C> {
-            static constexpr uint128_t scale = 1;
-            static constexpr uint128_t value = digit_value<C>();
-        };
-
-        template <char... CS> struct MakeInteger: public BaseInteger<10, CS...> {};
-        template <char... CS> struct MakeInteger<'0', 'x', CS...>: public BaseInteger<16, CS...> {};
-        template <char... CS> struct MakeInteger<'0', 'X', CS...>: public BaseInteger<16, CS...> {};
-
-    }
-
-    namespace Literals {
-
-        template <char... CS> inline constexpr int128_t operator"" _s128() noexcept
-            { return int128_t(PrionDetail::MakeInteger<CS...>::value); }
-        template <char... CS> inline constexpr uint128_t operator"" _u128() noexcept
-            { return PrionDetail::MakeInteger<CS...>::value; }
-        inline constexpr float operator"" _degf(long double x) noexcept
-            { return float(x * (pi_ld / 180.0L)); }
-        inline constexpr float operator"" _degf(unsigned long long x) noexcept
-            { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        inline constexpr double operator"" _deg(long double x) noexcept
-            { return double(x * (pi_ld / 180.0L)); }
-        inline constexpr double operator"" _deg(unsigned long long x) noexcept
-            { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        inline constexpr long double operator"" _degl(long double x) noexcept
-            { return x * (pi_ld / 180.0L); }
-        inline constexpr long double operator"" _degl(unsigned long long x) noexcept
-            { return static_cast<long double>(x) * (pi_ld / 180.0L); }
-
-    }
-
-    // Arithmetic functions
-
-    template <typename T> inline T abs(T t) noexcept { using std::abs; return abs(t); }
-    inline int128_t abs(int128_t t) noexcept { return t < 0 ? - t : t; }
-    inline uint128_t abs(uint128_t t) noexcept { return t; }
-
-    namespace PrionDetail {
-
-        enum class NumMode {
-            signed_integer,
-            unsigned_integer,
-            floating_point,
-            not_numeric,
-        };
-
-        template <typename T>
-        struct NumType {
-            static constexpr NumMode value =
-                std::is_floating_point<T>::value ? NumMode::floating_point :
-                std::is_signed<T>::value ? NumMode::signed_integer :
-                std::is_unsigned<T>::value ? NumMode::unsigned_integer : NumMode::not_numeric;
-        };
-
-        template <> struct NumType<int128_t> { static constexpr NumMode value = NumMode::signed_integer; };
-        template <> struct NumType<uint128_t> { static constexpr NumMode value = NumMode::unsigned_integer; };
-
-        template <typename T, NumMode Mode = NumType<T>::value> struct Divide;
-
-        template <typename T>
-        struct Divide<T, NumMode::signed_integer> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
-                auto q = lhs / rhs, r = lhs % rhs;
-                if (r < T(0)) {
-                    q += rhs < T(0) ? T(1) : T(-1);
-                    r += abs(rhs);
-                }
-                return {q, r};
-            }
-        };
-
-        template <typename T>
-        struct Divide<T, NumMode::unsigned_integer> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
-                return {lhs / rhs, lhs % rhs};
-            }
-        };
-
-        template <typename T>
-        struct Divide<T, NumMode::floating_point> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
-                using std::fabs;
-                using std::floor;
-                using std::fmod;
-                auto q = floor(lhs / rhs), r = fmod(lhs, rhs);
-                if (r < T(0))
-                    r += fabs(rhs);
-                if (rhs < T(0) && r != T(0))
-                    q += T(1);
-                return {q, r};
-            }
-        };
-
-        template <typename T, NumMode Mode = NumType<T>::value> struct SignOf;
-
-        template <typename T>
-        struct SignOf<T, NumMode::signed_integer> {
-            constexpr int operator()(T t) const noexcept
-                { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
-        };
-
-        template <typename T>
-        struct SignOf<T, NumMode::unsigned_integer> {
-            constexpr int operator()(T t) const noexcept
-                { return t != T(0); }
-        };
-
-        template <typename T>
-        struct SignOf<T, NumMode::floating_point> {
-            constexpr int operator()(T t) const noexcept
-                { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
-        };
-
-        template <typename T2, typename T1, bool FromFloat = std::is_floating_point<T1>::value> struct Round;
-
-        template <typename T2, typename T1>
-        struct Round<T2, T1, true> {
-            T2 operator()(T1 value) const noexcept {
-                using std::floor;
-                return T2(floor(value + T1(1) / T1(2)));
-            }
-        };
-
-        template <typename T2, typename T1>
-        struct Round<T2, T1, false> {
-            T2 operator()(T1 value) const noexcept {
-                return T2(value);
-            }
-        };
-
-    }
-
-    template <typename T> constexpr T static_min(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept
-        { return t < static_min(args...) ? t : static_min(args...); }
-    template <typename T> constexpr T static_max(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept
-        { return static_max(args...) < t ? t : static_max(args...); }
-    template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
-        { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
-    template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
-    template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
-    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
-    template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
-    template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
-    template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)
-        { return y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
-
-    template <typename T> constexpr T rotl(T t, int n) noexcept { return (t << n) | (t >> (8 * sizeof(T) - n)); }
-    template <typename T> constexpr T rotr(T t, int n) noexcept { return (t >> n) | (t << (8 * sizeof(T) - n)); }
-    template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1>()(value); }
-    template <typename T> constexpr int sign_of(T t) noexcept { return PrionDetail::SignOf<T>()(t); }
-
-    template <typename T>
-    T int_power(T x, T y) noexcept {
-        T z = T(1);
-        while (y) {
-            if (y & T(1))
-                z *= x;
-            x *= x;
-            y >>= 1;
-        }
-        return z;
-    }
-
-    template <typename T>
-    T int_sqrt(T t) noexcept {
-        if (std::numeric_limits<T>::digits < std::numeric_limits<double>::digits)
-            return T(floor(sqrt(double(t))));
-        auto u = as_unsigned(t);
-        using U = decltype(u);
-        U result = 0, test = U(1) << (8 * sizeof(U) - 2);
-        while (test > u)
-            test >>= 2;
-        while (test) {
-            if (u >= result + test) {
-                u -= result + test;
-                result += test * 2;
-            }
-            result >>= 1;
-            test >>= 2;
-        }
-        return T(result);
-    }
-
-    // Bitmask operations
-
-    constexpr size_t binary_size(uint64_t x) noexcept { return x == 0 ? 0 : 8 * sizeof(x) - __builtin_clzll(x); }
-    constexpr size_t bits_set(uint64_t x) noexcept { return __builtin_popcountll(x); }
-    constexpr uint64_t letter_to_mask(char c) noexcept
-        { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
-
-    // Byte order
-
-    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-        constexpr bool big_endian_target = false;
-        constexpr bool little_endian_target = true;
-    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-        constexpr bool big_endian_target = true;
-        constexpr bool little_endian_target = false;
-    #else
-        #error Unknown byte order
-    #endif
-
-    namespace PrionDetail {
-
-        template <typename T, size_t N = sizeof(T)> struct ByteSwap {
-            void operator()(T& t) const noexcept {
-                auto ptr = reinterpret_cast<uint8_t*>(&t);
-                std::reverse(ptr, ptr + N);
-            }
-        };
-
-        template <typename T> struct ByteSwap<T, 1> {
-            void operator()(T& /*t*/) const noexcept {}
-        };
-
-        template <typename T> struct ByteSwap<T, 2> {
-            void operator()(T& t) const noexcept {
-                auto p = reinterpret_cast<uint8_t*>(&t);
-                auto b = p[0]; p[0] = p[1]; p[1] = b;
-            }
-        };
-
-        template <typename T> struct ByteSwap<T, 4> {
-            void operator()(T& t) const noexcept {
-                auto p = reinterpret_cast<uint8_t*>(&t);
-                auto a = p[0]; p[0] = p[3]; p[3] = a;
-                auto b = p[1]; p[1] = p[2]; p[2] = b;
-            }
-        };
-
-    }
-
-    template <typename T>
-    inline T big_endian(T t) noexcept {
-        if (little_endian_target)
-            PrionDetail::ByteSwap<T>()(t);
-        return t;
-    }
-
-    template <typename T>
-    inline T little_endian(T t) noexcept {
-        if (big_endian_target)
-            PrionDetail::ByteSwap<T>()(t);
-        return t;
-    }
-
-    template <typename T>
-    void read_be(T& t, const void* ptr, size_t ofs = 0) noexcept {
-        memcpy(&t, static_cast<const uint8_t*>(ptr) + ofs, sizeof(t));
-        t = big_endian(t);
-    }
-
-    template <typename T>
-    void read_be(T& t, const void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<const uint8_t*>(ptr) + ofs;
-        t = 0;
-        for (; len > 0; --len)
-            t = (t << 8) + T(*bp++);
-    }
-
-    template <typename T>
-    T read_be(const void* ptr, size_t ofs = 0) noexcept {
-        T t;
-        read_be(t, ptr, ofs);
-        return t;
-    }
-
-    template <typename T>
-    T read_be(const void* ptr, size_t ofs, size_t len) noexcept {
-        T t;
-        read_be(t, ptr, ofs, len);
-        return t;
-    }
-
-    template <typename T>
-    void read_le(T& t, const void* ptr, size_t ofs = 0) noexcept {
-        memcpy(&t, static_cast<const uint8_t*>(ptr) + ofs, sizeof(t));
-        t = little_endian(t);
-    }
-
-    template <typename T>
-    void read_le(T& t, const void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<const uint8_t*>(ptr) + ofs + len;
-        t = 0;
-        for (; len > 0; --len)
-            t = (t << 8) + T(*--bp);
-    }
-
-    template <typename T>
-    T read_le(const void* ptr, size_t ofs = 0) noexcept {
-        T t;
-        read_le(t, ptr, ofs);
-        return t;
-    }
-
-    template <typename T>
-    T read_le(const void* ptr, size_t ofs, size_t len) noexcept {
-        T t;
-        read_le(t, ptr, ofs, len);
-        return t;
-    }
-
-    template <typename T>
-    void write_be(T t, void* ptr, size_t ofs = 0) noexcept {
-        t = big_endian(t);
-        memcpy(static_cast<uint8_t*>(ptr) + ofs, &t, sizeof(T));
-    }
-
-    template <typename T>
-    void write_be(T t, void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<uint8_t*>(ptr) + ofs + len;
-        for (; len > 0; --len, t >>= 8)
-            *--bp = uint8_t(t & 0xff);
-    }
-
-    template <typename T>
-    void write_le(T t, void* ptr, size_t ofs = 0) noexcept {
-        t = little_endian(t);
-        memcpy(static_cast<uint8_t*>(ptr) + ofs, &t, sizeof(T));
-    }
-
-    template <typename T>
-    void write_le(T t, void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<uint8_t*>(ptr) + ofs;
-        for (; len > 0; --len, t >>= 8)
-            *bp++ = uint8_t(t & 0xff);
-    }
-
-    // Character functions
-
-    constexpr bool ascii_iscntrl(char c) noexcept { return uint8_t(c) <= 31 || c == 127; }
-    constexpr bool ascii_isdigit(char c) noexcept { return c >= '0' && c <= '9'; }
-    constexpr bool ascii_isgraph(char c) noexcept { return c >= '!' && c <= '~'; }
-    constexpr bool ascii_islower(char c) noexcept { return c >= 'a' && c <= 'z'; }
-    constexpr bool ascii_isprint(char c) noexcept { return c >= ' ' && c <= '~'; }
-    constexpr bool ascii_ispunct(char c) noexcept
-        { return (c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'); }
-    constexpr bool ascii_isspace(char c) noexcept { return (c >= '\t' && c <= '\r') || c == ' '; }
-    constexpr bool ascii_isupper(char c) noexcept { return c >= 'A' && c <= 'Z'; }
-    constexpr bool ascii_isalpha(char c) noexcept { return ascii_islower(c) || ascii_isupper(c); }
-    constexpr bool ascii_isalnum(char c) noexcept { return ascii_isalpha(c) || ascii_isdigit(c); }
-    constexpr bool ascii_isxdigit(char c) noexcept { return ascii_isdigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
-    constexpr bool ascii_isalnum_w(char c) noexcept { return ascii_isalnum(c) || c == '_'; }
-    constexpr bool ascii_isalpha_w(char c) noexcept { return ascii_isalpha(c) || c == '_'; }
-    constexpr bool ascii_ispunct_w(char c) noexcept { return ascii_ispunct(c) && c != '_'; }
-    constexpr char ascii_tolower(char c) noexcept { return ascii_isupper(c) ? c + 32 : c; }
-    constexpr char ascii_toupper(char c) noexcept { return ascii_islower(c) ? c - 32 : c; }
-    template <typename T> constexpr T char_to(char c) noexcept { return T(uint8_t(c)); }
+    // [Types]
 
     // Containers
 
@@ -1008,27 +466,699 @@ namespace Prion {
 
     #endif
 
-    // Functional utilities
+    // Metaprogramming and type traits
 
-    struct DoNothing {
-        void operator()() const noexcept {}
-        template <typename T> void operator()(T&) const noexcept {}
-        template <typename T> void operator()(const T&) const noexcept {}
+    namespace PrionDetail {
+
+        template <size_t Bits> struct IntegerType;
+        template <> struct IntegerType<8> { using signed_type = int8_t; using unsigned_type = uint8_t; };
+        template <> struct IntegerType<16> { using signed_type = int16_t; using unsigned_type = uint16_t; };
+        template <> struct IntegerType<32> { using signed_type = int32_t; using unsigned_type = uint32_t; };
+        template <> struct IntegerType<64> { using signed_type = int64_t; using unsigned_type = uint64_t; };
+        template <> struct IntegerType<128> { using signed_type = int128_t; using unsigned_type = uint128_t; };
+
+    }
+
+    template <typename T> using BinaryType = typename PrionDetail::IntegerType<8 * sizeof(T)>::unsigned_type;
+    template <typename T1, typename T2> using CopyConst =
+        std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
+    template <size_t Bits> using SignedInteger = typename PrionDetail::IntegerType<Bits>::signed_type;
+    template <size_t Bits> using UnsignedInteger = typename PrionDetail::IntegerType<Bits>::unsigned_type;
+
+    // Mixins
+
+    template <typename T>
+    struct EqualityComparable {
+        friend bool operator!=(const T& lhs, const T& rhs) noexcept { return ! (lhs == rhs); }
     };
 
-    struct Identity {
-        template <typename T> T& operator()(T& t) const noexcept { return t; }
-        template <typename T> const T& operator()(const T& t) const noexcept { return t; }
+    template <typename T>
+    struct LessThanComparable:
+    EqualityComparable<T> {
+        friend bool operator>(const T& lhs, const T& rhs) noexcept { return rhs < lhs; }
+        friend bool operator<=(const T& lhs, const T& rhs) noexcept { return ! (rhs < lhs); }
+        friend bool operator>=(const T& lhs, const T& rhs) noexcept { return ! (lhs < rhs); }
     };
 
-    constexpr DoNothing do_nothing {};
-    constexpr Identity identity {};
+    template <typename T, typename CV>
+    struct InputIterator:
+    EqualityComparable<T> {
+        using difference_type = ptrdiff_t;
+        using iterator_category = std::input_iterator_tag;
+        using pointer = CV*;
+        using reference = CV&;
+        using value_type = std::remove_const_t<CV>;
+        CV* operator->() const noexcept { return &*static_cast<const T&>(*this); }
+        friend T operator++(T& t, int) { T rc = t; ++t; return rc; }
+    };
 
-    // Function traits are based on code by Kennytm and Victor Laskin
+    template <typename T>
+    struct OutputIterator {
+        using difference_type = void;
+        using iterator_category = std::output_iterator_tag;
+        using pointer = void;
+        using reference = void;
+        using value_type = void;
+        T& operator*() noexcept { return static_cast<T&>(*this); }
+        friend T& operator++(T& t) noexcept { return t; }
+        friend T operator++(T& t, int) noexcept { return t; }
+    };
+
+    template <typename T, typename CV>
+    struct ForwardIterator:
+    InputIterator<T, CV> {
+        using iterator_category = std::forward_iterator_tag;
+    };
+
+    template <typename T, typename CV>
+    struct BidirectionalIterator:
+    ForwardIterator<T, CV> {
+        using iterator_category = std::bidirectional_iterator_tag;
+        friend T operator--(T& t, int) { T rc = t; --t; return rc; }
+    };
+
+    template <typename T, typename CV>
+    struct RandomAccessIterator:
+    BidirectionalIterator<T, CV>,
+    LessThanComparable<T> {
+        using iterator_category = std::random_access_iterator_tag;
+        CV& operator[](ptrdiff_t i) const noexcept { T t = static_cast<const T&>(*this); t += i; return *t; }
+        friend T& operator-=(T& lhs, ptrdiff_t rhs) noexcept { return lhs += - rhs; }
+        friend T operator+(const T& lhs, ptrdiff_t rhs) { T t = lhs; t += rhs; return t; }
+        friend T operator+(ptrdiff_t lhs, const T& rhs) { T t = rhs; t += lhs; return t; }
+        friend T operator-(const T& lhs, ptrdiff_t rhs) { T t = lhs; t -= rhs; return t; }
+    };
+
+    // Type related functions
+
+    template <typename T2, typename T1> bool is(const T1& ref) noexcept
+        { return dynamic_cast<const T2*>(&ref) != nullptr; }
+    template <typename T2, typename T1> bool is(const T1* ptr) noexcept
+        { return dynamic_cast<const T2*>(ptr) != nullptr; }
+    template <typename T2, typename T1> bool is(const unique_ptr<T1>& ptr) noexcept
+        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
+    template <typename T2, typename T1> bool is(const shared_ptr<T1>& ptr) noexcept
+        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
+
+    template <typename T2, typename T1> T2& as(T1& ref)
+        { return dynamic_cast<T2&>(ref); }
+    template <typename T2, typename T1> const T2& as(const T1& ref)
+        { return dynamic_cast<const T2&>(ref); }
+    template <typename T2, typename T1> T2& as(T1* ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> const T2& as(const T1* ptr)
+        { if (ptr) return dynamic_cast<const T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(unique_ptr<T1>& ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(const unique_ptr<T1>& ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(shared_ptr<T1>& ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(const shared_ptr<T1>& ptr)
+        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+
+    template <typename T2, typename T1> inline T2 binary_cast(const T1& t) noexcept {
+        PRI_STATIC_ASSERT(sizeof(T2) == sizeof(T1));
+        T2 t2;
+        memcpy(&t2, &t, sizeof(t));
+        return t2;
+    }
+
+    template <typename T2, typename T1> inline T2 implicit_cast(const T1& t) { return t; }
+
+    inline string demangle(const string& name) {
+        auto mangled = name;
+        shared_ptr<char> demangled;
+        int status = 0;
+        for (;;) {
+            if (mangled.empty())
+                return name;
+            demangled.reset(abi::__cxa_demangle(mangled.data(), nullptr, nullptr, &status), free);
+            if (status == -1)
+                throw std::bad_alloc();
+            if (status == 0 && demangled)
+                return demangled.get();
+            if (mangled[0] != '_')
+                return name;
+            mangled.erase(0, 1);
+        }
+    }
+
+    inline string type_name(const std::type_info& t) { return demangle(t.name()); }
+    template <typename T> string type_name() { return type_name(typeid(T)); }
+    template <typename T> string type_name(const T&) { return type_name(typeid(T)); }
+
+    // [Constants and literals]
+
+    // Arithmetic constants
+
+    #define PRI_DEFINE_CONSTANT(name, value) \
+        static constexpr double name = value; \
+        static constexpr float name ## _f = value ## f; \
+        static constexpr long double name ## _ld = value ## l; \
+        template <typename T> constexpr T c_ ## name() noexcept __attribute__((unused)); \
+        template <> constexpr float c_ ## name<float>() noexcept __attribute__((unused)); \
+        template <> constexpr double c_ ## name<double>() noexcept __attribute__((unused)); \
+        template <typename T> constexpr T c_ ## name() noexcept { return static_cast<T>(name ## _ld); } \
+        template <> constexpr float c_ ## name<float>() noexcept { return name ## _f; } \
+        template <> constexpr double c_ ## name<double>() noexcept { return name; }
+
+    // Mathematical constants
+
+    PRI_DEFINE_CONSTANT(e,         2.71828182845904523536028747135266249775724709369996);
+    PRI_DEFINE_CONSTANT(ln_2,      0.69314718055994530941723212145817656807550013436026);
+    PRI_DEFINE_CONSTANT(ln_10,     2.30258509299404568401799145468436420760110148862877);
+    PRI_DEFINE_CONSTANT(pi,        3.14159265358979323846264338327950288419716939937511);
+    PRI_DEFINE_CONSTANT(sqrt_2,    1.41421356237309504880168872420969807856967187537695);
+    PRI_DEFINE_CONSTANT(sqrt_3,    1.73205080756887729352744634150587236694280525381038);
+    PRI_DEFINE_CONSTANT(sqrt_5,    2.23606797749978969640917366873127623544061835961153);
+    PRI_DEFINE_CONSTANT(sqrt_pi,   1.77245385090551602729816748334114518279754945612239);
+    PRI_DEFINE_CONSTANT(sqrt_2pi,  2.50662827463100050241576528481104525300698674060994);
+
+    // Physical constants
+
+    PRI_DEFINE_CONSTANT(atomic_mass_unit,           1.660538921e-27);  // kg
+    PRI_DEFINE_CONSTANT(avogadro_constant,          6.02214129e23);    // mol^-1
+    PRI_DEFINE_CONSTANT(boltzmann_constant,         1.3806488e-23);    // J K^-1
+    PRI_DEFINE_CONSTANT(elementary_charge,          1.602176565e-19);  // C
+    PRI_DEFINE_CONSTANT(gas_constant,               8.3144621);        // J mol^-1 K^-1
+    PRI_DEFINE_CONSTANT(gravitational_constant,     6.67384e-11);      // m^3 kg^-1 s^-2
+    PRI_DEFINE_CONSTANT(planck_constant,            6.62606957e-34);   // J s
+    PRI_DEFINE_CONSTANT(speed_of_light,             299792458.0);      // m s^-1
+    PRI_DEFINE_CONSTANT(stefan_boltzmann_constant,  5.670373e-8);      // W m^-2 K^-4
+
+    // Astronomical constants
+
+    PRI_DEFINE_CONSTANT(earth_mass,         5.97219e24);          // kg
+    PRI_DEFINE_CONSTANT(earth_radius,       6.3710e6);            // m
+    PRI_DEFINE_CONSTANT(jupiter_mass,       1.8986e27);           // kg
+    PRI_DEFINE_CONSTANT(jupiter_radius,     6.9911e7);            // m
+    PRI_DEFINE_CONSTANT(solar_mass,         1.98855e30);          // kg
+    PRI_DEFINE_CONSTANT(solar_radius,       6.96342e8);           // m
+    PRI_DEFINE_CONSTANT(solar_luminosity,   3.846e26);            // W
+    PRI_DEFINE_CONSTANT(solar_temperature,  5778.0);              // K
+    PRI_DEFINE_CONSTANT(astronomical_unit,  1.49597870700e11);    // m
+    PRI_DEFINE_CONSTANT(light_year,         9.4607304725808e15);  // m
+    PRI_DEFINE_CONSTANT(parsec,             3.08567758149e16);    // m
+    PRI_DEFINE_CONSTANT(julian_day,         86400.0);             // s
+    PRI_DEFINE_CONSTANT(julian_year,        31557600.0);          // s
+    PRI_DEFINE_CONSTANT(sidereal_year,      31558149.7635);       // s
+    PRI_DEFINE_CONSTANT(tropical_year,      31556925.19);         // s
+
+    // Arithmetic literals
+
+    namespace PrionDetail {
+
+        template <char C> constexpr uint128_t digit_value() noexcept
+            { return uint128_t(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
+
+        template <uint128_t Base, char C, char... CS>
+        struct BaseInteger {
+            using prev_type = BaseInteger<Base, CS...>;
+            static constexpr uint128_t scale = Base * prev_type::scale;
+            static constexpr uint128_t value = digit_value<C>() * scale + prev_type::value;
+        };
+
+        template <uint128_t Base, char C>
+        struct BaseInteger<Base, C> {
+            static constexpr uint128_t scale = 1;
+            static constexpr uint128_t value = digit_value<C>();
+        };
+
+        template <char... CS> struct MakeInteger: public BaseInteger<10, CS...> {};
+        template <char... CS> struct MakeInteger<'0', 'x', CS...>: public BaseInteger<16, CS...> {};
+        template <char... CS> struct MakeInteger<'0', 'X', CS...>: public BaseInteger<16, CS...> {};
+
+    }
+
+    namespace Literals {
+
+        template <char... CS> inline constexpr int128_t operator"" _s128() noexcept
+            { return int128_t(PrionDetail::MakeInteger<CS...>::value); }
+        template <char... CS> inline constexpr uint128_t operator"" _u128() noexcept
+            { return PrionDetail::MakeInteger<CS...>::value; }
+        inline constexpr float operator"" _degf(long double x) noexcept
+            { return float(x * (pi_ld / 180.0L)); }
+        inline constexpr float operator"" _degf(unsigned long long x) noexcept
+            { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+        inline constexpr double operator"" _deg(long double x) noexcept
+            { return double(x * (pi_ld / 180.0L)); }
+        inline constexpr double operator"" _deg(unsigned long long x) noexcept
+            { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+        inline constexpr long double operator"" _degl(long double x) noexcept
+            { return x * (pi_ld / 180.0L); }
+        inline constexpr long double operator"" _degl(unsigned long long x) noexcept
+            { return static_cast<long double>(x) * (pi_ld / 180.0L); }
+
+    }
+
+    // [Algorithms and ranges]
+
+    // Generic algorithms
+
+    template <typename Container>
+    class AppendIterator:
+    public OutputIterator<AppendIterator<Container>> {
+    public:
+        using value_type = typename Container::value_type;
+        AppendIterator() = default;
+        explicit AppendIterator(Container& c): con(&c) {}
+        AppendIterator& operator=(const value_type& v) { con->insert(con->end(), v); return *this; }
+    private:
+        Container* con;
+    };
+
+    template <typename Container> AppendIterator<Container> append(Container& con) { return AppendIterator<Container>(con); }
+    template <typename Container> AppendIterator<Container> overwrite(Container& con) { con.clear(); return AppendIterator<Container>(con); }
+
+    template <typename Range1, typename Range2, typename Compare>
+    int compare_3way(const Range1& r1, const Range2& r2, Compare cmp) {
+        using std::begin;
+        using std::end;
+        auto i = begin(r1), e1 = end(r1);
+        auto j = begin(r2), e2 = end(r2);
+        for (; i != e1 && j != e2; ++i, ++j) {
+            if (cmp(*i, *j))
+                return -1;
+            else if (cmp(*j, *i))
+                return 1;
+        }
+        return i != e1 ? 1 : j != e2 ? -1 : 0;
+    }
+
+    template <typename Range1, typename Range2>
+    int compare_3way(const Range1& r1, const Range2& r2) {
+        return compare_3way(r1, r2, std::less<>());
+    }
+
+    template <typename Container, typename T>
+    void con_remove(Container& con, const T& t) {
+        con.erase(std::remove(con.begin(), con.end(), t), con.end());
+    }
+
+    template <typename Container, typename Predicate>
+    void con_remove_if(Container& con, Predicate p) {
+        con.erase(std::remove_if(con.begin(), con.end(), p), con.end());
+    }
+
+    template <typename Container, typename Predicate>
+    void con_remove_if_not(Container& con, Predicate p) {
+        con.erase(std::remove_if(con.begin(), con.end(), [p] (const auto& x) { return ! p(x); }), con.end());
+    }
+
+    template <typename Container>
+    void con_unique(Container& con) {
+        con.erase(std::unique(con.begin(), con.end()), con.end());
+    }
+
+    template <typename Container, typename BinaryPredicate>
+    void con_unique(Container& con, BinaryPredicate p) {
+        con.erase(std::unique(con.begin(), con.end(), p), con.end());
+    }
+
+    template <typename Container>
+    void con_sort_unique(Container& con) {
+        std::sort(con.begin(), con.end());
+        con_unique(con);
+    }
+
+    template <typename Container, typename Compare>
+    void con_sort_unique(Container& con, Compare cmp) {
+        std::sort(con.begin(), con.end(), cmp);
+        con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
+    }
+
+    // Memory algorithms
+
+    inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {
+        if (ptr1 == ptr2)
+            return;
+        auto p = static_cast<uint8_t*>(ptr1), q = static_cast<uint8_t*>(ptr2);
+        uint8_t b;
+        for (size_t i = 0; i < n; ++i) {
+            b = p[i];
+            p[i] = q[i];
+            q[i] = b;
+        }
+    }
+
+    // Range traits
+
+    namespace PrionDetail {
+
+        template <typename T> struct ArrayCount;
+        template <typename T, size_t N> struct ArrayCount<T[N]> { static constexpr size_t value = N; };
+
+    }
+
+    template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
+    template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
+
+    template <typename T> constexpr size_t array_count(T&&) { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
+
+    template <typename Range>
+    size_t range_count(const Range& r) {
+        using std::begin;
+        using std::end;
+        return std::distance(begin(r), end(r));
+    }
+
+    template <typename Range>
+    bool range_empty(const Range& r) {
+        using std::begin;
+        using std::end;
+        return begin(r) == end(r);
+    }
+
+    // Range types
+
+    template <typename Iterator>
+    struct Irange {
+        Iterator first, second;
+        constexpr Iterator begin() const { return first; }
+        constexpr Iterator end() const { return second; }
+    };
+
+    template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
+    template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
+    template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
+
+    // [Arithmetic functions]
+
+    // Generic arithmetic functions
+
+    template <typename T> inline T abs(T t) noexcept { using std::abs; return abs(t); }
+    inline int128_t abs(int128_t t) noexcept { return t < 0 ? - t : t; }
+    inline uint128_t abs(uint128_t t) noexcept { return t; }
+
+    namespace PrionDetail {
+
+        enum class NumMode {
+            signed_integer,
+            unsigned_integer,
+            floating_point,
+            not_numeric,
+        };
+
+        template <typename T>
+        struct NumType {
+            static constexpr NumMode value =
+                std::is_floating_point<T>::value ? NumMode::floating_point :
+                std::is_signed<T>::value ? NumMode::signed_integer :
+                std::is_unsigned<T>::value ? NumMode::unsigned_integer : NumMode::not_numeric;
+        };
+
+        template <> struct NumType<int128_t> { static constexpr NumMode value = NumMode::signed_integer; };
+        template <> struct NumType<uint128_t> { static constexpr NumMode value = NumMode::unsigned_integer; };
+
+        template <typename T, NumMode Mode = NumType<T>::value> struct Divide;
+
+        template <typename T>
+        struct Divide<T, NumMode::signed_integer> {
+            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
+                auto q = lhs / rhs, r = lhs % rhs;
+                if (r < T(0)) {
+                    q += rhs < T(0) ? T(1) : T(-1);
+                    r += Prion::abs(rhs);
+                }
+                return {q, r};
+            }
+        };
+
+        template <typename T>
+        struct Divide<T, NumMode::unsigned_integer> {
+            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
+                return {lhs / rhs, lhs % rhs};
+            }
+        };
+
+        template <typename T>
+        struct Divide<T, NumMode::floating_point> {
+            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
+                using std::fabs;
+                using std::floor;
+                using std::fmod;
+                auto q = floor(lhs / rhs), r = fmod(lhs, rhs);
+                if (r < T(0))
+                    r += fabs(rhs);
+                if (rhs < T(0) && r != T(0))
+                    q += T(1);
+                return {q, r};
+            }
+        };
+
+        template <typename T, NumMode Mode = NumType<T>::value> struct SignOf;
+
+        template <typename T>
+        struct SignOf<T, NumMode::signed_integer> {
+            constexpr int operator()(T t) const noexcept
+                { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
+        };
+
+        template <typename T>
+        struct SignOf<T, NumMode::unsigned_integer> {
+            constexpr int operator()(T t) const noexcept
+                { return t != T(0); }
+        };
+
+        template <typename T>
+        struct SignOf<T, NumMode::floating_point> {
+            constexpr int operator()(T t) const noexcept
+                { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
+        };
+
+    }
+
+    template <typename T> constexpr T static_min(T t) noexcept { return t; }
+    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept
+        { return t < static_min(args...) ? t : static_min(args...); }
+    template <typename T> constexpr T static_max(T t) noexcept { return t; }
+    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept
+        { return static_max(args...) < t ? t : static_max(args...); }
+    template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
+        { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
+    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
+    template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
+    template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
+    template <typename T> constexpr int sign_of(T t) noexcept { return PrionDetail::SignOf<T>()(t); }
+
+    // Integer arithmetic functions
+
+    template <typename T>
+    T int_power(T x, T y) noexcept {
+        T z = T(1);
+        while (y) {
+            if (y & T(1))
+                z *= x;
+            x *= x;
+            y >>= 1;
+        }
+        return z;
+    }
+
+    template <typename T>
+    T int_sqrt(T t) noexcept {
+        if (std::numeric_limits<T>::digits < std::numeric_limits<double>::digits)
+            return T(floor(sqrt(double(t))));
+        auto u = as_unsigned(t);
+        using U = decltype(u);
+        U result = 0, test = U(1) << (8 * sizeof(U) - 2);
+        while (test > u)
+            test >>= 2;
+        while (test) {
+            if (u >= result + test) {
+                u -= result + test;
+                result += test * 2;
+            }
+            result >>= 1;
+            test >>= 2;
+        }
+        return T(result);
+    }
+
+    // Bitwise operations
+
+    constexpr size_t binary_size(uint64_t x) noexcept { return x == 0 ? 0 : 8 * sizeof(x) - __builtin_clzll(x); }
+    constexpr size_t bits_set(uint64_t x) noexcept { return __builtin_popcountll(x); }
+    constexpr uint64_t letter_to_mask(char c) noexcept
+        { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
+    template <typename T> constexpr T rotl(T t, int n) noexcept { return (t << n) | (t >> (8 * sizeof(T) - n)); }
+    template <typename T> constexpr T rotr(T t, int n) noexcept { return (t >> n) | (t << (8 * sizeof(T) - n)); }
+
+    // Byte order functions
+
+    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        constexpr bool big_endian_target = false;
+        constexpr bool little_endian_target = true;
+    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        constexpr bool big_endian_target = true;
+        constexpr bool little_endian_target = false;
+    #else
+        #error Unknown byte order
+    #endif
+
+    namespace PrionDetail {
+
+        template <typename T, size_t N = sizeof(T)> struct ByteSwap {
+            void operator()(T& t) const noexcept {
+                auto ptr = reinterpret_cast<uint8_t*>(&t);
+                std::reverse(ptr, ptr + N);
+            }
+        };
+
+        template <typename T> struct ByteSwap<T, 1> {
+            void operator()(T& /*t*/) const noexcept {}
+        };
+
+        template <typename T> struct ByteSwap<T, 2> {
+            void operator()(T& t) const noexcept {
+                auto p = reinterpret_cast<uint8_t*>(&t);
+                auto b = p[0]; p[0] = p[1]; p[1] = b;
+            }
+        };
+
+        template <typename T> struct ByteSwap<T, 4> {
+            void operator()(T& t) const noexcept {
+                auto p = reinterpret_cast<uint8_t*>(&t);
+                auto a = p[0]; p[0] = p[3]; p[3] = a;
+                auto b = p[1]; p[1] = p[2]; p[2] = b;
+            }
+        };
+
+    }
+
+    template <typename T>
+    inline T big_endian(T t) noexcept {
+        if (little_endian_target)
+            PrionDetail::ByteSwap<T>()(t);
+        return t;
+    }
+
+    template <typename T>
+    inline T little_endian(T t) noexcept {
+        if (big_endian_target)
+            PrionDetail::ByteSwap<T>()(t);
+        return t;
+    }
+
+    template <typename T>
+    void read_be(T& t, const void* ptr, size_t ofs = 0) noexcept {
+        memcpy(&t, static_cast<const uint8_t*>(ptr) + ofs, sizeof(t));
+        t = big_endian(t);
+    }
+
+    template <typename T>
+    void read_be(T& t, const void* ptr, size_t ofs, size_t len) noexcept {
+        auto bp = static_cast<const uint8_t*>(ptr) + ofs;
+        t = 0;
+        for (; len > 0; --len)
+            t = (t << 8) + T(*bp++);
+    }
+
+    template <typename T>
+    T read_be(const void* ptr, size_t ofs = 0) noexcept {
+        T t;
+        read_be(t, ptr, ofs);
+        return t;
+    }
+
+    template <typename T>
+    T read_be(const void* ptr, size_t ofs, size_t len) noexcept {
+        T t;
+        read_be(t, ptr, ofs, len);
+        return t;
+    }
+
+    template <typename T>
+    void read_le(T& t, const void* ptr, size_t ofs = 0) noexcept {
+        memcpy(&t, static_cast<const uint8_t*>(ptr) + ofs, sizeof(t));
+        t = little_endian(t);
+    }
+
+    template <typename T>
+    void read_le(T& t, const void* ptr, size_t ofs, size_t len) noexcept {
+        auto bp = static_cast<const uint8_t*>(ptr) + ofs + len;
+        t = 0;
+        for (; len > 0; --len)
+            t = (t << 8) + T(*--bp);
+    }
+
+    template <typename T>
+    T read_le(const void* ptr, size_t ofs = 0) noexcept {
+        T t;
+        read_le(t, ptr, ofs);
+        return t;
+    }
+
+    template <typename T>
+    T read_le(const void* ptr, size_t ofs, size_t len) noexcept {
+        T t;
+        read_le(t, ptr, ofs, len);
+        return t;
+    }
+
+    template <typename T>
+    void write_be(T t, void* ptr, size_t ofs = 0) noexcept {
+        t = big_endian(t);
+        memcpy(static_cast<uint8_t*>(ptr) + ofs, &t, sizeof(T));
+    }
+
+    template <typename T>
+    void write_be(T t, void* ptr, size_t ofs, size_t len) noexcept {
+        auto bp = static_cast<uint8_t*>(ptr) + ofs + len;
+        for (; len > 0; --len, t >>= 8)
+            *--bp = uint8_t(t & 0xff);
+    }
+
+    template <typename T>
+    void write_le(T t, void* ptr, size_t ofs = 0) noexcept {
+        t = little_endian(t);
+        memcpy(static_cast<uint8_t*>(ptr) + ofs, &t, sizeof(T));
+    }
+
+    template <typename T>
+    void write_le(T t, void* ptr, size_t ofs, size_t len) noexcept {
+        auto bp = static_cast<uint8_t*>(ptr) + ofs;
+        for (; len > 0; --len, t >>= 8)
+            *bp++ = uint8_t(t & 0xff);
+    }
+
+    // Floating point arithmetic functions
+
+    namespace PrionDetail {
+
+        template <typename T2, typename T1, bool FromFloat = std::is_floating_point<T1>::value> struct Round;
+
+        template <typename T2, typename T1>
+        struct Round<T2, T1, true> {
+            T2 operator()(T1 value) const noexcept {
+                using std::floor;
+                return T2(floor(value + T1(1) / T1(2)));
+            }
+        };
+
+        template <typename T2, typename T1>
+        struct Round<T2, T1, false> {
+            T2 operator()(T1 value) const noexcept {
+                return T2(value);
+            }
+        };
+
+    }
+
+    template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
+    template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
+    template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)
+        { return y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
+    template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1>()(value); }
+
+    // [Functional utilities]
+
+    // Function traits
+
+    // Based on code by Kennytm and Victor Laskin
     // http://stackoverflow.com/questions/7943525/is-it-possible-to-figure-out-the-parameter-type-and-return-type-of-a-lambda
     // http://vitiy.info/c11-functional-decomposition-easy-way-to-do-aop/
-    // Tuple invocation is based on code from Cppreference.com
-    // http://en.cppreference.com/w/cpp/utility/integer_sequence
 
     namespace PrionDetail {
 
@@ -1056,11 +1186,6 @@ namespace Prion {
         struct FunctionTraits<ReturnType (ClassType::*)(Args...) const>:
         FunctionTraits<ReturnType (Args...)> {};
 
-        template <typename Function, typename Tuple, size_t... Indices>
-        decltype(auto) invoke_helper(Function&& f, Tuple&& t, std::index_sequence<Indices...>) {
-            return f(std::get<Indices>(std::forward<Tuple>(t))...);
-        }
-
     }
 
     template <typename Function> struct Arity
@@ -1069,7 +1194,20 @@ namespace Prion {
     template <typename Function, size_t Index> using ArgumentType = std::tuple_element_t<Index, ArgumentTuple<Function>>;
     template <typename Function> using ResultType = typename PrionDetail::FunctionTraits<Function>::result_type;
     template <typename Function> using StdFunction = typename PrionDetail::FunctionTraits<Function>::std_function;
-    template <typename Function> StdFunction<Function> stdfun(Function& lambda) { return StdFunction<Function>(lambda); }
+
+    // Function operations
+
+    // invoke() is based on code from Cppreference.com
+    // http://en.cppreference.com/w/cpp/utility/integer_sequence
+
+    namespace PrionDetail {
+
+        template <typename Function, typename Tuple, size_t... Indices>
+        decltype(auto) invoke_helper(Function&& f, Tuple&& t, std::index_sequence<Indices...>) {
+            return f(std::get<Indices>(std::forward<Tuple>(t))...);
+        }
+
+    }
 
     template<typename Function, typename Tuple>
     decltype(auto) invoke(Function&& f, Tuple&& t) {
@@ -1077,6 +1215,24 @@ namespace Prion {
         return PrionDetail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t),
             std::make_index_sequence<size>{});
     }
+
+    template <typename Function> StdFunction<Function> stdfun(Function& lambda) { return StdFunction<Function>(lambda); }
+
+    // Generic function objects
+
+    struct DoNothing {
+        void operator()() const noexcept {}
+        template <typename T> void operator()(T&) const noexcept {}
+        template <typename T> void operator()(const T&) const noexcept {}
+    };
+
+    struct Identity {
+        template <typename T> T& operator()(T& t) const noexcept { return t; }
+        template <typename T> const T& operator()(const T& t) const noexcept { return t; }
+    };
+
+    constexpr DoNothing do_nothing {};
+    constexpr Identity identity {};
 
     // Hash functions
 
@@ -1176,116 +1332,6 @@ namespace Prion {
 
     template <typename K, typename V> bool kwget(const Kwarg<K>&, V&) { return false; }
 
-    // Range utilities
-
-    namespace PrionDetail {
-
-        template <typename T> struct ArrayCount;
-        template <typename T, size_t N> struct ArrayCount<T[N]> { static constexpr size_t value = N; };
-
-    }
-
-    template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
-    template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
-
-    template <typename Container>
-    class AppendIterator:
-    public OutputIterator<AppendIterator<Container>> {
-    public:
-        using value_type = typename Container::value_type;
-        AppendIterator() = default;
-        explicit AppendIterator(Container& c): con(&c) {}
-        AppendIterator& operator=(const value_type& v) { con->insert(con->end(), v); return *this; }
-    private:
-        Container* con;
-    };
-
-    template <typename Container> AppendIterator<Container> append(Container& con) { return AppendIterator<Container>(con); }
-    template <typename Container> AppendIterator<Container> overwrite(Container& con) { con.clear(); return AppendIterator<Container>(con); }
-    template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
-    template <typename T> constexpr size_t array_count(T&&) { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
-
-    template <typename Range>
-    size_t range_count(const Range& r) {
-        using std::begin;
-        using std::end;
-        return std::distance(begin(r), end(r));
-    }
-
-    template <typename Range>
-    bool range_empty(const Range& r) {
-        using std::begin;
-        using std::end;
-        return begin(r) == end(r);
-    }
-
-    inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {
-        if (ptr1 == ptr2)
-            return;
-        auto p = static_cast<uint8_t*>(ptr1), q = static_cast<uint8_t*>(ptr2);
-        uint8_t b;
-        for (size_t i = 0; i < n; ++i) {
-            b = p[i];
-            p[i] = q[i];
-            q[i] = b;
-        }
-    }
-
-    namespace PrionDetail {
-
-        template <typename T>
-        class UnitSequenceIterator:
-        public ForwardIterator<UnitSequenceIterator<T>, const T> {
-        public:
-            UnitSequenceIterator(): current(), target(), ok(false) {}
-            UnitSequenceIterator(const T& t1, const T& t2): current(t1), target(t2), ok(t1 < t2) {}
-            const T& operator*() const { return current; }
-            UnitSequenceIterator& operator++() {
-                if (ok) {
-                    ++current;
-                    ok = current < target;
-                }
-                return *this;
-            }
-            bool operator==(const UnitSequenceIterator& rhs) const { return ok == rhs.ok && (! ok || current == rhs.current); }
-        private:
-            T current;
-            T target;
-            bool ok;
-        };
-
-        template <typename T>
-        class DeltaSequenceIterator:
-        public ForwardIterator<DeltaSequenceIterator<T>, const T> {
-        public:
-            DeltaSequenceIterator(): current(), target(), delta(), sign(0) {}
-            DeltaSequenceIterator(const T& t1, const T& t2, const T& dt):
-                current(t1), target(t2), delta(dt), sign(0) {
-                    if (t1 < t2 && T() < dt)
-                        sign = 1;
-                    else if (t2 < t1 && dt < T())
-                        sign = -1;
-                }
-            const T& operator*() const { return current; }
-            DeltaSequenceIterator& operator++() {
-                if (sign != 0) {
-                    current += delta;
-                    if ((sign == 1 && ! (current < target))
-                            || (sign == -1 && ! (target < current)))
-                        sign = 0;
-                }
-                return *this;
-            }
-            bool operator==(const DeltaSequenceIterator& rhs) const { return sign == rhs.sign && (sign == 0 || current == rhs.current); }
-        private:
-            T current;
-            T target;
-            T delta;
-            int sign;
-        };
-
-    }
-
     // Scope guards
 
     // Based on ideas from Evgeny Panasyuk (https://github.com/panaseleus/stack_unwinding)
@@ -1376,7 +1422,164 @@ namespace Prion {
         Transaction& operator=(Transaction&&) = delete;
     };
 
-    // String functions
+    // [I/O utilities]
+
+    // File I/O operations
+
+    namespace PrionDetail {
+
+        inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
+            static constexpr size_t bufsize = 65536;
+            size_t offset = 0;
+            while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
+                dst.resize(std::min(offset + bufsize, limit), 0);
+                offset += fread(&dst[0] + offset, 1, dst.size() - offset, fp);
+            }
+            dst.resize(offset);
+            return ! ferror(fp);
+        }
+
+        inline bool save_file_helper(FILE* fp, const void* ptr, size_t n) {
+            auto cptr = static_cast<const char*>(ptr);
+            size_t offset = 0;
+            while (offset < n && ! ferror(fp))
+                offset += fwrite(cptr + offset, 1, n - offset, fp);
+            return ! ferror(fp);
+        }
+
+    }
+
+    #if defined(PRI_TARGET_UNIX)
+
+        inline bool load_file(const string& file, string& dst, size_t limit = npos) {
+            dst.clear();
+            FILE* fp = fopen(file.data(), "rb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::load_file_helper(fp, dst, limit);
+        }
+
+        inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
+            auto fp = fopen(file.data(), append ? "ab" : "wb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::save_file_helper(fp, ptr, n);
+        }
+
+    #else
+
+        inline bool load_file(const wstring& file, string& dst, size_t limit = npos) {
+            dst.clear();
+            FILE* fp = _wfopen(file.data(), L"rb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::load_file_helper(fp, dst, limit);
+        }
+
+        inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
+            auto fp = _wfopen(file.data(), append ? L"ab" : L"wb");
+            if (! fp)
+                return false;
+            ScopeExit guard([fp] { fclose(fp); });
+            return PrionDetail::save_file_helper(fp, ptr, n);
+        }
+
+        inline bool load_file(const string& file, string& dst, size_t limit = npos)
+            { return load_file(utf8_to_wstring(file), dst, limit); }
+        inline bool save_file(const string& file, const void* ptr, size_t n, bool append)
+            { return save_file(utf8_to_wstring(file), ptr, n, append); }
+        inline bool save_file(const wstring& file, const string& src, bool append = false)
+            { return save_file(file, src.data(), src.size(), append); }
+
+    #endif
+
+    inline bool save_file(const string& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+
+    // Terminal I/O operations
+
+    inline bool is_stdout_redirected() noexcept { return ! isatty(1); }
+
+    namespace PrionDetail {
+
+        inline int grey(int n) noexcept {
+            return 231 + clamp(n, 1, 24);
+        }
+
+        inline int rgb(int rgb) noexcept {
+            int r = clamp((rgb / 100) % 10, 1, 6);
+            int g = clamp((rgb / 10) % 10, 1, 6);
+            int b = clamp(rgb % 10, 1, 6);
+            return 36 * r + 6 * g + b - 27;
+        }
+
+    }
+
+    static constexpr const char* xt_up           = "\e[A";    // Cursor up
+    static constexpr const char* xt_down         = "\e[B";    // Cursor down
+    static constexpr const char* xt_right        = "\e[C";    // Cursor right
+    static constexpr const char* xt_left         = "\e[D";    // Cursor left
+    static constexpr const char* xt_erase_left   = "\e[1K";   // Erase left
+    static constexpr const char* xt_erase_right  = "\e[K";    // Erase right
+    static constexpr const char* xt_erase_above  = "\e[1J";   // Erase above
+    static constexpr const char* xt_erase_below  = "\e[J";    // Erase below
+    static constexpr const char* xt_erase_line   = "\e[2K";   // Erase line
+    static constexpr const char* xt_clear        = "\e[2J";   // Clear screen
+    static constexpr const char* xt_reset        = "\e[0m";   // Reset attributes
+    static constexpr const char* xt_bold         = "\e[1m";   // Bold
+    static constexpr const char* xt_under        = "\e[4m";   // Underline
+    static constexpr const char* xt_black        = "\e[30m";  // Black fg
+    static constexpr const char* xt_red          = "\e[31m";  // Red fg
+    static constexpr const char* xt_green        = "\e[32m";  // Green fg
+    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow fg
+    static constexpr const char* xt_blue         = "\e[34m";  // Blue fg
+    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta fg
+    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan fg
+    static constexpr const char* xt_white        = "\e[37m";  // White fg
+    static constexpr const char* xt_black_bg     = "\e[40m";  // Black bg
+    static constexpr const char* xt_red_bg       = "\e[41m";  // Red bg
+    static constexpr const char* xt_green_bg     = "\e[42m";  // Green bg
+    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow bg
+    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue bg
+    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta bg
+    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan bg
+    static constexpr const char* xt_white_bg     = "\e[47m";  // White bg
+
+    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
+    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces
+    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                             // Cursor right n spaces
+    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                              // Cursor left n spaces
+    inline string xt_colour(int rgb) { return "\x1b[38;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (0-5)
+    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (0-5)
+    inline string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
+    inline string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
+
+    // [Strings and related functions]
+
+    // Character functions
+
+    constexpr bool ascii_iscntrl(char c) noexcept { return uint8_t(c) <= 31 || c == 127; }
+    constexpr bool ascii_isdigit(char c) noexcept { return c >= '0' && c <= '9'; }
+    constexpr bool ascii_isgraph(char c) noexcept { return c >= '!' && c <= '~'; }
+    constexpr bool ascii_islower(char c) noexcept { return c >= 'a' && c <= 'z'; }
+    constexpr bool ascii_isprint(char c) noexcept { return c >= ' ' && c <= '~'; }
+    constexpr bool ascii_ispunct(char c) noexcept
+        { return (c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'); }
+    constexpr bool ascii_isspace(char c) noexcept { return (c >= '\t' && c <= '\r') || c == ' '; }
+    constexpr bool ascii_isupper(char c) noexcept { return c >= 'A' && c <= 'Z'; }
+    constexpr bool ascii_isalpha(char c) noexcept { return ascii_islower(c) || ascii_isupper(c); }
+    constexpr bool ascii_isalnum(char c) noexcept { return ascii_isalpha(c) || ascii_isdigit(c); }
+    constexpr bool ascii_isxdigit(char c) noexcept { return ascii_isdigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
+    constexpr bool ascii_isalnum_w(char c) noexcept { return ascii_isalnum(c) || c == '_'; }
+    constexpr bool ascii_isalpha_w(char c) noexcept { return ascii_isalpha(c) || c == '_'; }
+    constexpr bool ascii_ispunct_w(char c) noexcept { return ascii_ispunct(c) && c != '_'; }
+    constexpr char ascii_tolower(char c) noexcept { return ascii_isupper(c) ? c + 32 : c; }
+    constexpr char ascii_toupper(char c) noexcept { return ascii_islower(c) ? c - 32 : c; }
+    template <typename T> constexpr T char_to(char c) noexcept { return T(uint8_t(c)); }
+
+    // General string functions
 
     inline string ascii_lowercase(const string& str) {
         auto result = str;
@@ -1414,11 +1617,48 @@ namespace Prion {
         return n;
     }
 
+    inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
+
+    template <typename InputRange>
+    string join_words(const InputRange& range, const string& delim = {}) {
+        string result;
+        for (auto& s: range) {
+            result += s;
+            result += delim;
+        }
+        if (! result.empty() && ! delim.empty())
+            result.resize(result.size() - delim.size());
+        return result;
+    }
+
+    template <typename OutputIterator>
+    void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
+        if (delim.empty()) {
+            if (! src.empty()) {
+                *dst = src;
+                ++dst;
+            }
+            return;
+        }
+        size_t i = 0, j = 0, size = src.size();
+        while (j < size) {
+            i = src.find_first_not_of(delim, j);
+            if (i == npos)
+                break;
+            j = src.find_first_of(delim, i);
+            if (j == npos)
+                j = size;
+            *dst = src.substr(i, j - i);
+            ++dst;
+        }
+    }
+
+    // String formatting and parsing functions
+
     inline unsigned long long binnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
     inline long long decnum(const string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
     inline unsigned long long hexnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
     inline double fpnum(const string& str) noexcept { return strtod(str.data(), nullptr); }
-    inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
 
     template <typename T>
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
@@ -1544,40 +1784,6 @@ namespace Prion {
 
     inline u8string hexdump(const string& str, size_t block = 0) { return hexdump(str.data(), str.size(), block); }
 
-    template <typename InputRange>
-    string join_words(const InputRange& range, const string& delim = {}) {
-        string result;
-        for (auto& s: range) {
-            result += s;
-            result += delim;
-        }
-        if (! result.empty() && ! delim.empty())
-            result.resize(result.size() - delim.size());
-        return result;
-    }
-
-    template <typename OutputIterator>
-    void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
-        if (delim.empty()) {
-            if (! src.empty()) {
-                *dst = src;
-                ++dst;
-            }
-            return;
-        }
-        size_t i = 0, j = 0, size = src.size();
-        while (j < size) {
-            i = src.find_first_not_of(delim, j);
-            if (i == npos)
-                break;
-            j = src.find_first_of(delim, i);
-            if (j == npos)
-                j = size;
-            *dst = src.substr(i, j - i);
-            ++dst;
-        }
-    }
-
     template <typename T> string to_str(const T& t);
 
     namespace PrionDetail {
@@ -1647,7 +1853,156 @@ namespace Prion {
 
     template <typename T> string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
 
-    // Threads
+    // [Threads]
+
+    // Thread class
+
+    #if defined(PRI_TARGET_UNIX)
+
+        class Thread {
+        public:
+            using callback = std::function<void()>;
+            using id_type = pthread_t;
+            Thread() noexcept: except(), payload(), state(thread_joined), thread() {}
+            explicit Thread(callback f): Thread() {
+                if (f) {
+                    payload = f;
+                    state = thread_running;
+                    int rc = pthread_create(&thread, nullptr, thread_callback, this);
+                    if (rc)
+                        throw std::system_error(rc, std::generic_category(), "pthread_create()");
+                }
+            }
+            ~Thread() noexcept { if (state != thread_joined) pthread_join(thread, nullptr); }
+            Thread(Thread&&) = default;
+            Thread& operator=(Thread&&) = default;
+            id_type get_id() const noexcept { return thread; }
+            bool poll() noexcept { return state != thread_running; }
+            void wait() {
+                if (state == thread_joined)
+                    return;
+                int rc = pthread_join(thread, nullptr);
+                state = thread_joined;
+                if (rc)
+                    throw std::system_error(rc, std::generic_category(), "pthread_join()");
+                if (except)
+                    std::rethrow_exception(except);
+            }
+            static size_t cpu_threads() noexcept {
+                size_t n = 0;
+                #if defined(PRI_TARGET_APPLE)
+                    mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
+                    host_basic_info_data_t info;
+                    if (host_info(mach_host_self(), HOST_BASIC_INFO,
+                            reinterpret_cast<host_info_t>(&info), &count) == 0)
+                        n = info.avail_cpus;
+                #else
+                    char buf[256];
+                    FILE* f = fopen("/proc/cpuinfo", "r");
+                    while (fgets(buf, sizeof(buf), f))
+                        if (memcmp(buf, "processor", 9) == 0)
+                            ++n;
+                    fclose(f);
+                #endif
+                if (n == 0)
+                    n = 1;
+                return n;
+            }
+            static id_type current() noexcept { return pthread_self(); }
+            static void yield() noexcept { sched_yield(); }
+        private:
+            enum state_type {
+                thread_running,
+                thread_complete,
+                thread_joined,
+            };
+            std::exception_ptr except;
+            Thread::callback payload;
+            std::atomic<int> state;
+            pthread_t thread;
+            Thread(const Thread&) = delete;
+            Thread& operator=(const Thread&) = delete;
+            static void* thread_callback(void* ptr) noexcept {
+                auto t = static_cast<Thread*>(ptr);
+                if (t->payload) {
+                    try { t->payload(); }
+                    catch (...) { t->except = std::current_exception(); }
+                }
+                t->state = thread_complete;
+                return nullptr;
+            }
+        };
+
+    #else
+
+        class Thread {
+        public:
+            using callback = std::function<void()>;
+            using id_type = uint32_t;
+            Thread() noexcept: except(), payload(), state(thread_joined), key(0), thread(nullptr) {}
+            explicit Thread(callback f): Thread() {
+                if (f) {
+                    payload = f;
+                    state = thread_running;
+                    thread = CreateThread(nullptr, 0, thread_callback, this, 0, &key);
+                    if (! thread)
+                        throw std::system_error(GetLastError(), windows_category(), "CreateThread()");
+                }
+            }
+            ~Thread() noexcept {
+                if (state != thread_joined)
+                    WaitForSingleObject(thread, INFINITE);
+                CloseHandle(thread);
+            }
+            Thread(Thread&&) = default;
+            Thread& operator=(Thread&&) = default;
+            id_type get_id() const noexcept { return key; }
+            bool poll() noexcept { return state != thread_running; }
+            void wait() {
+                if (state == thread_joined)
+                    return;
+                auto rc = WaitForSingleObject(thread, INFINITE);
+                state = thread_joined;
+                if (rc == WAIT_FAILED)
+                    throw std::system_error(GetLastError(), windows_category(), "WaitForSingleObject()");
+                if (except)
+                    std::rethrow_exception(except);
+            }
+            static size_t cpu_threads() noexcept {
+                SYSTEM_INFO sysinfo;
+                memset(&sysinfo, 0, sizeof(sysinfo));
+                GetSystemInfo(&sysinfo);
+                return sysinfo.dwNumberOfProcessors;
+            }
+            static id_type current() noexcept { return GetCurrentThreadId(); }
+            static void yield() noexcept { Sleep(0); }
+        private:
+            enum state_type {
+                thread_running,
+                thread_complete,
+                thread_joined,
+            };
+            std::exception_ptr except;
+            Thread::callback payload;
+            std::atomic<int> state;
+            DWORD key;
+            HANDLE thread;
+            Thread(const Thread&) = delete;
+            Thread& operator=(const Thread&) = delete;
+            static DWORD WINAPI thread_callback(void* ptr) noexcept {
+                auto t = static_cast<Thread*>(ptr);
+                if (t->payload) {
+                    try { t->payload(); }
+                    catch (...) { t->except = std::current_exception(); }
+                }
+                t->state = thread_complete;
+                return 0;
+            }
+        };
+
+    #endif
+
+    // Synchronisation objects
 
     #if defined(PRI_TARGET_UNIX)
 
@@ -1754,80 +2109,6 @@ namespace Prion {
             }
         };
 
-        class Thread {
-        public:
-            using callback = std::function<void()>;
-            using id_type = pthread_t;
-            Thread() noexcept: except(), payload(), state(thread_joined), thread() {}
-            explicit Thread(callback f): Thread() {
-                if (f) {
-                    payload = f;
-                    state = thread_running;
-                    int rc = pthread_create(&thread, nullptr, thread_callback, this);
-                    if (rc)
-                        throw std::system_error(rc, std::generic_category(), "pthread_create()");
-                }
-            }
-            ~Thread() noexcept { if (state != thread_joined) pthread_join(thread, nullptr); }
-            Thread(Thread&&) = default;
-            Thread& operator=(Thread&&) = default;
-            id_type get_id() const noexcept { return thread; }
-            bool poll() noexcept { return state != thread_running; }
-            void wait() {
-                if (state == thread_joined)
-                    return;
-                int rc = pthread_join(thread, nullptr);
-                state = thread_joined;
-                if (rc)
-                    throw std::system_error(rc, std::generic_category(), "pthread_join()");
-                if (except)
-                    std::rethrow_exception(except);
-            }
-            static size_t cpu_threads() noexcept {
-                size_t n = 0;
-                #if defined(PRI_TARGET_APPLE)
-                    mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
-                    host_basic_info_data_t info;
-                    if (host_info(mach_host_self(), HOST_BASIC_INFO,
-                            reinterpret_cast<host_info_t>(&info), &count) == 0)
-                        n = info.avail_cpus;
-                #else
-                    char buf[256];
-                    FILE* f = fopen("/proc/cpuinfo", "r");
-                    while (fgets(buf, sizeof(buf), f))
-                        if (memcmp(buf, "processor", 9) == 0)
-                            ++n;
-                    fclose(f);
-                #endif
-                if (n == 0)
-                    n = 1;
-                return n;
-            }
-            static id_type current() noexcept { return pthread_self(); }
-            static void yield() noexcept { sched_yield(); }
-        private:
-            enum state_type {
-                thread_running,
-                thread_complete,
-                thread_joined,
-            };
-            std::exception_ptr except;
-            Thread::callback payload;
-            std::atomic<int> state;
-            pthread_t thread;
-            Thread(const Thread&) = delete;
-            Thread& operator=(const Thread&) = delete;
-            static void* thread_callback(void* ptr) noexcept {
-                auto t = static_cast<Thread*>(ptr);
-                if (t->payload) {
-                    try { t->payload(); }
-                    catch (...) { t->except = std::current_exception(); }
-                }
-                t->state = thread_complete;
-                return nullptr;
-            }
-        };
-
     #else
 
         // Windows only has millisecond resolution in their API. The actual
@@ -1882,74 +2163,13 @@ namespace Prion {
             }
         };
 
-        class Thread {
-        public:
-            using callback = std::function<void()>;
-            using id_type = uint32_t;
-            Thread() noexcept: except(), payload(), state(thread_joined), key(0), thread(nullptr) {}
-            explicit Thread(callback f): Thread() {
-                if (f) {
-                    payload = f;
-                    state = thread_running;
-                    thread = CreateThread(nullptr, 0, thread_callback, this, 0, &key);
-                    if (! thread)
-                        throw std::system_error(GetLastError(), windows_category(), "CreateThread()");
-                }
-            }
-            ~Thread() noexcept {
-                if (state != thread_joined)
-                    WaitForSingleObject(thread, INFINITE);
-                CloseHandle(thread);
-            }
-            Thread(Thread&&) = default;
-            Thread& operator=(Thread&&) = default;
-            id_type get_id() const noexcept { return key; }
-            bool poll() noexcept { return state != thread_running; }
-            void wait() {
-                if (state == thread_joined)
-                    return;
-                auto rc = WaitForSingleObject(thread, INFINITE);
-                state = thread_joined;
-                if (rc == WAIT_FAILED)
-                    throw std::system_error(GetLastError(), windows_category(), "WaitForSingleObject()");
-                if (except)
-                    std::rethrow_exception(except);
-            }
-            static size_t cpu_threads() noexcept {
-                SYSTEM_INFO sysinfo;
-                memset(&sysinfo, 0, sizeof(sysinfo));
-                GetSystemInfo(&sysinfo);
-                return sysinfo.dwNumberOfProcessors;
-            }
-            static id_type current() noexcept { return GetCurrentThreadId(); }
-            static void yield() noexcept { Sleep(0); }
-        private:
-            enum state_type {
-                thread_running,
-                thread_complete,
-                thread_joined,
-            };
-            std::exception_ptr except;
-            Thread::callback payload;
-            std::atomic<int> state;
-            DWORD key;
-            HANDLE thread;
-            Thread(const Thread&) = delete;
-            Thread& operator=(const Thread&) = delete;
-            static DWORD WINAPI thread_callback(void* ptr) noexcept {
-                auto t = static_cast<Thread*>(ptr);
-                if (t->payload) {
-                    try { t->payload(); }
-                    catch (...) { t->except = std::current_exception(); }
-                }
-                t->state = thread_complete;
-                return 0;
-            }
-        };
-
     #endif
 
-    // Time and date functions
+    // [Time and date operations]
+
+    // General time and date operations
+
+    enum ZoneFlag { utc_date, local_date };
 
     namespace PrionDetail {
 
@@ -1960,11 +2180,90 @@ namespace Prion {
                 std::chrono::milliseconds;
             #endif
 
+        inline void sleep_for(SleepUnit t) noexcept {
+            #if defined(PRI_TARGET_UNIX)
+                auto usec = t.count();
+                if (usec > 0) {
+                    timeval tv;
+                    tv.tv_sec = usec / 1000000;
+                    tv.tv_usec = usec % 1000000;
+                    select(0, nullptr, nullptr, nullptr, &tv);
+                } else {
+                    sched_yield();
+                }
+            #else
+                auto msec = t.count();
+                if (msec > 0)
+                    Sleep(uint32_t(msec));
+                else
+                    Sleep(0);
+            #endif
+        }
+
+    }
+
+    template <typename R, typename P>
+    void from_seconds(double s, std::chrono::duration<R, P>& d) noexcept {
+        using namespace std::chrono;
+        d = duration_cast<duration<R, P>>(duration<double>(s));
+    }
+
+    template <typename R, typename P>
+    double to_seconds(const std::chrono::duration<R, P>& d) noexcept {
+        using namespace std::chrono;
+        return duration_cast<duration<double>>(d).count();
+    }
+
+    inline std::chrono::system_clock::time_point make_date(int year, int month, int day,
+            int hour, int min, double sec, ZoneFlag z = utc_date) noexcept {
+        using namespace std::chrono;
+        double isec = 0, fsec = modf(sec, &isec);
+        if (fsec < 0) {
+            isec -= 1;
+            fsec += 1;
+        }
+        tm stm;
+        memset(&stm, 0, sizeof(stm));
+        stm.tm_sec = int(isec);
+        stm.tm_min = min;
+        stm.tm_hour = hour;
+        stm.tm_mday = day;
+        stm.tm_mon = month - 1;
+        stm.tm_year = year - 1900;
+        stm.tm_isdst = -1;
+        time_t t;
+        if (z == local_date)
+            t = mktime(&stm);
+        else
+            #if defined(PRI_TARGET_UNIX)
+                t = timegm(&stm);
+            #else
+                t = _mkgmtime(&stm);
+            #endif
+        system_clock::time_point::rep extra(fsec * system_clock::time_point::duration(seconds(1)).count());
+        return system_clock::from_time_t(t) + system_clock::time_point::duration(extra);
+    }
+
+    template <typename R, typename P>
+    void sleep_for(std::chrono::duration<R, P> t) noexcept {
+        using namespace std::chrono;
+        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(t));
+    }
+
+    inline void sleep_for(double t) noexcept {
+        using namespace std::chrono;
+        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(duration<double>(t)));
+    }
+
+    // Time and date formatting
+
+    namespace PrionDetail {
+
         inline u8string format_time(int64_t sec, double frac, int prec) {
             u8string result;
             if (sec < 0 || frac < 0)
                 result += '-';
-            sec = abs(sec);
+            sec = std::abs(sec);
             int y = sec / 31557600;
             sec -= 31557600 * y;
             int d = sec / 86400;
@@ -2000,44 +2299,7 @@ namespace Prion {
             return result;
         }
 
-        inline void sleep_for(SleepUnit t) noexcept {
-            #if defined(PRI_TARGET_UNIX)
-                auto usec = t.count();
-                if (usec > 0) {
-                    timeval tv;
-                    tv.tv_sec = usec / 1000000;
-                    tv.tv_usec = usec % 1000000;
-                    select(0, nullptr, nullptr, nullptr, &tv);
-                } else {
-                    sched_yield();
-                }
-            #else
-                auto msec = t.count();
-                if (msec > 0)
-                    Sleep(uint32_t(msec));
-                else
-                    Sleep(0);
-            #endif
-        }
-
     }
-
-    template <typename R, typename P>
-    double to_seconds(const std::chrono::duration<R, P>& d) noexcept {
-        using namespace std::chrono;
-        return duration_cast<duration<double>>(d).count();
-    }
-
-    template <typename R, typename P>
-    void from_seconds(double s, std::chrono::duration<R, P>& d) noexcept {
-        using namespace std::chrono;
-        d = duration_cast<duration<R, P>>(duration<double>(s));
-    }
-
-    enum ZoneFlag {
-        utc_date,
-        local_date
-    };
 
     // Unfortunately strftime() doesn't set errno and simply returns zero on
     // any error. This means that there is no way to distinguish between an
@@ -2077,36 +2339,6 @@ namespace Prion {
         return result;
     }
 
-    inline std::chrono::system_clock::time_point make_date(int year, int month, int day,
-            int hour, int min, double sec, ZoneFlag z = utc_date) noexcept {
-        using namespace std::chrono;
-        double isec = 0, fsec = modf(sec, &isec);
-        if (fsec < 0) {
-            isec -= 1;
-            fsec += 1;
-        }
-        tm stm;
-        memset(&stm, 0, sizeof(stm));
-        stm.tm_sec = int(isec);
-        stm.tm_min = min;
-        stm.tm_hour = hour;
-        stm.tm_mday = day;
-        stm.tm_mon = month - 1;
-        stm.tm_year = year - 1900;
-        stm.tm_isdst = -1;
-        time_t t;
-        if (z == local_date)
-            t = mktime(&stm);
-        else
-            #if defined(PRI_TARGET_UNIX)
-                t = timegm(&stm);
-            #else
-                t = _mkgmtime(&stm);
-            #endif
-        system_clock::time_point::rep extra(fsec * system_clock::time_point::duration(seconds(1)).count());
-        return system_clock::from_time_t(t) + system_clock::time_point::duration(extra);
-    }
-
     template <typename R, typename P>
     u8string format_time(const std::chrono::duration<R, P>& time, int prec = 0) {
         using namespace std::chrono;
@@ -2115,16 +2347,7 @@ namespace Prion {
         return PrionDetail::format_time(whole.count(), duration_cast<duration<double>>(frac).count(), prec);
     }
 
-    template <typename R, typename P>
-    void sleep_for(std::chrono::duration<R, P> t) noexcept {
-        using namespace std::chrono;
-        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(t));
-    }
-
-    inline void sleep_for(double t) noexcept {
-        using namespace std::chrono;
-        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(duration<double>(t)));
-    }
+    // System specific time and date conversions
 
     #if defined(PRI_TARGET_UNIX)
 
@@ -2206,82 +2429,7 @@ namespace Prion {
 
     #endif
 
-    // Type manipulation
-
-    namespace PrionDetail {
-
-        template <size_t Bits> struct IntegerType;
-        template <> struct IntegerType<8> { using signed_type = int8_t; using unsigned_type = uint8_t; };
-        template <> struct IntegerType<16> { using signed_type = int16_t; using unsigned_type = uint16_t; };
-        template <> struct IntegerType<32> { using signed_type = int32_t; using unsigned_type = uint32_t; };
-        template <> struct IntegerType<64> { using signed_type = int64_t; using unsigned_type = uint64_t; };
-        template <> struct IntegerType<128> { using signed_type = int128_t; using unsigned_type = uint128_t; };
-
-    }
-
-    template <typename T> using BinaryType = typename PrionDetail::IntegerType<8 * sizeof(T)>::unsigned_type;
-    template <size_t Bits> using SignedInteger = typename PrionDetail::IntegerType<Bits>::signed_type;
-    template <size_t Bits> using UnsignedInteger = typename PrionDetail::IntegerType<Bits>::unsigned_type;
-
-    template <typename T1, typename T2> using CopyConst =
-        std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
-
-    template <typename T2, typename T1> bool is(const T1& ref) noexcept
-        { return dynamic_cast<const T2*>(&ref) != nullptr; }
-    template <typename T2, typename T1> bool is(const T1* ptr) noexcept
-        { return dynamic_cast<const T2*>(ptr) != nullptr; }
-    template <typename T2, typename T1> bool is(const unique_ptr<T1>& ptr) noexcept
-        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
-    template <typename T2, typename T1> bool is(const shared_ptr<T1>& ptr) noexcept
-        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
-
-    template <typename T2, typename T1> T2& as(T1& ref)
-        { return dynamic_cast<T2&>(ref); }
-    template <typename T2, typename T1> const T2& as(const T1& ref)
-        { return dynamic_cast<const T2&>(ref); }
-    template <typename T2, typename T1> T2& as(T1* ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> const T2& as(const T1* ptr)
-        { if (ptr) return dynamic_cast<const T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(unique_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(const unique_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(shared_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(const shared_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-
-    template <typename T2, typename T1> inline T2 binary_cast(const T1& t) noexcept {
-        PRI_STATIC_ASSERT(sizeof(T2) == sizeof(T1));
-        T2 t2;
-        memcpy(&t2, &t, sizeof(t));
-        return t2;
-    }
-
-    template <typename T2, typename T1> inline T2 implicit_cast(const T1& t) { return t; }
-
-    inline string demangle(const string& name) {
-        auto mangled = name;
-        shared_ptr<char> demangled;
-        int status = 0;
-        for (;;) {
-            if (mangled.empty())
-                return name;
-            demangled.reset(abi::__cxa_demangle(mangled.data(), nullptr, nullptr, &status), free);
-            if (status == -1)
-                throw std::bad_alloc();
-            if (status == 0 && demangled)
-                return demangled.get();
-            if (mangled[0] != '_')
-                return name;
-            mangled.erase(0, 1);
-        }
-    }
-
-    inline string type_name(const std::type_info& t) { return demangle(t.name()); }
-    template <typename T> string type_name() { return type_name(typeid(T)); }
-    template <typename T> string type_name(const T&) { return type_name(typeid(T)); }
+    // [Things that need to go at the end because of dependencies]
 
     // UUID
 
@@ -2401,8 +2549,6 @@ namespace Prion {
         }
     };
 
-    // Version number
-
     class Version:
     public LessThanComparable<Version> {
     public:
@@ -2486,151 +2632,6 @@ namespace Prion {
         return v.str();
     }
 
-    // I/O utilities
-
-    // (These are at the end of the file because of internal dependencies)
-
-    inline bool is_stdout_redirected() noexcept { return ! isatty(1); }
-
-    namespace PrionDetail {
-
-        #if defined(PRI_TARGET_WINDOWS)
-            extern "C" int _isatty(int fd);
-        #endif
-
-        inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
-            static constexpr size_t bufsize = 65536;
-            size_t offset = 0;
-            while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
-                dst.resize(std::min(offset + bufsize, limit), 0);
-                offset += fread(&dst[0] + offset, 1, dst.size() - offset, fp);
-            }
-            dst.resize(offset);
-            return ! ferror(fp);
-        }
-
-        inline bool save_file_helper(FILE* fp, const void* ptr, size_t n) {
-            auto cptr = static_cast<const char*>(ptr);
-            size_t offset = 0;
-            while (offset < n && ! ferror(fp))
-                offset += fwrite(cptr + offset, 1, n - offset, fp);
-            return ! ferror(fp);
-        }
-
-    }
-
-    #if defined(PRI_TARGET_UNIX)
-
-        inline bool load_file(const string& file, string& dst, size_t limit = npos) {
-            dst.clear();
-            FILE* fp = fopen(file.data(), "rb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::load_file_helper(fp, dst, limit);
-        }
-
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
-            auto fp = fopen(file.data(), append ? "ab" : "wb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::save_file_helper(fp, ptr, n);
-        }
-
-    #else
-
-        inline bool load_file(const wstring& file, string& dst, size_t limit = npos) {
-            dst.clear();
-            FILE* fp = _wfopen(file.data(), L"rb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::load_file_helper(fp, dst, limit);
-        }
-
-        inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
-            auto fp = _wfopen(file.data(), append ? L"ab" : L"wb");
-            if (! fp)
-                return false;
-            ScopeExit guard([fp] { fclose(fp); });
-            return PrionDetail::save_file_helper(fp, ptr, n);
-        }
-
-        inline bool load_file(const string& file, string& dst, size_t limit = npos)
-            { return load_file(utf8_to_wstring(file), dst, limit); }
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append)
-            { return save_file(utf8_to_wstring(file), ptr, n, append); }
-        inline bool save_file(const wstring& file, const string& src, bool append = false)
-            { return save_file(file, src.data(), src.size(), append); }
-
-    #endif
-
-    inline bool save_file(const string& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
-
-    namespace PrionDetail {
-
-        inline int grey(int n) noexcept {
-            return 231 + clamp(n, 1, 24);
-        }
-
-        inline int rgb(int rgb) noexcept {
-            int r = clamp((rgb / 100) % 10, 1, 6);
-            int g = clamp((rgb / 10) % 10, 1, 6);
-            int b = clamp(rgb % 10, 1, 6);
-            return 36 * r + 6 * g + b - 27;
-        }
-
-    }
-
-    static constexpr const char* xt_up           = "\e[A";    // Cursor up
-    static constexpr const char* xt_down         = "\e[B";    // Cursor down
-    static constexpr const char* xt_right        = "\e[C";    // Cursor right
-    static constexpr const char* xt_left         = "\e[D";    // Cursor left
-    static constexpr const char* xt_erase_left   = "\e[1K";   // Erase left
-    static constexpr const char* xt_erase_right  = "\e[K";    // Erase right
-    static constexpr const char* xt_erase_above  = "\e[1J";   // Erase above
-    static constexpr const char* xt_erase_below  = "\e[J";    // Erase below
-    static constexpr const char* xt_erase_line   = "\e[2K";   // Erase line
-    static constexpr const char* xt_clear        = "\e[2J";   // Clear screen
-    static constexpr const char* xt_reset        = "\e[0m";   // Reset attributes
-    static constexpr const char* xt_bold         = "\e[1m";   // Bold
-    static constexpr const char* xt_under        = "\e[4m";   // Underline
-    static constexpr const char* xt_black        = "\e[30m";  // Black fg
-    static constexpr const char* xt_red          = "\e[31m";  // Red fg
-    static constexpr const char* xt_green        = "\e[32m";  // Green fg
-    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow fg
-    static constexpr const char* xt_blue         = "\e[34m";  // Blue fg
-    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta fg
-    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan fg
-    static constexpr const char* xt_white        = "\e[37m";  // White fg
-    static constexpr const char* xt_black_bg     = "\e[40m";  // Black bg
-    static constexpr const char* xt_red_bg       = "\e[41m";  // Red bg
-    static constexpr const char* xt_green_bg     = "\e[42m";  // Green bg
-    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow bg
-    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue bg
-    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta bg
-    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan bg
-    static constexpr const char* xt_white_bg     = "\e[47m";  // White bg
-
-    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
-    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces
-    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                             // Cursor right n spaces
-    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                              // Cursor left n spaces
-    inline string xt_colour(int rgb) { return "\x1b[38;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (0-5)
-    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (0-5)
-    inline string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
-    inline string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
-
 }
-
-#define PRI_DEFINE_STD_HASH(T) \
-    namespace std { \
-        template <> struct hash<T> { \
-            using argument_type = T; \
-            using result_type = size_t; \
-            size_t operator()(const T& t) const noexcept { return t.hash(); } \
-        }; \
-    }
 
 PRI_DEFINE_STD_HASH(Prion::Uuid)
