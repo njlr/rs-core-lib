@@ -693,22 +693,44 @@ namespace Prion {
 
     namespace Literals {
 
-        template <char... CS> inline constexpr int128_t operator"" _s128() noexcept
+        template <char... CS> constexpr int128_t operator""_s128() noexcept
             { return int128_t(PrionDetail::MakeInteger<CS...>::value); }
-        template <char... CS> inline constexpr uint128_t operator"" _u128() noexcept
+        template <char... CS> constexpr uint128_t operator""_u128() noexcept
             { return PrionDetail::MakeInteger<CS...>::value; }
-        inline constexpr float operator"" _degf(long double x) noexcept
+        constexpr unsigned long long operator""_k(unsigned long long n) noexcept
+            { return 1000ull * n; }
+        constexpr unsigned long long operator""_M(unsigned long long n) noexcept
+            { return 1000000ull * n; }
+        constexpr unsigned long long operator""_G(unsigned long long n) noexcept
+            { return 1000000000ull * n; }
+        constexpr unsigned long long operator""_T(unsigned long long n) noexcept
+            { return 1000000000000ull * n; }
+        constexpr unsigned long long operator""_kb(unsigned long long n) noexcept
+            { return 1024ull * n; }
+        constexpr unsigned long long operator""_MB(unsigned long long n) noexcept
+            { return 1048576ull * n; }
+        constexpr unsigned long long operator""_GB(unsigned long long n) noexcept
+            { return 1073741824ull * n; }
+        constexpr unsigned long long operator""_TB(unsigned long long n) noexcept
+            { return 1099511627776ull * n; }
+        constexpr float operator""_degf(long double x) noexcept
             { return float(x * (pi_ld / 180.0L)); }
-        inline constexpr float operator"" _degf(unsigned long long x) noexcept
+        constexpr float operator""_degf(unsigned long long x) noexcept
             { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        inline constexpr double operator"" _deg(long double x) noexcept
+        constexpr double operator""_deg(long double x) noexcept
             { return double(x * (pi_ld / 180.0L)); }
-        inline constexpr double operator"" _deg(unsigned long long x) noexcept
+        constexpr double operator""_deg(unsigned long long x) noexcept
             { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        inline constexpr long double operator"" _degl(long double x) noexcept
+        constexpr long double operator""_degl(long double x) noexcept
             { return x * (pi_ld / 180.0L); }
-        inline constexpr long double operator"" _degl(unsigned long long x) noexcept
+        constexpr long double operator""_degl(unsigned long long x) noexcept
             { return static_cast<long double>(x) * (pi_ld / 180.0L); }
+
+    }
+
+    namespace PrionDetail {
+
+        using namespace Prion::Literals;
 
     }
 
@@ -1429,7 +1451,7 @@ namespace Prion {
     namespace PrionDetail {
 
         inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
-            static constexpr size_t bufsize = 65536;
+            static constexpr size_t bufsize = 64_kb;
             size_t offset = 0;
             while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
                 dst.resize(std::min(offset + bufsize, limit), 0);
@@ -2079,6 +2101,7 @@ namespace Prion {
             pthread_cond_t pcond;
             PRI_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& ml, std::chrono::nanoseconds ns, predicate p) {
+                using namespace Prion::Literals;
                 using namespace std::chrono;
                 if (p())
                     return true;
@@ -2093,10 +2116,9 @@ namespace Prion {
                 #else
                     clock_gettime(CLOCK_REALTIME, &ts);
                 #endif
-                static constexpr long billion = 1000000000L;
-                ts.tv_nsec += nsc % billion;
-                ts.tv_sec += nsc / billion + ts.tv_nsec / billion;
-                ts.tv_nsec %= billion;
+                ts.tv_nsec += nsc % 1_G;
+                ts.tv_sec += nsc / 1_G + ts.tv_nsec / 1_G;
+                ts.tv_nsec %= 1_G;
                 for (;;) {
                     int rc = pthread_cond_timedwait(&pcond, &ml.mx->pmutex, &ts);
                     if (rc == ETIMEDOUT)
@@ -2185,8 +2207,8 @@ namespace Prion {
                 auto usec = t.count();
                 if (usec > 0) {
                     timeval tv;
-                    tv.tv_sec = usec / 1000000;
-                    tv.tv_usec = usec % 1000000;
+                    tv.tv_sec = usec / 1_M;
+                    tv.tv_usec = usec % 1_M;
                     select(0, nullptr, nullptr, nullptr, &tv);
                 } else {
                     sched_yield();
@@ -2353,18 +2375,18 @@ namespace Prion {
 
         template <typename R, typename P>
         timespec duration_to_timespec(const std::chrono::duration<R, P>& d) noexcept {
+            using namespace Prion::Literals;
             using namespace std::chrono;
-            static constexpr int64_t billion = 1000000000ll;
             int64_t nsec = duration_cast<nanoseconds>(d).count();
-            return {time_t(nsec / billion), long(nsec % billion)};
+            return {time_t(nsec / 1_G), long(nsec % 1_G)};
         }
 
         template <typename R, typename P>
         timeval duration_to_timeval(const std::chrono::duration<R, P>& d) noexcept {
+            using namespace Prion::Literals;
             using namespace std::chrono;
-            static constexpr int64_t million = 1000000ll;
             int64_t usec = duration_cast<microseconds>(d).count();
-            return {time_t(usec / million), suseconds_t(usec % million)};
+            return {time_t(usec / 1_M), suseconds_t(usec % 1_M)};
         }
 
         inline timespec timepoint_to_timespec(const std::chrono::system_clock::time_point& tp) noexcept {
@@ -2411,8 +2433,8 @@ namespace Prion {
 
         inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
             using namespace std::chrono;
-            static constexpr int64_t filetime_freq = 10000000ll;     // FILETIME ticks (100 ns) per second
-            static constexpr int64_t windows_epoch = 11644473600ll;  // Windows epoch (1601) to Unix epoch (1970)
+            static constexpr int64_t filetime_freq = 10_M; // FILETIME ticks (100 ns) per second
+            static constexpr int64_t windows_epoch = 11644473600ll; // Windows epoch (1601) to Unix epoch (1970)
             int64_t ticks = (int64_t(ft.dwHighDateTime) << 32) + int64_t(ft.dwLowDateTime);
             int64_t sec = ticks / filetime_freq - windows_epoch;
             int64_t nsec = 100ll * (ticks % filetime_freq);

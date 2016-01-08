@@ -521,18 +521,30 @@ mathematical constants, or to the best known accuracy for the physical ones.
 
 These are all in `namespace Prion::Literals`.
 
-* `template <char... CS> constexpr int128_t` **`operator"" _s128`**`() noexcept`
-* `template <char... CS> constexpr uint128_t` **`operator"" _u128`**`() noexcept`
+* `template <char... CS> constexpr int128_t` **`operator""_s128`**`() noexcept`
+* `template <char... CS> constexpr uint128_t` **`operator""_u128`**`() noexcept`
 
 Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
 usual `"0x"` prefix) are supported as well as decimal ones.
 
-* `constexpr float` **`operator"" _degf`**`(long double x) noexcept`
-* `constexpr float` **`operator"" _degf`**`(unsigned long long x) noexcept`
-* `constexpr double` **`operator"" _deg(`**`long double x) noexcept`
-* `constexpr double` **`operator"" _deg(`**`unsigned long long x) noexcept`
-* `constexpr long double` **`operator"" _degl`**`(long double x) noexcept`
-* `constexpr long double` **`operator"" _degl`**`(unsigned long long x) noexcept`
+* `constexpr unsigned long long` **`operator""_k`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_M`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_G`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_T`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_kb`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_MB`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_GB`**`(unsigned long long n) noexcept`
+* `constexpr unsigned long long` **`operator""_TB`**`(unsigned long long n) noexcept`
+
+Integer literals for abbreviating large constants. The first group apply
+powers of 1000, the second powers of 1024.
+
+* `constexpr float` **`operator""_degf`**`(long double x) noexcept`
+* `constexpr float` **`operator""_degf`**`(unsigned long long x) noexcept`
+* `constexpr double` **`operator""_deg(`**`long double x) noexcept`
+* `constexpr double` **`operator""_deg(`**`unsigned long long x) noexcept`
+* `constexpr long double` **`operator""_degl`**`(long double x) noexcept`
+* `constexpr long double` **`operator""_degl`**`(unsigned long long x) noexcept`
 
 Angle literals, converting degrees to radians.
 

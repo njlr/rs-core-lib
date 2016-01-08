@@ -567,6 +567,15 @@ namespace {
         TEST_EQUAL(hex(u), "ffffffffffffffffffffffffffffffff");
         TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
 
+        TEST_EQUAL(42_k, 42000ull);
+        TEST_EQUAL(42_M, 42000000ull);
+        TEST_EQUAL(42_G, 42000000000ull);
+        TEST_EQUAL(42_T, 42000000000000ull);
+        TEST_EQUAL(42_kb, 43008ull);
+        TEST_EQUAL(42_MB, 44040192ull);
+        TEST_EQUAL(42_GB, 45097156608ull);
+        TEST_EQUAL(42_TB, 46179488366592ull);
+
         TEST_EQUAL(0_deg, 0.0);
         TEST_NEAR(45_deg, 0.785398);
         TEST_NEAR(90_deg, 1.570796);

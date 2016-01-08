@@ -649,18 +649,30 @@ mathematical constants, or to the best known accuracy for the physical ones.</p>
 <h3 id="arithmetic-literals">Arithmetic literals</h3>
 <p>These are all in <code>namespace Prion::Literals</code>.</p>
 <ul>
-<li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator"" _s128</code></strong><code>() noexcept</code></li>
-<li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator"" _u128</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator""_s128</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator""_u128</code></strong><code>() noexcept</code></li>
 </ul>
 <p>Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
 usual <code>"0x"</code> prefix) are supported as well as decimal ones.</p>
 <ul>
-<li><code>constexpr float</code> <strong><code>operator"" _degf</code></strong><code>(long double x) noexcept</code></li>
-<li><code>constexpr float</code> <strong><code>operator"" _degf</code></strong><code>(unsigned long long x) noexcept</code></li>
-<li><code>constexpr double</code> <strong><code>operator"" _deg(</code></strong><code>long double x) noexcept</code></li>
-<li><code>constexpr double</code> <strong><code>operator"" _deg(</code></strong><code>unsigned long long x) noexcept</code></li>
-<li><code>constexpr long double</code> <strong><code>operator"" _degl</code></strong><code>(long double x) noexcept</code></li>
-<li><code>constexpr long double</code> <strong><code>operator"" _degl</code></strong><code>(unsigned long long x) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_k</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_M</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_G</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_T</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_kb</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_MB</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_GB</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_TB</code></strong><code>(unsigned long long n) noexcept</code></li>
+</ul>
+<p>Integer literals for abbreviating large constants. The first group apply
+powers of 1000, the second powers of 1024.</p>
+<ul>
+<li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(long double x) noexcept</code></li>
+<li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(unsigned long long x) noexcept</code></li>
+<li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>long double x) noexcept</code></li>
+<li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>unsigned long long x) noexcept</code></li>
+<li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(long double x) noexcept</code></li>
+<li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(unsigned long long x) noexcept</code></li>
 </ul>
 <p>Angle literals, converting degrees to radians.</p>
 <h3 id="string-related-constants">String related constants</h3>
