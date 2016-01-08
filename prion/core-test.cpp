@@ -2256,6 +2256,33 @@ namespace {
         TRY(s = quote("\x00\x01\x7f\x80\xff"s));        TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
         TRY(s = quote("\x00\x01\x7f\x80\xff"s, true));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\x80\xff\""s);
 
+        TEST_EQUAL(trim(""), "");
+        TEST_EQUAL(trim("Hello"), "Hello");
+        TEST_EQUAL(trim("Hello world"), "Hello world");
+        TEST_EQUAL(trim("", ""), "");
+        TEST_EQUAL(trim("Hello", ""), "Hello");
+        TEST_EQUAL(trim("<<<>>>", "<>"), "");
+        TEST_EQUAL(trim("<<<Hello>>>", "<>"), "Hello");
+        TEST_EQUAL(trim("<<<Hello>>> <<<world>>>", "<>"), "Hello>>> <<<world");
+
+        TEST_EQUAL(trim_left(""), "");
+        TEST_EQUAL(trim_left("Hello"), "Hello");
+        TEST_EQUAL(trim_left("Hello world"), "Hello world");
+        TEST_EQUAL(trim_left("", ""), "");
+        TEST_EQUAL(trim_left("Hello", ""), "Hello");
+        TEST_EQUAL(trim_left("<<<>>>", "<>"), "");
+        TEST_EQUAL(trim_left("<<<Hello>>>", "<>"), "Hello>>>");
+        TEST_EQUAL(trim_left("<<<Hello>>> <<<world>>>", "<>"), "Hello>>> <<<world>>>");
+
+        TEST_EQUAL(trim_right(""), "");
+        TEST_EQUAL(trim_right("Hello"), "Hello");
+        TEST_EQUAL(trim_right("Hello world"), "Hello world");
+        TEST_EQUAL(trim_right("", ""), "");
+        TEST_EQUAL(trim_right("Hello", ""), "Hello");
+        TEST_EQUAL(trim_right("<<<>>>", "<>"), "");
+        TEST_EQUAL(trim_right("<<<Hello>>>", "<>"), "<<<Hello");
+        TEST_EQUAL(trim_right("<<<Hello>>> <<<world>>>", "<>"), "<<<Hello>>> <<<world");
+
     }
 
     void check_string_formatting_and_parsing_functions() {

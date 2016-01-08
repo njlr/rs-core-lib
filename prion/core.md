@@ -1092,6 +1092,12 @@ Returns a quoted string; internal quotes, backslashes, control characters, and
 non-ASCII characters are escaped. If the `allow_8bit` flag is set, bytes in
 the 128-255 range are passed through unchanged instead of being escaped.
 
+* `string` **`trim`**`(const string& str, const string& chars = ascii_whitespace)`
+* `string` **`trim_left`**`(const string& str, const string& chars = ascii_whitespace)`
+* `string` **`trim_right`**`(const string& str, const string& chars = ascii_whitespace)`
+
+Trim unwanted bytes from the ends of a string.
+
 * `wstring` **`utf8_to_wstring`**`(const u8string& ustr)` _(Windows only)_
 * `u8string` **`wstring_to_utf8`**`(const wstring& wstr)` _(Windows only)_
 

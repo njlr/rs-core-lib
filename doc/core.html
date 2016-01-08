@@ -1208,6 +1208,12 @@ dereferenced iterators must be assignment compatible with <code>string</code>.</
 non-ASCII characters are escaped. If the <code>allow_8bit</code> flag is set, bytes in
 the 128-255 range are passed through unchanged instead of being escaped.</p>
 <ul>
+<li><code>string</code> <strong><code>trim</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+<li><code>string</code> <strong><code>trim_left</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+<li><code>string</code> <strong><code>trim_right</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+</ul>
+<p>Trim unwanted bytes from the ends of a string.</p>
+<ul>
 <li><code>wstring</code> <strong><code>utf8_to_wstring</code></strong><code>(const u8string&amp; ustr)</code> <em>(Windows only)</em></li>
 <li><code>u8string</code> <strong><code>wstring_to_utf8</code></strong><code>(const wstring&amp; wstr)</code> <em>(Windows only)</em></li>
 </ul>

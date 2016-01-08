@@ -1675,6 +1675,26 @@ namespace Prion {
         }
     }
 
+    inline string trim(const string& str, const string& chars = ascii_whitespace) {
+        size_t pos = str.find_first_not_of(chars);
+        if (pos == npos)
+            return {};
+        else
+            return str.substr(pos, str.find_last_not_of(chars) + 1 - pos);
+    }
+
+    inline string trim_left(const string& str, const string& chars = ascii_whitespace) {
+        size_t pos = str.find_first_not_of(chars);
+        if (pos == npos)
+            return {};
+        else
+            return str.substr(pos, npos);
+    }
+
+    inline string trim_right(const string& str, const string& chars = ascii_whitespace) {
+        return str.substr(0, str.find_last_not_of(chars) + 1);
+    }
+
     // String formatting and parsing functions
 
     inline unsigned long long binnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
