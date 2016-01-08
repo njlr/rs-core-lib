@@ -2803,12 +2803,12 @@ namespace {
             TEST_EQUAL(duration_cast<IntMsec>(d).count(), 86400000);
 
             tp = system_clock::from_time_t(0);
-            TRY(timepoint_to_filetime(tp, ft));
+            TRY(ft = timepoint_to_filetime(tp));
             TEST_EQUAL(ft.dwHighDateTime, 0);
             TEST_EQUAL(ft.dwLowDateTime, 0);
 
             tp = system_clock::from_time_t(86400);
-            TRY(timepoint_to_filetime(tp, ft));
+            TRY(ft = timepoint_to_filetime(tp));
             TEST_EQUAL(ft.dwHighDateTime, 201);
             TEST_EQUAL(ft.dwLowDateTime, 711573504);
 

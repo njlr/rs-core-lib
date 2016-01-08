@@ -1329,7 +1329,7 @@ years in `time` does not fit in a signed 32-bit integer.
     * `system_clock::time_point` **`timeval_to_timepoint`**`(const timeval& tv) noexcept`
 * _Windows_
     * `system_clock::time_point` **`filetime_to_timepoint`**`(const FILETIME& ft) noexcept`
-    * `void` **`timepoint_to_filetime`**`(const system_clock::time_point& tp, FILETIME& ft) noexcept`
+    * `FILETIME` **`timepoint_to_filetime`**`(const system_clock::time_point& tp) noexcept`
 
 Conversion functions between C++ chrono types and system API types. Some of
 these return their result through a reference argument to avoid having to
@@ -1341,14 +1341,14 @@ For reference, the system time types are:
 * _Unix_
     * `#include <time.h>`
         * `struct` **`timespec`**
-            * `time_t timespec::`**`tv_sec`** `[seconds]`
-            * `long timespec::`**`tv_nsec`** `[nanoseconds]`
+            * `time_t timespec::`**`tv_sec`** `// seconds`
+            * `long timespec::`**`tv_nsec`** `// nanoseconds`
     * `#include <sys/time.h>`
         * `struct` **`timeval`**
-            * `time_t timeval::`**`tv_sec`** `[seconds]`
-            * `suseconds_t timeval::`**`tv_usec`** `[microseconds]`
+            * `time_t timeval::`**`tv_sec`** `// seconds`
+            * `suseconds_t timeval::`**`tv_usec`** `// microseconds`
 * _Windows_
     * `#include <windows.h>`
         * `struct` **`FILETIME`**
-            * `DWORD FILETIME::`**`dwLowDateTime`** `[low 32 bits]`
-            * `DWORD FILETIME::`**`dwHighDateTime`** `[high 32 bits]`
+            * `DWORD FILETIME::`**`dwLowDateTime`** `// low 32 bits`
+            * `DWORD FILETIME::`**`dwHighDateTime`** `// high 32 bits`

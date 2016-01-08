@@ -2419,12 +2419,12 @@ namespace Prion {
             return system_clock::from_time_t(time_t(sec)) + duration_cast<system_clock::duration>(nanoseconds(nsec));
         }
 
-        inline void timepoint_to_filetime(const std::chrono::system_clock::time_point& tp, FILETIME& ft) noexcept {
+        inline FILETIME timepoint_to_filetime(const std::chrono::system_clock::time_point& tp) noexcept {
             using namespace std::chrono;
             auto unix_time = tp - system_clock::from_time_t(0);
             uint64_t nsec = duration_cast<nanoseconds>(unix_time).count();
             uint64_t ticks = nsec / 100ll;
-            ft = {uint32_t(ticks), uint32_t(ticks >> 32)};
+            return {uint32_t(ticks & 0xfffffffful), uint32_t(ticks >> 32)};
         }
 
     #endif

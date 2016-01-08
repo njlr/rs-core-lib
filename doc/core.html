@@ -1510,7 +1510,7 @@ years in <code>time</code> does not fit in a signed 32-bit integer.</p>
 </li>
 <li><em>Windows</em><ul>
 <li><code>system_clock::time_point</code> <strong><code>filetime_to_timepoint</code></strong><code>(const FILETIME&amp; ft) noexcept</code></li>
-<li><code>void</code> <strong><code>timepoint_to_filetime</code></strong><code>(const system_clock::time_point&amp; tp, FILETIME&amp; ft) noexcept</code></li>
+<li><code>FILETIME</code> <strong><code>timepoint_to_filetime</code></strong><code>(const system_clock::time_point&amp; tp) noexcept</code></li>
 </ul>
 </li>
 </ul>
@@ -1523,16 +1523,16 @@ being represented is out of range for either the source or destination type.</p>
 <li><em>Unix</em><ul>
 <li><code>#include &lt;time.h&gt;</code><ul>
 <li><code>struct</code> <strong><code>timespec</code></strong><ul>
-<li><code>time_t timespec::</code><strong><code>tv_sec</code></strong> <code>[seconds]</code></li>
-<li><code>long timespec::</code><strong><code>tv_nsec</code></strong> <code>[nanoseconds]</code></li>
+<li><code>time_t timespec::</code><strong><code>tv_sec</code></strong> <code>// seconds</code></li>
+<li><code>long timespec::</code><strong><code>tv_nsec</code></strong> <code>// nanoseconds</code></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><code>#include &lt;sys/time.h&gt;</code><ul>
 <li><code>struct</code> <strong><code>timeval</code></strong><ul>
-<li><code>time_t timeval::</code><strong><code>tv_sec</code></strong> <code>[seconds]</code></li>
-<li><code>suseconds_t timeval::</code><strong><code>tv_usec</code></strong> <code>[microseconds]</code></li>
+<li><code>time_t timeval::</code><strong><code>tv_sec</code></strong> <code>// seconds</code></li>
+<li><code>suseconds_t timeval::</code><strong><code>tv_usec</code></strong> <code>// microseconds</code></li>
 </ul>
 </li>
 </ul>
@@ -1542,8 +1542,8 @@ being represented is out of range for either the source or destination type.</p>
 <li><em>Windows</em><ul>
 <li><code>#include &lt;windows.h&gt;</code><ul>
 <li><code>struct</code> <strong><code>FILETIME</code></strong><ul>
-<li><code>DWORD FILETIME::</code><strong><code>dwLowDateTime</code></strong> <code>[low 32 bits]</code></li>
-<li><code>DWORD FILETIME::</code><strong><code>dwHighDateTime</code></strong> <code>[high 32 bits]</code></li>
+<li><code>DWORD FILETIME::</code><strong><code>dwLowDateTime</code></strong> <code>// low 32 bits</code></li>
+<li><code>DWORD FILETIME::</code><strong><code>dwHighDateTime</code></strong> <code>// high 32 bits</code></li>
 </ul>
 </li>
 </ul>
