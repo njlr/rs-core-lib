@@ -1895,6 +1895,46 @@ namespace Prion {
 
     template <typename T> string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
 
+    // HTML/XML tags
+
+    class Tag {
+    public:
+        Tag() = default;
+        Tag(const u8string& text, std::ostream& out) {
+            u8string start = trim_right(text, "\n");
+            if (start.empty() || start[0] != '<' || ! ascii_isalnum_w(start[1]) || start.back() != '>')
+                throw std::invalid_argument("Invalid HTML tag: " + quote(text));
+            if (start.end()[-2] == '/') {
+                out << text;
+                return;
+            }
+            os = &out;
+            size_t lines = text.size() - start.size();
+            if (lines >= 2)
+                start += '\n';
+            out << start;
+            auto cut = std::find_if_not(text.begin() + 2, text.end(), ascii_isalnum_w);
+            end = "</" + u8string(text.begin() + 1, cut) + ">";
+            if (lines >= 1)
+                end += '\n';
+        }
+        Tag(Tag&& t) noexcept: end(std::move(t.end)), os(t.os) { t.os = nullptr; }
+        ~Tag() noexcept { if (os) try { *os << end; } catch (...) {} }
+        Tag& operator=(Tag&& t) noexcept {
+            if (os)
+                *os << end;
+            end = std::move(t.end);
+            os = t.os;
+            t.os = nullptr;
+            return *this;
+        }
+    private:
+        u8string end;
+        std::ostream* os = nullptr;
+        Tag(const Tag&) = delete;
+        Tag& operator=(const Tag&) = delete;
+    };
+
     // [Threads]
 
     // Thread class

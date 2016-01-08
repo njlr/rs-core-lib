@@ -1175,6 +1175,28 @@ strings) are serialized in a format similar to a JSON array (e.g.
 `"[1,2,3]"`), or an object (e.g. `"{1:a,2:b,3:c}"`) if the range's value type
 is a pair; `to_str()` is called recursively on each range element.
 
+### HTML/XML tags ###
+
+* `class` **`Tag`**
+    * `Tag::`**`Tag`**`() noexcept`
+    * `Tag::`**`Tag`**`(const u8string& text, std::ostream& out)`
+    * `Tag::`**`Tag`**`(Tag&& t) noexcept`
+    * `Tag::`**`~Tag`**`() noexcept`
+    * `Tag& Tag::`**`operator=`**`(Tag&& t) noexcept`
+
+This class writes an HTML/XML tag in its constructor, then writes the
+corresponding closing tag in its destructor. If the supplied string ends with
+one line feed, a line feed will be written after the closing tag, but not the
+opening one; if it ends with two line feeds, one will be written after both
+tags.
+
+If the opening tag is standalone, the text will simply be written as is, and
+no closing tag will be written (standalone tags are identified by a closing
+slash; the class is not aware of HTML's list of automatic self closing tags).
+
+The constructor will throw `std::invalid_argument` if the string does not
+appear to be a valid tag (this check is not very sophisticated).
+
 ## Threads ##
 
 This section of the library exists because some of the compilers I need to

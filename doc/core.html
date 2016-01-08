@@ -67,6 +67,7 @@
 <li><a href="#character-functions">Character functions</a></li>
 <li><a href="#general-string-functions">General string functions</a></li>
 <li><a href="#string-formatting-and-parsing-functions">String formatting and parsing functions</a></li>
+<li><a href="#htmlxml-tags">HTML/XML tags</a></li>
 </ul>
 </li>
 <li><a href="#threads">Threads</a><ul>
@@ -1287,6 +1288,27 @@ null character pointer is treated as an empty string). Ranges (other than
 strings) are serialized in a format similar to a JSON array (e.g.
 <code>"[1,2,3]"</code>), or an object (e.g. <code>"{1:a,2:b,3:c}"</code>) if the range's value type
 is a pair; <code>to_str()</code> is called recursively on each range element.</p>
+<h3 id="htmlxml-tags">HTML/XML tags</h3>
+<ul>
+<li><code>class</code> <strong><code>Tag</code></strong><ul>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>() noexcept</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(const u8string&amp; text, std::ostream&amp; out)</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
+<li><code>Tag::</code><strong><code>~Tag</code></strong><code>() noexcept</code></li>
+<li><code>Tag&amp; Tag::</code><strong><code>operator=</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>This class writes an HTML/XML tag in its constructor, then writes the
+corresponding closing tag in its destructor. If the supplied string ends with
+one line feed, a line feed will be written after the closing tag, but not the
+opening one; if it ends with two line feeds, one will be written after both
+tags.</p>
+<p>If the opening tag is standalone, the text will simply be written as is, and
+no closing tag will be written (standalone tags are identified by a closing
+slash; the class is not aware of HTML's list of automatic self closing tags).</p>
+<p>The constructor will throw <code>std::invalid_argument</code> if the string does not
+appear to be a valid tag (this check is not very sophisticated).</p>
 <h2 id="threads">Threads</h2>
 <p>This section of the library exists because some of the compilers I need to
 support don't implement C++11 threads yet.</p>

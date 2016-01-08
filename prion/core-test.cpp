@@ -12,6 +12,7 @@
 #include <random>
 #include <ratio>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -2520,6 +2521,59 @@ namespace {
 
     }
 
+    void check_html_xml_tags() {
+
+        const u8string expected =
+            "<h1>Header</h1>\n"
+            "<br/>\n"
+            "<ul>\n"
+            "<li>alpha</li>\n"
+            "<li>bravo</li>\n"
+            "<li>charlie</li>\n"
+            "</ul>\n";
+
+        {
+            std::ostringstream out;
+            {
+                Tag h1;
+                TRY(h1 = Tag("<h1>\n", out));
+                out << "Header";
+            }
+            Tag br;
+            TRY(br = Tag("<br/>\n", out));
+            {
+                Tag ul;
+                TRY(ul = Tag("<ul>\n\n", out));
+                for (auto item: {"alpha", "bravo", "charlie"}) {
+                    Tag li;
+                    TRY(li = Tag("<li>\n", out));
+                    out << item;
+                }
+            }
+            u8string s = out.str();
+            TEST_EQUAL(s, expected);
+        }
+
+        {
+            std::ostringstream out;
+            {
+                Tag h1("<h1>\n", out);
+                out << "Header";
+            }
+            Tag br("<br/>\n", out);
+            {
+                Tag ul("<ul>\n\n", out);
+                for (auto item: {"alpha", "bravo", "charlie"}) {
+                    Tag li("<li>\n", out);
+                    out << item;
+                }
+            }
+            u8string s = out.str();
+            TEST_EQUAL(s, expected);
+        }
+
+    }
+
     void check_thread_class() {
 
         TEST_COMPARE(Thread::cpu_threads(), >=, 1);
@@ -2888,6 +2942,7 @@ TEST_MODULE(prion, core) {
     check_character_functions();
     check_general_string_functions();
     check_string_formatting_and_parsing_functions();
+    check_html_xml_tags();
     check_thread_class();
     check_synchronisation_objects();
     check_general_time_and_date_operations();
