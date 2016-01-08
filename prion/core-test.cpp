@@ -2225,27 +2225,27 @@ namespace {
         TEST_EQUAL(cstr_size(r1), 0);
         TEST_EQUAL(cstr_size(r2), 5);
 
-        sv.clear();                      TEST_EQUAL(join_words(sv), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(sv), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv), "Helloworld");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv), "Helloworldagain");
-        sv.clear();                      TEST_EQUAL(join_words(sv, " "), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(sv, " "), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, " "), "Hello world");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv, " "), "Hello world again");
-        sv.clear();                      TEST_EQUAL(join_words(sv, "<*>"s), "");
-        sv = {"Hello"};                  TEST_EQUAL(join_words(sv, "<*>"s), "Hello");
-        sv = {"Hello","world"};          TEST_EQUAL(join_words(sv, "<*>"s), "Hello<*>world");
-        sv = {"Hello","world","again"};  TEST_EQUAL(join_words(sv, "<*>"s), "Hello<*>world<*>again");
+        sv.clear();                      TEST_EQUAL(join(sv), "");
+        sv = {"Hello"};                  TEST_EQUAL(join(sv), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join(sv), "Helloworld");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join(sv), "Helloworldagain");
+        sv.clear();                      TEST_EQUAL(join(sv, " "), "");
+        sv = {"Hello"};                  TEST_EQUAL(join(sv, " "), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join(sv, " "), "Hello world");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join(sv, " "), "Hello world again");
+        sv.clear();                      TEST_EQUAL(join(sv, "<*>"s), "");
+        sv = {"Hello"};                  TEST_EQUAL(join(sv, "<*>"s), "Hello");
+        sv = {"Hello","world"};          TEST_EQUAL(join(sv, "<*>"s), "Hello<*>world");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join(sv, "<*>"s), "Hello<*>world<*>again");
 
-        TRY(split_words("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(sv, "/"), "");
-        TRY(split_words("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join_words(sv, "/"), "Hello");
-        TRY(split_words("Hello world", overwrite(sv)));              TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
-        TRY(split_words("\t Hello \t world \t", overwrite(sv)));     TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
-        TRY(split_words("**Hello**world**"s, overwrite(sv), "*"));   TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
-        TRY(split_words("**Hello**world**"s, overwrite(sv), "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join_words(sv, "/"), "Hello/world");
-        TRY(split_words("*****"s, overwrite(sv), "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(sv, "/"), "");
-        TRY(split_words("*****"s, overwrite(sv), "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join_words(sv, "/"), "");
+        TRY(split("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
+        TRY(split("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join(sv, "/"), "Hello");
+        TRY(split("Hello world", overwrite(sv)));              TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
+        TRY(split("\t Hello \t world \t", overwrite(sv)));     TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
+        TRY(split("**Hello**world**"s, overwrite(sv), "*"));   TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
+        TRY(split("**Hello**world**"s, overwrite(sv), "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
+        TRY(split("*****"s, overwrite(sv), "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
+        TRY(split("*****"s, overwrite(sv), "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
 
         TRY(s = quote(""s));                            TEST_EQUAL(s, "\"\""s);
         TRY(s = quote("\"\""s));                        TEST_EQUAL(s, "\"\\\"\\\"\""s);

@@ -1079,12 +1079,12 @@ Returns the length of a null-terminated string (a generalized version of
 
 Returns a string containing `4*depth` spaces, for indentation.
 
-* `template <typename InputRange> string` **`join_words`**`(const InputRange& range, const string& delim = "")`
-* `template <typename OutputIterator> void` **`split_words`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
+* `template <typename InputRange> string` **`join`**`(const InputRange& range, const string& delim = "")`
+* `template <typename OutputIterator> void` **`split`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
 
-Join words into a string, using the given delimiter, or split a string into
-words, discarding any sequence of delimiter characters. The dereferenced
-iterators must be assignment compatible with `string`.
+Join strings into a single string, using the given delimiter, or split a
+string into substrings, discarding any sequence of delimiter characters. The
+dereferenced iterators must be assignment compatible with `string`.
 
 * `string` **`quote`**`(const string& str, bool allow_8bit = false)`
 

@@ -1195,12 +1195,12 @@ of undefined behaviour.</p>
 </ul>
 <p>Returns a string containing <code>4*depth</code> spaces, for indentation.</p>
 <ul>
-<li><code>template &lt;typename InputRange&gt; string</code> <strong><code>join_words</code></strong><code>(const InputRange&amp; range, const string&amp; delim = "")</code></li>
-<li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split_words</code></strong><code>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
+<li><code>template &lt;typename InputRange&gt; string</code> <strong><code>join</code></strong><code>(const InputRange&amp; range, const string&amp; delim = "")</code></li>
+<li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
 </ul>
-<p>Join words into a string, using the given delimiter, or split a string into
-words, discarding any sequence of delimiter characters. The dereferenced
-iterators must be assignment compatible with <code>string</code>.</p>
+<p>Join strings into a single string, using the given delimiter, or split a
+string into substrings, discarding any sequence of delimiter characters. The
+dereferenced iterators must be assignment compatible with <code>string</code>.</p>
 <ul>
 <li><code>string</code> <strong><code>quote</code></strong><code>(const string&amp; str, bool allow_8bit = false)</code></li>
 </ul>

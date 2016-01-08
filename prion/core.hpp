@@ -1642,7 +1642,7 @@ namespace Prion {
     inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
 
     template <typename InputRange>
-    string join_words(const InputRange& range, const string& delim = {}) {
+    string join(const InputRange& range, const string& delim = {}) {
         string result;
         for (auto& s: range) {
             result += s;
@@ -1654,7 +1654,7 @@ namespace Prion {
     }
 
     template <typename OutputIterator>
-    void split_words(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
+    void split(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
         if (delim.empty()) {
             if (! src.empty()) {
                 *dst = src;
