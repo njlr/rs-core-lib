@@ -814,7 +814,7 @@ namespace Prion {
     template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
     template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
 
-    template <typename T> constexpr size_t array_count(T&&) { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
+    template <typename T> constexpr size_t array_count(T&&) noexcept { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
 
     template <typename Range>
     size_t range_count(const Range& r) {
@@ -1148,7 +1148,7 @@ namespace Prion {
 
     template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
     template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
-    template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)
+    template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept
         { return y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
     template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1>()(value); }
 

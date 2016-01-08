@@ -718,7 +718,7 @@ same, but behaviour is undefined if either pointer is null.</p>
 </ul>
 <p>The iterator and value types of a range.</p>
 <ul>
-<li><code>template &lt;typename T, size_t N&gt; constexpr size_t</code> <strong><code>array_count</code></strong><code>(T[N])</code></li>
+<li><code>template &lt;typename T, size_t N&gt; constexpr size_t</code> <strong><code>array_count</code></strong><code>(T[N]) noexcept</code></li>
 <li><code>template &lt;typename Range&gt; size_t</code> <strong><code>range_count</code></strong><code>(const Range&amp; r)</code></li>
 <li><code>template &lt;typename Range&gt; bool</code> <strong><code>range_empty</code></strong><code>(const Range&amp; r)</code></li>
 </ul>
@@ -856,7 +856,7 @@ type; the other versions take an offset and length in bytes.</p>
 </ul>
 <p>Convert between degrees and radians.</p>
 <ul>
-<li><code>template &lt;typename T1, typename T2&gt; constexpr T2</code> <strong><code>interpolate</code></strong><code>(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; constexpr T2</code> <strong><code>interpolate</code></strong><code>(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept</code></li>
 </ul>
 <p>Returns the value of <code>y</code> corresponding to <code>x</code>, by interpolating or
 extrapolating the line between <code>(x1,y1)</code> and <code>(x2,y2)</code>. Behaviour is undefined

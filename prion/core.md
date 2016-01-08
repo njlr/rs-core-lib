@@ -595,7 +595,7 @@ same, but behaviour is undefined if either pointer is null.
 
 The iterator and value types of a range.
 
-* `template <typename T, size_t N> constexpr size_t` **`array_count`**`(T[N])`
+* `template <typename T, size_t N> constexpr size_t` **`array_count`**`(T[N]) noexcept`
 * `template <typename Range> size_t` **`range_count`**`(const Range& r)`
 * `template <typename Range> bool` **`range_empty`**`(const Range& r)`
 
@@ -739,7 +739,7 @@ type; the other versions take an offset and length in bytes.
 
 Convert between degrees and radians.
 
-* `template <typename T1, typename T2> constexpr T2` **`interpolate`**`(T1 x1, T2 y1, T1 x2, T2 y2, T1 x)`
+* `template <typename T1, typename T2> constexpr T2` **`interpolate`**`(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept`
 
 Returns the value of `y` corresponding to `x`, by interpolating or
 extrapolating the line between `(x1,y1)` and `(x2,y2)`. Behaviour is undefined
