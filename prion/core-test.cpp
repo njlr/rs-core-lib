@@ -2793,15 +2793,13 @@ namespace {
 
     void check_system_specific_time_and_date_conversions() {
 
+        using IntMsec = duration<int64_t, std::ratio<1, 1000>>;
+
         #if defined(PRI_TARGET_UNIX)
 
-            using IntMsec = duration<int64_t, std::ratio<1, 1000>>;
+            using IntSec = duration<int64_t>;
+            using IntDays = duration<int64_t, std::ratio<86400>>;
             using DblSec = duration<double>;
-
-            #if defined(PRI_TARGET_UNIX)
-                using IntSec = duration<int64_t>;
-                using IntDays = duration<int64_t, std::ratio<86400>>;
-            #endif
 
             IntMsec ims;
             IntSec is;

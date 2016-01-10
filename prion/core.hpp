@@ -2492,6 +2492,7 @@ namespace Prion {
     #if defined(PRI_TARGET_WIN32)
 
         inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
+            using namespace Prion::Literals;
             using namespace std::chrono;
             static constexpr int64_t filetime_freq = 10_M; // FILETIME ticks (100 ns) per second
             static constexpr int64_t windows_epoch = 11644473600ll; // Windows epoch (1601) to Unix epoch (1970)
