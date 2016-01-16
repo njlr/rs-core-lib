@@ -866,6 +866,42 @@ namespace {
         d1 = 5;   d2 = -3;  TRY(d3 = quo(d1, d2));  TRY(d4 = rem(d1, d2));  TEST_EQUAL(d3, -1);  TEST_EQUAL(d4, 2);  TEST_EQUAL(d2 * d3 + d4, d1);
         d1 = 6;   d2 = -3;  TRY(d3 = quo(d1, d2));  TRY(d4 = rem(d1, d2));  TEST_EQUAL(d3, -2);  TEST_EQUAL(d4, 0);  TEST_EQUAL(d2 * d3 + d4, d1);
 
+        int cd, cm, max = 100;
+
+        for (int a = - max; a <= max; ++a) {
+            for (int b = - max; b <= max; ++b) {
+                TRY(cd = gcd(a, b));
+                TRY(cm = lcm(a, b));
+                if (a == 0 && b == 0)
+                    TEST_EQUAL(cd, 0);
+                else
+                    TEST_COMPARE(cd, >, 0);
+                if (a == 0 || b == 0) {
+                    TEST_EQUAL(cd, std::abs(a + b));
+                    TEST_EQUAL(cm, 0);
+                } else  {
+                    TEST_COMPARE(cm, >, 0);
+                    TEST_COMPARE(cd, <=, std::min(abs(a), abs(b)));
+                    if (a % b == 0) {
+                        TEST_EQUAL(cd, std::abs(b));
+                        TEST_EQUAL(cm, std::abs(a));
+                    } else if (b % a == 0) {
+                        TEST_EQUAL(cd, std::abs(a));
+                        TEST_EQUAL(cm, std::abs(b));
+                    } else {
+                        TEST_EQUAL(a % cd, 0);
+                        TEST_EQUAL(b % cd, 0);
+                        for (int x = cd + 1, xmax = std::min(a, b) / 2; x <= xmax; ++x)
+                            TEST(a % x != 0 || b % x != 0);
+                        TEST_COMPARE(cm, >=, std::max(abs(a), abs(b)));
+                        TEST_EQUAL(cm % a, 0);
+                        TEST_EQUAL(cm % b, 0);
+                    }
+                }
+                TEST_EQUAL(abs(a * b), cd * cm);
+            }
+        }
+
         TEST_EQUAL(sign_of(0), 0);
         TEST_EQUAL(sign_of(42), 1);
         TEST_EQUAL(sign_of(-42), -1);

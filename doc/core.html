@@ -790,6 +790,16 @@ rounding errors). The pair returned by <code>divide()</code> contains the quotie
 remainder. For all three functions, behaviour is undefined if <code>rhs=0</code> or the
 quotient is out of <code>T</code>'s representable range.</p>
 <ul>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>gcd</code></strong><code>(T a, T b) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>lcm</code></strong><code>(T a, T b) noexcept</code></li>
+</ul>
+<p>Return the greatest common divisor or lowest common multiple of two numbers.
+The argument type must be an integer. If one argument is zero, <code>gcd()</code> will
+return the other one, and <code>lcm()</code> will return zero. The return value is always
+positive (if not zero), regardless of the signs of the arguments. If the
+correct result for <code>lcm()</code> would be outside the range of <code>T</code>, behaviour is
+undefined if <code>T</code> is signed, unspecified if <code>T</code> is unsigned.</p>
+<ul>
 <li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>sign_of</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Returns the sign of its argument (-1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
