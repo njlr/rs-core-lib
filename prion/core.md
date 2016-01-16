@@ -623,6 +623,8 @@ C-style arrays and is `constexpr`.
     * `Iterator Irange::`**`second`**
     * `constexpr Iterator Irange::`**`begin`**`() const { return first; }`
     * `constexpr Iterator Irange::`**`end`**`() const { return second; }`
+    * `constexpr bool Irange::`**`empty`**`() const { return first == second; }`
+    * `constexpr size_t Irange::`**`size`**`() const { return std::distance(first, second); }`
 * `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const Iterator& i, const Iterator& j)`
 * `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const std::pair<Iterator, Iterator>& p)`
 

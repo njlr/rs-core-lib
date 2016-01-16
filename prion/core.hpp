@@ -859,11 +859,13 @@ namespace Prion {
         Iterator first, second;
         constexpr Iterator begin() const { return first; }
         constexpr Iterator end() const { return second; }
+        constexpr bool empty() const { return first == second; }
+        constexpr size_t size() const { return std::distance(first, second); }
     };
 
-    template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
     template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
     template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
+    template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
 
     // [Arithmetic functions]
 

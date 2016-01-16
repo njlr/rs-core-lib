@@ -710,14 +710,14 @@ namespace {
         const char* cp = array;
         string s1, s2;
 
-        auto av = array_range(array, sizeof(array));
-        TEST_EQUAL(std::distance(av.begin(), av.end()), 5);
-        TRY(std::copy(av.begin(), av.end(), overwrite(s1)));
+        auto ar = array_range(array, sizeof(array));
+        TEST_EQUAL(ar.size(), 5);
+        TRY(std::copy(ar.begin(), ar.end(), overwrite(s1)));
         TEST_EQUAL(s1, "Hello");
 
-        auto avc = array_range(cp, sizeof(array));
-        TEST_EQUAL(std::distance(avc.begin(), avc.end()), 5);
-        TRY(std::copy(avc.begin(), avc.end(), overwrite(s1)));
+        auto car = array_range(cp, sizeof(array));
+        TEST_EQUAL(car.size(), 5);
+        TRY(std::copy(car.begin(), car.end(), overwrite(s1)));
         TEST_EQUAL(s1, "Hello");
 
     }
