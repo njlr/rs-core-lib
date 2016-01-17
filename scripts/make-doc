@@ -9,9 +9,9 @@ mdexts = ['markdown.extensions.extra', 'markdown.extensions.toc']
 head = '''<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8"/>
-    <title>{0}</title>
-    <link type="text/css" rel="stylesheet" href="style.css"/>
+<meta charset="utf-8"/>
+<title>{0}</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
 </head>
 <body>
 '''
@@ -21,7 +21,7 @@ tail = '''</body>
 '''
 
 if len(sys.argv) != 3:
-    print('*** Usage: make-doc <src> <dst>')
+    print('*** Usage: make-doc <doc.md> <doc.html>')
     sys.exit(1)
 
 src=sys.argv[1]
@@ -30,8 +30,8 @@ dst=sys.argv[2]
 with open(src, 'r', encoding='utf-8') as s:
     md = s.read()
 
-lines = md.splitlines()
-title = lines[0].strip('# ')
+firstline,_,_ = md.partition('\n')
+title = firstline.strip('# ')
 title = re.sub(r'\[([^()\[\]]+)\]\([^()\[\]]+\)', r'\1', title)
 html = head.format(title)
 html += markdown.markdown(md, extensions=mdexts)
