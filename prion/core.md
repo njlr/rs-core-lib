@@ -578,6 +578,12 @@ clear the container and then return the append iterator.
 Compare two ranges, returning -1 if the first range is less than the second,
 zero if they are equal, and +1 if the first range is greater.
 
+* `template <typename Range, typename Container> void` **`con_append`**`(const Range& src, Container& dst)`
+* `template <typename Range, typename Container> void` **`con_overwrite`**`(const Range& src, Container& dst)`
+
+These are just shorthand for a `std::copy()` from a range to an append or
+overwrite iterator.
+
 * `template <typename Container, typename T> void` **`con_remove`**`(Container& con, const T& t)`
 * `template <typename Container, typename Predicate> void` **`con_remove_if`**`(Container& con, Predicate p)`
 * `template <typename Container, typename Predicate> void` **`con_remove_if_not`**`(Container& con, Predicate p)`
@@ -592,6 +598,29 @@ shuffled to the end. The `con_sort_unique()` functions perform a sort followed
 by removing equivalent elements from the container; like `std::sort()`, its
 predicate has less-than semantics (whereas that of `con_unique()`, like that
 of `std::unique()`, has equality semantics).
+
+### Integer sequences ###
+
+* `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T init, T stop) noexcept`
+* `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T init, T stop, T delta) noexcept`
+* `template <typename T> Irange<[random access iterator]>` **`xseq`**`(T init, T stop) noexcept`
+* `template <typename T> Irange<[random access iterator]>` **`xseq`**`(T init, T stop, T delta) noexcept`
+
+Linear sequences of integers (`T` must be an integer type). The generated
+range starts with `init` and runs to `stop`, in steps of `delta` (defaulting
+to 1). The `iseq()` function produces an inclusive (closed) sequence that
+includes `stop`, while `xseq()` is an exclusive (half open) sequence that
+excludes it (if the exact value `stop` would never be generated, because
+`stop-init` is not a multiple of `delta`, there is no difference between the
+two).
+
+If `stop=init`, or if `delta=0`, the `iseq()` sequence contains a single
+value, while the `xseq()` sequence is empty. Both sequences will be empty if
+`stop-init` and `delta` have opposite signs.
+
+The iterators must be able to generate a value beyond the end of the sequence
+in order to check for an end iterator; for `iseq()`, this means that
+`stop+delta` must be in range for `T`.
 
 ### Memory algorithms ###
 

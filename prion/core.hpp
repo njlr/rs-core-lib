@@ -773,6 +773,20 @@ namespace Prion {
         return compare_3way(r1, r2, std::less<>());
     }
 
+    template <typename Range, typename Container>
+    void con_append(const Range& src, Container& dst) {
+        using std::begin;
+        using std::end;
+        std::copy(begin(src), end(src), append(dst));
+    }
+
+    template <typename Range, typename Container>
+    void con_overwrite(const Range& src, Container& dst) {
+        using std::begin;
+        using std::end;
+        std::copy(begin(src), end(src), overwrite(dst));
+    }
+
     template <typename Container, typename T>
     void con_remove(Container& con, const T& t) {
         con.erase(std::remove(con.begin(), con.end(), t), con.end());
@@ -866,6 +880,73 @@ namespace Prion {
     template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
     template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
     template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
+
+    // Integer sequences
+
+    template <typename T>
+    class IntegerSequenceIterator:
+    public RandomAccessIterator<IntegerSequenceIterator<T>, const T> {
+    public:
+        IntegerSequenceIterator() noexcept = default;
+        IntegerSequenceIterator(T init, T delta): cur(init), del(delta) {}
+        const T& operator*() const noexcept { return cur; }
+        IntegerSequenceIterator& operator++() noexcept { cur += del; return *this; }
+        IntegerSequenceIterator& operator--() noexcept { cur -= del; return *this; }
+        IntegerSequenceIterator& operator+=(ptrdiff_t n) noexcept { cur += n * del; return *this; }
+        ptrdiff_t operator-(const IntegerSequenceIterator& rhs) const noexcept { return ptrdiff_t(cur) - ptrdiff_t(rhs.cur); }
+        bool operator==(const IntegerSequenceIterator& rhs) const noexcept { return cur == rhs.cur; }
+        bool operator<(const IntegerSequenceIterator& rhs) const noexcept { return del >= 0 ? cur < rhs.cur : cur > rhs.cur; }
+    private:
+        T cur, del;
+    };
+
+    namespace PrionDetail {
+
+        template <typename T>
+        inline void adjust_integer_sequence(T& init, T& stop, T& delta, bool closed) noexcept {
+            if (delta == 0) {
+                delta = T(closed);
+                stop = init + delta;
+                return;
+            }
+            if (stop != init && (stop > init) != (delta > 0)) {
+                stop = init;
+                return;
+            }
+            T rem = (stop - init) % delta;
+            if (rem != 0)
+                stop += delta - rem;
+            else if (closed)
+                stop += delta;
+        }
+
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> iseq(T init, T stop) noexcept {
+        T delta = init <= stop ? 1 : -1;
+        PrionDetail::adjust_integer_sequence(init, stop, delta, true);
+        return {{init, delta}, {stop, 0}};
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> iseq(T init, T stop, T delta) noexcept {
+        PrionDetail::adjust_integer_sequence(init, stop, delta, true);
+        return {{init, delta}, {stop, 0}};
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> xseq(T init, T stop) noexcept {
+        T delta = init <= stop ? 1 : -1;
+        PrionDetail::adjust_integer_sequence(init, stop, delta, false);
+        return {{init, delta}, {stop, 0}};
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> xseq(T init, T stop, T delta) noexcept {
+        PrionDetail::adjust_integer_sequence(init, stop, delta, false);
+        return {{init, delta}, {stop, 0}};
+    }
 
     // [Arithmetic functions]
 

@@ -667,6 +667,82 @@ namespace {
 
     }
 
+    void check_integer_sequences() {
+
+        vector<int> v;
+        u8string s;
+
+        TRY(con_overwrite(iseq(1, 5), v));         TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(iseq(-1, -5), v));       TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4,-5]");
+        TRY(con_overwrite(iseq(1, -1, 1), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(iseq(1, 0, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(iseq(1, 1, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1]");
+        TRY(con_overwrite(iseq(1, 2, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2]");
+        TRY(con_overwrite(iseq(1, 3, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3]");
+        TRY(con_overwrite(iseq(1, 4, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(iseq(1, 5, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(iseq(-1, 1, -1), v));    TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(iseq(-1, 0, -1), v));    TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(iseq(-1, -1, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1]");
+        TRY(con_overwrite(iseq(-1, -2, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2]");
+        TRY(con_overwrite(iseq(-1, -3, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3]");
+        TRY(con_overwrite(iseq(-1, -4, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
+        TRY(con_overwrite(iseq(-1, -5, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4,-5]");
+        TRY(con_overwrite(iseq(1, 10, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10]");
+        TRY(con_overwrite(iseq(1, 11, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10]");
+        TRY(con_overwrite(iseq(1, 12, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10]");
+        TRY(con_overwrite(iseq(1, 13, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10,13]");
+        TRY(con_overwrite(iseq(-1, -10, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
+        TRY(con_overwrite(iseq(-1, -11, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
+        TRY(con_overwrite(iseq(-1, -12, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
+        TRY(con_overwrite(iseq(-1, -13, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10,-13]");
+
+        TRY(con_overwrite(xseq(1, 5), v));         TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(xseq(-1, -5), v));       TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
+        TRY(con_overwrite(xseq(1, -1, 1), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(xseq(1, 0, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(xseq(1, 1, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(xseq(1, 2, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1]");
+        TRY(con_overwrite(xseq(1, 3, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2]");
+        TRY(con_overwrite(xseq(1, 4, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3]");
+        TRY(con_overwrite(xseq(1, 5, 1), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(xseq(-1, 1, -1), v));    TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(xseq(-1, 0, -1), v));    TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(xseq(-1, -1, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(con_overwrite(xseq(-1, -2, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1]");
+        TRY(con_overwrite(xseq(-1, -3, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2]");
+        TRY(con_overwrite(xseq(-1, -4, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3]");
+        TRY(con_overwrite(xseq(-1, -5, -1), v));   TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
+        TRY(con_overwrite(xseq(1, 10, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7]");
+        TRY(con_overwrite(xseq(1, 11, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10]");
+        TRY(con_overwrite(xseq(1, 12, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10]");
+        TRY(con_overwrite(xseq(1, 13, 3), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[1,4,7,10]");
+        TRY(con_overwrite(xseq(-1, -10, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7]");
+        TRY(con_overwrite(xseq(-1, -11, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
+        TRY(con_overwrite(xseq(-1, -12, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
+        TRY(con_overwrite(xseq(-1, -13, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
+
+        TRY(con_overwrite(iseq(int8_t(1), int8_t(5)), v));          TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(iseq(int8_t(-1), int8_t(-5)), v));        TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4,-5]");
+        TRY(con_overwrite(xseq(int8_t(1), int8_t(5)), v));          TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(xseq(int8_t(-1), int8_t(-5)), v));        TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
+        TRY(con_overwrite(iseq(uint8_t(1), uint8_t(5)), v));        TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(xseq(uint8_t(1), uint8_t(5)), v));        TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(iseq(int16_t(1), int16_t(5)), v));        TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(iseq(int16_t(-1), int16_t(-5)), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4,-5]");
+        TRY(con_overwrite(xseq(int16_t(1), int16_t(5)), v));        TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(xseq(int16_t(-1), int16_t(-5)), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
+        TRY(con_overwrite(iseq(uint16_t(1), uint16_t(5)), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(xseq(uint16_t(1), uint16_t(5)), v));      TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(iseq(ptrdiff_t(1), ptrdiff_t(5)), v));    TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(iseq(ptrdiff_t(-1), ptrdiff_t(-5)), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4,-5]");
+        TRY(con_overwrite(xseq(ptrdiff_t(1), ptrdiff_t(5)), v));    TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+        TRY(con_overwrite(xseq(ptrdiff_t(-1), ptrdiff_t(-5)), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
+        TRY(con_overwrite(iseq(size_t(1), size_t(5)), v));          TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
+        TRY(con_overwrite(xseq(size_t(1), size_t(5)), v));          TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
+
+    }
+
     void check_memory_algorithms() {
 
         string s1 = "hello", s2 = "world";
@@ -2957,6 +3033,7 @@ TEST_MODULE(prion, core) {
     check_arithmetic_literals();
     check_string_related_constants();
     check_generic_algorithms();
+    check_integer_sequences();
     check_memory_algorithms();
     check_range_traits();
     check_range_types();

@@ -36,6 +36,7 @@
 </li>
 <li><a href="#algorithms-and-ranges">Algorithms and ranges</a><ul>
 <li><a href="#generic-algorithms">Generic algorithms</a></li>
+<li><a href="#integer-sequences">Integer sequences</a></li>
 <li><a href="#memory-algorithms">Memory algorithms</a></li>
 <li><a href="#range-traits">Range traits</a></li>
 <li><a href="#range-types">Range types</a></li>
@@ -704,6 +705,12 @@ clear the container and then return the append iterator.</p>
 <p>Compare two ranges, returning -1 if the first range is less than the second,
 zero if they are equal, and +1 if the first range is greater.</p>
 <ul>
+<li><code>template &lt;typename Range, typename Container&gt; void</code> <strong><code>con_append</code></strong><code>(const Range&amp; src, Container&amp; dst)</code></li>
+<li><code>template &lt;typename Range, typename Container&gt; void</code> <strong><code>con_overwrite</code></strong><code>(const Range&amp; src, Container&amp; dst)</code></li>
+</ul>
+<p>These are just shorthand for a <code>std::copy()</code> from a range to an append or
+overwrite iterator.</p>
+<ul>
 <li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>con_remove</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if</code></strong><code>(Container&amp; con, Predicate p)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if_not</code></strong><code>(Container&amp; con, Predicate p)</code></li>
@@ -718,6 +725,26 @@ shuffled to the end. The <code>con_sort_unique()</code> functions perform a sort
 by removing equivalent elements from the container; like <code>std::sort()</code>, its
 predicate has less-than semantics (whereas that of <code>con_unique()</code>, like that
 of <code>std::unique()</code>, has equality semantics).</p>
+<h3 id="integer-sequences">Integer sequences</h3>
+<ul>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T init, T stop) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
+</ul>
+<p>Linear sequences of integers (<code>T</code> must be an integer type). The generated
+range starts with <code>init</code> and runs to <code>stop</code>, in steps of <code>delta</code> (defaulting
+to 1). The <code>iseq()</code> function produces an inclusive (closed) sequence that
+includes <code>stop</code>, while <code>xseq()</code> is an exclusive (half open) sequence that
+excludes it (if the exact value <code>stop</code> would never be generated, because
+<code>stop-init</code> is not a multiple of <code>delta</code>, there is no difference between the
+two).</p>
+<p>If <code>stop=init</code>, or if <code>delta=0</code>, the <code>iseq()</code> sequence contains a single
+value, while the <code>xseq()</code> sequence is empty. Both sequences will be empty if
+<code>stop-init</code> and <code>delta</code> have opposite signs.</p>
+<p>The iterators must be able to generate a value beyond the end of the sequence
+in order to check for an end iterator; for <code>iseq()</code>, this means that
+<code>stop+delta</code> must be in range for <code>T</code>.</p>
 <h3 id="memory-algorithms">Memory algorithms</h3>
 <ul>
 <li><code>void</code> <strong><code>memswap</code></strong><code>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
