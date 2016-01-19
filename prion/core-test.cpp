@@ -89,12 +89,6 @@ namespace {
 
     }
 
-    void check_basic_types() {
-
-        // No tests
-
-    }
-
     class TopTail {
     public:
         TopTail(): sp(nullptr), ch() {}
@@ -241,12 +235,6 @@ namespace {
         TEST_TYPE(UnsignedInteger<32>, uint32_t);
         TEST_TYPE(UnsignedInteger<64>, uint64_t);
         TEST_TYPE(UnsignedInteger<128>, uint128_t);
-
-    }
-
-    void check_mixins() {
-
-        // No tests
 
     }
 
@@ -509,12 +497,6 @@ namespace {
 
     }
 
-    void check_arithmetic_constants() {
-
-        // No tests
-
-    }
-
     void check_arithmetic_literals() {
 
         int128_t i = 0;
@@ -596,12 +578,6 @@ namespace {
         TEST_NEAR(-90.0_deg, -1.570796);
         TEST_NEAR(-180.0_deg, -3.141593);
         TEST_NEAR(-360.0_deg, -6.283185);
-
-    }
-
-    void check_string_related_constants() {
-
-        // No tests
 
     }
 
@@ -3021,17 +2997,13 @@ namespace {
 TEST_MODULE(prion, core) {
 
     check_preprocessor_macros();
-    check_basic_types();
     check_containers();
     check_exceptions();
     check_metaprogramming_and_type_traits();
-    check_mixins();
     check_type_related_functions();
     check_uuid();
     check_version_number();
-    check_arithmetic_constants();
     check_arithmetic_literals();
-    check_string_related_constants();
     check_generic_algorithms();
     check_integer_sequences();
     check_memory_algorithms();
