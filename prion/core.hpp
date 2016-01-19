@@ -829,12 +829,12 @@ namespace Prion {
     inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {
         if (ptr1 == ptr2)
             return;
-        auto p = static_cast<uint8_t*>(ptr1), q = static_cast<uint8_t*>(ptr2);
         uint8_t b;
-        for (size_t i = 0; i < n; ++i) {
-            b = p[i];
-            p[i] = q[i];
-            q[i] = b;
+        auto p = static_cast<uint8_t*>(ptr1), endp = p + n, q = static_cast<uint8_t*>(ptr2);
+        while (p != endp) {
+            b = *p;
+            *p++ = *q;
+            *q++ = b;
         }
     }
 
