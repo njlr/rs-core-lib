@@ -721,6 +721,13 @@ same size (the argument is returned unchanged if `T` already had the desired
 signedness). Behaviour is undefined if `T` is not an integer or enumeration
 type.
 
+* `template <typename T> T` **`binomial`**`(T a, T b) noexcept`
+* `double` **`xbinomial`**`(int a, int b) noexcept`
+
+These return the binomial coefficient (`a!/b!(a-b)!` if `0<=b<=a`, otherwise
+zero). `T` must be an integer type. Behaviour is undefined if the correct
+result would be out of range for the return type.
+
 * `template <typename T> T` **`int_power`**`(T x, T y) noexcept`
 
 Calculates <code>x<sup>y</sup></code> for integer types.

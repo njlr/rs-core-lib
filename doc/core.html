@@ -840,6 +840,13 @@ same size (the argument is returned unchanged if <code>T</code> already had the 
 signedness). Behaviour is undefined if <code>T</code> is not an integer or enumeration
 type.</p>
 <ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>binomial</code></strong><code>(T a, T b) noexcept</code></li>
+<li><code>double</code> <strong><code>xbinomial</code></strong><code>(int a, int b) noexcept</code></li>
+</ul>
+<p>These return the binomial coefficient (<code>a!/b!(a-b)!</code> if <code>0&lt;=b&lt;=a</code>, otherwise
+zero). <code>T</code> must be an integer type. Behaviour is undefined if the correct
+result would be out of range for the return type.</p>
+<ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>int_power</code></strong><code>(T x, T y) noexcept</code></li>
 </ul>
 <p>Calculates <code>x<sup>y</sup></code> for integer types.

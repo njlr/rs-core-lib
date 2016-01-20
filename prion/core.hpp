@@ -1055,6 +1055,37 @@ namespace Prion {
     // Integer arithmetic functions
 
     template <typename T>
+    T binomial(T a, T b) noexcept {
+        if (b < T(0) || b > a)
+            return T(0);
+        if (b == T(0) || b == a)
+            return T(1);
+        if (b > a / T(2))
+            b = a - b;
+        T n = T(1), d = T(1);
+        while (b > 0) {
+            n *= a--;
+            d *= b--;
+        }
+        return n / d;
+    }
+
+    inline double xbinomial(int a, int b) noexcept {
+        if (b < 0 || b > a)
+            return 0;
+        if (b == 0 || b == a)
+            return 1;
+        if (b > a / 2)
+            b = a - b;
+        double n = 1, d = 1;
+        while (b > 0) {
+            n *= a--;
+            d *= b--;
+        }
+        return n / d;
+    }
+
+    template <typename T>
     T int_power(T x, T y) noexcept {
         T z = T(1);
         while (y) {
