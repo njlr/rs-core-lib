@@ -1898,7 +1898,7 @@ namespace Prion {
     }
 
     inline double si_to_f(const u8string& str) { return from_si<double>(str); }
-    inline intmax_t si_to_i(const u8string& str) { return from_si<intmax_t>(str); }
+    inline long long si_to_i(const u8string& str) { return from_si<long long>(str); }
 
     template <typename T>
     u8string to_si(T t, int prec = 3, const u8string& delim = "") {

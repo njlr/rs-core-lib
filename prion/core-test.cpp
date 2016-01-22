@@ -2851,7 +2851,7 @@ namespace {
         seconds s;
         milliseconds ms;
         system_clock::time_point tp;
-        intmax_t t1, t2;
+        int64_t t1, t2;
 
         TRY(from_seconds(7200.0, h));   TEST_EQUAL(h.count(), 2);
         TRY(from_seconds(7200.0, m));   TEST_EQUAL(m.count(), 120);
@@ -2864,13 +2864,13 @@ namespace {
         TEST_NEAR(to_seconds(milliseconds(10)), 0.01);
 
         TRY(tp = make_date(1970, 1, 1, 0, 0, 0));
-        TRY(t1 = intmax_t(system_clock::to_time_t(tp)));
+        TRY(t1 = int64_t(system_clock::to_time_t(tp)));
         TEST_EQUAL(t1, 0);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5));
-        TRY(t1 = intmax_t(system_clock::to_time_t(tp)));
+        TRY(t1 = int64_t(system_clock::to_time_t(tp)));
         TEST_EQUAL(t1, 946782245);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5, local_date));
-        TRY(t2 = intmax_t(system_clock::to_time_t(tp)));
+        TRY(t2 = int64_t(system_clock::to_time_t(tp)));
         TEST_COMPARE(abs(t2 - t1), <=, 86400);
 
     }

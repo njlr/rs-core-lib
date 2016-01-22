@@ -1185,7 +1185,7 @@ circumstances.
 
 * `template <typename T> T` **`from_si`**`(const u8string& str)`
 * `double` **`si_to_f`**`(const u8string& str)`
-* `intmax_t` **`si_to_i`**`(const u8string& str)`
+* `long long` **`si_to_i`**`(const u8string& str)`
 * `template <typename T> u8string` **`to_si`**`(T t, int prec = 3, const u8string& delim = "")`
 
 Convert between numbers and a string representation tagged with an SI prefix.
