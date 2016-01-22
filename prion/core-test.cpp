@@ -641,6 +641,13 @@ namespace {
         s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1));                        TEST_EQUAL(s1, "abcde");
         s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1, std::greater<char>()));  TEST_EQUAL(s1, "edcba");
 
+        auto f = [&] { s1 += "Hello"; };
+
+        s1.clear();  TRY(do_n(f, 0));  TEST_EQUAL(s1, "");
+        s1.clear();  TRY(do_n(f, 1));  TEST_EQUAL(s1, "Hello");
+        s1.clear();  TRY(do_n(f, 2));  TEST_EQUAL(s1, "HelloHello");
+        s1.clear();  TRY(do_n(f, 3));  TEST_EQUAL(s1, "HelloHelloHello");
+
     }
 
     void check_integer_sequences() {

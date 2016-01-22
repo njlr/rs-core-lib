@@ -725,6 +725,10 @@ shuffled to the end. The <code>con_sort_unique()</code> functions perform a sort
 by removing equivalent elements from the container; like <code>std::sort()</code>, its
 predicate has less-than semantics (whereas that of <code>con_unique()</code>, like that
 of <code>std::unique()</code>, has equality semantics).</p>
+<ul>
+<li><code>template &lt;typename F&gt; void</code> <strong><code>do_n</code></strong><code>(F f, size_t n)</code></li>
+</ul>
+<p>This simply calls the <code>f()</code> function <code>n</code> times.</p>
 <h3 id="integer-sequences">Integer sequences</h3>
 <ul>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop) noexcept</code></li>

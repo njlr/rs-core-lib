@@ -824,6 +824,12 @@ namespace Prion {
         con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
     }
 
+    template <typename F>
+    void do_n(F f, size_t n) {
+        for (; n != 0; --n)
+            f();
+    }
+
     // Memory algorithms
 
     inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {

@@ -599,6 +599,10 @@ by removing equivalent elements from the container; like `std::sort()`, its
 predicate has less-than semantics (whereas that of `con_unique()`, like that
 of `std::unique()`, has equality semantics).
 
+* `template <typename F> void` **`do_n`**`(F f, size_t n)`
+
+This simply calls the `f()` function `n` times.
+
 ### Integer sequences ###
 
 * `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T init, T stop) noexcept`
