@@ -955,13 +955,13 @@ destructor are silently ignored (normally the function should be written so as
 not to throw anything). Passing `nullptr` for the function will quietly do
 nothing.
 
-* `class` **`Transaction`**
-    * `using Transaction::`**`callback`** `= std::function<void()>`
-    * `Transaction::`**`Transaction`**`() noexcept`
-    * `Transaction::`**`~Transaction`**`() noexcept`
-    * `void Transaction::`**`call`**`(callback func, callback undo)`
-    * `void Transaction::`**`commit`**`() noexcept`
-    * `void Transaction::`**`rollback`**`() noexcept`
+* `class` **`ScopedTransaction`**
+    * `using ScopedTransaction::`**`callback`** `= std::function<void()>`
+    * `ScopedTransaction::`**`ScopedTransaction`**`() noexcept`
+    * `ScopedTransaction::`**`~ScopedTransaction`**`() noexcept`
+    * `void ScopedTransaction::`**`call`**`(callback func, callback undo)`
+    * `void ScopedTransaction::`**`commit`**`() noexcept`
+    * `void ScopedTransaction::`**`rollback`**`() noexcept`
 
 This holds a stack of "undo" operations, to be carried out if anything goes
 wrong during a sequence of operations. The `call()` function accepts two
@@ -976,10 +976,10 @@ undo functions should be written so as not to throw anything). The destructor
 will perform a rollback if neither `commit()` nor `rollback()` have been
 called since the last `call()`.
 
-A single `Transaction` object can be used for multiple transactions. Once
-`commit()` or `rollback()` is called, the undo stack is discarded, and any
-newly added function pairs become part of a new cycle, equivalent to a newly
-constructed `Transaction`.
+A single `ScopedTransaction` object can be used for multiple transactions.
+Once `commit()` or `rollback()` is called, the undo stack is discarded, and
+any newly added function pairs become part of a new cycle, equivalent to a
+newly constructed `ScopedTransaction`.
 
 ## I/O utilities ##
 

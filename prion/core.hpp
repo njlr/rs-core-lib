@@ -1540,11 +1540,11 @@ namespace Prion {
     using ScopeSuccess = PrionDetail::ConditionalScopeExit<1>;
     using ScopeFailure = PrionDetail::ConditionalScopeExit<0>;
 
-    class Transaction {
+    class ScopedTransaction {
     public:
         using callback = std::function<void()>;
-        Transaction() noexcept {}
-        ~Transaction() noexcept { rollback(); }
+        ScopedTransaction() noexcept {}
+        ~ScopedTransaction() noexcept { rollback(); }
         void call(callback func, callback undo) {
             stack.push_back(nullptr);
             if (func)
@@ -1553,20 +1553,16 @@ namespace Prion {
         }
         void commit() noexcept { stack.clear(); }
         void rollback() noexcept {
-            for (auto i = stack.rbegin(); i != stack.rend(); ++i) {
-                if (*i) {
-                    try { (*i)(); }
-                    catch (...) {}
-                }
-            }
+            for (auto i = stack.rbegin(); i != stack.rend(); ++i)
+                if (*i) try { (*i)(); } catch (...) {}
             stack.clear();
         }
     private:
         vector<callback> stack;
-        Transaction(const Transaction&) = delete;
-        Transaction(Transaction&&) = delete;
-        Transaction& operator=(const Transaction&) = delete;
-        Transaction& operator=(Transaction&&) = delete;
+        ScopedTransaction(const ScopedTransaction&) = delete;
+        ScopedTransaction(ScopedTransaction&&) = delete;
+        ScopedTransaction& operator=(const ScopedTransaction&) = delete;
+        ScopedTransaction& operator=(ScopedTransaction&&) = delete;
     };
 
     // [I/O utilities]

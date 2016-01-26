@@ -1833,7 +1833,7 @@ namespace {
 
         s.clear();
         {
-            Transaction t;
+            ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
             TRY(t.call([&] { s += 'c'; }, [&] { s += 'x'; }));
@@ -1843,7 +1843,7 @@ namespace {
 
         s.clear();
         {
-            Transaction t;
+            ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
             TRY(t.call([&] { s += 'c'; }, [&] { s += 'x'; }));
@@ -1855,7 +1855,7 @@ namespace {
 
         s.clear();
         {
-            Transaction t;
+            ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
             TRY(t.call([&] { s += 'c'; }, [&] { s += 'x'; }));

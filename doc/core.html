@@ -1077,13 +1077,13 @@ destructor are silently ignored (normally the function should be written so as
 not to throw anything). Passing <code>nullptr</code> for the function will quietly do
 nothing.</p>
 <ul>
-<li><code>class</code> <strong><code>Transaction</code></strong><ul>
-<li><code>using Transaction::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
-<li><code>Transaction::</code><strong><code>Transaction</code></strong><code>() noexcept</code></li>
-<li><code>Transaction::</code><strong><code>~Transaction</code></strong><code>() noexcept</code></li>
-<li><code>void Transaction::</code><strong><code>call</code></strong><code>(callback func, callback undo)</code></li>
-<li><code>void Transaction::</code><strong><code>commit</code></strong><code>() noexcept</code></li>
-<li><code>void Transaction::</code><strong><code>rollback</code></strong><code>() noexcept</code></li>
+<li><code>class</code> <strong><code>ScopedTransaction</code></strong><ul>
+<li><code>using ScopedTransaction::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>ScopedTransaction::</code><strong><code>ScopedTransaction</code></strong><code>() noexcept</code></li>
+<li><code>ScopedTransaction::</code><strong><code>~ScopedTransaction</code></strong><code>() noexcept</code></li>
+<li><code>void ScopedTransaction::</code><strong><code>call</code></strong><code>(callback func, callback undo)</code></li>
+<li><code>void ScopedTransaction::</code><strong><code>commit</code></strong><code>() noexcept</code></li>
+<li><code>void ScopedTransaction::</code><strong><code>rollback</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
 </ul>
@@ -1098,10 +1098,10 @@ in reverse order of insertion, silently ignoring any exceptions (normally the
 undo functions should be written so as not to throw anything). The destructor
 will perform a rollback if neither <code>commit()</code> nor <code>rollback()</code> have been
 called since the last <code>call()</code>.</p>
-<p>A single <code>Transaction</code> object can be used for multiple transactions. Once
-<code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and any
-newly added function pairs become part of a new cycle, equivalent to a newly
-constructed <code>Transaction</code>.</p>
+<p>A single <code>ScopedTransaction</code> object can be used for multiple transactions.
+Once <code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and
+any newly added function pairs become part of a new cycle, equivalent to a
+newly constructed <code>ScopedTransaction</code>.</p>
 <h2 id="io-utilities">I/O utilities</h2>
 <h3 id="file-io-operations">File I/O operations</h3>
 <p>Functions that take a file name have overloads that take a UTF-16 string in
