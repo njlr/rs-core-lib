@@ -643,10 +643,10 @@ namespace {
 
         auto f = [&] { s1 += "Hello"; };
 
-        s1.clear();  TRY(do_n(f, 0));  TEST_EQUAL(s1, "");
-        s1.clear();  TRY(do_n(f, 1));  TEST_EQUAL(s1, "Hello");
-        s1.clear();  TRY(do_n(f, 2));  TEST_EQUAL(s1, "HelloHello");
-        s1.clear();  TRY(do_n(f, 3));  TEST_EQUAL(s1, "HelloHelloHello");
+        s1.clear();  TRY(do_n(0, f));  TEST_EQUAL(s1, "");
+        s1.clear();  TRY(do_n(1, f));  TEST_EQUAL(s1, "Hello");
+        s1.clear();  TRY(do_n(2, f));  TEST_EQUAL(s1, "HelloHello");
+        s1.clear();  TRY(do_n(3, f));  TEST_EQUAL(s1, "HelloHelloHello");
 
     }
 

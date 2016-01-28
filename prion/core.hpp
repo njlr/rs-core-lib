@@ -825,7 +825,7 @@ namespace Prion {
     }
 
     template <typename F>
-    void do_n(F f, size_t n) {
+    void do_n(size_t n, F f) {
         for (; n != 0; --n)
             f();
     }
