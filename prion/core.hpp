@@ -1525,6 +1525,7 @@ namespace Prion {
                 if (ScopeExitBase<Mode>::should_run())
                     silent_call(func);
             }
+            void release() noexcept { func = nullptr; }
         private:
             std::function<void()> func;
             ConditionalScopeExit(const ConditionalScopeExit&) = delete;

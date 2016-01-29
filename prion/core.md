@@ -934,26 +934,33 @@ Example:
     * `using ScopeExit::`**`callback`** `= std::function<void()>`
     * `explicit ScopeExit::`**`ScopeExit`**`(callback f)`
     * `ScopeExit::`**`~ScopeExit`**`() noexcept`
+    * `void ScopeExit::`**`release`**`() noexcept`
 * `class` **`ScopeSuccess`**
     * `using ScopeSuccess::`**`callback`** `= std::function<void()>`
     * `explicit ScopeSuccess::`**`ScopeSuccess`**`(callback f)`
     * `ScopeSuccess::`**`~ScopeSuccess`**`() noexcept`
+    * `void ScopeSuccess::`**`release`**`() noexcept`
 * `class` **`ScopeFailure`**
     * `using ScopeFailure::`**`callback`** `= std::function<void()>`
     * `explicit ScopeFailure::`**`ScopeFailure`**`(callback f)`
     * `ScopeFailure::`**`~ScopeFailure`**`() noexcept`
+    * `void ScopeFailure::`**`release`**`() noexcept`
 
-These store a function object, to be called when the guard is destroyed.
-`ScopeExit` calls the function unconditionally, `ScopeSuccess` calls it only
-on normal exit (not when unwinding due to an exception), and `ScopeFailure`
-calls it only when an exception causes stack unwinding (not on normal exit).
-If the constructor throws an exception (this is only possible if the function
-object's copy constructor or assignment operator throws), `ScopeExit` and
-`ScopeFailure` will call the function before propagating the exception, while
-`ScopeSuccess` will not. Any exceptions thrown by the function call in the
-destructor are silently ignored (normally the function should be written so as
-not to throw anything). Passing `nullptr` for the function will quietly do
-nothing.
+These store a function object, to be called when the guard is destroyed
+(passing `nullptr` will just do nothing). `ScopeExit` calls the function
+unconditionally, `ScopeSuccess` calls it only on normal exit (not when
+unwinding due to an exception), and `ScopeFailure` calls it only when an
+exception causes stack unwinding (not on normal exit). If the constructor
+throws an exception (this is only possible if the function object's copy
+constructor or assignment operator throws), `ScopeExit` and `ScopeFailure`
+will call the function before propagating the exception, while `ScopeSuccess`
+will not. Any exceptions thrown by the function call in the destructor are
+silently ignored (normally the function should be written so as not to throw
+anything).
+
+The `release()` function discards the saved function; after it is called, the
+scope guard object will do nothing on destruction.
+
 
 * `class` **`ScopedTransaction`**
     * `using ScopedTransaction::`**`callback`** `= std::function<void()>`
