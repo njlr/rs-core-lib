@@ -942,7 +942,8 @@ result is not representable by the return type.</p>
 <li><code>template &lt;typename Function&gt; using</code> <strong><code>ArgumentTuple</code></strong> <code>= [tuple type]</code></li>
 <li><code>template &lt;typename Function, size_t Index&gt; using</code> <strong><code>ArgumentType</code></strong> <code>= [type of given argument]</code></li>
 <li><code>template &lt;typename Function&gt; using</code> <strong><code>ResultType</code></strong> <code>= [result type]</code></li>
-<li><code>template &lt;typename Function&gt; using</code> <strong><code>StdFunction</code></strong> <code>= std::function&lt;...&gt;</code></li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>FunctionSignature</code></strong> <code>= [result(args...)]</code></li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>StdFunction</code></strong> <code>= std::function&lt;FunctionSignature&lt;Function&gt;&gt;</code></li>
 </ul>
 <p>Properties of a function type. This will work with ordinary functions (if not
 overloaded), function pointers, function objects, lambda expressions, and
