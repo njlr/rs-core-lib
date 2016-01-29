@@ -826,7 +826,8 @@ result is not representable by the return type.
 * `template <typename Function> using` **`ArgumentTuple`** `= [tuple type]`
 * `template <typename Function, size_t Index> using` **`ArgumentType`** `= [type of given argument]`
 * `template <typename Function> using` **`ResultType`** `= [result type]`
-* `template <typename Function> using` **`StdFunction`** `= std::function<...>`
+* `template <typename Function> using` **`FunctionSignature`** `= [result(args...)]`
+* `template <typename Function> using` **`StdFunction`** `= std::function<FunctionSignature<Function>>`
 
 Properties of a function type. This will work with ordinary functions (if not
 overloaded), function pointers, function objects, lambda expressions, and
