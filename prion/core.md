@@ -835,13 +835,13 @@ overloaded), function pointers, function objects, lambda expressions, and
 
 ### Function operations ###
 
-* `template<typename Function, typename Tuple> decltype(auto)` **`invoke`**`(Function&& f, Tuple&& t)`
-
-Calls a function, passing a tuple as the argument list.
-
 * `template <typename Function> StdFunction<Function>` **`stdfun`**`(Function& f)`
 
 Wraps a function in the appropriate standard function type.
+
+* `template<typename Function, typename Tuple> decltype(auto)` **`tuple_invoke`**`(Function&& f, Tuple&& t)`
+
+Calls a function, passing a tuple as the argument list.
 
 ### Generic function objects ###
 

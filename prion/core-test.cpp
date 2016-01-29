@@ -1586,11 +1586,11 @@ namespace {
         auto t1 = tuple1{'a'};
         auto t2 = tuple2{5, 'z'};
 
-        TEST_EQUAL(invoke(fa0, t0), "hello");  TEST_EQUAL(invoke(fa1, t1), "a");  TEST_EQUAL(invoke(fa2, t2), "zzzzz");
-        TEST_EQUAL(invoke(fb0, t0), "hello");  TEST_EQUAL(invoke(fb1, t1), "a");  TEST_EQUAL(invoke(fb2, t2), "zzzzz");
-        TEST_EQUAL(invoke(fc0, t0), "hello");  TEST_EQUAL(invoke(fc1, t1), "a");  TEST_EQUAL(invoke(fc2, t2), "zzzzz");
-        TEST_EQUAL(invoke(fd0, t0), "hello");  TEST_EQUAL(invoke(fd1, t1), "a");  TEST_EQUAL(invoke(fd2, t2), "zzzzz");
-        TEST_EQUAL(invoke(fe0, t0), "hello");  TEST_EQUAL(invoke(fe1, t1), "a");  TEST_EQUAL(invoke(fe2, t2), "zzzzz");
+        TEST_EQUAL(tuple_invoke(fa0, t0), "hello");  TEST_EQUAL(tuple_invoke(fa1, t1), "a");  TEST_EQUAL(tuple_invoke(fa2, t2), "zzzzz");
+        TEST_EQUAL(tuple_invoke(fb0, t0), "hello");  TEST_EQUAL(tuple_invoke(fb1, t1), "a");  TEST_EQUAL(tuple_invoke(fb2, t2), "zzzzz");
+        TEST_EQUAL(tuple_invoke(fc0, t0), "hello");  TEST_EQUAL(tuple_invoke(fc1, t1), "a");  TEST_EQUAL(tuple_invoke(fc2, t2), "zzzzz");
+        TEST_EQUAL(tuple_invoke(fd0, t0), "hello");  TEST_EQUAL(tuple_invoke(fd1, t1), "a");  TEST_EQUAL(tuple_invoke(fd2, t2), "zzzzz");
+        TEST_EQUAL(tuple_invoke(fe0, t0), "hello");  TEST_EQUAL(tuple_invoke(fe1, t1), "a");  TEST_EQUAL(tuple_invoke(fe2, t2), "zzzzz");
 
         auto lf1 = [] (int x) { return x * x; };
         auto sf1 = stdfun(lf1);

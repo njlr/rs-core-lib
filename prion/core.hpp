@@ -1346,7 +1346,9 @@ namespace Prion {
 
     // Function operations
 
-    // invoke() is based on code from Cppreference.com
+    template <typename Function> StdFunction<Function> stdfun(Function& lambda) { return StdFunction<Function>(lambda); }
+
+    // tuple_invoke() is based on code from Cppreference.com
     // http://en.cppreference.com/w/cpp/utility/integer_sequence
 
     namespace PrionDetail {
@@ -1359,13 +1361,11 @@ namespace Prion {
     }
 
     template<typename Function, typename Tuple>
-    decltype(auto) invoke(Function&& f, Tuple&& t) {
+    decltype(auto) tuple_invoke(Function&& f, Tuple&& t) {
         constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
         return PrionDetail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t),
             std::make_index_sequence<size>{});
     }
-
-    template <typename Function> StdFunction<Function> stdfun(Function& lambda) { return StdFunction<Function>(lambda); }
 
     // Generic function objects
 
@@ -1443,7 +1443,7 @@ namespace Prion {
     }
 
     template <typename... Args> struct TupleHash
-        { size_t operator()(const std::tuple<Args...>& t) const { return invoke(hash_value<Args...>, t); } };
+        { size_t operator()(const std::tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
     template <typename... Args> struct TupleHash<std::tuple<Args...>>: TupleHash<Args...> {};
 
     // Keyword arguments

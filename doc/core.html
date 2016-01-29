@@ -950,13 +950,13 @@ overloaded), function pointers, function objects, lambda expressions, and
 <code>std::function</code> instantiations.</p>
 <h3 id="function-operations">Function operations</h3>
 <ul>
-<li><code>template&lt;typename Function, typename Tuple&gt; decltype(auto)</code> <strong><code>invoke</code></strong><code>(Function&amp;&amp; f, Tuple&amp;&amp; t)</code></li>
-</ul>
-<p>Calls a function, passing a tuple as the argument list.</p>
-<ul>
 <li><code>template &lt;typename Function&gt; StdFunction&lt;Function&gt;</code> <strong><code>stdfun</code></strong><code>(Function&amp; f)</code></li>
 </ul>
 <p>Wraps a function in the appropriate standard function type.</p>
+<ul>
+<li><code>template&lt;typename Function, typename Tuple&gt; decltype(auto)</code> <strong><code>tuple_invoke</code></strong><code>(Function&amp;&amp; f, Tuple&amp;&amp; t)</code></li>
+</ul>
+<p>Calls a function, passing a tuple as the argument list.</p>
 <h3 id="generic-function-objects">Generic function objects</h3>
 <ul>
 <li><code>struct</code> <strong><code>DoNothing</code></strong><ul>
