@@ -41,5 +41,8 @@ care about. These include:</p>
 <p>On Microsoft Windows builds, including Prion will bring in the whole of
 <code>&lt;windows.h&gt;</code>. This is annoying but unfortunately unavoidable for a library
 that needs to make calls to system APIs while remaining header-only. (Under
-Cygwin, this will only happen if <code>_WIN32</code> is defined.)</p></body>
+Cygwin, this will only happen if <code>_WIN32</code> is defined.)</p>
+<p>Rebuilding the documentation (<code>make doc</code>) requires Python 3.4+ and the
+<a href="https://pypi.python.org/pypi/Markdown">Markdown module</a>. The scripts expect
+Python 3 to be callable as <code>python3</code>.</p></body>
 </html>

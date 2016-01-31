@@ -277,10 +277,10 @@ not a power of 2 in the supported range (8-128).
 
 ### Mixins ###
 
-These are convenience base classes that define members and operators that
-would normally just be repetitive boilerplate (similar to the ones in Boost).
-They all use the CRTP idiom; a class `T` should derived from `Mixin<T>` to
-automatically generate the desired boilerplate code.
+<!-- DEFN --> These are convenience base classes that define members and
+operators that would normally just be repetitive boilerplate (similar to the
+ones in Boost). They all use the CRTP idiom; a class `T` should derived from
+`Mixin<T>` to automatically generate the desired boilerplate code.
 
 Mixin                                | Requires                                   | Defines
 -----                                | --------                                   | -------
@@ -601,7 +601,7 @@ of `std::unique()`, has equality semantics).
 
 * `template <typename F> void` **`do_n`**`(size_t n, F f)`
 
-This simply calls the `f()` function `n` times.
+This simply calls the function `n` times.
 
 ### Integer sequences ###
 

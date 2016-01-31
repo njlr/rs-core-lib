@@ -21,8 +21,9 @@ TEST_MODULE(project, module) {
     TEST_EQUAL(answer, 42);
 }
 </code></pre>
-<p>Plase note that all of the macros here may evaluate their arguments more than
+<p>Please note that all of the macros here may evaluate their arguments more than
 once.</p>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_MAIN</code></strong></li>
 </ul>
@@ -32,20 +33,28 @@ function will check for a <code>UNIT</code> environment variable, parsing it as 
 regular expression, and only the tests whose name (in <em>"project/module"</em> form)
 contains the pattern will be run. The return value from <code>TEST_MAIN</code> is zero on
 success, 1 if any tests failed.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_MODULE</code></strong><code>(project, module)</code></li>
 </ul>
 <p>This supplies the function signature for a module test function (see above for
 typical usage).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>FAIL</code></strong><code>(message)</code></li>
 </ul>
 <p>Generates a test failure, with the specified error message (a string
 constant).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>MESSAGE</code></strong><code>(message)</code></li>
 </ul>
 <p>Emits a message, as for <code>FAIL()</code>, but does not count this as a test failure.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>REQUIRE</code></strong><code>(expression)</code></li>
 <li><code>#define</code> <strong><code>TEST</code></strong><code>(expression)</code></li>
@@ -57,6 +66,8 @@ differs from <code>TEST()</code> in that it will return from the calling functio
 test fails; this is intended for situations where a failed test indicates that
 something is so badly wrong that further testing would be pointless or
 impossible.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_COMPARE</code></strong><code>(lhs, op, rhs)</code></li>
 <li><code>#define</code> <strong><code>TEST_EQUAL</code></strong><code>(lhs, rhs)</code></li>
@@ -70,6 +81,8 @@ if it fails. <code>TEST_EQUAL()</code> is shorthand for <code>TEST_COMPARE(lhs,=
 <code>TEST_EQUAL_RANGE()</code> expects the expressions to evaluate to ranges, and
 performs a memberwise equality comparison, failing if the ranges are different
 sizes, or any of the elements fail to match.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_MATCH</code></strong><code>(string, pattern)</code></li>
 <li><code>#define</code> <strong><code>TEST_MATCH_ICASE</code></strong><code>(string, pattern)</code></li>
@@ -78,6 +91,8 @@ sizes, or any of the elements fail to match.</p>
 expression (supplied as a string constant), optionally case sensitive or
 insensitive The test fails if the string fails to match, or an exception is
 thrown.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_NEAR</code></strong><code>(lhs, rhs)</code></li>
 <li><code>#define</code> <strong><code>TEST_NEAR_EPSILON</code></strong><code>(lhs, rhs, tolerance)</code></li>
@@ -88,6 +103,8 @@ thrown.</p>
 values, and compare them for approximate equality. The test fails if the
 values differ by more than the tolerance (defaulting to 10<sup>-6</sup>), or
 if any expression throws an exception.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_THROW</code></strong><code>(expression, exception)</code></li>
 <li><code>#define</code> <strong><code>TEST_THROW_EQUAL</code></strong><code>(expression, exception, message)</code></li>
@@ -99,6 +116,8 @@ type (or a derived type). The test fails if the expression fails to throw an
 exception, or throws an exception of the wrong type. The second and third
 macros also check the exception's error message (obtained from its <code>what()</code>
 method) for either an exact string match or a regular expression.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TEST_TYPE</code></strong><code>(type1, type2)</code></li>
 <li><code>#define</code> <strong><code>TEST_TYPE_OF</code></strong><code>(object, type)</code></li>
@@ -106,6 +125,8 @@ method) for either an exact string match or a regular expression.</p>
 </ul>
 <p>Compare two types, failing if they are not the same. The <code>std::decay</code>
 transformation is applied before comparing them.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>TRY</code></strong><code>(expression)</code></li>
 </ul>

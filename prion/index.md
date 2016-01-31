@@ -39,3 +39,7 @@ On Microsoft Windows builds, including Prion will bring in the whole of
 `<windows.h>`. This is annoying but unfortunately unavoidable for a library
 that needs to make calls to system APIs while remaining header-only. (Under
 Cygwin, this will only happen if `_WIN32` is defined.)
+
+Rebuilding the documentation (`make doc`) requires Python 3.4+ and the
+[Markdown module](https://pypi.python.org/pypi/Markdown). The scripts expect
+Python 3 to be callable as `python3`.

@@ -87,6 +87,7 @@
 </ul>
 </div>
 <h2 id="preprocessor-macros">Preprocessor macros</h2>
+<div class="defns">
 <ul>
 <li><em>Compilers</em><ul>
 <li><code>#define</code> <strong><code>PRI_COMPILER_CLANG</code></strong> <code>1</code></li>
@@ -127,6 +128,8 @@ on the Windows OS, i.e. both native Win32 and Cygwin builds.</p>
 I may add MSVC support in a future version.</p>
 <p>On Apple platforms, <code>PRI_TARGET_APPLE</code> will always be defined; one of
 <code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>PRI_ASSERT</code></strong><code>(expr)</code></li>
 </ul>
@@ -134,6 +137,8 @@ I may add MSVC support in a future version.</p>
 (explicitly cast to <code>bool</code>) is false, this throws a <code>std::logic_error</code>
 exception, with a message containing the text of the expression and the source
 code location.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>PRI_CHAR</code></strong><code>(C, T)</code></li>
 <li><code>#define</code> <strong><code>PRI_CSTR</code></strong><code>(S, T)</code></li>
@@ -145,6 +150,8 @@ must be a simple character literal; <code>T</code> must be one of the four chara
 types that can be used in strings (<code>char</code>, <code>char16_t</code>, <code>char32_t</code>, or
 <code>wchar_t</code>). Behaviour is undefined if <code>T</code> is not one of those four types, or
 (for <code>PRI_CHAR</code>) if <code>C</code> is not representable by a single code unit.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>PRI_LDLIB</code></strong><code>(libs)</code></li>
 </ul>
@@ -190,6 +197,8 @@ only.</p>
 <p>Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate
 <code>PRI_LDLIB()</code> line for each target.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>PRI_OVERLOAD</code></strong><code>(f) [] (auto&amp;&amp;... args) { return f(std::forward&lt;decltype(args)&gt;(args)...); }</code></li>
 </ul>
@@ -197,13 +206,17 @@ needed on multiple targets, but not on all targets, you will need a separate
 passed to a context expecting a function (such as an STL algorithm) without
 having to explicitly resolve the overload at the call site. (From an idea by
 Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>PRI_STATIC_ASSERT</code></strong><code>(expr) static_assert((expr), # expr)</code></li>
 </ul>
 <p>Shorthand for <code>static_assert</code>, using the assertion expression as the error
 message. (A planned change in C++17 will make this unnecessary.)</p>
+</div>
 <h2 id="types">Types</h2>
 <h3 id="basic-types">Basic types</h3>
+<div class="defns">
 <ul>
 <li><code>using std::</code><strong><code>basic_string</code></strong></li>
 <li><code>using std::</code><strong><code>string</code></strong></li>
@@ -217,6 +230,8 @@ message. (A planned change in C++17 will make this unnecessary.)</p>
 <li><code>using std::</code><strong><code>vector</code></strong></li>
 </ul>
 <p>Imported for convenience.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>using</code> <strong><code>u8string</code></strong> <code>= std::string</code></li>
 </ul>
@@ -224,12 +239,16 @@ message. (A planned change in C++17 will make this unnecessary.)</p>
 any ASCII string is also valid UTF-8), while plain <code>string</code> is used where the
 string is expected to be in some non-Unicode encoding, or where the string is
 being used simply as an array of bytes rather than encoded text.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>using</code> <strong><code>int128_t</code></strong> <code>= [signed 128 bit integer]</code></li>
 <li><code>using</code> <strong><code>uint128_t</code></strong> <code>= [unsigned 128 bit integer]</code></li>
 </ul>
 <p>Aliases for the compiler's 128 bit integer types (e.g. <code>__int128</code>).</p>
+</div>
 <h3 id="containers">Containers</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>SimpleBuffer</code></strong><ul>
 <li><code>using SimpleBuffer::</code><strong><code>const_iterator</code></strong> <code>= const T*</code></li>
@@ -313,6 +332,8 @@ referenced data.</p>
 <p>The comparison operators perform bytewise comparison by calling <code>memcmp()</code>.
 This will usually not give the same ordering as a lexicographical comparison
 using <code>T</code>'s less-than operator.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>Stacklike</code></strong><ul>
 <li><code>using Stacklike&lt;T&gt;::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
@@ -339,7 +360,9 @@ using <code>T</code>'s less-than operator.</p>
 <p>A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
 standard container, but is often useful for RAII).</p>
+</div>
 <h3 id="exceptions">Exceptions</h3>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>WindowsCategory</code></strong><code>: public std::error_category</code><ul>
 <li><code>virtual u8string WindowsCategory::</code><strong><code>message</code></strong><code>(int ev) const</code></li>
@@ -352,12 +375,16 @@ standard container, but is often useful for RAII).</p>
 this is only defined on Windows builds <code>(PRI_TARGET_WIN32</code>). (MSVC
 provides this through the standard <code>system_category()</code> instance, but GCC does
 not supply any equivalent.)</p>
+</div>
 <h3 id="metaprogramming-and-type-traits">Metaprogramming and type traits</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; using</code> <strong><code>BinaryType</code></strong> <code>= [unsigned integer type]</code></li>
 </ul>
 <p>Yields an unsigned integer type the same size as <code>T</code>. This will fail to
 compile if no such type exists.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T1, typename T2&gt; using</code> <strong><code>CopyConst</code></strong> <code>= ...</code></li>
 </ul>
@@ -365,6 +392,8 @@ compile if no such type exists.</p>
 it) from <code>T1</code> to the unqualified type of <code>T2</code>. For example, <code>CopyConst&lt;int,
 const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;const int, string&gt;</code> yields
 <code>const string</code>.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;size_t Bits&gt; using</code> <strong><code>SignedInteger</code></strong> <code>= [signed integer type]</code></li>
 <li><code>template &lt;size_t Bits&gt; using</code> <strong><code>UnsignedInteger</code></strong> <code>= [unsigned integer type]</code></li>
@@ -372,11 +401,15 @@ const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;con
 <p>Signed and unsigned integer types with the specified number of bits (the same
 types as <code>int8_t</code>, <code>int16_t</code>, etc). These will fail to compile if <code>Bits</code> is
 not a power of 2 in the supported range (8-128).</p>
+</div>
 <h3 id="mixins">Mixins</h3>
-<p>These are convenience base classes that define members and operators that
-would normally just be repetitive boilerplate (similar to the ones in Boost).
-They all use the CRTP idiom; a class <code>T</code> should derived from <code>Mixin&lt;T&gt;</code> to
-automatically generate the desired boilerplate code.</p>
+<div class="defns">
+<!-- DEFN -->
+
+<p>These are convenience base classes that define members and
+operators that would normally just be repetitive boilerplate (similar to the
+ones in Boost). They all use the CRTP idiom; a class <code>T</code> should derived from
+<code>Mixin&lt;T&gt;</code> to automatically generate the desired boilerplate code.</p>
 <table>
 <thead>
 <tr>
@@ -434,7 +467,9 @@ mixins supply the standard member types:</p>
 <li><code>using</code> <strong><code>reference</code></strong> <code>= CV&amp;</code></li>
 <li><code>using</code> <strong><code>value_type</code></strong> <code>= std::remove_const_t&lt;CV&gt;</code></li>
 </ul>
+</div>
 <h3 id="type-related-functions">Type related functions</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1&amp; ref) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1* ptr) noexcept</code></li>
@@ -453,6 +488,8 @@ mixins supply the standard member types:</p>
 true if the pointer or reference's target has the requested dynamic type;
 <code>as()</code> returns a reference to the object converted to the requested dynamic
 type, or throws <code>std::bad_cast</code> if the <code>dynamic_cast</code> fails.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>binary_cast</code></strong><code>(const T1&amp; t) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>implicit_cast</code></strong><code>(const T1&amp; t)</code></li>
@@ -462,6 +499,8 @@ from one type to another; it will fail to compile if the two types have
 different sizes, but does no other safety checks. The <code>implicit_cast()</code>
 operation performs the conversion only if it would be allowed as an implicit
 conversion.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>string</code> <strong><code>demangle</code></strong><code>(const string&amp; name)</code></li>
 <li><code>string</code> <strong><code>type_name</code></strong><code>(const std::type_info&amp; t)</code></li>
@@ -472,7 +511,9 @@ conversion.</p>
 string, as a <code>std::type_info</code> object, as a type argument to a template
 function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type is to be named
 (e.g. <code>type_name(42)</code>).</p>
+</div>
 <h3 id="uuid">UUID</h3>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Uuid</code></strong><ul>
 <li><code>Uuid::</code><strong><code>Uuid</code></strong><code>() noexcept</code></li>
@@ -528,6 +569,8 @@ key in an unordered container.</p>
 broken down hex representation, e.g. <code>"01234567-89ab-cdef-0123-456789abcdef"</code>.</p>
 <p>The comparison operators perform the natural bytewise lexicographical
 comparisons.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>struct</code> <strong><code>RandomUuid</code></strong><ul>
 <li><code>using RandomUuid::</code><strong><code>result_type</code></strong> <code>= RandomUuid::Uuid</code></li>
@@ -536,7 +579,9 @@ comparisons.</p>
 </li>
 </ul>
 <p>Generates a random version 4 UUID.</p>
+</div>
 <h3 id="version-number">Version number</h3>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Version</code></strong><ul>
 <li><code>using Version::</code><strong><code>value_type</code></strong> <code>= unsigned</code></li>
@@ -585,8 +630,10 @@ the conventional form; a minimum number of elements can be requested. The
 integer, with one byte per element (e.g. version <code>1.2.3</code> becomes
 <code>0x01020300</code>); <code>to32()</code> truncates elements higher than 255 and ignores the
 string element.</p>
+</div>
 <h2 id="constants-and-literals">Constants and literals</h2>
 <h3 id="arithmetic-constants">Arithmetic constants</h3>
+<div class="defns">
 <ul>
 <li><code>#define</code> <strong><code>PRI_DEFINE_CONSTANT</code></strong><code>(name, value)</code><ul>
 <li><code>static constexpr double</code> <strong><code>name</code></strong> <code>= value</code></li>
@@ -604,6 +651,8 @@ floating point literal with no type suffix.</p>
 <p>The values quoted for the following constants are approximate; the values
 actually supplied are accurate to at least <code>long double</code> precision for the
 mathematical constants, or to the best known accuracy for the physical ones.</p>
+</div>
+<div class="defns">
 <ul>
 <li><em>Mathematical constants</em><ul>
 <li><strong><code>e</code></strong> <em>= 2.7183</em></li>
@@ -648,14 +697,18 @@ mathematical constants, or to the best known accuracy for the physical ones.</p>
 </ul>
 </li>
 </ul>
+</div>
 <h3 id="arithmetic-literals">Arithmetic literals</h3>
 <p>These are all in <code>namespace Prion::Literals</code>.</p>
+<div class="defns">
 <ul>
 <li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator""_s128</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator""_u128</code></strong><code>() noexcept</code></li>
 </ul>
 <p>Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
 usual <code>"0x"</code> prefix) are supported as well as decimal ones.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr unsigned long long</code> <strong><code>operator""_k</code></strong><code>(unsigned long long n) noexcept</code></li>
 <li><code>constexpr unsigned long long</code> <strong><code>operator""_M</code></strong><code>(unsigned long long n) noexcept</code></li>
@@ -668,6 +721,8 @@ usual <code>"0x"</code> prefix) are supported as well as decimal ones.</p>
 </ul>
 <p>Integer literals for abbreviating large constants. The first group apply
 powers of 1000, the second powers of 1024.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(long double x) noexcept</code></li>
 <li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(unsigned long long x) noexcept</code></li>
@@ -677,19 +732,25 @@ powers of 1000, the second powers of 1024.</p>
 <li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(unsigned long long x) noexcept</code></li>
 </ul>
 <p>Angle literals, converting degrees to radians.</p>
+</div>
 <h3 id="string-related-constants">String related constants</h3>
+<div class="defns">
 <ul>
 <li><code>constexpr const char*</code> <strong><code>ascii_whitespace</code></strong> <code>= "\t\n\v\f\r "</code></li>
 </ul>
 <p>ASCII whitespace characters.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr size_t</code> <strong><code>npos</code></strong> <code>= string::npos</code></li>
 </ul>
 <p>Defined for convenience. Following the conventions established by the standard
 library, this value is often used as a function argument to mean "as large as
 possible" or "no limit", or as a return value to mean "not found".</p>
+</div>
 <h2 id="algorithms-and-ranges">Algorithms and ranges</h2>
 <h3 id="generic-algorithms">Generic algorithms</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Container&gt; [output iterator]</code> <strong><code>append</code></strong><code>(Container&amp; con)</code></li>
 <li><code>template &lt;typename Container&gt; [output iterator]</code> <strong><code>overwrite</code></strong><code>(Container&amp; con)</code></li>
@@ -698,18 +759,24 @@ possible" or "no limit", or as a return value to mean "not found".</p>
 container. The <code>append()</code> function is similar to <code>std::back_inserter()</code> (but
 supports containers without <code>push_back()</code>), while <code>overwrite()</code> will first
 clear the container and then return the append iterator.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Range1, typename Range2&gt; int</code> <strong><code>compare_3way</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2)</code></li>
 <li><code>template &lt;typename Range1, typename Range2, typename Compare&gt; int</code> <strong><code>compare_3way</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2, Compare cmp)</code></li>
 </ul>
 <p>Compare two ranges, returning -1 if the first range is less than the second,
 zero if they are equal, and +1 if the first range is greater.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Range, typename Container&gt; void</code> <strong><code>con_append</code></strong><code>(const Range&amp; src, Container&amp; dst)</code></li>
 <li><code>template &lt;typename Range, typename Container&gt; void</code> <strong><code>con_overwrite</code></strong><code>(const Range&amp; src, Container&amp; dst)</code></li>
 </ul>
 <p>These are just shorthand for a <code>std::copy()</code> from a range to an append or
 overwrite iterator.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>con_remove</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if</code></strong><code>(Container&amp; con, Predicate p)</code></li>
@@ -725,11 +792,15 @@ shuffled to the end. The <code>con_sort_unique()</code> functions perform a sort
 by removing equivalent elements from the container; like <code>std::sort()</code>, its
 predicate has less-than semantics (whereas that of <code>con_unique()</code>, like that
 of <code>std::unique()</code>, has equality semantics).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename F&gt; void</code> <strong><code>do_n</code></strong><code>(size_t n, F f)</code></li>
 </ul>
-<p>This simply calls the <code>f()</code> function <code>n</code> times.</p>
+<p>This simply calls the function <code>n</code> times.</p>
+</div>
 <h3 id="integer-sequences">Integer sequences</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop) noexcept</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
@@ -749,18 +820,24 @@ value, while the <code>xseq()</code> sequence is empty. Both sequences will be e
 <p>The iterators must be able to generate a value beyond the end of the sequence
 in order to check for an end iterator; for <code>iseq()</code>, this means that
 <code>stop+delta</code> must be in range for <code>T</code>.</p>
+</div>
 <h3 id="memory-algorithms">Memory algorithms</h3>
+<div class="defns">
 <ul>
 <li><code>void</code> <strong><code>memswap</code></strong><code>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
 </ul>
 <p>Swap two blocks of memory. This will work if the two ranges overlap or are the
 same, but behaviour is undefined if either pointer is null.</p>
+</div>
 <h3 id="range-traits">Range traits</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Range&gt; using</code> <strong><code>RangeIterator</code></strong> <code>= ...</code></li>
 <li><code>template &lt;typename Range&gt; using</code> <strong><code>RangeValue</code></strong> <code>= ...</code></li>
 </ul>
 <p>The iterator and value types of a range.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T, size_t N&gt; constexpr size_t</code> <strong><code>array_count</code></strong><code>(T[N]) noexcept</code></li>
 <li><code>template &lt;typename Range&gt; size_t</code> <strong><code>range_count</code></strong><code>(const Range&amp; r)</code></li>
@@ -770,7 +847,9 @@ same, but behaviour is undefined if either pointer is null.</p>
 for <code>std::distance(begin(r),end(r))</code>, and <code>range_empty()</code> has the obvious
 meaning. The <code>array_count()</code> version returns the same value, but only works on
 C-style arrays and is <code>constexpr</code>.</p>
+</div>
 <h3 id="range-types">Range types</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Iterator&gt; struct</code> <strong><code>Irange</code></strong><ul>
 <li><code>Iterator Irange::</code><strong><code>first</code></strong></li>
@@ -785,30 +864,40 @@ C-style arrays and is <code>constexpr</code>.</p>
 <li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt;</code> <strong><code>irange</code></strong><code>(const std::pair&lt;Iterator, Iterator&gt;&amp; p)</code></li>
 </ul>
 <p>A wrapper for a pair of iterators, usable as a range in standard algorithms.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr Irange&lt;T*&gt;</code> <strong><code>array_range</code></strong><code>(T* ptr, size_t len)</code></li>
 </ul>
 <p>Returns <code>irange(ptr,ptr+len)</code>.</p>
+</div>
 <h2 id="arithmetic-functions">Arithmetic functions</h2>
 <p>Some of these duplicate functionality already in the standard library; this is
 to ensure that the functions are available for 128 bit integers even if the
 standard library implementation doesn't support them.</p>
 <h3 id="generic-arithmetic-functions">Generic arithmetic functions</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T, typename... Args&gt; constexpr T</code> <strong><code>static_min</code></strong><code>(T t, Args... args) noexcept</code></li>
 <li><code>template &lt;typename T, typename... Args&gt; constexpr T</code> <strong><code>static_max</code></strong><code>(T t, Args... args) noexcept</code></li>
 </ul>
 <p>Compile time maximum and minimum functions.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>abs</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Absolute value function. This is the same as <code>std::abs()</code> apart from
 guaranteeing 128 bit integer support.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T, typename T2, typename T3&gt; constexpr T</code> <strong><code>clamp</code></strong><code>(const T&amp; x, const T2&amp; min, const T3&amp; max) noexcept</code></li>
 </ul>
 <p>Clamps a value to a fixed range. This returns <code>static_cast&lt;T&gt;(min)</code> if
 <code>t&lt;min</code>, <code>static_cast&lt;T&gt;(max)</code> if <code>t&gt;max</code>, otherwise <code>t</code>.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; std::pair&lt;T, T&gt;</code> <strong><code>divide</code></strong><code>(T lhs, T rhs) noexcept</code></li>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>quo</code></strong><code>(T lhs, T rhs) noexcept</code></li>
@@ -820,6 +909,8 @@ the quotient is the integer that satisfies <code>lhs=quo*rhs+rem</code> (apart f
 rounding errors). The pair returned by <code>divide()</code> contains the quotient and
 remainder. For all three functions, behaviour is undefined if <code>rhs=0</code> or the
 quotient is out of <code>T</code>'s representable range.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>gcd</code></strong><code>(T a, T b) noexcept</code></li>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>lcm</code></strong><code>(T a, T b) noexcept</code></li>
@@ -830,11 +921,15 @@ return the other one, and <code>lcm()</code> will return zero. The return value 
 positive (if not zero), regardless of the signs of the arguments. If the
 correct result for <code>lcm()</code> would be outside the range of <code>T</code>, behaviour is
 undefined if <code>T</code> is signed, unspecified if <code>T</code> is unsigned.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>sign_of</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Returns the sign of its argument (-1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
+</div>
 <h3 id="integer-arithmetic-functions">Integer arithmetic functions</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr std::make_signed_t&lt;T&gt;</code> <strong><code>as_signed</code></strong><code>(T t) noexcept</code></li>
 <li><code>template &lt;typename T&gt; constexpr std::make_unsigned_t&lt;T&gt;</code> <strong><code>as_unsigned</code></strong><code>(T t) noexcept</code></li>
@@ -843,6 +938,8 @@ undefined if <code>T</code> is signed, unspecified if <code>T</code> is unsigned
 same size (the argument is returned unchanged if <code>T</code> already had the desired
 signedness). Behaviour is undefined if <code>T</code> is not an integer or enumeration
 type.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>binomial</code></strong><code>(T a, T b) noexcept</code></li>
 <li><code>double</code> <strong><code>xbinomial</code></strong><code>(int a, int b) noexcept</code></li>
@@ -850,32 +947,44 @@ type.</p>
 <p>These return the binomial coefficient (<code>a!/b!(a-b)!</code> if <code>0&lt;=b&lt;=a</code>, otherwise
 zero). <code>T</code> must be an integer type. Behaviour is undefined if the correct
 result would be out of range for the return type.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>int_power</code></strong><code>(T x, T y) noexcept</code></li>
 </ul>
 <p>Calculates <code>x<sup>y</sup></code> for integer types.
 <code>0<sup>0</sup></code> will return 1. Behaviour is undefined if <code>y</code> is
 negative, or if <code>T</code> is signed and the true result would be out of range.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>int_sqrt</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Returns the integer square root of the argument (the true square root
 truncated to an integer). Behaviour is undefined if the argument is negative.</p>
+</div>
 <h3 id="bitwise-operations">Bitwise operations</h3>
+<div class="defns">
 <ul>
 <li><code>constexpr size_t</code> <strong><code>binary_size</code></strong><code>(uint64_t x) noexcept</code></li>
 </ul>
 <p>Returns the size of the argument in bits (i.e. the index of the highest 1 bit
 plus 1, or zero if the argument is zero).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr size_t</code> <strong><code>bits_set</code></strong><code>(uint64_t x) noexcept</code></li>
 </ul>
 <p>Returns the number of 1 bits in <code>x</code>.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr uint64_t</code> <strong><code>letter_to_mask</code></strong><code>(char c) noexcept</code></li>
 </ul>
 <p>Converts a letter to a mask with bit 0-51 set. The result is unspecified if
 the argument is not an ASCII letter.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>rotl</code></strong><code>(T t, int n) noexcept</code></li>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>rotr</code></strong><code>(T t, int n) noexcept</code></li>
@@ -883,18 +992,24 @@ the argument is not an ASCII letter.</p>
 <p>Bitwise rotate left or right. As for the standard shift operators, behaviour
 is undefined if <code>n</code> is negative or greater than or equal to the number of bits
 in <code>T</code>.</p>
+</div>
 <h3 id="byte-order-functions">Byte order functions</h3>
+<div class="defns">
 <ul>
 <li><code>static constexpr bool</code> <strong><code>big_endian_target</code></strong></li>
 <li><code>static constexpr bool</code> <strong><code>little_endian_target</code></strong></li>
 </ul>
 <p>One of these will be true and the other false, reflecting the target system's
 byte order.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>big_endian</code></strong><code>(T t) noexcept</code></li>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>little_endian</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Convert a number between the native byte order and big or little endian.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>read_be</code></strong><code>(const void* ptr, size_t ofs = 0) noexcept</code></li>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>read_be</code></strong><code>(const void* ptr, size_t ofs, size_t len) noexcept</code></li>
@@ -912,12 +1027,16 @@ byte order.</p>
 <p>Read or write an integer from a block of bytes, in big endian or little endian
 order. The versions that take only a pointer deduce the size from the integer
 type; the other versions take an offset and length in bytes.</p>
+</div>
 <h3 id="floating-point-arithmetic-functions">Floating point arithmetic functions</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>degrees</code></strong><code>(T rad) noexcept</code></li>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>radians</code></strong><code>(T deg) noexcept</code></li>
 </ul>
 <p>Convert between degrees and radians.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T1, typename T2&gt; constexpr T2</code> <strong><code>interpolate</code></strong><code>(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept</code></li>
 </ul>
@@ -925,6 +1044,8 @@ type; the other versions take an offset and length in bytes.</p>
 extrapolating the line between <code>(x1,y1)</code> and <code>(x2,y2)</code>. Behaviour is undefined
 if <code>x1==x2</code> and <code>y1!=y2</code>, or if either type is not an arithmetic type; the
 result is unspecified if either type is not floating point.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>round</code></strong><code>(T1 value) noexcept</code></li>
 </ul>
@@ -932,8 +1053,10 @@ result is unspecified if either type is not floating point.</p>
 converted to the return type (which must be specified explicitly). Halves are
 rounded up (toward positive infinity). The usual arithmetic rules apply if the
 result is not representable by the return type.</p>
+</div>
 <h2 id="functional-utilities">Functional utilities</h2>
 <h3 id="function-traits">Function traits</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Function&gt; struct</code> <strong><code>Arity</code></strong><ul>
 <li><code>static constexpr size_t Arity::</code><strong><code>value</code></strong></li>
@@ -948,16 +1071,22 @@ result is not representable by the return type.</p>
 <p>Properties of a function type. This will work with ordinary functions (if not
 overloaded), function pointers, function objects, lambda expressions, and
 <code>std::function</code> instantiations.</p>
+</div>
 <h3 id="function-operations">Function operations</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename Function&gt; StdFunction&lt;Function&gt;</code> <strong><code>stdfun</code></strong><code>(Function&amp; f)</code></li>
 </ul>
 <p>Wraps a function in the appropriate standard function type.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template&lt;typename Function, typename Tuple&gt; decltype(auto)</code> <strong><code>tuple_invoke</code></strong><code>(Function&amp;&amp; f, Tuple&amp;&amp; t)</code></li>
 </ul>
 <p>Calls a function, passing a tuple as the argument list.</p>
+</div>
 <h3 id="generic-function-objects">Generic function objects</h3>
+<div class="defns">
 <ul>
 <li><code>struct</code> <strong><code>DoNothing</code></strong><ul>
 <li><code>void</code> <strong><code>operator()</code></strong><code>() const noexcept {}</code></li>
@@ -974,7 +1103,9 @@ overloaded), function pointers, function objects, lambda expressions, and
 <li><code>constexpr Identity</code> <strong><code>identity</code></strong></li>
 </ul>
 <p>Trivial function objects.</p>
+</div>
 <h3 id="hash-functions">Hash functions</h3>
+<div class="defns">
 <ul>
 <li><code>size_t</code> <strong><code>hash_bytes</code></strong><code>(const void* ptr, size_t n)</code></li>
 <li><code>void</code> <strong><code>hash_bytes</code></strong><code>(size_t&amp; hash, const void* ptr, size_t n)</code></li>
@@ -991,6 +1122,8 @@ problems) calculates the hash of the supplied data; the second version takes
 an existing hash value and mixes it with additional data. All of these call
 <code>std::hash</code> for the element type (<code>hash_bytes()</code> calls <code>hash&lt;string&gt;</code>, or its
 underlying hash function if possible; calling it with a null pointer is safe).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename... Args&gt; struct</code> <strong><code>TupleHash</code></strong><ul>
 <li><code>size_t</code> <strong><code>operator()</code></strong><code>(const std::tuple&lt;Args...&gt;&amp; t) const</code></li>
@@ -998,7 +1131,9 @@ underlying hash function if possible; calling it with a null pointer is safe).</
 </li>
 </ul>
 <p>Hash function for a tuple.</p>
+</div>
 <h3 id="keyword-arguments">Keyword arguments</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename K&gt; struct</code> <strong><code>Kwarg</code></strong><ul>
 <li><code>template &lt;typename A&gt; ... Kwarg::</code><strong><code>operator=</code></strong><code>(const A&amp; arg) const</code></li>
@@ -1045,7 +1180,9 @@ public:
 
 Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768, win_visible);
 </code></pre>
+</div>
 <h3 id="scope-guards">Scope guards</h3>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>ScopeExit</code></strong><ul>
 <li><code>using ScopeExit::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
@@ -1108,11 +1245,13 @@ called since the last <code>call()</code>.</p>
 Once <code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and
 any newly added function pairs become part of a new cycle, equivalent to a
 newly constructed <code>ScopedTransaction</code>.</p>
+</div>
 <h2 id="io-utilities">I/O utilities</h2>
 <h3 id="file-io-operations">File I/O operations</h3>
 <p>Functions that take a file name have overloads that take a UTF-16 string in
 native Windows builds (not on Cygwin, where the <code>_wfopen()</code> function is not
 available).</p>
+<div class="defns">
 <ul>
 <li><code>bool</code> <strong><code>load_file</code></strong><code>(const string&amp; file, string&amp; dst, size_t limit = npos)</code></li>
 <li><code>bool</code> <strong><code>load_file</code></strong><code>(const wstring&amp; file, string&amp; dst, size_t limit = npos)</code> <em>(Native Windows only)</em></li>
@@ -1121,6 +1260,8 @@ available).</p>
 can be specified The return value is true if everything went well, false if
 there was an error while opening or reading the file. If the function returns
 false, the destination string will be cleared.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>bool</code> <strong><code>save_file</code></strong><code>(const string&amp; file, const void* ptr, size_t n, bool append = false)</code></li>
 <li><code>bool</code> <strong><code>save_file</code></strong><code>(const string&amp; file, const string&amp; src, bool append = false)</code></li>
@@ -1131,7 +1272,9 @@ false, the destination string will be cleared.</p>
 instead of overwriting it if it already exists (if the file does not exist,
 the <code>append</code> flag has no effect). The return value is true if everything went
 well, false if there was an error while opening or writing the file.</p>
+</div>
 <h3 id="terminal-io-operations">Terminal I/O operations</h3>
+<div class="defns">
 <ul>
 <li><code>bool</code> <strong><code>is_stdout_redirected</code></strong><code>() noexcept</code></li>
 </ul>
@@ -1139,6 +1282,8 @@ well, false if there was an error while opening or writing the file.</p>
 pipe (true), or is going directly to a terminal (false). This is not always
 possible to detect reliably; this function is fairly reliable on Unix, less so
 on Windows.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr const char*</code> <strong><code>xt_up</code></strong> <code>=           &lt;esc&gt; [A    = Cursor up</code></li>
 <li><code>constexpr const char*</code> <strong><code>xt_down</code></strong> <code>=         &lt;esc&gt; [B    = Cursor down</code></li>
@@ -1171,6 +1316,8 @@ on Windows.</p>
 <li><code>constexpr const char*</code> <strong><code>xt_white_bg</code></strong> <code>=     &lt;esc&gt; [47m  = White background</code></li>
 </ul>
 <p>Xterm cursor movement and output formatting codes.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>string</code> <strong><code>xt_move_up</code></strong><code>(int n)      = &lt;esc&gt; [&lt;n&gt;A             = Cursor up n spaces</code></li>
 <li><code>string</code> <strong><code>xt_move_down</code></strong><code>(int n)    = &lt;esc&gt; [&lt;n&gt;B             = Cursor down n spaces</code></li>
@@ -1186,8 +1333,10 @@ on Windows.</p>
 666; each digit is clamped to a range of 1-6, yielding 216 different colours.
 The grey level passed to the <code>xt_grey[_bg]()</code> functions is clamped to a range
 of 1-24.</p>
+</div>
 <h2 id="strings-and-related-functions">Strings and related functions</h2>
 <h3 id="character-functions">Character functions</h3>
+<div class="defns">
 <ul>
 <li><code>constexpr bool</code> <strong><code>ascii_isalnum</code></strong><code>(char c) noexcept</code></li>
 <li><code>constexpr bool</code> <strong><code>ascii_isalpha</code></strong><code>(char c) noexcept</code></li>
@@ -1204,6 +1353,8 @@ of 1-24.</p>
 <p>These are simple ASCII-only versions of the standard character type functions.
 All of them will always return false for bytes outside the ASCII range
 (0-127).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr bool</code> <strong><code>ascii_isalnum_w</code></strong><code>(char c) noexcept</code></li>
 <li><code>constexpr bool</code> <strong><code>ascii_isalpha_w</code></strong><code>(char c) noexcept</code></li>
@@ -1213,12 +1364,16 @@ All of them will always return false for bytes outside the ASCII range
 suffix, except that the underscore character is counted as a letter instead of
 a punctuation mark. (The suffix is intended to suggest the <code>"\w"</code> regex
 element, which does much the same thing.)</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>constexpr char</code> <strong><code>ascii_tolower</code></strong><code>(char c) noexcept</code></li>
 <li><code>constexpr char</code> <strong><code>ascii_toupper</code></strong><code>(char c) noexcept</code></li>
 </ul>
 <p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
 unchanged.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>char_to</code></strong><code>(char c) noexcept</code></li>
 </ul>
@@ -1226,7 +1381,9 @@ unchanged.</p>
 first passing it through <code>unsigned char</code>, to ensure that characters with the
 high bit set end up as integers in the 128-255 range, and not as negative or
 extremely high values.</p>
+</div>
 <h3 id="general-string-functions">General string functions</h3>
+<div class="defns">
 <ul>
 <li><code>string</code> <strong><code>ascii_lowercase</code></strong><code>(const string&amp; s)</code></li>
 <li><code>string</code> <strong><code>ascii_uppercase</code></strong><code>(const string&amp; s)</code></li>
@@ -1234,6 +1391,8 @@ extremely high values.</p>
 </ul>
 <p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
 unchanged.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>cstr</code></strong><code>(const C* ptr)</code></li>
 <li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>cstr</code></strong><code>(const C* ptr, size_t n)</code></li>
@@ -1242,15 +1401,21 @@ unchanged.</p>
 sequence, or a pointer and a length. They differ from the corresponding string
 constructors in that passing a null pointer will yield an empty string instead
 of undefined behaviour.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename C&gt; size_t</code> <strong><code>cstr_size</code></strong><code>(const C* ptr)</code></li>
 </ul>
 <p>Returns the length of a null-terminated string (a generalized version of
 <code>strlen()</code>). This will return zero if the pointer is null.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>u8string</code> <strong><code>dent</code></strong><code>(size_t depth)</code></li>
 </ul>
 <p>Returns a string containing <code>4*depth</code> spaces, for indentation.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename InputRange&gt; string</code> <strong><code>join</code></strong><code>(const InputRange&amp; range, const string&amp; delim = "")</code></li>
 <li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
@@ -1258,18 +1423,24 @@ of undefined behaviour.</p>
 <p>Join strings into a single string, using the given delimiter, or split a
 string into substrings, discarding any sequence of delimiter characters. The
 dereferenced iterators must be assignment compatible with <code>string</code>.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>string</code> <strong><code>quote</code></strong><code>(const string&amp; str, bool allow_8bit = false)</code></li>
 </ul>
 <p>Returns a quoted string; internal quotes, backslashes, control characters, and
 non-ASCII characters are escaped. If the <code>allow_8bit</code> flag is set, bytes in
 the 128-255 range are passed through unchanged instead of being escaped.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>string</code> <strong><code>trim</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
 <li><code>string</code> <strong><code>trim_left</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
 <li><code>string</code> <strong><code>trim_right</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
 </ul>
 <p>Trim unwanted bytes from the ends of a string.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>wstring</code> <strong><code>utf8_to_wstring</code></strong><code>(const u8string&amp; ustr)</code> <em>(Windows only)</em></li>
 <li><code>u8string</code> <strong><code>wstring_to_utf8</code></strong><code>(const wstring&amp; wstr)</code> <em>(Windows only)</em></li>
@@ -1278,7 +1449,9 @@ the 128-255 range are passed through unchanged instead of being escaped.</p>
 the native UTF-16 API. They are minimal wrappers for <code>MultiByteToWideChar()</code>
 and <code>WideCharToMultiByte()</code>. These do not do any error checking; the output
 will be garbage if the input was not valid Unicode.</p>
+</div>
 <h3 id="string-formatting-and-parsing-functions">String formatting and parsing functions</h3>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; u8string</code> <strong><code>bin</code></strong><code>(T x, size_t digits = 8 * sizeof(T))</code></li>
 <li><code>template &lt;typename T&gt; u8string</code> <strong><code>dec</code></strong><code>(T x, size_t digits = 1)</code></li>
@@ -1297,6 +1470,8 @@ trailing characters that are not part of a number, and will return zero if the
 string is empty or does not contain a valid number. Results that are out of
 range will be clamped to the nearest end of the return type's range (for
 <code>fpnum()</code> this will normally be positive or negative infinity).</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; u8string</code> <strong><code>fp_format</code></strong><code>(T t, char mode = 'g', int prec = 6)</code></li>
 </ul>
@@ -1306,6 +1481,8 @@ format <code>'z'</code> is the same as <code>'g'</code> except that trailing zer
 This will throw <code>std::invalid_argument</code> if the mode is not one of
 <code>[eEfFgGzZ]</code>; it may throw <code>std::system_error</code> under implementation defined
 circumstances.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>from_si</code></strong><code>(const u8string&amp; str)</code></li>
 <li><code>double</code> <strong><code>si_to_f</code></strong><code>(const u8string&amp; str)</code></li>
@@ -1328,12 +1505,16 @@ type.</p>
 appended. The tag letter will be chosen so that the numeric part is greater
 than or equal to 1 and less than 1000, if possible. Optionally a delimiter can
 be inserted between the number and letter.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
 <li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
 </ul>
 <p>Converts a block of raw data into hexadecimal bytes. If <code>block</code> is not zero, a
 line feed is inserted after each block.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; string</code> <strong><code>to_str</code></strong><code>(const T&amp; t)</code></li>
 </ul>
@@ -1344,7 +1525,9 @@ null character pointer is treated as an empty string). Ranges (other than
 strings) are serialized in a format similar to a JSON array (e.g.
 <code>"[1,2,3]"</code>), or an object (e.g. <code>"{1:a,2:b,3:c}"</code>) if the range's value type
 is a pair; <code>to_str()</code> is called recursively on each range element.</p>
+</div>
 <h3 id="htmlxml-tags">HTML/XML tags</h3>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Tag</code></strong><ul>
 <li><code>Tag::</code><strong><code>Tag</code></strong><code>() noexcept</code></li>
@@ -1365,10 +1548,12 @@ no closing tag will be written (standalone tags are identified by a closing
 slash; the class is not aware of HTML's list of automatic self closing tags).</p>
 <p>The constructor will throw <code>std::invalid_argument</code> if the string does not
 appear to be a valid tag (this check is not very sophisticated).</p>
+</div>
 <h2 id="threads">Threads</h2>
 <p>This section of the library exists because some of the compilers I need to
 support don't implement C++11 threads yet.</p>
 <h3 id="thread-class">Thread class</h3>
+<div class="defns">
 <ul>
 <li><code>class Thread</code><ul>
 <li><code>using Thread::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
@@ -1417,7 +1602,9 @@ rethrow as described above.</p>
 <p>The <code>cpu_threads()</code> function returns the number of hardware threads available.</p>
 <p>The <code>yield()</code> function causes the current thread to yield its scheduler time
 slice.</p>
+</div>
 <h3 id="synchronisation-objects">Synchronisation objects</h3>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Mutex</code></strong><ul>
 <li><code>Mutex::</code><strong><code>Mutex</code></strong><code>() noexcept</code></li>
@@ -1434,6 +1621,8 @@ slice.</p>
 </li>
 </ul>
 <p>Mutex and exclusive lock.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>class</code> <strong><code>ConditionVariable</code></strong><ul>
 <li><code>ConditionVariable::</code><strong><code>ConditionVariable</code></strong><code>()</code></li>
@@ -1447,6 +1636,7 @@ slice.</p>
 </li>
 </ul>
 <p>Condition variable.</p>
+</div>
 <h2 id="time-and-date-operations">Time and date operations</h2>
 <p>In this documentation, the <code>std::chrono::</code> prefix on the standard date and
 time types is left out for brevity. For all functions here that accept or
@@ -1454,6 +1644,7 @@ return a broken down date, results are unspecified if the date is outside the
 range of a <code>time_t</code> (1970-2038 on 32-bit systems), or if the fields are set to
 values that do not represent a valid date.</p>
 <h3 id="general-time-and-date-operations">General time and date operations</h3>
+<div class="defns">
 <ul>
 <li><code>enum</code> <strong><code>ZoneFlag</code></strong><ul>
 <li><strong><code>utc_date</code></strong></li>
@@ -1463,16 +1654,22 @@ values that do not represent a valid date.</p>
 </ul>
 <p>This is passed to some of the time and date functions to indicate whether a
 broken down date is expressed in UTC or the local time zone.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename R, typename P&gt; void</code> <strong><code>from_seconds</code></strong><code>(double s, duration&lt;R, P&gt;&amp; d) noexcept</code></li>
 <li><code>template &lt;typename R, typename P&gt; double</code> <strong><code>to_seconds</code></strong><code>(const duration&lt;R, P&gt;&amp; d) noexcept</code></li>
 </ul>
 <p>Convenience functions to convert between a <code>duration</code> and a floating point
 number of seconds.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>system_clock::time_point</code> <strong><code>make_date</code></strong><code>(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept</code></li>
 </ul>
 <p>Converts a broken down date into a time point.</p>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename R, typename P&gt; void</code> <strong><code>sleep_for</code></strong><code>(std::chrono::duration&lt;R, P&gt; t) noexcept</code></li>
 <li><code>void</code> <strong><code>sleep_for</code></strong><code>(double t) noexcept</code></li>
@@ -1481,7 +1678,9 @@ number of seconds.</p>
 duration or a number of seconds. Calling this with a duration less than or
 equal to zero will cause the thread to yield its time slice. Resolution is
 system dependent. Behaviour is undefined if the duration exceeds 31 days.</p>
+</div>
 <h3 id="time-and-date-formatting">Time and date formatting</h3>
+<div class="defns">
 <ul>
 <li><code>u8string</code> <strong><code>format_date</code></strong><code>(system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)</code></li>
 <li><code>u8string</code> <strong><code>format_date</code></strong><code>(system_clock::time_point tp, const u8string&amp; format, ZoneFlag z = utc_date)</code></li>
@@ -1585,13 +1784,17 @@ is a limitation of <code>strftime()</code>).</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="defns">
 <ul>
 <li><code>template &lt;typename R, typename P&gt; u8string</code> <strong><code>format_time</code></strong><code>(const duration&lt;R, P&gt;&amp; time, int prec = 0)</code></li>
 </ul>
 <p>Formats a time duration in Julian years, days, hours, minutes, seconds, and
 (if <code>prec&gt;0</code>) fractions of a second. Results are unspecified if the number of
 years in <code>time</code> does not fit in a signed 32-bit integer.</p>
+</div>
 <h3 id="system-specific-time-and-date-conversions">System specific time and date conversions</h3>
+<div class="defns">
 <ul>
 <li><em>Unix</em><ul>
 <li><code>template &lt;typename R, typename P&gt; timespec</code> <strong><code>duration_to_timespec</code></strong><code>(const duration&lt;R, P&gt;&amp; d) noexcept</code></li>
