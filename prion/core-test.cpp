@@ -728,10 +728,54 @@ namespace {
 
     void check_memory_algorithms() {
 
-        string s1 = "hello", s2 = "world";
-        TRY(memswap(&s1[0], &s2[0], 5));
+        string s1, s2;
+        int x = 0;
+
+        s1 = "";             s2 = "";             TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, 0);
+        s1 = "hello";        s2 = "";             TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, 1);
+        s1 = "";             s2 = "world";        TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, -1);
+        s1 = "hello";        s2 = "world";        TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, -1);
+        s1 = "hello world";  s2 = "hello";        TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, 1);
+        s1 = "hello";        s2 = "hello world";  TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, -1);
+
+        s1 = "hello";
+        s2 = "world";
+        TRY(mem_swap(&s1[0], &s2[0], 5));
         TEST_EQUAL(s1, "world");
         TEST_EQUAL(s2, "hello");
+
+    }
+
+    void check_secure_memory_algorithms() {
+
+        // Only testing the memory manipulation aspect of these
+
+        std::mt19937_64 rng(42);
+        uint64_t x = 0, y = 0, bx = 0, by = 0;
+        int d = 0, e = 0;
+
+        for (int i = 0; i < 10000; ++i) {
+            x = rng();
+            if (rng() < (1ull << 62))
+                y = x;
+            else
+                y = rng();
+            e = x < y ? -1 : x == y ? 0 : 1;
+            bx = big_endian(x);
+            by = big_endian(y);
+            TRY(d = secure_compare(&bx, &by, 8));
+            TEST_EQUAL(d, e);
+        }
+
+        x = 0x123456789abcdef0ull;
+        y = 0;
+        TRY(secure_move(&y, &x, 8));
+        TEST_EQUAL(x, 0);
+        TEST_EQUAL(y, 0x123456789abcdef0ull);
+
+        x = 0x123456789abcdef0ull;
+        TRY(secure_zero(&x, 8));
+        TEST_EQUAL(x, 0);
 
     }
 
@@ -3088,6 +3132,7 @@ TEST_MODULE(prion, core) {
     check_generic_algorithms();
     check_integer_sequences();
     check_memory_algorithms();
+    check_secure_memory_algorithms();
     check_range_traits();
     check_range_types();
     check_generic_arithmetic_functions();

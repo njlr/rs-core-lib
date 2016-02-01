@@ -628,10 +628,43 @@ in order to check for an end iterator; for `iseq()`, this means that
 
 ### Memory algorithms ###
 
-* `void` **`memswap`**`(void* ptr1, void* ptr2, size_t n) noexcept`
+* `int` **`mem_compare`**`(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept`
+
+This returns -1 if the first block is less than the second (by a
+lexicographical bytewise comparison), 0 if they are equal, 1 if the first is
+greater than the second. If the two blocks are equal up to the length of the
+shorter one, the shorter is considered less than the longer. This is similar
+to `memcmp()`, except that the memory blocks being compared may have different
+lengths.
+
+* `void` **`mem_swap`**`(void* ptr1, void* ptr2, size_t n) noexcept`
 
 Swap two blocks of memory. This will work if the two ranges overlap or are the
 same, but behaviour is undefined if either pointer is null.
+
+### Secure memory algorithms ###
+
+These are designed to avoid compiler optimizations that would compromise the
+intended secure behaviour.
+
+* `int` **`secure_compare`**`(const void* lhs, const void* rhs, size_t n) noexcept`
+* `int` **`secure_compare`**`(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept`
+
+Compare the byte content of two blocks of memory, returning -1 if the first
+block comes before the second in byte order, 0 if they are equal, or 1 if the
+first comes after the second. The second version gives the same result as
+`mem_compare()` (above). This will always take the same amount of time for a
+given length (or pair of lengths), regardless of the content of the blocks.
+
+* `void` **`secure_move`**`(void* dst, const void* src, size_t n) noexcept`
+
+This transfers the contents of the first block to the second, erasing (zeroing
+out) the first block. Overlapping blocks are allowed (only the non-overlapping
+part of the first block will be zeroed).
+
+* `void` **`secure_zero`**`(void* ptr, size_t n) noexcept`
+
+Sets all bytes in the block to zero.
 
 ### Range traits ###
 

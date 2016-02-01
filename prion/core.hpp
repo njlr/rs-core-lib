@@ -832,7 +832,12 @@ namespace Prion {
 
     // Memory algorithms
 
-    inline void memswap(void* ptr1, void* ptr2, size_t n) noexcept {
+    inline int mem_compare(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept {
+        int rc = memcmp(lhs, rhs, std::min(n1, n2));
+        return rc < 0 ? -1 : rc > 0 ? 1 : n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
+    }
+
+    inline void mem_swap(void* ptr1, void* ptr2, size_t n) noexcept {
         if (ptr1 == ptr2)
             return;
         uint8_t b;
@@ -842,6 +847,48 @@ namespace Prion {
             *p++ = *q;
             *q++ = b;
         }
+    }
+
+    // Secure memory algorithms
+
+    inline int secure_compare(const void* lhs, const void* rhs, size_t n) noexcept {
+        auto vl = static_cast<volatile uint8_t*>(const_cast<void*>(lhs)) + n;
+        auto vr = static_cast<volatile uint8_t*>(const_cast<void*>(rhs)) + n;
+        int16_t r = 0;
+        while (n--) {
+            auto d = int16_t(*--vl) - int16_t(*--vr);
+            if (d != 0)
+                r = d;
+        }
+        return r < 0 ? -1 : r == 0 ? 0 : 1;
+    }
+
+    inline int secure_compare(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept {
+        int rc = secure_compare(lhs, rhs, std::min(n1, n2));
+        return rc != 0 ? rc : n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
+    }
+
+    inline void secure_move(void* dst, const void* src, size_t n) noexcept {
+        auto vs = static_cast<volatile uint8_t*>(const_cast<void*>(src));
+        auto vd = static_cast<volatile uint8_t*>(dst);
+        auto us = uintptr_t(src), ud = uintptr_t(dst);
+        size_t ofs = 0, delta = 1;
+        if (ud > us && ud - us < n) {
+            ofs = n - 1;
+            delta = size_t(-1);
+        }
+        uint8_t b;
+        for (size_t i = 0; i < n; ++i, ofs += delta) {
+            b = vs[ofs];
+            vs[ofs] = 0;
+            vd[ofs] = b;
+        }
+    }
+
+    inline void secure_zero(void* ptr, size_t n) noexcept {
+        auto vp = static_cast<volatile uint8_t*>(ptr);
+        while (n--)
+            *vp++ = 0;
     }
 
     // Range traits
