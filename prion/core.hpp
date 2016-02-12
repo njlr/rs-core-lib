@@ -177,6 +177,8 @@ namespace Prion {
     using std::unique_ptr;
     using std::make_shared;
     using std::make_unique;
+    using std::tie;
+    using std::tuple;
     using std::vector;
     using u8string = std::string;
     using int128_t = __int128;
@@ -1363,7 +1365,7 @@ namespace Prion {
         template <typename ReturnType, typename... Args>
         struct FunctionTraits<ReturnType (Args...)> {
             static constexpr size_t arity = sizeof...(Args);
-            using argument_tuple = std::tuple<Args...>;
+            using argument_tuple = tuple<Args...>;
             using result_type = ReturnType;
             using signature = result_type(Args...);
             using std_function = std::function<signature>;
@@ -1490,8 +1492,8 @@ namespace Prion {
     }
 
     template <typename... Args> struct TupleHash
-        { size_t operator()(const std::tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
-    template <typename... Args> struct TupleHash<std::tuple<Args...>>: TupleHash<Args...> {};
+        { size_t operator()(const tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
+    template <typename... Args> struct TupleHash<tuple<Args...>>: TupleHash<Args...> {};
 
     // Keyword arguments
 

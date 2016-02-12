@@ -113,6 +113,8 @@ message. (A planned change in C++17 will make this unnecessary.)
 * `using std::`**`unique_ptr`**
 * `using std::`**`make_shared`**
 * `using std::`**`make_unique`**
+* `using std::`**`tie`**
+* `using std::`**`tuple`**
 * `using std::`**`vector`**
 
 Imported for convenience.
@@ -909,7 +911,7 @@ an existing hash value and mixes it with additional data. All of these call
 underlying hash function if possible; calling it with a null pointer is safe).
 
 * `template <typename... Args> struct` **`TupleHash`**
-    * `size_t` **`operator()`**`(const std::tuple<Args...>& t) const`
+    * `size_t` **`operator()`**`(const tuple<Args...>& t) const`
 
 Hash function for a tuple.
 

@@ -1570,9 +1570,9 @@ namespace {
     auto fe1 = [] (char c) -> u8string { return {c}; };
     auto fe2 = [] (size_t n, char c) -> u8string { return u8string(n, c); };
 
-    using tuple0 = std::tuple<>;
-    using tuple1 = std::tuple<char>;
-    using tuple2 = std::tuple<size_t, char>;
+    using tuple0 = tuple<>;
+    using tuple1 = tuple<char>;
+    using tuple2 = tuple<size_t, char>;
 
     void check_function_traits() {
 
