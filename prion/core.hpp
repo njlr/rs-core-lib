@@ -1560,8 +1560,8 @@ namespace Prion {
         friend void swap(Resource& r1, Resource& r2) noexcept { std::swap(r1.res, r2.res); std::swap(r1.del, r2.del); }
     private:
         using deleter = std::function<void(T&)>;
-        T res;
-        deleter del;
+        T res = T();
+        deleter del = {};
         Resource(const Resource&) = delete;
         Resource& operator=(const Resource&) = delete;
     };
