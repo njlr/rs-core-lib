@@ -1545,7 +1545,7 @@ namespace Prion {
     class Resource {
     public:
         Resource() noexcept = default;
-        template <typename D> Resource(T&& t, D d): res(std::move(t)) {
+        template <typename D> Resource(const T& t, const D& d): res(std::move(t)) {
             try { del = deleter(d); }
             catch (...) { PrionDetail::unchecked_close(res, d); throw; }
         }

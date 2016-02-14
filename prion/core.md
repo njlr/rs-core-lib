@@ -968,7 +968,7 @@ Example:
 
 * `template <typename T> class` **`Resource`**
     * `Resource::`**`Resource`**`() noexcept`
-    * `template <typename D> Resource::`**`Resource`**`(T&& t, D d)`
+    * `template <typename D> Resource::`**`Resource`**`(const T& t, const D& d)`
     * `Resource::`**`Resource`**`(Resource&& r) noexcept`
     * `Resource::`**`~Resource`**`() noexcept`
     * `Resource& Resource::`**`operator=`**`(Resource&& r) noexcept`
