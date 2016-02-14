@@ -1248,7 +1248,11 @@ the resource type be a pointer, or that the deleter type be specified
 explicitly in the class template). The deleter function passed to the
 constructor is expected to take a single argument of type <code>T</code>. The destructor
 will call <code>d(t)</code>, unless <code>release()</code> has been called or the resource object
-has been moved from.</p>
+has been moved from. The constructor will call <code>d(t)</code> if anything goes wrong
+(in practise this can only happen if copying <code>D</code> throws).</p>
+<p>The template is specialized for pointer types; if <code>T</code> is a pointer, the
+deleter will never be called if the resource pointer is null. Behaviour is
+otherwise the same as for any other type.</p>
 </div>
 <div class="defns">
 <ul>

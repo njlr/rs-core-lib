@@ -1532,21 +1532,25 @@ namespace Prion {
 
     // Scope guards
 
+    namespace PrionDetail {
+
+        template <typename T, typename D> void checked_close(T& t, D& d) noexcept { if (d) try { d(t); } catch (...) {} }
+        template <typename T, typename D> void checked_close(T* t, D& d) noexcept { if (t && d) try { d(t); } catch (...) {} }
+        template <typename T, typename D> void unchecked_close(T& t, D& d) noexcept { try { d(t); } catch (...) {} }
+        template <typename T, typename D> void unchecked_close(T* t, D& d) noexcept { if (t) try { d(t); } catch (...) {} }
+
+    }
+
     template <typename T>
     class Resource {
     public:
         Resource() noexcept = default;
         template <typename D> Resource(T&& t, D d): res(std::move(t)) {
-            try {
-                del = deleter(d);
-            }
-            catch (...) {
-                try { d(res); } catch (...) {}
-                throw;
-            }
+            try { del = deleter(d); }
+            catch (...) { PrionDetail::unchecked_close(res, d); throw; }
         }
         Resource(Resource&& r) noexcept: res(std::move(r.res)), del(std::move(r.del)) { r.del = {}; }
-        ~Resource() noexcept { if (del) try { del(res); } catch (...) {} }
+        ~Resource() noexcept { PrionDetail::checked_close(res, del); }
         Resource& operator=(Resource&& r) noexcept {
             Resource temp(std::move(r));
             swap(*this, temp);

@@ -986,7 +986,12 @@ the resource type be a pointer, or that the deleter type be specified
 explicitly in the class template). The deleter function passed to the
 constructor is expected to take a single argument of type `T`. The destructor
 will call `d(t)`, unless `release()` has been called or the resource object
-has been moved from.
+has been moved from. The constructor will call `d(t)` if anything goes wrong
+(in practise this can only happen if copying `D` throws).
+
+The template is specialized for pointer types; if `T` is a pointer, the
+deleter will never be called if the resource pointer is null. Behaviour is
+otherwise the same as for any other type.
 
 * `class` **`ScopeExit`**
     * `using ScopeExit::`**`callback`** `= std::function<void()>`
