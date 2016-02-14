@@ -1532,6 +1532,45 @@ namespace Prion {
 
     // Scope guards
 
+    template <typename T>
+    class Resource {
+    public:
+        Resource() noexcept = default;
+        template <typename D> Resource(T&& t, D d): res(std::move(t)) {
+            try {
+                del = deleter(d);
+            }
+            catch (...) {
+                try { d(res); } catch (...) {}
+                throw;
+            }
+        }
+        Resource(Resource&& r) noexcept: res(std::move(r.res)), del(std::move(r.del)) { r.del = {}; }
+        ~Resource() noexcept { if (del) try { del(res); } catch (...) {} }
+        Resource& operator=(Resource&& r) noexcept {
+            Resource temp(std::move(r));
+            swap(*this, temp);
+            return *this;
+        }
+        operator T&() noexcept { return res; }
+        operator const T&() const noexcept { return res; }
+        T& get() noexcept { return res; }
+        const T& get() const noexcept { return res; }
+        T release() noexcept { del = {}; return res; }
+        friend void swap(Resource& r1, Resource& r2) noexcept { std::swap(r1.res, r2.res); std::swap(r1.del, r2.del); }
+    private:
+        using deleter = std::function<void(T&)>;
+        T res;
+        deleter del;
+        Resource(const Resource&) = delete;
+        Resource& operator=(const Resource&) = delete;
+    };
+
+    template <typename T, typename D>
+    Resource<T> make_resource(T&& t, D d) {
+        return {t, d};
+    }
+
     // Based on ideas from Evgeny Panasyuk (https://github.com/panaseleus/stack_unwinding)
     // and Andrei Alexandrescu (https://isocpp.org/files/papers/N4152.pdf)
 

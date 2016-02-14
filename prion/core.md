@@ -966,6 +966,28 @@ Example:
 
 ### Scope guards ###
 
+* `template <typename T> class` **`Resource`**
+    * `Resource::`**`Resource`**`() noexcept`
+    * `template <typename D> Resource::`**`Resource`**`(T&& t, D d)`
+    * `Resource::`**`Resource`**`(Resource&& r) noexcept`
+    * `Resource::`**`~Resource`**`() noexcept`
+    * `Resource& Resource::`**`operator=`**`(Resource&& r) noexcept`
+    * `Resource::`**`operator T&`**`() noexcept`
+    * `Resource::`**`operator const T&`**`() const noexcept`
+    * `T& Resource::`**`get`**`() noexcept`
+    * `const T& Resource::`**`get`**`() const noexcept`
+    * `T Resource::`**`release`**`() noexcept`
+* `void` **`swap`**`(Resource& r1, Resource& r2) noexcept`
+* `template <typename T, typename D> Resource<T>` **`make_resource`**`(T&& t, D d)`
+
+This holds a resource of some kind, and a deleter function that will be called
+on destruction, similar to a `unique_ptr` (but without the requirement that
+the resource type be a pointer, or that the deleter type be specified
+explicitly in the class template). The deleter function passed to the
+constructor is expected to take a single argument of type `T`. The destructor
+will call `d(t)`, unless `release()` has been called or the resource object
+has been moved from.
+
 * `class` **`ScopeExit`**
     * `using ScopeExit::`**`callback`** `= std::function<void()>`
     * `explicit ScopeExit::`**`ScopeExit`**`(callback f)`

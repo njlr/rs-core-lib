@@ -1797,15 +1797,58 @@ namespace {
         int n;
         string s;
 
-        n = 1;
         {
+            n = 1;
+            Resource<int> r;
+            TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST_EQUAL(r.get(), 2);
+            TEST_EQUAL(n, 1);
+        }
+        TEST_EQUAL(n, 2);
+
+        {
+            n = 1;
+            Resource<int> r;
+            TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST_EQUAL(r.get(), 2);
+            TEST_EQUAL(n, 1);
+            TRY(r = {});
+            TEST_EQUAL(n, 2);
+        }
+        TEST_EQUAL(n, 2);
+
+        {
+            n = 1;
+            Resource<int> r;
+            TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST_EQUAL(r.get(), 2);
+            TEST_EQUAL(n, 1);
+            TRY(r.release());
+            TEST_EQUAL(n, 1);
+        }
+        TEST_EQUAL(n, 1);
+
+        {
+            n = 1;
+            Resource<int> r;
+            TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST_EQUAL(r.get(), 2);
+            TEST_EQUAL(n, 1);
+            TRY(r.get() = 3);
+            TEST_EQUAL(r.get(), 3);
+            TEST_EQUAL(n, 1);
+        }
+        TEST_EQUAL(n, 3);
+
+        {
+            n = 1;
             ScopeExit x([&] { n = 2; });
             TEST_EQUAL(n, 1);
         }
         TEST_EQUAL(n, 2);
 
-        n = 1;
         try {
+            n = 1;
             ScopeExit x([&] { n = 2; });
             TEST_EQUAL(n, 1);
             throw std::runtime_error("Hello");
@@ -1813,15 +1856,15 @@ namespace {
         catch (...) {}
         TEST_EQUAL(n, 2);
 
-        n = 1;
         {
+            n = 1;
             ScopeSuccess x([&] { n = 2; });
             TEST_EQUAL(n, 1);
         }
         TEST_EQUAL(n, 2);
 
-        n = 1;
         try {
+            n = 1;
             ScopeSuccess x([&] { n = 2; });
             TEST_EQUAL(n, 1);
             throw std::runtime_error("Hello");
@@ -1829,15 +1872,15 @@ namespace {
         catch (...) {}
         TEST_EQUAL(n, 1);
 
-        n = 1;
         {
+            n = 1;
             ScopeFailure x([&] { n = 2; });
             TEST_EQUAL(n, 1);
         }
         TEST_EQUAL(n, 1);
 
-        n = 1;
         try {
+            n = 1;
             ScopeFailure x([&] { n = 2; });
             TEST_EQUAL(n, 1);
             throw std::runtime_error("Hello");
@@ -1875,8 +1918,8 @@ namespace {
         }
         catch (...) {}
 
-        s.clear();
         {
+            s.clear();
             ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
@@ -1885,8 +1928,8 @@ namespace {
         }
         TEST_EQUAL(s, "abcxyz");
 
-        s.clear();
         {
+            s.clear();
             ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
@@ -1897,8 +1940,8 @@ namespace {
         }
         TEST_EQUAL(s, "abcxyz");
 
-        s.clear();
         {
+            s.clear();
             ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));

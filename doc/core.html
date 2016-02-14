@@ -1226,6 +1226,32 @@ Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768,
 <h3 id="scope-guards">Scope guards</h3>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Resource</code></strong><ul>
+<li><code>Resource::</code><strong><code>Resource</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename D&gt; Resource::</code><strong><code>Resource</code></strong><code>(T&amp;&amp; t, D d)</code></li>
+<li><code>Resource::</code><strong><code>Resource</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
+<li><code>Resource::</code><strong><code>~Resource</code></strong><code>() noexcept</code></li>
+<li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
+<li><code>Resource::</code><strong><code>operator T&amp;</code></strong><code>() noexcept</code></li>
+<li><code>Resource::</code><strong><code>operator const T&amp;</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Resource::</code><strong><code>get</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>void</code> <strong><code>swap</code></strong><code>(Resource&amp; r1, Resource&amp; r2) noexcept</code></li>
+<li><code>template &lt;typename T, typename D&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T&amp;&amp; t, D d)</code></li>
+</ul>
+<p>This holds a resource of some kind, and a deleter function that will be called
+on destruction, similar to a <code>unique_ptr</code> (but without the requirement that
+the resource type be a pointer, or that the deleter type be specified
+explicitly in the class template). The deleter function passed to the
+constructor is expected to take a single argument of type <code>T</code>. The destructor
+will call <code>d(t)</code>, unless <code>release()</code> has been called or the resource object
+has been moved from.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>class</code> <strong><code>ScopeExit</code></strong><ul>
 <li><code>using ScopeExit::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
 <li><code>explicit ScopeExit::</code><strong><code>ScopeExit</code></strong><code>(callback f)</code></li>
