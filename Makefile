@@ -65,7 +65,14 @@ CXXVERSION := $(shell $(CXX) --version | head -n 1 | grep -Eo '[0-9]+(\.[0-9]+)+
 
 ifeq ($(CXX),clang++)
 	CXXFLAGS += -std=c++1z -stdlib=libc++
-	# CXXFLAGS += -Weverything -Wno-c++98-compat-pedantic
+	# Testing in turbo paranoid mode
+	# CXXFLAGS += -Weverything
+	# CXXFLAGS += -Wno-c++98-compat-pedantic
+	# CXXFLAGS += -Wno-exit-time-destructors
+	# CXXFLAGS += -Wno-float-equal
+	# CXXFLAGS += -Wno-format-nonliteral
+	# CXXFLAGS += -Wno-global-constructors
+	# CXXFLAGS += -Wno-padded
 else
 	ifeq ($(CXXVERSION),4)
 		CXXFLAGS += -std=gnu++14

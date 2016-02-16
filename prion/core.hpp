@@ -358,7 +358,7 @@ namespace Prion {
         size_t capacity() const noexcept { return len; }
         void clear() noexcept { if (ptr && del) del(ptr); abandon(); }
         void copy(const T* p, size_t n) { assign(n); memcpy(ptr, p, bytes()); }
-        void copy(const T* p1, const T* p2) { copy(p1, p2 - p1); }
+        void copy(const T* p1, const T* p2) { copy(p1, size_t(p2 - p1)); }
         bool empty() const noexcept { return len == 0; }
         size_t max_size() const noexcept { return npos / sizeof(T); }
         size_t size() const noexcept { return len; }
@@ -618,16 +618,16 @@ namespace Prion {
         static constexpr double name = value; \
         static constexpr float name ## _f = value ## f; \
         static constexpr long double name ## _ld = value ## l; \
-        template <typename T> constexpr T c_ ## name() noexcept __attribute__((unused)); \
-        template <> constexpr float c_ ## name<float>() noexcept __attribute__((unused)); \
-        template <> constexpr double c_ ## name<double>() noexcept __attribute__((unused)); \
+        template <typename T> constexpr T c_ ## name() noexcept; \
+        template <> constexpr float c_ ## name<float>() noexcept; \
+        template <> constexpr double c_ ## name<double>() noexcept; \
         template <typename T> constexpr T c_ ## name() noexcept { return static_cast<T>(name ## _ld); } \
         template <> constexpr float c_ ## name<float>() noexcept { return name ## _f; } \
         template <> constexpr double c_ ## name<double>() noexcept { return name; }
 
     // Mathematical constants
 
-    PRI_DEFINE_CONSTANT(e,         2.71828182845904523536028747135266249775724709369996);
+    PRI_DEFINE_CONSTANT(ee,        2.71828182845904523536028747135266249775724709369996);
     PRI_DEFINE_CONSTANT(ln_2,      0.69314718055994530941723212145817656807550013436026);
     PRI_DEFINE_CONSTANT(ln_10,     2.30258509299404568401799145468436420760110148862877);
     PRI_DEFINE_CONSTANT(pi,        3.14159265358979323846264338327950288419716939937511);
@@ -917,7 +917,7 @@ namespace Prion {
     size_t range_count(const Range& r) {
         using std::begin;
         using std::end;
-        return std::distance(begin(r), end(r));
+        return size_t(std::distance(begin(r), end(r)));
     }
 
     template <typename Range>
@@ -935,7 +935,7 @@ namespace Prion {
         constexpr Iterator begin() const { return first; }
         constexpr Iterator end() const { return second; }
         constexpr bool empty() const { return first == second; }
-        constexpr size_t size() const { return std::distance(first, second); }
+        constexpr size_t size() const { return size_t(std::distance(first, second)); }
     };
 
     template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
@@ -986,7 +986,7 @@ namespace Prion {
 
     template <typename T>
     Irange<IntegerSequenceIterator<T>> iseq(T init, T stop) noexcept {
-        T delta = init <= stop ? 1 : -1;
+        T delta = init <= stop ? T(1) : T(-1);
         PrionDetail::adjust_integer_sequence(init, stop, delta, true);
         return {{init, delta}, {stop, delta}};
     }
@@ -999,7 +999,7 @@ namespace Prion {
 
     template <typename T>
     Irange<IntegerSequenceIterator<T>> xseq(T init, T stop) noexcept {
-        T delta = init <= stop ? 1 : -1;
+        T delta = init <= stop ? T(1) : T(-1);
         PrionDetail::adjust_integer_sequence(init, stop, delta, false);
         return {{init, delta}, {stop, delta}};
     }
@@ -1180,12 +1180,12 @@ namespace Prion {
 
     // Bitwise operations
 
-    constexpr size_t binary_size(uint64_t x) noexcept { return x == 0 ? 0 : 8 * sizeof(x) - __builtin_clzll(x); }
-    constexpr size_t bits_set(uint64_t x) noexcept { return __builtin_popcountll(x); }
+    constexpr size_t binary_size(uint64_t x) noexcept { return x == 0 ? 0 : 8 * sizeof(x) - unsigned(__builtin_clzll(x)); }
+    constexpr size_t bits_set(uint64_t x) noexcept { return unsigned(__builtin_popcountll(x)); }
     constexpr uint64_t letter_to_mask(char c) noexcept
         { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
-    template <typename T> constexpr T rotl(T t, int n) noexcept { return (t << n) | (t >> (8 * sizeof(T) - n)); }
-    template <typename T> constexpr T rotr(T t, int n) noexcept { return (t >> n) | (t << (8 * sizeof(T) - n)); }
+    template <typename T> constexpr T rotl(T t, int n) noexcept { return T((t << n) | (t >> (8 * int(sizeof(T)) - n))); }
+    template <typename T> constexpr T rotr(T t, int n) noexcept { return T((t >> n) | (t << (8 * int(sizeof(T)) - n))); }
 
     // Byte order functions
 
@@ -1951,7 +1951,7 @@ namespace Prion {
                 break;
             buf.resize(2 * buf.size());
         }
-        buf.resize(rc);
+        buf.resize(size_t(rc));
         if (mode != 'f' && mode != 'F') {
             size_t p = buf.find_first_of("eE");
             if (p == npos)
@@ -1996,7 +1996,7 @@ namespace Prion {
         while (next != endp && ascii_isspace(*next))
             ++next;
         if (next == endp || ! ascii_isalpha(*next))
-            return x;
+            return T(x);
         auto ptr = strchr(PrionDetail::si_prefixes, ascii_toupper(*next));
         if (ptr == nullptr)
             throw std::invalid_argument("Unknown suffix: " + str);
@@ -2205,7 +2205,7 @@ namespace Prion {
                     host_basic_info_data_t info;
                     if (host_info(mach_host_self(), HOST_BASIC_INFO,
                             reinterpret_cast<host_info_t>(&info), &count) == 0)
-                        n = info.avail_cpus;
+                        n = size_t(info.avail_cpus);
                 #else
                     char buf[256];
                     FILE* f = fopen("/proc/cpuinfo", "r");
@@ -2404,8 +2404,8 @@ namespace Prion {
                 #else
                     clock_gettime(CLOCK_REALTIME, &ts);
                 #endif
-                ts.tv_nsec += nsc % 1_G;
-                ts.tv_sec += nsc / 1_G + ts.tv_nsec / 1_G;
+                ts.tv_nsec += size_t(nsc) % 1_G;
+                ts.tv_sec += size_t(nsc) / 1_G + size_t(ts.tv_nsec) / 1_G;
                 ts.tv_nsec %= 1_G;
                 for (;;) {
                     int rc = pthread_cond_timedwait(&pcond, &ml.mx->pmutex, &ts);
@@ -2495,8 +2495,8 @@ namespace Prion {
                 auto usec = t.count();
                 if (usec > 0) {
                     timeval tv;
-                    tv.tv_sec = usec / 1_M;
-                    tv.tv_usec = usec % 1_M;
+                    tv.tv_sec = size_t(usec) / 1_M;
+                    tv.tv_usec = size_t(usec) % 1_M;
                     select(0, nullptr, nullptr, nullptr, &tv);
                 } else {
                     sched_yield();
@@ -2550,7 +2550,7 @@ namespace Prion {
             #else
                 t = _mkgmtime(&stm);
             #endif
-        system_clock::time_point::rep extra(fsec * system_clock::time_point::duration(seconds(1)).count());
+        auto extra = system_clock::time_point::rep(fsec * system_clock::time_point::duration(seconds(1)).count());
         return system_clock::from_time_t(t) + system_clock::time_point::duration(extra);
     }
 
@@ -2574,15 +2574,15 @@ namespace Prion {
             if (sec < 0 || frac < 0)
                 result += '-';
             sec = std::abs(sec);
-            int y = sec / 31557600;
+            int y = int(sec / 31557600);
             sec -= 31557600 * y;
-            int d = sec / 86400;
+            int d = int(sec / 86400);
             sec -= 86400 * d;
-            int h = sec / 3600;
+            int h = int(sec / 3600);
             sec -= 3600 * h;
-            int m = sec / 60;
+            int m = int(sec / 60);
             sec -= 60 * m;
-            int rc, s = sec;
+            int rc, s = int(sec);
             vector<char> buf(64);
             for (;;) {
                 if (y > 0)
@@ -2601,7 +2601,7 @@ namespace Prion {
             }
             result += buf.data();
             if (prec > 0) {
-                buf.resize(prec + 3);
+                buf.resize(size_t(prec) + 3);
                 snprintf(buf.data(), buf.size(), "%.*f", prec, fabs(frac));
                 result += buf.data() + 1;
             }
@@ -2642,7 +2642,7 @@ namespace Prion {
             double sec = to_seconds(tp.time_since_epoch());
             double isec;
             double fsec = modf(sec, &isec);
-            u8string buf(prec + 3, '\0');
+            u8string buf(size_t(prec) + 3, '\0');
             snprintf(&buf[0], buf.size(), "%.*f", prec, fsec);
             result += buf.data() + 1;
         }
@@ -2666,7 +2666,7 @@ namespace Prion {
             using namespace Prion::Literals;
             using namespace std::chrono;
             int64_t nsec = duration_cast<nanoseconds>(d).count();
-            return {time_t(nsec / 1_G), long(nsec % 1_G)};
+            return {time_t(size_t(nsec) / 1_G), long(size_t(nsec) % 1_G)};
         }
 
         template <typename R, typename P>
@@ -2674,7 +2674,7 @@ namespace Prion {
             using namespace Prion::Literals;
             using namespace std::chrono;
             int64_t usec = duration_cast<microseconds>(d).count();
-            return {time_t(usec / 1_M), suseconds_t(usec % 1_M)};
+            return {time_t(size_t(usec) / 1_M), suseconds_t(size_t(usec) % 1_M)};
         }
 
         inline timespec timepoint_to_timespec(const std::chrono::system_clock::time_point& tp) noexcept {
@@ -2885,6 +2885,7 @@ namespace Prion {
         vector<unsigned> ver;
         u8string suf;
         template <typename... Args> void append(unsigned n, Args... args) { ver.push_back(n); append(args...); }
+        template <typename... Args> void append(int n, Args... args) { ver.push_back(unsigned(n)); append(args...); }
         void append(const u8string& s) { suf = s; }
         void append() {}
         void trim() { while (! ver.empty() && ver.back() == 0) ver.pop_back(); }

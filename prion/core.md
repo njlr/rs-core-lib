@@ -482,8 +482,10 @@ The values quoted for the following constants are approximate; the values
 actually supplied are accurate to at least `long double` precision for the
 mathematical constants, or to the best known accuracy for the physical ones.
 
+(The name `ee` is used to avoid colliding with single letter variable names.)
+
 * _Mathematical constants_
-    * **`e`** _= 2.7183_
+    * **`ee`** _= 2.7183_
     * **`ln_2`** _= log<sub>e</sub> 2 = 0.6931_
     * **`ln_10`** _= log<sub>e</sub> 10 = 2.3026_
     * **`pi`** _= &pi; = 3.1416_
