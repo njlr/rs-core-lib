@@ -499,6 +499,89 @@ namespace {
 
     void check_arithmetic_literals() {
 
+        ptrdiff_t t = 0;
+        size_t z = 0;
+
+        TRY(t = 0_t);
+        TEST_EQUAL(t, 0_t);
+        TEST_EQUAL(dec(t), "0");
+        TEST_EQUAL(hex(t, 1), "0");
+        TRY(t = 12345_t);
+        TEST_EQUAL(t, 12345_t);
+        TEST_EQUAL(dec(t), "12345");
+        TRY(t = 0x0_t);
+        TEST_EQUAL(dec(t), "0");
+        TRY(t = 0x12345_t);
+        TEST_EQUAL(hex(t, 1), "12345");
+        TEST_EQUAL(dec(t), "74565");
+
+        TRY(z = 0_z);
+        TEST_EQUAL(z, 0_z);
+        TEST_EQUAL(dec(z), "0");
+        TEST_EQUAL(hex(z, 1), "0");
+        TRY(z = 12345_z);
+        TEST_EQUAL(z, 12345_z);
+        TEST_EQUAL(dec(z), "12345");
+        TRY(z = 0x0_z);
+        TEST_EQUAL(dec(z), "0");
+        TRY(z = 0x12345_z);
+        TEST_EQUAL(hex(z, 1), "12345");
+        TEST_EQUAL(dec(z), "74565");
+
+        if (sizeof(size_t) == 8) {
+
+            TRY(t = 0_t);
+            TEST_EQUAL(hex(t), "0000000000000000");
+            TRY(t = 9223372036854775807_t); // 2^63-1
+            TEST_EQUAL(t, 9223372036854775807_t);
+            TEST_EQUAL(dec(t), "9223372036854775807");
+            TRY(t = -9223372036854775807_t); // -(2^63-1)
+            TEST_EQUAL(t, -9223372036854775807_t);
+            TEST_EQUAL(dec(t), "-9223372036854775807");
+            TRY(t = -9223372036854775808_t); // -2^63
+            TEST_EQUAL(t, -9223372036854775808_t);
+            TEST_EQUAL(dec(t), "-9223372036854775808");
+            TRY(t = 0x7fffffffffffffff_t);
+            TEST_EQUAL(hex(t), "7fffffffffffffff");
+            TEST_EQUAL(dec(t), "9223372036854775807");
+
+            TRY(z = 0_z);
+            TEST_EQUAL(hex(z), "0000000000000000");
+            TRY(z = 18446744073709551615_z); // 2^64-1
+            TEST_EQUAL(z, 18446744073709551615_z);
+            TEST_EQUAL(dec(z), "18446744073709551615");
+            TRY(z = 0xffffffffffffffff_z);
+            TEST_EQUAL(hex(z), "ffffffffffffffff");
+            TEST_EQUAL(dec(z), "18446744073709551615");
+
+        } else if (sizeof(size_t) == 4) {
+
+            TRY(t = 0_t);
+            TEST_EQUAL(hex(t), "00000000");
+            TRY(t = 2147483647_t); // 2^31-1
+            TEST_EQUAL(t, 2147483647_t);
+            TEST_EQUAL(dec(t), "2147483647");
+            TRY(t = -2147483647_t); // -(2^31-1)
+            TEST_EQUAL(t, -2147483647_t);
+            TEST_EQUAL(dec(t), "-2147483647");
+            TRY(t = -2147483648_t); // -2^31
+            TEST_EQUAL(t, -2147483648_t);
+            TEST_EQUAL(dec(t), "-2147483648");
+            TRY(t = 0x7fffffff_t);
+            TEST_EQUAL(hex(t), "7fffffff");
+            TEST_EQUAL(dec(t), "2147483647");
+
+            TRY(z = 0_z);
+            TEST_EQUAL(hex(z), "00000000");
+            TRY(z = 4294967295_z); // 2^32-1
+            TEST_EQUAL(z, 4294967295_z);
+            TEST_EQUAL(dec(z), "4294967295");
+            TRY(z = 0xffffffff_z);
+            TEST_EQUAL(hex(z), "ffffffff");
+            TEST_EQUAL(dec(z), "4294967295");
+
+        }
+
         int128_t i = 0;
         uint128_t u = 0;
 

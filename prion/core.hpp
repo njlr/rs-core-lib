@@ -671,34 +671,39 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        template <char C> constexpr uint128_t digit_value() noexcept
-            { return uint128_t(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
+        template <typename T, char C> constexpr T digit_value() noexcept
+            { return T(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
 
-        template <uint128_t Base, char C, char... CS>
+        template <typename T, int Base, char C, char... CS>
         struct BaseInteger {
-            using prev_type = BaseInteger<Base, CS...>;
-            static constexpr uint128_t scale = Base * prev_type::scale;
-            static constexpr uint128_t value = digit_value<C>() * scale + prev_type::value;
+            using prev_type = BaseInteger<T, Base, CS...>;
+            static constexpr T scale = T(Base) * prev_type::scale;
+            static constexpr T value = digit_value<T, C>() * scale + prev_type::value;
         };
 
-        template <uint128_t Base, char C>
-        struct BaseInteger<Base, C> {
-            static constexpr uint128_t scale = 1;
-            static constexpr uint128_t value = digit_value<C>();
+        template <typename T, int Base, char C>
+        struct BaseInteger<T, Base, C> {
+            static constexpr T scale = T(1);
+            static constexpr T value = digit_value<T, C>();
         };
 
-        template <char... CS> struct MakeInteger: public BaseInteger<10, CS...> {};
-        template <char... CS> struct MakeInteger<'0', 'x', CS...>: public BaseInteger<16, CS...> {};
-        template <char... CS> struct MakeInteger<'0', 'X', CS...>: public BaseInteger<16, CS...> {};
+        template <typename T, char... CS> struct MakeInteger: public BaseInteger<T, 10, CS...> {};
+        template <typename T, char... CS> struct MakeInteger<T, '0', 'x', CS...>: public BaseInteger<T, 16, CS...> {};
+        template <typename T, char... CS> struct MakeInteger<T, '0', 'X', CS...>: public BaseInteger<T, 16, CS...> {};
 
     }
 
     namespace Literals {
 
+        template <char... CS> constexpr ptrdiff_t operator""_t() noexcept
+            { return ptrdiff_t(PrionDetail::MakeInteger<size_t, CS...>::value); }
+        template <char... CS> constexpr size_t operator""_z() noexcept
+            { return PrionDetail::MakeInteger<size_t, CS...>::value; }
         template <char... CS> constexpr int128_t operator""_s128() noexcept
-            { return int128_t(PrionDetail::MakeInteger<CS...>::value); }
+            { return int128_t(PrionDetail::MakeInteger<uint128_t, CS...>::value); }
         template <char... CS> constexpr uint128_t operator""_u128() noexcept
-            { return PrionDetail::MakeInteger<CS...>::value; }
+            { return PrionDetail::MakeInteger<uint128_t, CS...>::value; }
+
         constexpr unsigned long long operator""_k(unsigned long long n) noexcept
             { return 1000ull * n; }
         constexpr unsigned long long operator""_M(unsigned long long n) noexcept
@@ -715,6 +720,7 @@ namespace Prion {
             { return 1073741824ull * n; }
         constexpr unsigned long long operator""_TB(unsigned long long n) noexcept
             { return 1099511627776ull * n; }
+
         constexpr float operator""_degf(long double x) noexcept
             { return float(x * (pi_ld / 180.0L)); }
         constexpr float operator""_degf(unsigned long long x) noexcept
@@ -858,7 +864,7 @@ namespace Prion {
         auto vr = static_cast<volatile uint8_t*>(const_cast<void*>(rhs)) + n;
         int16_t r = 0;
         while (n--) {
-            auto d = int16_t(*--vl) - int16_t(*--vr);
+            int16_t d = int16_t(*--vl) - int16_t(*--vr);
             if (d != 0)
                 r = d;
         }
@@ -1761,35 +1767,35 @@ namespace Prion {
 
     }
 
-    static constexpr const char* xt_up           = "\e[A";    // Cursor up
-    static constexpr const char* xt_down         = "\e[B";    // Cursor down
-    static constexpr const char* xt_right        = "\e[C";    // Cursor right
-    static constexpr const char* xt_left         = "\e[D";    // Cursor left
-    static constexpr const char* xt_erase_left   = "\e[1K";   // Erase left
-    static constexpr const char* xt_erase_right  = "\e[K";    // Erase right
-    static constexpr const char* xt_erase_above  = "\e[1J";   // Erase above
-    static constexpr const char* xt_erase_below  = "\e[J";    // Erase below
-    static constexpr const char* xt_erase_line   = "\e[2K";   // Erase line
-    static constexpr const char* xt_clear        = "\e[2J";   // Clear screen
-    static constexpr const char* xt_reset        = "\e[0m";   // Reset attributes
-    static constexpr const char* xt_bold         = "\e[1m";   // Bold
-    static constexpr const char* xt_under        = "\e[4m";   // Underline
-    static constexpr const char* xt_black        = "\e[30m";  // Black fg
-    static constexpr const char* xt_red          = "\e[31m";  // Red fg
-    static constexpr const char* xt_green        = "\e[32m";  // Green fg
-    static constexpr const char* xt_yellow       = "\e[33m";  // Yellow fg
-    static constexpr const char* xt_blue         = "\e[34m";  // Blue fg
-    static constexpr const char* xt_magenta      = "\e[35m";  // Magenta fg
-    static constexpr const char* xt_cyan         = "\e[36m";  // Cyan fg
-    static constexpr const char* xt_white        = "\e[37m";  // White fg
-    static constexpr const char* xt_black_bg     = "\e[40m";  // Black bg
-    static constexpr const char* xt_red_bg       = "\e[41m";  // Red bg
-    static constexpr const char* xt_green_bg     = "\e[42m";  // Green bg
-    static constexpr const char* xt_yellow_bg    = "\e[43m";  // Yellow bg
-    static constexpr const char* xt_blue_bg      = "\e[44m";  // Blue bg
-    static constexpr const char* xt_magenta_bg   = "\e[45m";  // Magenta bg
-    static constexpr const char* xt_cyan_bg      = "\e[46m";  // Cyan bg
-    static constexpr const char* xt_white_bg     = "\e[47m";  // White bg
+    static constexpr const char* xt_up           = "\x1b[A";    // Cursor up
+    static constexpr const char* xt_down         = "\x1b[B";    // Cursor down
+    static constexpr const char* xt_right        = "\x1b[C";    // Cursor right
+    static constexpr const char* xt_left         = "\x1b[D";    // Cursor left
+    static constexpr const char* xt_erase_left   = "\x1b[1K";   // Erase left
+    static constexpr const char* xt_erase_right  = "\x1b[K";    // Erase right
+    static constexpr const char* xt_erase_above  = "\x1b[1J";   // Erase above
+    static constexpr const char* xt_erase_below  = "\x1b[J";    // Erase below
+    static constexpr const char* xt_erase_line   = "\x1b[2K";   // Erase line
+    static constexpr const char* xt_clear        = "\x1b[2J";   // Clear screen
+    static constexpr const char* xt_reset        = "\x1b[0m";   // Reset attributes
+    static constexpr const char* xt_bold         = "\x1b[1m";   // Bold
+    static constexpr const char* xt_under        = "\x1b[4m";   // Underline
+    static constexpr const char* xt_black        = "\x1b[30m";  // Black fg
+    static constexpr const char* xt_red          = "\x1b[31m";  // Red fg
+    static constexpr const char* xt_green        = "\x1b[32m";  // Green fg
+    static constexpr const char* xt_yellow       = "\x1b[33m";  // Yellow fg
+    static constexpr const char* xt_blue         = "\x1b[34m";  // Blue fg
+    static constexpr const char* xt_magenta      = "\x1b[35m";  // Magenta fg
+    static constexpr const char* xt_cyan         = "\x1b[36m";  // Cyan fg
+    static constexpr const char* xt_white        = "\x1b[37m";  // White fg
+    static constexpr const char* xt_black_bg     = "\x1b[40m";  // Black bg
+    static constexpr const char* xt_red_bg       = "\x1b[41m";  // Red bg
+    static constexpr const char* xt_green_bg     = "\x1b[42m";  // Green bg
+    static constexpr const char* xt_yellow_bg    = "\x1b[43m";  // Yellow bg
+    static constexpr const char* xt_blue_bg      = "\x1b[44m";  // Blue bg
+    static constexpr const char* xt_magenta_bg   = "\x1b[45m";  // Magenta bg
+    static constexpr const char* xt_cyan_bg      = "\x1b[46m";  // Cyan bg
+    static constexpr const char* xt_white_bg     = "\x1b[47m";  // White bg
 
     inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
     inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces

@@ -705,6 +705,14 @@ mathematical constants, or to the best known accuracy for the physical ones.</p>
 <p>These are all in <code>namespace Prion::Literals</code>.</p>
 <div class="defns">
 <ul>
+<li><code>template &lt;char... CS&gt; constexpr ptrdiff_t</code> <strong><code>operator""_t</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;char... CS&gt; constexpr size_t</code> <strong><code>operator""_z</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Literals for <code>ptrdiff_t</code> and <code>size_t</code>, anticipating similar features in C++17
+(see ISO N4254).</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator""_s128</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator""_u128</code></strong><code>() noexcept</code></li>
 </ul>
