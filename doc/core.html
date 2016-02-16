@@ -1089,12 +1089,14 @@ result is unspecified if either type is not floating point.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>iceil</code></strong><code>(T1 value) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>ifloor</code></strong><code>(T1 value) noexcept</code></li>
 <li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>round</code></strong><code>(T1 value) noexcept</code></li>
 </ul>
-<p>Rounds the value to the nearest integer, and returns the resulting value
-converted to the return type (which must be specified explicitly). Halves are
-rounded up (toward positive infinity). The usual arithmetic rules apply if the
-result is not representable by the return type.</p>
+<p>Rounds the argument toward positive infinity (<code>iceil()</code>), toward negative
+infinity (<code>ifloor()</code>), or to the nearest integer (<code>round()</code>; halves round up),
+converting the result to the specified return type. The usual arithmetic rules
+apply if the result is not representable by the return type.</p>
 </div>
 <h2 id="functional-utilities">Functional utilities</h2>
 <h3 id="function-traits">Function traits</h3>

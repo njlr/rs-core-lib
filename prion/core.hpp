@@ -1323,18 +1323,22 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        template <typename T2, typename T1, bool FromFloat = std::is_floating_point<T1>::value> struct Round;
+        template <typename T2, typename T1, char Mode,
+            bool FromFloat = std::is_floating_point<T1>::value>
+            struct Round;
 
-        template <typename T2, typename T1>
-        struct Round<T2, T1, true> {
+        template <typename T2, typename T1, char Mode>
+        struct Round<T2, T1, Mode, true> {
             T2 operator()(T1 value) const noexcept {
+                using std::ceil;
                 using std::floor;
-                return T2(floor(value + T1(1) / T1(2)));
+                T1 t = Mode == '<' ? floor(value) : Mode == '>' ? ceil(value) : floor(value + T1(1) / T1(2));
+                return T2(t);
             }
         };
 
-        template <typename T2, typename T1>
-        struct Round<T2, T1, false> {
+        template <typename T2, typename T1, char Mode>
+        struct Round<T2, T1, Mode, false> {
             T2 operator()(T1 value) const noexcept {
                 return T2(value);
             }
@@ -1346,7 +1350,9 @@ namespace Prion {
     template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
     template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept
         { return y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
-    template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1>()(value); }
+    template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return PrionDetail::Round<T2, T1, '>'>()(value); }
+    template <typename T2, typename T1> T2 ifloor(T1 value) noexcept { return PrionDetail::Round<T2, T1, '<'>()(value); }
+    template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1, '='>()(value); }
 
     // [Functional utilities]
 
