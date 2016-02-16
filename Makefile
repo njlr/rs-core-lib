@@ -23,7 +23,7 @@ OPT          := -O2
 TESTOPT      := -O1
 AR           := ar
 ARFLAGS      := -rsu
-LDFLAGS      :=
+LDFLAGS      := -Lbuild/$(TARGET)
 LDLIBS       :=
 EXE          :=
 DEPENDS      := dependencies.make
@@ -240,8 +240,7 @@ symlinks: uninstall static
 endif
 endif
 uninstall:
-	rm -f $(PREFIX)/lib/$(notdir $(STATICLIB))
-	if [ "$(PREFIX)" ]; then rm -rf $(PREFIX)/include/$(NAME); fi
+	if [ "$(PREFIX)" ]; then rm -f $(PREFIX)/lib/$(notdir $(STATICLIB)); rm -rf $(PREFIX)/include/$(NAME); fi
 help-install: help-test
 	@echo "    install    = Install the application"
 	@echo "    symlinks   = Install the application using symlinks"
@@ -311,7 +310,7 @@ doc/index.html: $(DOCSOURCES) $(SCRIPTS)/make-doc $(SCRIPTS)/make-index
 	@mkdir -p $(dir $@)
 	$(SCRIPTS)/make-index > __index__.md
 	$(SCRIPTS)/make-doc __index__.md $@
-	rm __index__.md
+	rm -f __index__.md
 endif
 
 doc/%.html: $(NAME)/%.md $(SCRIPTS)/make-doc
