@@ -44,7 +44,7 @@ TEST_MAIN;
 
 namespace {
 
-    u8string f1(int n) { return u8string(size_t(n), '*'); }
+    u8string f1(int n) { return u8string(n, '*'); }
     u8string f1(u8string s) { return '[' + s + ']'; }
     u8string f2() { return "Hello"; }
     u8string f2(u8string s) { return '[' + s + ']'; }
@@ -91,15 +91,16 @@ namespace {
 
     class TopTail {
     public:
+        TopTail(): sp(nullptr), ch() {}
         TopTail(u8string& s, char c): sp(&s), ch(c) { s += '+'; s += c; }
         ~TopTail() { term(); }
         TopTail(TopTail&& t): sp(t.sp), ch(t.ch) { t.sp = nullptr; }
+        TopTail& operator=(TopTail&& t) { if (&t != this) { term(); sp = t.sp; ch = t.ch; t.sp = nullptr; } return *this; }
     private:
         u8string* sp;
         char ch;
         TopTail(const TopTail&) = delete;
         TopTail& operator=(const TopTail&) = delete;
-        TopTail& operator=(TopTail&& t) = delete;
         void term() { if (sp) { *sp += '-'; *sp += ch; sp = nullptr; } }
     };
 
@@ -1736,8 +1737,10 @@ namespace {
     public:
         Counted() { ++num; }
         Counted(const Counted&) { ++num; }
+        Counted(Counted&&) = default;
         ~Counted() { --num; }
         Counted& operator=(const Counted&) = default;
+        Counted& operator=(Counted&&) = default;
         static int count() { return num; }
         static void reset() { num = 0; }
     private:
@@ -1797,8 +1800,8 @@ namespace {
 
         vector<string> sv {"hello", "world", "goodbye"};
 
-        for (auto& t: sv)
-            TRY(hash_combine(h4, t));
+        for (auto& s: sv)
+            TRY(hash_combine(h4, s));
         TRY(h5 = hash_range(sv));
         TEST_EQUAL(h4, h5);
 

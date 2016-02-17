@@ -376,7 +376,7 @@ struct Test {
             throw std::invalid_argument("Invalid regex: " + preformat(pattern) + "\n" + estr);
         int caps = 0;
         pcre_fullinfo(p.get(), nullptr, PCRE_INFO_CAPTURECOUNT, &caps);
-        std::vector<int> ofs(size_t(3 * (caps + 1)), 0);
+        std::vector<int> ofs(3 * (caps + 1));
         auto rc = pcre_exec(p.get(), nullptr, str.data(), int(str.size()),
             0, 0, ofs.data(), int(ofs.size()));
         return rc > 0;
