@@ -17,7 +17,7 @@ HOST         := $(shell uname | tr A-Z a-z | sed -E 's/[^a-z].*//')
 TARGET       := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e 's/[0-9.]*$$//' | tr A-Z a-z)
 XHOST        := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
 CXX          := g++
-CXXFLAGS     := -I. -g2 -march=core2 -mfpmath=sse -Wall -Wextra -Werror
+CXXFLAGS     := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
 DEFINES      := -DNDEBUG=1
 OPT          := -O2
 TESTOPT      := -O1
@@ -98,7 +98,7 @@ EXTRALIBS := $(shell grep -h PRI_LDLIB $(HEADERS) $(SOURCES) \
 	| sort -u)
 
 PCRELIBS := $(shell find $(LIBPATH) -name 'libpcre16.*' -or -name 'libpcre32.*' 2>/dev/null \
-			| grep -Ev '\.pc$$' | sed -E 's!.*/!!')
+	| grep -Ev '\.pc$$' | sed -E 's!.*/!!')
 
 ifneq ($(filter libpcre16.%,$(PCRELIBS)),)
 	DEFINES += -DUNICORN_PCRE16=1
