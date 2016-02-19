@@ -975,17 +975,21 @@ Example:
 ### Scope guards ###
 
 * `template <typename T> class` **`Resource`**
+    * `using Resource::`**`resource_type`** `= T`
+    * `using Resource::`**`value_type`** `= [dereferenced T]` _[only if T is a pointer]_
     * `Resource::`**`Resource`**`() noexcept`
     * `template <typename D> Resource::`**`Resource`**`(const T& t, const D& d)`
     * `Resource::`**`Resource`**`(Resource&& r) noexcept`
     * `Resource::`**`~Resource`**`() noexcept`
     * `Resource& Resource::`**`operator=`**`(Resource&& r) noexcept`
     * `Resource::`**`operator T&`**`() noexcept`
-    * `Resource::`**`operator const T&`**`() const noexcept`
+    * `Resource::`**`operator T`**`() const noexcept`
     * `T& Resource::`**`get`**`() noexcept`
-    * `const T& Resource::`**`get`**`() const noexcept`
+    * `T Resource::`**`get`**`() const noexcept`
     * `T Resource::`**`release`**`() noexcept`
-* `void` **`swap`**`(Resource& r1, Resource& r2) noexcept`
+    * `value_type& Resource::`**`operator*`**`() noexcept` _[only if T is a pointer]_
+    * `const value_type& Resource::`**`operator*`**`() const noexcept` _[only if T is a pointer]_
+    * `T Resource::`**`operator->`**`() const noexcept` _[only if T is a pointer]_
 * `template <typename T, typename D> Resource<T>` **`make_resource`**`(T&& t, D d)`
 
 This holds a resource of some kind, and a deleter function that will be called

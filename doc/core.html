@@ -1237,19 +1237,23 @@ Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768,
 <div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>Resource</code></strong><ul>
+<li><code>using Resource::</code><strong><code>resource_type</code></strong> <code>= T</code></li>
+<li><code>using Resource::</code><strong><code>value_type</code></strong> <code>= [dereferenced T]</code> <em>[only if T is a pointer]</em></li>
 <li><code>Resource::</code><strong><code>Resource</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;typename D&gt; Resource::</code><strong><code>Resource</code></strong><code>(const T&amp; t, const D&amp; d)</code></li>
 <li><code>Resource::</code><strong><code>Resource</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
 <li><code>Resource::</code><strong><code>~Resource</code></strong><code>() noexcept</code></li>
 <li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
 <li><code>Resource::</code><strong><code>operator T&amp;</code></strong><code>() noexcept</code></li>
-<li><code>Resource::</code><strong><code>operator const T&amp;</code></strong><code>() const noexcept</code></li>
+<li><code>Resource::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
 <li><code>T&amp; Resource::</code><strong><code>get</code></strong><code>() noexcept</code></li>
-<li><code>const T&amp; Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>T Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
 <li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+<li><code>value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() noexcept</code> <em>[only if T is a pointer]</em></li>
+<li><code>const value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() const noexcept</code> <em>[only if T is a pointer]</em></li>
+<li><code>T Resource::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code> <em>[only if T is a pointer]</em></li>
 </ul>
 </li>
-<li><code>void</code> <strong><code>swap</code></strong><code>(Resource&amp; r1, Resource&amp; r2) noexcept</code></li>
 <li><code>template &lt;typename T, typename D&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T&amp;&amp; t, D d)</code></li>
 </ul>
 <p>This holds a resource of some kind, and a deleter function that will be called

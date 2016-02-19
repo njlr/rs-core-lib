@@ -1544,39 +1544,88 @@ namespace Prion {
 
     // Scope guards
 
-    namespace PrionDetail {
-
-        template <typename T, typename D> void checked_close(T& t, D& d) noexcept { if (d) try { d(t); } catch (...) {} }
-        template <typename T, typename D> void checked_close(T* t, D& d) noexcept { if (t && d) try { d(t); } catch (...) {} }
-        template <typename T, typename D> void unchecked_close(T& t, D& d) noexcept { try { d(t); } catch (...) {} }
-        template <typename T, typename D> void unchecked_close(T* t, D& d) noexcept { if (t) try { d(t); } catch (...) {} }
-
-    }
-
     template <typename T>
     class Resource {
     public:
+        using resource_type = T;
         Resource() noexcept = default;
         template <typename D> Resource(const T& t, const D& d): res(std::move(t)) {
-            try { del = deleter(d); }
-            catch (...) { PrionDetail::unchecked_close(res, d); throw; }
+            try {
+                deleter newdel(d);
+                del = std::move(newdel);
+            }
+            catch (...) {
+                d(res);
+                throw;
+            }
         }
-        Resource(Resource&& r) noexcept: res(std::move(r.res)), del(std::move(r.del)) { r.del = {}; }
-        ~Resource() noexcept { PrionDetail::checked_close(res, del); }
+        Resource(Resource&& r) noexcept: res(std::move(r.res)), del(std::move(r.del)) { r.res = T(); r.del = {}; }
+        ~Resource() noexcept {
+            if (del) {
+                try { del(res); }
+                catch (...) {}
+            }
+        }
         Resource& operator=(Resource&& r) noexcept {
             Resource temp(std::move(r));
-            swap(*this, temp);
+            std::swap(res, temp.res);
+            std::swap(del, temp.del);
             return *this;
         }
         operator T&() noexcept { return res; }
-        operator const T&() const noexcept { return res; }
+        operator T() const noexcept { return res; }
         T& get() noexcept { return res; }
-        const T& get() const noexcept { return res; }
+        T get() const noexcept { return res; }
         T release() noexcept { del = {}; return res; }
-        friend void swap(Resource& r1, Resource& r2) noexcept { std::swap(r1.res, r2.res); std::swap(r1.del, r2.del); }
     private:
         using deleter = std::function<void(T&)>;
         T res = T();
+        deleter del = {};
+        Resource(const Resource&) = delete;
+        Resource& operator=(const Resource&) = delete;
+    };
+
+    template <typename T>
+    class Resource<T*> {
+    public:
+        using resource_type = T*;
+        using value_type = T;
+        Resource() noexcept = default;
+        template <typename D> Resource(T* t, const D& d): res(t) {
+            try {
+                deleter newdel(d);
+                del = std::move(newdel);
+            }
+            catch (...) {
+                if (res)
+                    d(res);
+                throw;
+            }
+        }
+        Resource(Resource&& r) noexcept: res(r.res), del(std::move(r.del)) { r.res = nullptr; r.del = {}; }
+        ~Resource() noexcept {
+            if (res && del) {
+                try { del(res); }
+                catch (...) {}
+            }
+        }
+        Resource& operator=(Resource&& r) noexcept {
+            Resource temp(std::move(r));
+            std::swap(res, temp.res);
+            std::swap(del, temp.del);
+            return *this;
+        }
+        operator T*&() noexcept { return res; }
+        operator T*() const noexcept { return res; }
+        T*& get() noexcept { return res; }
+        T* get() const noexcept { return res; }
+        T* release() noexcept { del = {}; return res; }
+        T& operator*() noexcept { return *res; }
+        const T& operator*() const noexcept { return *res; }
+        T* operator->() const noexcept { return res; }
+    private:
+        using deleter = std::function<void(T*)>;
+        T* res = nullptr;
         deleter del = {};
         Resource(const Resource&) = delete;
         Resource& operator=(const Resource&) = delete;
