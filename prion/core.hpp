@@ -1549,17 +1549,12 @@ namespace Prion {
     public:
         using resource_type = T;
         Resource() noexcept = default;
-        template <typename D> Resource(const T& t, const D& d): res(std::move(t)) {
-            try {
-                deleter newdel(d);
-                del = std::move(newdel);
-            }
-            catch (...) {
-                d(res);
-                throw;
-            }
+        explicit Resource(T t): res(t), del() {}
+        template <typename D> Resource(T t, D d): res(t), del() {
+            try { del = deleter(d); }
+            catch (...) { d(res); throw; }
         }
-        Resource(Resource&& r) noexcept: res(std::move(r.res)), del(std::move(r.del)) { r.res = T(); r.del = {}; }
+        Resource(Resource&& r) noexcept: res(r.res), del(r.del) { r.res = T(); r.del = {}; }
         ~Resource() noexcept {
             if (del) {
                 try { del(res); }
@@ -1591,18 +1586,12 @@ namespace Prion {
         using resource_type = T*;
         using value_type = T;
         Resource() noexcept = default;
-        template <typename D> Resource(T* t, const D& d): res(t) {
-            try {
-                deleter newdel(d);
-                del = std::move(newdel);
-            }
-            catch (...) {
-                if (res)
-                    d(res);
-                throw;
-            }
+        explicit Resource(T* t): res(t), del() {}
+        template <typename D> Resource(T* t, D d): res(t), del() {
+            try { del = deleter(d); }
+            catch (...) { if (res) d(res); throw; }
         }
-        Resource(Resource&& r) noexcept: res(r.res), del(std::move(r.del)) { r.res = nullptr; r.del = {}; }
+        Resource(Resource&& r) noexcept: res(r.res), del(r.del) { r.res = nullptr; r.del = {}; }
         ~Resource() noexcept {
             if (res && del) {
                 try { del(res); }
@@ -1626,6 +1615,43 @@ namespace Prion {
     private:
         using deleter = std::function<void(T*)>;
         T* res = nullptr;
+        deleter del = {};
+        Resource(const Resource&) = delete;
+        Resource& operator=(const Resource&) = delete;
+    };
+
+    template <>
+    class Resource<void*> {
+    public:
+        using resource_type = void*;
+        using value_type = void;
+        Resource() noexcept = default;
+        explicit Resource(void* t): res(t), del() {}
+        template <typename D> Resource(void* t, const D& d): res(t) {
+            try { del = deleter(d); }
+            catch (...) { if (res) d(res); throw; }
+        }
+        Resource(Resource&& r) noexcept: res(r.res), del(r.del) { r.res = nullptr; r.del = {}; }
+        ~Resource() noexcept {
+            if (res && del) {
+                try { del(res); }
+                catch (...) {}
+            }
+        }
+        Resource& operator=(Resource&& r) noexcept {
+            Resource temp(std::move(r));
+            std::swap(res, temp.res);
+            std::swap(del, temp.del);
+            return *this;
+        }
+        operator void*&() noexcept { return res; }
+        operator void*() const noexcept { return res; }
+        void*& get() noexcept { return res; }
+        void* get() const noexcept { return res; }
+        void* release() noexcept { del = {}; return res; }
+    private:
+        using deleter = std::function<void(void*)>;
+        void* res = nullptr;
         deleter del = {};
         Resource(const Resource&) = delete;
         Resource& operator=(const Resource&) = delete;
