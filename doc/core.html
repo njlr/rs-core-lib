@@ -411,7 +411,7 @@ not a power of 2 in the supported range (8-128).</p>
 
 <p>These are convenience base classes that define members and
 operators that would normally just be repetitive boilerplate (similar to the
-ones in Boost). They all use the CRTP idiom; a class <code>T</code> should derived from
+ones in Boost). They all use the CRTP idiom; a class <code>T</code> should derive from
 <code>Mixin&lt;T&gt;</code> to automatically generate the desired boilerplate code.</p>
 <table>
 <thead>
@@ -454,8 +454,8 @@ ones in Boost). They all use the CRTP idiom; a class <code>T</code> should deriv
 </tr>
 <tr>
 <td><strong><code>RandomAccessIterator</code></strong><code>&lt;T,CV&gt;</code></td>
-<td><code>*t ++t --t t+=n</code><br><code>t1-t2 t1==t2 t1&lt;t2</code></td>
-<td><code>t-&gt; t[n] t++ t-- t-=n t+n n+t t-n</code><br><code>t1!=t2 t1&gt;t2 t1&lt;=t2 t1&gt;=t2</code></td>
+<td><code>*t t+=n t1-t2 t1==t2 t1&lt;t2</code></td>
+<td><code>t-&gt; t[n] ++t t++ --t t-- t-=n t+n n+t t-n t1!=t2 t1&gt;t2 t1&lt;=t2 t1&gt;=t2</code></td>
 </tr>
 </tbody>
 </table>

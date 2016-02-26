@@ -545,7 +545,9 @@ namespace Prion {
     LessThanComparable<T> {
         using iterator_category = std::random_access_iterator_tag;
         CV& operator[](ptrdiff_t i) const noexcept { T t = static_cast<const T&>(*this); t += i; return *t; }
-        friend T& operator-=(T& lhs, ptrdiff_t rhs) noexcept { return lhs += - rhs; }
+        friend T& operator++(T& t) { t += 1; return t; }
+        friend T& operator--(T& t) { t += -1; return t; }
+        friend T& operator-=(T& lhs, ptrdiff_t rhs) { return lhs += - rhs; }
         friend T operator+(const T& lhs, ptrdiff_t rhs) { T t = lhs; t += rhs; return t; }
         friend T operator+(ptrdiff_t lhs, const T& rhs) { T t = rhs; t += lhs; return t; }
         friend T operator-(const T& lhs, ptrdiff_t rhs) { T t = lhs; t -= rhs; return t; }
@@ -951,8 +953,6 @@ namespace Prion {
         IntegerSequenceIterator() noexcept = default;
         IntegerSequenceIterator(T init, T delta): cur(init), del(delta) {}
         const T& operator*() const noexcept { return cur; }
-        IntegerSequenceIterator& operator++() noexcept { cur += del; return *this; }
-        IntegerSequenceIterator& operator--() noexcept { cur -= del; return *this; }
         IntegerSequenceIterator& operator+=(ptrdiff_t n) noexcept { cur += n * del; return *this; }
         ptrdiff_t operator-(const IntegerSequenceIterator& rhs) const noexcept
             { return (ptrdiff_t(cur) - ptrdiff_t(rhs.cur)) / ptrdiff_t(del); }

@@ -281,18 +281,18 @@ not a power of 2 in the supported range (8-128).
 
 <!-- DEFN --> These are convenience base classes that define members and
 operators that would normally just be repetitive boilerplate (similar to the
-ones in Boost). They all use the CRTP idiom; a class `T` should derived from
+ones in Boost). They all use the CRTP idiom; a class `T` should derive from
 `Mixin<T>` to automatically generate the desired boilerplate code.
 
-Mixin                                | Requires                                   | Defines
------                                | --------                                   | -------
-**`EqualityComparable`**`<T>`        | `t1==t2`                                   | `t1!=t2`
-**`LessThanComparable`**`<T>`        | `t1==t2 t1<t2`                             | `t1!=t2 t1>t2 t1<=t2 t1>=t2`
-**`InputIterator`**`<T,CV>`          | `*t ++t t1==t2`                            | `t-> t++ t1!=t2`
-**`OutputIterator`**`<T>`            | `t=v`                                      | `*t ++t t++`
-**`ForwardIterator`**`<T,CV>`        | `*t ++t t1==t2`                            | `t-> t++ t1!=t2`
-**`BidirectionalIterator`**`<T,CV>`  | `*t ++t --t t1==t2`                        | `t-> t++ t-- t1!=t2`
-**`RandomAccessIterator`**`<T,CV>`   | `*t ++t --t t+=n`<br>`t1-t2 t1==t2 t1<t2`  | `t-> t[n] t++ t-- t-=n t+n n+t t-n`<br>`t1!=t2 t1>t2 t1<=t2 t1>=t2`
+Mixin                                | Requires                      | Defines
+-----                                | --------                      | -------
+**`EqualityComparable`**`<T>`        | `t1==t2`                      | `t1!=t2`
+**`LessThanComparable`**`<T>`        | `t1==t2 t1<t2`                | `t1!=t2 t1>t2 t1<=t2 t1>=t2`
+**`InputIterator`**`<T,CV>`          | `*t ++t t1==t2`               | `t-> t++ t1!=t2`
+**`OutputIterator`**`<T>`            | `t=v`                         | `*t ++t t++`
+**`ForwardIterator`**`<T,CV>`        | `*t ++t t1==t2`               | `t-> t++ t1!=t2`
+**`BidirectionalIterator`**`<T,CV>`  | `*t ++t --t t1==t2`           | `t-> t++ t-- t1!=t2`
+**`RandomAccessIterator`**`<T,CV>`   | `*t t+=n t1-t2 t1==t2 t1<t2`  | `t-> t[n] ++t t++ --t t-- t-=n t+n n+t t-n t1!=t2 t1>t2 t1<=t2 t1>=t2`
 
 In the iterator mixins, `CV` is either `V` or `const V`, where `V` is the
 iterator's value type, depending on whether a mutable or const iterator is
