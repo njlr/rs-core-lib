@@ -96,6 +96,7 @@
 #include <map>
 #include <memory>
 #include <new>
+#include <ostream>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -145,6 +146,42 @@
 #define PRI_LDLIB(libs)
 #define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
+
+namespace Prion {
+
+    namespace PrionDetail {
+
+        template <typename EnumType>
+        void write_enum(std::ostream& out, EnumType t, long first_value, const char* prefix, const char* names) {
+            size_t index = long(t) - first_value;
+            for (size_t i = 0; i < index; ++i) {
+                names = strchr(names, ',');
+                if (names == nullptr) {
+                    out << long(t);
+                    return;
+                }
+                names += strspn(names, " ,");
+            }
+            out << prefix;
+            out.write(names, strcspn(names, " ,"));
+        }
+
+    }
+
+}
+
+#define PRI_ENUM_IMPLEMENTATION(EnumType, class_tag, name_prefix, first_value, first_name, ...) \
+    enum class_tag EnumType { first_name = first_value, __VA_ARGS__ }; \
+    inline std::ostream& operator<<(std::ostream& out, EnumType t) { \
+        ::Prion::PrionDetail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
+        return out; \
+    }
+
+#define PRI_ENUM(EnumType, first_value, first_name, ...) \
+    PRI_ENUM_IMPLEMENTATION(EnumType,, "", first_value, first_name, __VA_ARGS__)
+
+#define PRI_ENUM_CLASS(EnumType, first_value, first_name, ...) \
+    PRI_ENUM_IMPLEMENTATION(EnumType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
 
 // For internal use only
 
@@ -2554,7 +2591,7 @@ namespace Prion {
 
     // General time and date operations
 
-    enum ZoneFlag { utc_date, local_date };
+    PRI_ENUM_CLASS(Zone, 1, utc, local)
 
     namespace PrionDetail {
 
@@ -2600,7 +2637,7 @@ namespace Prion {
     }
 
     inline std::chrono::system_clock::time_point make_date(int year, int month, int day,
-            int hour, int min, double sec, ZoneFlag z = utc_date) noexcept {
+            int hour, int min, double sec, Zone z = Zone::utc) noexcept {
         using namespace std::chrono;
         double isec = 0, fsec = modf(sec, &isec);
         if (fsec < 0) {
@@ -2617,7 +2654,7 @@ namespace Prion {
         stm.tm_year = year - 1900;
         stm.tm_isdst = -1;
         time_t t;
-        if (z == local_date)
+        if (z == Zone::local)
             t = mktime(&stm);
         else
             #if defined(PRI_TARGET_UNIX)
@@ -2695,10 +2732,10 @@ namespace Prion {
     // very long localized date format, but there doesn't seem to be a better
     // solution.
 
-    inline u8string format_date(std::chrono::system_clock::time_point tp, const u8string& format, ZoneFlag z = utc_date) {
+    inline u8string format_date(std::chrono::system_clock::time_point tp, const u8string& format, Zone z = Zone::utc) {
         using namespace std::chrono;
         auto t = system_clock::to_time_t(tp);
-        tm stm = z == local_date ? *localtime(&t) : *gmtime(&t);
+        tm stm = z == Zone::local ? *localtime(&t) : *gmtime(&t);
         u8string result(std::max(2 * format.size(), size_t(100)), '\0');
         auto rc = strftime(&result[0], result.size(), format.data(), &stm);
         if (rc == 0) {
@@ -2709,7 +2746,7 @@ namespace Prion {
         return result;
     }
 
-    inline u8string format_date(std::chrono::system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date) {
+    inline u8string format_date(std::chrono::system_clock::time_point tp, int prec = 0, Zone z = Zone::utc) {
         using namespace std::chrono;
         using namespace std::literals;
         u8string result = format_date(tp, "%Y-%m-%d %H:%M:%S"s, z);

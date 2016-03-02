@@ -66,6 +66,25 @@ types that can be used in strings (`char`, `char16_t`, `char32_t`, or
 `wchar_t`). Behaviour is undefined if `T` is not one of those four types, or
 (for `PRI_CHAR`) if `C` is not representable by a single code unit.
 
+* `#define` **`PRI_ENUM`**`(EnumType, first_value, first_name, ...)`
+* `#define` **`PRI_ENUM_CLASS`**`(EnumType, first_value, first_name, ...)`
+
+These define an enumeration and an output operator that prints the name of an
+enumeration constant (or the integer value if the output argument is not a
+valid enumeration constant).
+
+Example:
+
+    PRI_ENUM(Foo, 1, alpha, bravo, charlie)
+    PRI_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)
+
+Equivalent code:
+
+    enum Foo { alpha = 1, bravo, charlie };
+    std::ostream& operator<<(std::ostream& out, Foo f) { ... }
+    enum class Bar { delta = 1, echo, foxtrot };
+    std::ostream& operator<<(std::ostream& out, Bar b) { ... }
+
 * `#define` **`PRI_LDLIB`**`(libs)`
 
 This instructs the makefile to link with one or more static libraries. Specify
@@ -1428,9 +1447,9 @@ values that do not represent a valid date.
 
 ### General time and date operations ###
 
-* `enum` **`ZoneFlag`**
-    * **`utc_date`**
-    * **`local_date`**
+* `enum class` **`Zone`**
+    * `Zone::`**`utc`**
+    * `Zone::`**`local`**
 
 This is passed to some of the time and date functions to indicate whether a
 broken down date is expressed in UTC or the local time zone.
@@ -1441,7 +1460,7 @@ broken down date is expressed in UTC or the local time zone.
 Convenience functions to convert between a `duration` and a floating point
 number of seconds.
 
-* `system_clock::time_point` **`make_date`**`(int year, int month, int day, int hour, int min, double sec, ZoneFlag z = utc_date) noexcept`
+* `system_clock::time_point` **`make_date`**`(int year, int month, int day, int hour, int min, double sec, Zone z = Zone::utc) noexcept`
 
 Converts a broken down date into a time point.
 
@@ -1455,8 +1474,8 @@ system dependent. Behaviour is undefined if the duration exceeds 31 days.
 
 ### Time and date formatting ###
 
-* `u8string` **`format_date`**`(system_clock::time_point tp, int prec = 0, ZoneFlag z = utc_date)`
-* `u8string` **`format_date`**`(system_clock::time_point tp, const u8string& format, ZoneFlag z = utc_date)`
+* `u8string` **`format_date`**`(system_clock::time_point tp, int prec = 0, Zone z = Zone::utc)`
+* `u8string` **`format_date`**`(system_clock::time_point tp, const u8string& format, Zone z = Zone::utc)`
 
 These convert a time point into a broken down date and format it. The first
 version writes the date in ISO 8601 format (`"yyyy-mm-dd hh:mm:ss"`). If

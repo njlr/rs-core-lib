@@ -50,6 +50,9 @@ namespace {
     u8string f2(u8string s) { return '[' + s + ']'; }
     u8string f2(int x, int y) { return dec(x * y); }
 
+    PRI_ENUM(Foo, 1, alpha, bravo, charlie)
+    PRI_ENUM_CLASS(Bar, 1, alpha, bravo, charlie)
+
     void check_preprocessor_macros() {
 
         int n = 42;
@@ -86,6 +89,28 @@ namespace {
         auto cp2 = PRI_CSTR("Hello", char16_t);  TEST_TYPE_OF(cp2, const char16_t*);  TEST_EQUAL(cp2, u"Hello"s);
         auto cp3 = PRI_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
         auto cp4 = PRI_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
+
+        TEST_EQUAL(int(alpha), 1);
+        TEST_EQUAL(int(bravo), 2);
+        TEST_EQUAL(int(charlie), 3);
+
+        TEST_EQUAL(to_str(alpha), "alpha");
+        TEST_EQUAL(to_str(bravo), "bravo");
+        TEST_EQUAL(to_str(charlie), "charlie");
+        TEST_EQUAL(to_str(Foo(0)), "0");
+        TEST_EQUAL(to_str(Foo(4)), "4");
+        TEST_EQUAL(to_str(Foo(99)), "99");
+
+        TEST_EQUAL(int(Bar::alpha), 1);
+        TEST_EQUAL(int(Bar::bravo), 2);
+        TEST_EQUAL(int(Bar::charlie), 3);
+
+        TEST_EQUAL(to_str(Bar::alpha), "Bar::alpha");
+        TEST_EQUAL(to_str(Bar::bravo), "Bar::bravo");
+        TEST_EQUAL(to_str(Bar::charlie), "Bar::charlie");
+        TEST_EQUAL(to_str(Bar(0)), "0");
+        TEST_EQUAL(to_str(Bar(4)), "4");
+        TEST_EQUAL(to_str(Bar(99)), "99");
 
     }
 
@@ -3046,7 +3071,7 @@ namespace {
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5));
         TRY(t1 = int64_t(system_clock::to_time_t(tp)));
         TEST_EQUAL(t1, 946782245);
-        TRY(tp = make_date(2000, 1, 2, 3, 4, 5, local_date));
+        TRY(tp = make_date(2000, 1, 2, 3, 4, 5, Zone::local));
         TRY(t2 = int64_t(system_clock::to_time_t(tp)));
         TEST_COMPARE(abs(t2 - t1), <=, 86400);
 
@@ -3081,8 +3106,8 @@ namespace {
         TEST_EQUAL(str, "02/01/2000 03:04");
         TRY(str = format_date(tp, ""));
         TEST_EQUAL(str, "");
-        TRY(tp = make_date(2000, 1, 2, 3, 4, 5, local_date));
-        TRY(str = format_date(tp, 0, local_date));
+        TRY(tp = make_date(2000, 1, 2, 3, 4, 5, Zone::local));
+        TRY(str = format_date(tp, 0, Zone::local));
         TEST_EQUAL(str, "2000-01-02 03:04:05");
 
         TEST_EQUAL(format_time(DblSec(0)), "0s");
