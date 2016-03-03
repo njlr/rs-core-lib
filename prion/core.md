@@ -359,7 +359,7 @@ never be null. Any method that implicitly takes ownership of a pointer (i.e.
 any that is not marked `noexcept`) will throw `NullPointer` if the pointer is
 null.
 
-Mote that there is no default constructor. Move construction and assignment
+Note that there is no default constructor. Move construction and assignment
 are implemented as reference incrementing copies on the underlying pointer
 (i.e. the same as copy construction and assignment). Behaviour is otherwise
 the same as the corresponding operations on a `shared_ptr`.

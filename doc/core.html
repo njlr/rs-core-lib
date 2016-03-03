@@ -528,7 +528,7 @@ mixins supply the standard member types:</p>
 never be null. Any method that implicitly takes ownership of a pointer (i.e.
 any that is not marked <code>noexcept</code>) will throw <code>NullPointer</code> if the pointer is
 null.</p>
-<p>Mote that there is no default constructor. Move construction and assignment
+<p>Note that there is no default constructor. Move construction and assignment
 are implemented as reference incrementing copies on the underlying pointer
 (i.e. the same as copy construction and assignment). Behaviour is otherwise
 the same as the corresponding operations on a <code>shared_ptr</code>.</p>
