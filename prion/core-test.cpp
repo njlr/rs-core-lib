@@ -263,6 +263,82 @@ namespace {
 
     }
 
+    struct Nnptest {
+        int num;
+        static int count;
+        static u8string log;
+        Nnptest(): num(0) { ++count; log += "+nil;"; }
+        explicit Nnptest(int n): num(n) { ++count; log += "+" + dec(num) + ";"; }
+        ~Nnptest() { --count; log += "-" + dec(num) + ";"; }
+        Nnptest(const Nnptest&) = delete;
+        Nnptest(Nnptest&&) = delete;
+        Nnptest& operator=(const Nnptest&) = delete;
+        Nnptest& operator=(Nnptest&&) = delete;
+    };
+
+    int Nnptest::count = 0;
+    u8string Nnptest::log;
+
+    void check_smart_pointers() {
+
+        {
+
+            Nnptr<Nnptest> p(new Nnptest);
+            TEST_EQUAL(p->num, 0);
+            TEST(p.unique());
+            TEST_EQUAL(Nnptest::count, 1);
+            TEST_EQUAL(Nnptest::log, "+nil;");
+
+            Nnptr<Nnptest> q = p;
+            TEST_EQUAL(p->num, 0);
+            TEST_EQUAL(q->num, 0);
+            TEST(! p.unique());
+            TEST(! q.unique());
+            TEST_EQUAL(Nnptest::count, 1);
+            TEST_EQUAL(Nnptest::log, "+nil;");
+            TEST(p == q);
+
+            Nnptest* fp = nullptr;
+            TEST_THROW(p.reset(fp), NullPointer);
+            TEST_EQUAL(p->num, 0);
+            TEST_EQUAL(q->num, 0);
+
+            TRY(p.reset(new Nnptest(1)));
+            TEST_EQUAL(p->num, 1);
+            TEST_EQUAL(q->num, 0);
+            TEST(p.unique());
+            TEST(q.unique());
+            TEST_EQUAL(Nnptest::count, 2);
+            TEST_EQUAL(Nnptest::log, "+nil;+1;");
+            TEST(p != q);
+
+            TRY(q = make_nnptr<Nnptest>(2));
+            TEST_EQUAL(p->num, 1);
+            TEST_EQUAL(q->num, 2);
+            TEST(p.unique());
+            TEST(q.unique());
+            TEST_EQUAL(Nnptest::count, 2);
+            TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;");
+            TEST(p != q);
+
+            auto u = make_unique<Nnptest>(3);
+            TEST_EQUAL(Nnptest::count, 3);
+            TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;+3;");
+
+            TRY(p = std::move(u));
+            TEST_EQUAL(p->num, 3);
+            TEST_EQUAL(q->num, 2);
+            TEST(! u);
+            TEST_EQUAL(Nnptest::count, 2);
+            TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;+3;-1;");
+
+        }
+
+        TEST_EQUAL(Nnptest::count, 0);
+        TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;+3;-1;-2;-3;");
+
+    }
+
     class Base {
     public:
         virtual ~Base() noexcept {}
@@ -3276,6 +3352,7 @@ TEST_MODULE(prion, core) {
     check_containers();
     check_exceptions();
     check_metaprogramming_and_type_traits();
+    check_smart_pointers();
     check_type_related_functions();
     check_uuid();
     check_version_number();

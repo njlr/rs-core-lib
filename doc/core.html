@@ -23,6 +23,7 @@
 <li><a href="#exceptions">Exceptions</a></li>
 <li><a href="#metaprogramming-and-type-traits">Metaprogramming and type traits</a></li>
 <li><a href="#mixins">Mixins</a></li>
+<li><a href="#smart-pointers">Smart pointers</a></li>
 <li><a href="#type-related-functions">Type related functions</a></li>
 <li><a href="#uuid">UUID</a></li>
 <li><a href="#version-number">Version number</a></li>
@@ -489,6 +490,51 @@ mixins supply the standard member types:</p>
 <li><code>using</code> <strong><code>reference</code></strong> <code>= CV&amp;</code></li>
 <li><code>using</code> <strong><code>value_type</code></strong> <code>= std::remove_const_t&lt;CV&gt;</code></li>
 </ul>
+</div>
+<h3 id="smart-pointers">Smart pointers</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Nnptr</code></strong><ul>
+<li><code>using Nnptr::</code><strong><code>element_type</code></strong> <code>= T</code></li>
+<li><code>Nnptr::</code><strong><code>Nnptr</code></strong><code>(const Nnptr&amp; p) noexcept</code></li>
+<li><code>Nnptr::</code><strong><code>Nnptr</code></strong><code>(Nnptr&amp;&amp; p) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Nnptr::</code><strong><code>Nnptr</code></strong><code>(const Nnptr&lt;T2&gt;&amp; p) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; explicit Nnptr::</code><strong><code>Nnptr</code></strong><code>(T2* p)</code></li>
+<li><code>template &lt;typename T2, typename D&gt; Nnptr::</code><strong><code>Nnptr</code></strong><code>(T2* p, D d)</code></li>
+<li><code>template &lt;typename T2, typename D&gt; Nnptr::</code><strong><code>Nnptr</code></strong><code>(unique_ptr&lt;T2, D&gt;&amp;&amp; p)</code></li>
+<li><code>Nnptr::</code><strong><code>~Nnptr</code></strong><code>() noexcept</code></li>
+<li><code>Nnptr&amp; Nnptr::</code><strong><code>operator=</code></strong><code>(const Nnptr&amp; p) noexcept</code></li>
+<li><code>Nnptr&amp; Nnptr::</code><strong><code>operator=</code></strong><code>(Nnptr&amp;&amp; p) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Nnptr&amp; Nnptr::</code><strong><code>operator=</code></strong><code>(const Nnptr&lt;T2&gt;&amp; p) noexcept</code></li>
+<li><code>template &lt;typename T2, typename D&gt; Nnptr&amp; Nnptr::</code><strong><code>operator=</code></strong><code>(unique_ptr&lt;T2, D&gt;&amp;&amp; p)</code></li>
+<li><code>explicit Nnptr::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
+<li><code>bool Nnptr::</code><strong><code>operator!</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Nnptr::</code><strong><code>operator*</code></strong><code>() const noexcept</code></li>
+<li><code>T* Nnptr::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code></li>
+<li><code>T* Nnptr::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename T2&gt; void Nnptr::</code><strong><code>reset</code></strong><code>(T2* p)</code></li>
+<li><code>template &lt;typename T2, typename D&gt; void Nnptr::</code><strong><code>reset</code></strong><code>(T2* p, D d)</code></li>
+<li><code>bool Nnptr::</code><strong><code>unique</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>class</code> <strong><code>NullPointer</code></strong><code>: public std::runtime_error</code></li>
+<li><code>template &lt;typename T, typename... Args&gt; Nnptr&lt;T&gt;</code> <strong><code>make_nnptr</code></strong><code>(Args&amp;&amp;... args)</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; Nnptr&lt;T1&gt;</code> <strong><code>const_pointer_cast</code></strong><code>(const Nnptr&lt;T2&gt;&amp; r) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; Nnptr&lt;T1&gt;</code> <strong><code>dynamic_pointer_cast</code></strong><code>(const Nnptr&lt;T2&gt;&amp; r) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; Nnptr&lt;T1&gt;</code> <strong><code>static_pointer_cast</code></strong><code>(const Nnptr&lt;T2&gt;&amp; r) noexcept</code></li>
+<li><em>Comparison operators (see below)</em></li>
+</ul>
+<p>This is basically the same as a <code>shared_ptr</code>, except that the pointer can
+never be null. Any method that implicitly takes ownership of a pointer (i.e.
+any that is not marked <code>noexcept</code>) will throw <code>NullPointer</code> if the pointer is
+null.</p>
+<p>Mote that there is no default constructor. Move construction and assignment
+are implemented as reference incrementing copies on the underlying pointer
+(i.e. the same as copy construction and assignment). Behaviour is otherwise
+the same as the corresponding operations on a <code>shared_ptr</code>.</p>
+<p>Comparison operators are defined between two heterogeneous <code>Nnptr</code> objects,
+between an <code>Nnptr</code> and a raw pointer, and between an <code>Nnptr</code> and a <code>nullptr</code>.
+These call the corresponding operations on the underlying raw pointers.</p>
 </div>
 <h3 id="type-related-functions">Type related functions</h3>
 <div class="defns">

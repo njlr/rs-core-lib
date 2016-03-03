@@ -324,6 +324,50 @@ mixins supply the standard member types:
 * `using` **`reference`** `= CV&`
 * `using` **`value_type`** `= std::remove_const_t<CV>`
 
+### Smart pointers ###
+
+* `template <typename T> class` **`Nnptr`**
+    * `using Nnptr::`**`element_type`** `= T`
+    * `Nnptr::`**`Nnptr`**`(const Nnptr& p) noexcept`
+    * `Nnptr::`**`Nnptr`**`(Nnptr&& p) noexcept`
+    * `template <typename T2> Nnptr::`**`Nnptr`**`(const Nnptr<T2>& p) noexcept`
+    * `template <typename T2> explicit Nnptr::`**`Nnptr`**`(T2* p)`
+    * `template <typename T2, typename D> Nnptr::`**`Nnptr`**`(T2* p, D d)`
+    * `template <typename T2, typename D> Nnptr::`**`Nnptr`**`(unique_ptr<T2, D>&& p)`
+    * `Nnptr::`**`~Nnptr`**`() noexcept`
+    * `Nnptr& Nnptr::`**`operator=`**`(const Nnptr& p) noexcept`
+    * `Nnptr& Nnptr::`**`operator=`**`(Nnptr&& p) noexcept`
+    * `template <typename T2> Nnptr& Nnptr::`**`operator=`**`(const Nnptr<T2>& p) noexcept`
+    * `template <typename T2, typename D> Nnptr& Nnptr::`**`operator=`**`(unique_ptr<T2, D>&& p)`
+    * `explicit Nnptr::`**`operator bool`**`() const noexcept`
+    * `bool Nnptr::`**`operator!`**`() const noexcept`
+    * `T& Nnptr::`**`operator*`**`() const noexcept`
+    * `T* Nnptr::`**`operator->`**`() const noexcept`
+    * `T* Nnptr::`**`get`**`() const noexcept`
+    * `template <typename T2> void Nnptr::`**`reset`**`(T2* p)`
+    * `template <typename T2, typename D> void Nnptr::`**`reset`**`(T2* p, D d)`
+    * `bool Nnptr::`**`unique`**`() const noexcept`
+* `class` **`NullPointer`**`: public std::runtime_error`
+* `template <typename T, typename... Args> Nnptr<T>` **`make_nnptr`**`(Args&&... args)`
+* `template <typename T1, typename T2> Nnptr<T1>` **`const_pointer_cast`**`(const Nnptr<T2>& r) noexcept`
+* `template <typename T1, typename T2> Nnptr<T1>` **`dynamic_pointer_cast`**`(const Nnptr<T2>& r) noexcept`
+* `template <typename T1, typename T2> Nnptr<T1>` **`static_pointer_cast`**`(const Nnptr<T2>& r) noexcept`
+* _Comparison operators (see below)_
+
+This is basically the same as a `shared_ptr`, except that the pointer can
+never be null. Any method that implicitly takes ownership of a pointer (i.e.
+any that is not marked `noexcept`) will throw `NullPointer` if the pointer is
+null.
+
+Mote that there is no default constructor. Move construction and assignment
+are implemented as reference incrementing copies on the underlying pointer
+(i.e. the same as copy construction and assignment). Behaviour is otherwise
+the same as the corresponding operations on a `shared_ptr`.
+
+Comparison operators are defined between two heterogeneous `Nnptr` objects,
+between an `Nnptr` and a raw pointer, and between an `Nnptr` and a `nullptr`.
+These call the corresponding operations on the underlying raw pointers.
+
 ### Type related functions ###
 
 * `template <typename T2, typename T1> bool` **`is`**`(const T1& ref) noexcept`
