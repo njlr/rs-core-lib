@@ -2316,7 +2316,9 @@ namespace Prion {
 
     }
 
-    template <typename T> string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+    template <typename T> inline string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+    template <typename T1, typename T2> inline string to_str(const std::pair<T1, T2>& p)
+        { return '{' + PrionDetail::ObjectToString<T1>()(p.first) + ',' + PrionDetail::ObjectToString<T2>()(p.second) + '}'; }
 
     // HTML/XML tags
 

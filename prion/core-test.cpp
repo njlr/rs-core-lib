@@ -2942,6 +2942,8 @@ namespace {
         TEST_EQUAL(to_str(""), "");
         TEST_EQUAL(to_str("Hello"), "Hello");
         TEST_EQUAL(to_str('X'), "X");
+        TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
+        TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
 
         sv.clear();
         iv.clear();
