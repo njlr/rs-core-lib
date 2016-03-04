@@ -263,6 +263,30 @@ A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
 standard container, but is often useful for RAII).
 
+### Endian integers ###
+
+* `enum class` **`End`**
+    * `End::`**`big`**
+    * `End::`**`little`**
+* `template <typename T, End E> class` **`Endian`**
+    * `constexpr Endian::`**`Endian`**`() noexcept`
+    * `constexpr Endian::`**`Endian`**`(T t) noexcept`
+    * `constexpr Endian::`**`operator T`**`() const noexcept`
+    * `constexpr T Endian::`**`get`**`() const noexcept`
+    * `constexpr const T* Endian::`**`ptr`**`() const noexcept`
+    * `T* Endian::`**`ptr`**`() noexcept`
+    * `constexpr T Endian::`**`rep`**`() const noexcept`
+    * `T& Endian::`**`rep`**`() noexcept`
+* `template <typename T> using` **`BigEndian`**` = Endian<T, End::big>`
+* `template <typename T> using` **`LittleEndian`**` = Endian<T, End::little>`
+* `template <typename T, End E> std::ostream&` **`operator<<`**`(std::ostream& out, Endian<T, E> t)`
+
+An `Endian` object holds an integer in a defined byte order. Assignment to or
+from an endian integer performs any necessary reordering transparently. The
+`ptr()` and `ref()` functions give access to the internal, byte ordered form.
+The `Endian` class is a literal type and can be used in `constexpr`
+expressions.
+
 ### Exceptions ###
 
 * `class` **`WindowsCategory`**`: public std::error_category`
@@ -631,6 +655,14 @@ Defined for convenience. Following the conventions established by the standard
 library, this value is often used as a function argument to mean "as large as
 possible" or "no limit", or as a return value to mean "not found".
 
+### Other constants ###
+
+* `constexpr bool` **`big_endian_target`**
+* `constexpr bool` **`little_endian_target`**
+
+One of these will be true and the other false, reflecting the target system's
+byte order.
+
 ## Algorithms and ranges ##
 
 ### Generic algorithms ###
@@ -869,36 +901,6 @@ the argument is not an ASCII letter.
 Bitwise rotate left or right. As for the standard shift operators, behaviour
 is undefined if `n` is negative or greater than or equal to the number of bits
 in `T`.
-
-### Byte order functions ###
-
-* `static constexpr bool` **`big_endian_target`**
-* `static constexpr bool` **`little_endian_target`**
-
-One of these will be true and the other false, reflecting the target system's
-byte order.
-
-* `template <typename T> T` **`big_endian`**`(T t) noexcept`
-* `template <typename T> T` **`little_endian`**`(T t) noexcept`
-
-Convert a number between the native byte order and big or little endian.
-
-* `template <typename T> T` **`read_be`**`(const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> T` **`read_be`**`(const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`read_be`**`(T& t, const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`read_be`**`(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> T` **`read_le`**`(const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> T` **`read_le`**`(const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`read_le`**`(T& t, const void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`read_le`**`(T& t, const void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`write_be`**`(T t, void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`write_be`**`(T t, void* ptr, size_t ofs, size_t len) noexcept`
-* `template <typename T> void` **`write_le`**`(T t, void* ptr, size_t ofs = 0) noexcept`
-* `template <typename T> void` **`write_le`**`(T t, void* ptr, size_t ofs, size_t len) noexcept`
-
-Read or write an integer from a block of bytes, in big endian or little endian
-order. The versions that take only a pointer deduce the size from the integer
-type; the other versions take an offset and length in bytes.
 
 ### Floating point arithmetic functions ###
 

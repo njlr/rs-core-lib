@@ -220,6 +220,83 @@ namespace {
 
     }
 
+    void check_endian_integers() {
+
+        uint8_t a8;
+        uint16_t a16;
+        uint32_t a32;
+        uint64_t a64;
+        uint128_t a128;
+
+        constexpr uint8_t c8 = 0x12u;
+        constexpr uint16_t c16 = 0x1234u;
+        constexpr uint32_t c32 = 0x12345678ul;
+        constexpr uint64_t c64 = 0x123456789abcdef0ull;
+        constexpr uint128_t c128 = 0x123456789abcdef013579bdf2468ace0_u128;
+
+        a8 = PrionDetail::swap_ends(c8);      TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::swap_ends(c16);    TEST_EQUAL(a16, 0x3412u);
+        a32 = PrionDetail::swap_ends(c32);    TEST_EQUAL(a32, 0x78563412ul);
+        a64 = PrionDetail::swap_ends(c64);    TEST_EQUAL(a64, 0xf0debc9a78563412ull);
+        a128 = PrionDetail::swap_ends(c128);  TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
+
+        a8 = PrionDetail::order_bytes<End::big>(c8);         TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::order_bytes<End::big>(c16);       TEST_EQUAL(a16, 0x3412u);
+        a32 = PrionDetail::order_bytes<End::big>(c32);       TEST_EQUAL(a32, 0x78563412ul);
+        a64 = PrionDetail::order_bytes<End::big>(c64);       TEST_EQUAL(a64, 0xf0debc9a78563412ull);
+        a128 = PrionDetail::order_bytes<End::big>(c128);     TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
+        a8 = PrionDetail::order_bytes<End::little>(c8);      TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::order_bytes<End::little>(c16);    TEST_EQUAL(a16, 0x1234u);
+        a32 = PrionDetail::order_bytes<End::little>(c32);    TEST_EQUAL(a32, 0x12345678ul);
+        a64 = PrionDetail::order_bytes<End::little>(c64);    TEST_EQUAL(a64, 0x123456789abcdef0ull);
+        a128 = PrionDetail::order_bytes<End::little>(c128);  TEST_EQUAL(a128, 0x123456789abcdef013579bdf2468ace0_u128);
+
+        constexpr BigEndian<uint8_t> cbe8 = c8;
+        constexpr BigEndian<uint16_t> cbe16 = c16;
+        constexpr BigEndian<uint32_t> cbe32 = c32;
+        constexpr BigEndian<uint64_t> cbe64 = c64;
+        constexpr BigEndian<uint128_t> cbe128 = c128;
+        constexpr LittleEndian<uint8_t> cle8 = c8;
+        constexpr LittleEndian<uint16_t> cle16 = c16;
+        constexpr LittleEndian<uint32_t> cle32 = c32;
+        constexpr LittleEndian<uint64_t> cle64 = c64;
+        constexpr LittleEndian<uint128_t> cle128 = c128;
+
+        TEST_EQUAL(cbe8, 0x12u);                                      TEST_EQUAL(cbe8.rep(), 0x12u);
+        TEST_EQUAL(cbe16, 0x1234u);                                   TEST_EQUAL(cbe16.rep(), 0x3412u);
+        TEST_EQUAL(cbe32, 0x12345678ul);                              TEST_EQUAL(cbe32.rep(), 0x78563412ul);
+        TEST_EQUAL(cbe64, 0x123456789abcdef0ull);                     TEST_EQUAL(cbe64.rep(), 0xf0debc9a78563412ull);
+        TEST_EQUAL(cbe128, 0x123456789abcdef013579bdf2468ace0_u128);  TEST_EQUAL(cbe128.rep(), 0xe0ac6824df9b5713f0debc9a78563412_u128);
+        TEST_EQUAL(cle8, 0x12u);                                      TEST_EQUAL(cle8.rep(), 0x12u);
+        TEST_EQUAL(cle16, 0x1234u);                                   TEST_EQUAL(cle16.rep(), 0x1234u);
+        TEST_EQUAL(cle32, 0x12345678ul);                              TEST_EQUAL(cle32.rep(), 0x12345678ul);
+        TEST_EQUAL(cle64, 0x123456789abcdef0ull);                     TEST_EQUAL(cle64.rep(), 0x123456789abcdef0ull);
+        TEST_EQUAL(cle128, 0x123456789abcdef013579bdf2468ace0_u128);  TEST_EQUAL(cle128.rep(), 0x123456789abcdef013579bdf2468ace0_u128);
+
+        BigEndian<uint8_t> be8;
+        BigEndian<uint16_t> be16;
+        BigEndian<uint32_t> be32;
+        BigEndian<uint64_t> be64;
+        BigEndian<uint128_t> be128;
+        LittleEndian<uint8_t> le8;
+        LittleEndian<uint16_t> le16;
+        LittleEndian<uint32_t> le32;
+        LittleEndian<uint64_t> le64;
+        LittleEndian<uint128_t> le128;
+
+        be8.rep() = c8;      TEST_EQUAL(be8, 0x12u);
+        be16.rep() = c16;    TEST_EQUAL(be16, 0x3412u);
+        be32.rep() = c32;    TEST_EQUAL(be32, 0x78563412ul);
+        be64.rep() = c64;    TEST_EQUAL(be64, 0xf0debc9a78563412ull);
+        be128.rep() = c128;  TEST_EQUAL(be128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
+        le8.rep() = c8;      TEST_EQUAL(le8, 0x12u);
+        le16.rep() = c16;    TEST_EQUAL(le16, 0x1234u);
+        le32.rep() = c32;    TEST_EQUAL(le32, 0x12345678ul);
+        le64.rep() = c64;    TEST_EQUAL(le64, 0x123456789abcdef0ull);
+        le128.rep() = c128;  TEST_EQUAL(le128, 0x123456789abcdef013579bdf2468ace0_u128);
+
+    }
+
     void check_exceptions() {
 
         #if defined(PRI_TARGET_WIN32)
@@ -935,7 +1012,7 @@ namespace {
         // Only testing the memory manipulation aspect of these
 
         std::mt19937_64 rng(42);
-        uint64_t x = 0, y = 0, bx = 0, by = 0;
+        uint64_t x = 0, y = 0;
         int d = 0, e = 0;
 
         for (int i = 0; i < 10000; ++i) {
@@ -945,8 +1022,7 @@ namespace {
             else
                 y = rng();
             e = x < y ? -1 : x == y ? 0 : 1;
-            bx = big_endian(x);
-            by = big_endian(y);
+            BigEndian<uint64_t> bx = x, by = y;
             TRY(d = secure_compare(&bx, &by, 8));
             TEST_EQUAL(d, e);
         }
@@ -1591,65 +1667,6 @@ namespace {
         TEST_EQUAL(rotr(v, 20), 0x45678123);
         TEST_EQUAL(rotr(v, 24), 0x34567812);
         TEST_EQUAL(rotr(v, 28), 0x23456781);
-
-    }
-
-    void check_byte_order_functions() {
-
-        union { uint16_t u; uint8_t b[2]; } union16;
-        union16.u = 1;
-        uint32_t u32 = 0x12345678;
-
-        TEST_COMPARE(big_endian_target, !=, little_endian_target);
-
-        if (little_endian_target) {
-            TEST_EQUAL(union16.b[0], 1);
-            TEST_EQUAL(union16.b[1], 0);
-            TEST_EQUAL(big_endian(u32), 0x78563412);
-            TEST_EQUAL(little_endian(u32), 0x12345678);
-        } else {
-            TEST_EQUAL(union16.b[0], 0);
-            TEST_EQUAL(union16.b[1], 1);
-            TEST_EQUAL(big_endian(u32), 0x12345678);
-            TEST_EQUAL(little_endian(u32), 0x78563412);
-        }
-
-        string s = "\x12\x34\x56\x78\x9a\xbc\xde\xf0";
-
-        TRY(read_be(u32, s.data()));                   TEST_EQUAL(u32, 0x12345678);
-        TRY(read_be(u32, s.data(), 0, 4));             TEST_EQUAL(u32, 0x12345678);
-        TRY(read_be(u32, s.data(), 0, 8));             TEST_EQUAL(u32, 0x9abcdef0);
-        TRY(read_be(u32, s.data(), 0, 2));             TEST_EQUAL(u32, 0x1234);
-        TRY(read_be(u32, s.data(), 2, 2));             TEST_EQUAL(u32, 0x5678);
-        TRY(read_le(u32, s.data()));                   TEST_EQUAL(u32, 0x78563412);
-        TRY(read_le(u32, s.data(), 0, 4));             TEST_EQUAL(u32, 0x78563412);
-        TRY(read_le(u32, s.data(), 0, 8));             TEST_EQUAL(u32, 0x78563412);
-        TRY(read_le(u32, s.data(), 0, 2));             TEST_EQUAL(u32, 0x3412);
-        TRY(read_le(u32, s.data(), 2, 2));             TEST_EQUAL(u32, 0x7856);
-        TRY(u32 = read_be<uint32_t>(s.data()));        TEST_EQUAL(u32, 0x12345678);
-        TRY(u32 = read_be<uint32_t>(s.data(), 0, 4));  TEST_EQUAL(u32, 0x12345678);
-        TRY(u32 = read_be<uint32_t>(s.data(), 0, 8));  TEST_EQUAL(u32, 0x9abcdef0);
-        TRY(u32 = read_be<uint32_t>(s.data(), 0, 2));  TEST_EQUAL(u32, 0x1234);
-        TRY(u32 = read_be<uint32_t>(s.data(), 2, 2));  TEST_EQUAL(u32, 0x5678);
-        TRY(u32 = read_le<uint32_t>(s.data()));        TEST_EQUAL(u32, 0x78563412);
-        TRY(u32 = read_le<uint32_t>(s.data(), 0, 4));  TEST_EQUAL(u32, 0x78563412);
-        TRY(u32 = read_le<uint32_t>(s.data(), 0, 8));  TEST_EQUAL(u32, 0x78563412);
-        TRY(u32 = read_le<uint32_t>(s.data(), 0, 2));  TEST_EQUAL(u32, 0x3412);
-        TRY(u32 = read_le<uint32_t>(s.data(), 2, 2));  TEST_EQUAL(u32, 0x7856);
-
-        s.assign(4, 0);
-
-        TRY(write_be(uint32_t(0x12345678), &s[0]));                   TEST_EQUAL(s, "\x12\x34\x56\x78");
-        TRY(write_be(uint32_t(0x12345678), &s[0], 0, 4));             TEST_EQUAL(s, "\x12\x34\x56\x78");
-        TRY(write_be(uint32_t(0x123456789abcdef0ull), &s[0], 0, 4));  TEST_EQUAL(s, "\x9a\xbc\xde\xf0");
-        TRY(write_le(uint32_t(0x12345678), &s[0]));                   TEST_EQUAL(s, "\x78\x56\x34\x12");
-        TRY(write_le(uint32_t(0x12345678), &s[0], 0, 4));             TEST_EQUAL(s, "\x78\x56\x34\x12");
-        TRY(write_le(uint32_t(0x123456789abcdef0ull), &s[0], 0, 4));  TEST_EQUAL(s, "\xf0\xde\xbc\x9a");
-
-        s.assign(4, '*');  TRY(write_be(uint32_t(0x12345678), &s[0], 0, 2));  TEST_EQUAL(s, "\x56\x78**");
-        s.assign(4, '*');  TRY(write_be(uint32_t(0x12345678), &s[0], 2, 2));  TEST_EQUAL(s, "**\x56\x78");
-        s.assign(4, '*');  TRY(write_le(uint32_t(0x12345678), &s[0], 0, 2));  TEST_EQUAL(s, "\x78\x56**");
-        s.assign(4, '*');  TRY(write_le(uint32_t(0x12345678), &s[0], 2, 2));  TEST_EQUAL(s, "**\x78\x56");
 
     }
 
@@ -3358,6 +3375,7 @@ TEST_MODULE(prion, core) {
 
     check_preprocessor_macros();
     check_containers();
+    check_endian_integers();
     check_exceptions();
     check_metaprogramming_and_type_traits();
     check_smart_pointers();
@@ -3374,7 +3392,6 @@ TEST_MODULE(prion, core) {
     check_generic_arithmetic_functions();
     check_integer_arithmetic_functions();
     check_bitwise_operations();
-    check_byte_order_functions();
     check_floating_point_arithmetic_functions();
     check_function_traits();
     check_function_operations();

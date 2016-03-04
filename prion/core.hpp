@@ -223,6 +223,16 @@ namespace Prion {
 
     // Things needed early
 
+    #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        constexpr bool big_endian_target = false;
+        constexpr bool little_endian_target = true;
+    #elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        constexpr bool big_endian_target = true;
+        constexpr bool little_endian_target = false;
+    #else
+        #error Unknown byte order
+    #endif
+
     constexpr const char* ascii_whitespace = "\t\n\v\f\r ";
     constexpr size_t npos = string::npos;
 
@@ -475,6 +485,47 @@ namespace Prion {
         Stacklike(const Stacklike&) = delete;
         Stacklike& operator=(const Stacklike&) = delete;
     };
+
+    // Endian integers
+
+    enum class End { big, little };
+
+    namespace PrionDetail {
+
+        template <typename T>
+        constexpr T swap_ends(T t, size_t N = sizeof(T)) noexcept {
+            using U = std::make_unsigned_t<T>;
+            return N == 1 ? t : T((swap_ends(U(t) & ((U(1) << (4 * N)) - 1), N / 2) << (4 * N)) | swap_ends(U(t) >> (4 * N), N / 2));
+        }
+
+        template <End E, typename T>
+        constexpr T order_bytes(T t) noexcept {
+            return (E == End::big) == big_endian_target ? t : swap_ends(t);
+        }
+
+    }
+
+    template <typename T, End E>
+    class Endian {
+    public:
+        constexpr Endian() noexcept: value(0) {}
+        constexpr Endian(T t) noexcept: value(PrionDetail::order_bytes<E>(t)) {}
+        constexpr operator T() const noexcept { return get(); }
+        constexpr T get() const noexcept { return PrionDetail::order_bytes<E>(value); }
+        constexpr const T* ptr() const noexcept { return &value; }
+        T* ptr() noexcept { return &value; }
+        constexpr T rep() const noexcept { return value; }
+        T& rep() noexcept { return value; }
+    private:
+        T value;
+    };
+
+    template <typename T> using BigEndian = Endian<T, End::big>;
+    template <typename T> using LittleEndian = Endian<T, End::little>;
+
+    template <typename T, End E> std::ostream& operator<<(std::ostream& out, Endian<T, E> t) { return out << t.get(); }
+    template <End E> std::ostream& operator<<(std::ostream& out, Endian<int128_t, E> t) { return out << dec(t.get()); }
+    template <End E> std::ostream& operator<<(std::ostream& out, Endian<uint128_t, E> t) { return out << dec(t.get()); }
 
     // Exceptions
 
@@ -1306,144 +1357,6 @@ namespace Prion {
         { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
     template <typename T> constexpr T rotl(T t, int n) noexcept { return (t << n) | (t >> (8 * sizeof(T) - n)); }
     template <typename T> constexpr T rotr(T t, int n) noexcept { return (t >> n) | (t << (8 * sizeof(T) - n)); }
-
-    // Byte order functions
-
-    #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-        constexpr bool big_endian_target = false;
-        constexpr bool little_endian_target = true;
-    #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-        constexpr bool big_endian_target = true;
-        constexpr bool little_endian_target = false;
-    #else
-        #error Unknown byte order
-    #endif
-
-    namespace PrionDetail {
-
-        template <typename T, size_t N = sizeof(T)> struct ByteSwap {
-            void operator()(T& t) const noexcept {
-                auto ptr = reinterpret_cast<uint8_t*>(&t);
-                std::reverse(ptr, ptr + N);
-            }
-        };
-
-        template <typename T> struct ByteSwap<T, 1> {
-            void operator()(T& /*t*/) const noexcept {}
-        };
-
-        template <typename T> struct ByteSwap<T, 2> {
-            void operator()(T& t) const noexcept {
-                auto p = reinterpret_cast<uint8_t*>(&t);
-                auto b = p[0]; p[0] = p[1]; p[1] = b;
-            }
-        };
-
-        template <typename T> struct ByteSwap<T, 4> {
-            void operator()(T& t) const noexcept {
-                auto p = reinterpret_cast<uint8_t*>(&t);
-                auto a = p[0]; p[0] = p[3]; p[3] = a;
-                auto b = p[1]; p[1] = p[2]; p[2] = b;
-            }
-        };
-
-    }
-
-    template <typename T>
-    inline T big_endian(T t) noexcept {
-        if (little_endian_target)
-            PrionDetail::ByteSwap<T>()(t);
-        return t;
-    }
-
-    template <typename T>
-    inline T little_endian(T t) noexcept {
-        if (big_endian_target)
-            PrionDetail::ByteSwap<T>()(t);
-        return t;
-    }
-
-    template <typename T>
-    void read_be(T& t, const void* ptr, size_t ofs = 0) noexcept {
-        memcpy(&t, static_cast<const uint8_t*>(ptr) + ofs, sizeof(t));
-        t = big_endian(t);
-    }
-
-    template <typename T>
-    void read_be(T& t, const void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<const uint8_t*>(ptr) + ofs;
-        t = 0;
-        for (; len > 0; --len)
-            t = (t << 8) + T(*bp++);
-    }
-
-    template <typename T>
-    T read_be(const void* ptr, size_t ofs = 0) noexcept {
-        T t;
-        read_be(t, ptr, ofs);
-        return t;
-    }
-
-    template <typename T>
-    T read_be(const void* ptr, size_t ofs, size_t len) noexcept {
-        T t;
-        read_be(t, ptr, ofs, len);
-        return t;
-    }
-
-    template <typename T>
-    void read_le(T& t, const void* ptr, size_t ofs = 0) noexcept {
-        memcpy(&t, static_cast<const uint8_t*>(ptr) + ofs, sizeof(t));
-        t = little_endian(t);
-    }
-
-    template <typename T>
-    void read_le(T& t, const void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<const uint8_t*>(ptr) + ofs + len;
-        t = 0;
-        for (; len > 0; --len)
-            t = (t << 8) + T(*--bp);
-    }
-
-    template <typename T>
-    T read_le(const void* ptr, size_t ofs = 0) noexcept {
-        T t;
-        read_le(t, ptr, ofs);
-        return t;
-    }
-
-    template <typename T>
-    T read_le(const void* ptr, size_t ofs, size_t len) noexcept {
-        T t;
-        read_le(t, ptr, ofs, len);
-        return t;
-    }
-
-    template <typename T>
-    void write_be(T t, void* ptr, size_t ofs = 0) noexcept {
-        t = big_endian(t);
-        memcpy(static_cast<uint8_t*>(ptr) + ofs, &t, sizeof(T));
-    }
-
-    template <typename T>
-    void write_be(T t, void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<uint8_t*>(ptr) + ofs + len;
-        for (; len > 0; --len, t >>= 8)
-            *--bp = uint8_t(t & 0xff);
-    }
-
-    template <typename T>
-    void write_le(T t, void* ptr, size_t ofs = 0) noexcept {
-        t = little_endian(t);
-        memcpy(static_cast<uint8_t*>(ptr) + ofs, &t, sizeof(T));
-    }
-
-    template <typename T>
-    void write_le(T t, void* ptr, size_t ofs, size_t len) noexcept {
-        auto bp = static_cast<uint8_t*>(ptr) + ofs;
-        for (; len > 0; --len, t >>= 8)
-            *bp++ = uint8_t(t & 0xff);
-    }
 
     // Floating point arithmetic functions
 
@@ -2317,6 +2230,8 @@ namespace Prion {
     }
 
     template <typename T> inline string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+    template <typename T> inline string to_str(int128_t t) { return dec(t); }
+    template <typename T> inline string to_str(uint128_t t) { return dec(t); }
     template <typename T1, typename T2> inline string to_str(const std::pair<T1, T2>& p)
         { return '{' + PrionDetail::ObjectToString<T1>()(p.first) + ',' + PrionDetail::ObjectToString<T2>()(p.second) + '}'; }
 
@@ -2985,7 +2900,7 @@ namespace Prion {
             bytes{uint8_t((abcd >> 24) & 0xff), uint8_t((abcd >> 16) & 0xff), uint8_t((abcd >> 8) & 0xff), uint8_t(abcd & 0xff),
                 uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff),
                 i, j, k, l, m, n, o, p} {}
-        explicit Uuid(uint128_t u) noexcept { write_be(u, bytes); }
+        explicit Uuid(uint128_t u) noexcept { whole = u; }
         explicit Uuid(const uint8_t* ptr) noexcept { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
         explicit Uuid(const string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
@@ -2994,7 +2909,7 @@ namespace Prion {
         const uint8_t* begin() const noexcept { return bytes; }
         uint8_t* end() noexcept { return bytes + 16; }
         const uint8_t* end() const noexcept { return bytes + 16; }
-        uint128_t as_integer() const noexcept { return read_be<uint128_t>(bytes); }
+        uint128_t as_integer() const noexcept { return whole; }
         size_t hash() const noexcept { return hash_bytes(bytes, 16); }
         u8string str() const;
         friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
@@ -3004,6 +2919,7 @@ namespace Prion {
         union {
             uint8_t bytes[16];
             uint32_t words[4];
+            BigEndian<uint128_t> whole;
         };
     };
 

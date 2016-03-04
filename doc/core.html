@@ -20,6 +20,7 @@
 <li><a href="#types">Types</a><ul>
 <li><a href="#basic-types">Basic types</a></li>
 <li><a href="#containers">Containers</a></li>
+<li><a href="#endian-integers">Endian integers</a></li>
 <li><a href="#exceptions">Exceptions</a></li>
 <li><a href="#metaprogramming-and-type-traits">Metaprogramming and type traits</a></li>
 <li><a href="#mixins">Mixins</a></li>
@@ -33,6 +34,7 @@
 <li><a href="#arithmetic-constants">Arithmetic constants</a></li>
 <li><a href="#arithmetic-literals">Arithmetic literals</a></li>
 <li><a href="#string-related-constants">String related constants</a></li>
+<li><a href="#other-constants">Other constants</a></li>
 </ul>
 </li>
 <li><a href="#algorithms-and-ranges">Algorithms and ranges</a><ul>
@@ -48,7 +50,6 @@
 <li><a href="#generic-arithmetic-functions">Generic arithmetic functions</a></li>
 <li><a href="#integer-arithmetic-functions">Integer arithmetic functions</a></li>
 <li><a href="#bitwise-operations">Bitwise operations</a></li>
-<li><a href="#byte-order-functions">Byte order functions</a></li>
 <li><a href="#floating-point-arithmetic-functions">Floating point arithmetic functions</a></li>
 </ul>
 </li>
@@ -383,6 +384,35 @@ using <code>T</code>'s less-than operator.</p>
 <p>A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
 standard container, but is often useful for RAII).</p>
+</div>
+<h3 id="endian-integers">Endian integers</h3>
+<div class="defns">
+<ul>
+<li><code>enum class</code> <strong><code>End</code></strong><ul>
+<li><code>End::</code><strong><code>big</code></strong></li>
+<li><code>End::</code><strong><code>little</code></strong></li>
+</ul>
+</li>
+<li><code>template &lt;typename T, End E&gt; class</code> <strong><code>Endian</code></strong><ul>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>() noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(T t) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
+<li><code>constexpr T Endian::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>constexpr const T* Endian::</code><strong><code>ptr</code></strong><code>() const noexcept</code></li>
+<li><code>T* Endian::</code><strong><code>ptr</code></strong><code>() noexcept</code></li>
+<li><code>constexpr T Endian::</code><strong><code>rep</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Endian::</code><strong><code>rep</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong><code>= Endian&lt;T, End::big&gt;</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong><code>= Endian&lt;T, End::little&gt;</code></li>
+<li><code>template &lt;typename T, End E&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, E&gt; t)</code></li>
+</ul>
+<p>An <code>Endian</code> object holds an integer in a defined byte order. Assignment to or
+from an endian integer performs any necessary reordering transparently. The
+<code>ptr()</code> and <code>ref()</code> functions give access to the internal, byte ordered form.
+The <code>Endian</code> class is a literal type and can be used in <code>constexpr</code>
+expressions.</p>
 </div>
 <h3 id="exceptions">Exceptions</h3>
 <div class="defns">
@@ -824,6 +854,15 @@ powers of 1000, the second powers of 1024.</p>
 library, this value is often used as a function argument to mean "as large as
 possible" or "no limit", or as a return value to mean "not found".</p>
 </div>
+<h3 id="other-constants">Other constants</h3>
+<div class="defns">
+<ul>
+<li><code>constexpr bool</code> <strong><code>big_endian_target</code></strong></li>
+<li><code>constexpr bool</code> <strong><code>little_endian_target</code></strong></li>
+</ul>
+<p>One of these will be true and the other false, reflecting the target system's
+byte order.</p>
+</div>
 <h2 id="algorithms-and-ranges">Algorithms and ranges</h2>
 <h3 id="generic-algorithms">Generic algorithms</h3>
 <div class="defns">
@@ -1107,41 +1146,6 @@ the argument is not an ASCII letter.</p>
 <p>Bitwise rotate left or right. As for the standard shift operators, behaviour
 is undefined if <code>n</code> is negative or greater than or equal to the number of bits
 in <code>T</code>.</p>
-</div>
-<h3 id="byte-order-functions">Byte order functions</h3>
-<div class="defns">
-<ul>
-<li><code>static constexpr bool</code> <strong><code>big_endian_target</code></strong></li>
-<li><code>static constexpr bool</code> <strong><code>little_endian_target</code></strong></li>
-</ul>
-<p>One of these will be true and the other false, reflecting the target system's
-byte order.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>big_endian</code></strong><code>(T t) noexcept</code></li>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>little_endian</code></strong><code>(T t) noexcept</code></li>
-</ul>
-<p>Convert a number between the native byte order and big or little endian.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>read_be</code></strong><code>(const void* ptr, size_t ofs = 0) noexcept</code></li>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>read_be</code></strong><code>(const void* ptr, size_t ofs, size_t len) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>read_be</code></strong><code>(T&amp; t, const void* ptr, size_t ofs = 0) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>read_be</code></strong><code>(T&amp; t, const void* ptr, size_t ofs, size_t len) noexcept</code></li>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>read_le</code></strong><code>(const void* ptr, size_t ofs = 0) noexcept</code></li>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>read_le</code></strong><code>(const void* ptr, size_t ofs, size_t len) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>read_le</code></strong><code>(T&amp; t, const void* ptr, size_t ofs = 0) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>read_le</code></strong><code>(T&amp; t, const void* ptr, size_t ofs, size_t len) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>write_be</code></strong><code>(T t, void* ptr, size_t ofs = 0) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>write_be</code></strong><code>(T t, void* ptr, size_t ofs, size_t len) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>write_le</code></strong><code>(T t, void* ptr, size_t ofs = 0) noexcept</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>write_le</code></strong><code>(T t, void* ptr, size_t ofs, size_t len) noexcept</code></li>
-</ul>
-<p>Read or write an integer from a block of bytes, in big endian or little endian
-order. The versions that take only a pointer deduce the size from the integer
-type; the other versions take an offset and length in bytes.</p>
 </div>
 <h3 id="floating-point-arithmetic-functions">Floating point arithmetic functions</h3>
 <div class="defns">
