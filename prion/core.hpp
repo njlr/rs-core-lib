@@ -2545,13 +2545,17 @@ namespace Prion {
 
     class MutexLock {
     public:
+        MutexLock() noexcept = default;
         explicit MutexLock(Mutex& m) noexcept: mx(&m) { mx->lock(); }
-        ~MutexLock() noexcept { mx->unlock(); }
+        ~MutexLock() noexcept { if (mx) mx->unlock(); }
+        MutexLock(MutexLock&& lock) noexcept: mx(lock.mx) { lock.mx = nullptr; }
+        MutexLock& operator=(MutexLock&& lock) noexcept { if (mx) mx->unlock(); mx = lock.mx; lock.mx = nullptr; return *this; }
     private:
         friend class ConditionVariable;
-        Mutex* mx;
-        PRI_NO_COPY_MOVE(MutexLock)
+        Mutex* mx = nullptr;
     };
+
+    inline MutexLock make_lock(Mutex& m) noexcept { return MutexLock(m); }
 
     #if defined(PRI_TARGET_UNIX)
 

@@ -3050,7 +3050,8 @@ namespace {
             Mutex m;
             ConditionVariable cv;
             int n = 0;
-            MutexLock lock(m);
+            MutexLock lock;
+            TRY(lock = make_lock(m));
             TEST(! cv.wait_for(lock, milliseconds(50), [&] { return n > 0; }));
             n = 42;
             TEST(cv.wait_for(lock, milliseconds(50), [&] { return n > 0; }));
@@ -3061,7 +3062,8 @@ namespace {
             ConditionVariable cv;
             string s;
             auto f = [&] {
-                MutexLock lock(m);
+                MutexLock lock;
+                TRY(lock = make_lock(m));
                 TRY(cv.wait(lock, [&] { return ! s.empty(); }));
                 s += "Seagoon";
             };
@@ -3079,13 +3081,15 @@ namespace {
             ConditionVariable cv;
             string s;
             auto f1 = [&] {
-                MutexLock lock(m);
+                MutexLock lock;
+                TRY(lock = make_lock(m));
                 TRY(cv.wait(lock));
                 s += "Seagoon";
             };
             auto f2 = [&] {
                 TRY(sleep_for(0.05));
-                MutexLock lock(m);
+                MutexLock lock;
+                TRY(lock = make_lock(m));
                 s += "Neddie";
                 TRY(cv.notify_all());
             };
@@ -3101,7 +3105,8 @@ namespace {
             ConditionVariable cv;
             string s;
             auto f1 = [&] {
-                MutexLock lock(m);
+                MutexLock lock;
+                TRY(lock = make_lock(m));
                 TRY(cv.wait(lock, [&] { return ! s.empty(); }));
                 s += "Seagoon";
             };
@@ -3110,7 +3115,8 @@ namespace {
                 TRY(sleep_for(0.05));
                 TRY(cv.notify_one());
                 {
-                    MutexLock lock(m);
+                    MutexLock lock;
+                    TRY(lock = make_lock(m));
                     s += "Neddie";
                 }
                 TRY(cv.notify_one());

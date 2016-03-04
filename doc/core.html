@@ -1768,10 +1768,14 @@ slice.</p>
 </ul>
 </li>
 <li><code>class</code> <strong><code>MutexLock</code></strong><ul>
+<li><code>MutexLock::</code><strong><code>MutexLock</code></strong><code>() noexcept</code></li>
 <li><code>explicit MutexLock::</code><strong><code>MutexLock</code></strong><code>(Mutex&amp; m) noexcept</code></li>
 <li><code>MutexLock::</code><strong><code>~MutexLock</code></strong><code>() noexcept</code></li>
+<li><code>MutexLock::</code><strong><code>MutexLock</code></strong><code>(MutexLock&amp;&amp; lock) noexcept</code></li>
+<li><code>MutexLock&amp; MutexLock::</code><strong><code>operator=</code></strong><code>(MutexLock&amp;&amp; lock) noexcept</code></li>
 </ul>
 </li>
+<li><code>MutexLock</code> <strong><code>make_lock</code></strong><code>(Mutex&amp; m) noexcept</code></li>
 </ul>
 <p>Mutex and exclusive lock.</p>
 </div>

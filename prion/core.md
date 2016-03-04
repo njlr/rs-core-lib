@@ -1465,8 +1465,12 @@ slice.
     * `bool Mutex::`**`try_lock`**`() noexcept`
     * `void Mutex::`**`unlock`**`() noexcept`
 * `class` **`MutexLock`**
+    * `MutexLock::`**`MutexLock`**`() noexcept`
     * `explicit MutexLock::`**`MutexLock`**`(Mutex& m) noexcept`
     * `MutexLock::`**`~MutexLock`**`() noexcept`
+    * `MutexLock::`**`MutexLock`**`(MutexLock&& lock) noexcept`
+    * `MutexLock& MutexLock::`**`operator=`**`(MutexLock&& lock) noexcept`
+* `MutexLock` **`make_lock`**`(Mutex& m) noexcept`
 
 Mutex and exclusive lock.
 
