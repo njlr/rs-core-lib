@@ -2285,30 +2285,31 @@ namespace Prion {
         public:
             using callback = std::function<void()>;
             using id_type = pthread_t;
-            Thread() noexcept: except(), payload(), state(thread_joined), thread() {}
-            explicit Thread(callback f): Thread() {
+            Thread() noexcept = default;
+            explicit Thread(callback f) {
                 if (f) {
-                    payload = f;
-                    state = thread_running;
-                    int rc = pthread_create(&thread, nullptr, thread_callback, this);
+                    impl = make_unique<impl_type>();
+                    impl->payload = f;
+                    impl->state = thread_running;
+                    int rc = pthread_create(&impl->thread, nullptr, thread_callback, impl.get());
                     if (rc)
                         throw std::system_error(rc, std::generic_category(), "pthread_create()");
                 }
             }
-            ~Thread() noexcept { if (state != thread_joined) pthread_join(thread, nullptr); }
+            ~Thread() noexcept { if (impl && impl->state != thread_joined) pthread_join(impl->thread, nullptr); }
             Thread(Thread&&) = default;
             Thread& operator=(Thread&&) = default;
-            id_type get_id() const noexcept { return thread; }
-            bool poll() noexcept { return state != thread_running; }
+            id_type get_id() const noexcept { return impl ? impl->thread : id_type(); }
+            bool poll() noexcept { return ! impl || impl->state != thread_running; }
             void wait() {
-                if (state == thread_joined)
+                if (! impl || impl->state == thread_joined)
                     return;
-                int rc = pthread_join(thread, nullptr);
-                state = thread_joined;
+                int rc = pthread_join(impl->thread, nullptr);
+                impl->state = thread_joined;
                 if (rc)
                     throw std::system_error(rc, std::generic_category(), "pthread_join()");
-                if (except)
-                    std::rethrow_exception(except);
+                if (impl->except)
+                    std::rethrow_exception(impl->except);
             }
             static size_t cpu_threads() noexcept {
                 size_t n = 0;
@@ -2338,14 +2339,17 @@ namespace Prion {
                 thread_complete,
                 thread_joined,
             };
-            std::exception_ptr except;
-            Thread::callback payload;
-            std::atomic<int> state;
-            pthread_t thread;
+            struct impl_type {
+                std::exception_ptr except;
+                Thread::callback payload;
+                std::atomic<int> state;
+                pthread_t thread;
+            };
+            unique_ptr<impl_type> impl;
             Thread(const Thread&) = delete;
             Thread& operator=(const Thread&) = delete;
             static void* thread_callback(void* ptr) noexcept {
-                auto t = static_cast<Thread*>(ptr);
+                auto t = static_cast<impl_type*>(ptr);
                 if (t->payload) {
                     try { t->payload(); }
                     catch (...) { t->except = std::current_exception(); }
@@ -2361,34 +2365,37 @@ namespace Prion {
         public:
             using callback = std::function<void()>;
             using id_type = uint32_t;
-            Thread() noexcept: except(), payload(), state(thread_joined), key(0), thread(nullptr) {}
-            explicit Thread(callback f): Thread() {
+            Thread() noexcept = default;
+            explicit Thread(callback f) {
                 if (f) {
-                    payload = f;
-                    state = thread_running;
-                    thread = CreateThread(nullptr, 0, thread_callback, this, 0, &key);
-                    if (! thread)
+                    impl = make_unique<impl_type>();
+                    impl->payload = f;
+                    impl->state = thread_running;
+                    impl->thread = CreateThread(nullptr, 0, thread_callback, impl.get(), 0, &impl->key);
+                    if (! impl->thread)
                         throw std::system_error(GetLastError(), windows_category(), "CreateThread()");
                 }
             }
             ~Thread() noexcept {
-                if (state != thread_joined)
-                    WaitForSingleObject(thread, INFINITE);
-                CloseHandle(thread);
+                if (impl) {
+                    if (impl->state != thread_joined)
+                        WaitForSingleObject(impl->thread, INFINITE);
+                    CloseHandle(impl->thread);
+                }
             }
             Thread(Thread&&) = default;
             Thread& operator=(Thread&&) = default;
-            id_type get_id() const noexcept { return key; }
-            bool poll() noexcept { return state != thread_running; }
+            id_type get_id() const noexcept { return impl ? impl->key : 0; }
+            bool poll() noexcept { return ! impl || impl->state != thread_running; }
             void wait() {
-                if (state == thread_joined)
+                if (! impl || impl->state == thread_joined)
                     return;
-                auto rc = WaitForSingleObject(thread, INFINITE);
-                state = thread_joined;
+                auto rc = WaitForSingleObject(impl->thread, INFINITE);
+                impl->state = thread_joined;
                 if (rc == WAIT_FAILED)
                     throw std::system_error(GetLastError(), windows_category(), "WaitForSingleObject()");
-                if (except)
-                    std::rethrow_exception(except);
+                if (impl->except)
+                    std::rethrow_exception(impl->except);
             }
             static size_t cpu_threads() noexcept {
                 SYSTEM_INFO sysinfo;
@@ -2404,15 +2411,18 @@ namespace Prion {
                 thread_complete,
                 thread_joined,
             };
-            std::exception_ptr except;
-            Thread::callback payload;
-            std::atomic<int> state;
-            DWORD key;
-            HANDLE thread;
+            struct impl_type {
+                std::exception_ptr except;
+                Thread::callback payload;
+                std::atomic<int> state;
+                DWORD key;
+                HANDLE thread;
+            };
+            unique_ptr<impl_type> impl;
             Thread(const Thread&) = delete;
             Thread& operator=(const Thread&) = delete;
             static DWORD WINAPI thread_callback(void* ptr) noexcept {
-                auto t = static_cast<Thread*>(ptr);
+                auto t = static_cast<impl_type*>(ptr);
                 if (t->payload) {
                     try { t->payload(); }
                     catch (...) { t->except = std::current_exception(); }

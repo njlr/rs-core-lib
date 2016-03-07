@@ -3039,14 +3039,21 @@ namespace {
         TRY(Thread::yield());
 
         {
-            Thread t(0);
+            Thread t;
+            TRY(t.wait());
+            TEST(t.poll());
+        }
+
+        {
+            Thread t(nullptr);
             TRY(t.wait());
             TEST(t.poll());
         }
 
         {
             string s;
-            Thread t([&] { s = "Neddie"; });
+            Thread t;
+            TRY(t = Thread([&] { s = "Neddie"; }));
             TEST_COMPARE(t.get_id(), !=, Thread::current());
             TRY(t.wait());
             TEST(t.poll());
@@ -3054,7 +3061,8 @@ namespace {
         }
 
         {
-            Thread t([&] { throw std::runtime_error("Hello"); });
+            Thread t;
+            TRY(t = Thread([&] { throw std::runtime_error("Hello"); }));
             TEST_THROW_MATCH(t.wait(), std::runtime_error, "Hello");
             TRY(t.wait());
         }
