@@ -2648,6 +2648,17 @@ namespace {
         TEST_EQUAL(ascii_titlecase("hello world"s), "Hello World");
         TEST_EQUAL(ascii_titlecase("HELLO WORLD"s), "Hello World");
 
+        TEST_EQUAL(ascii_sentencecase(""), "");
+        TEST_EQUAL(ascii_sentencecase("hello world"), "Hello world");
+        TEST_EQUAL(ascii_sentencecase("hello world. goodbye. hello again."),
+            "Hello world. Goodbye. Hello again.");
+        TEST_EQUAL(ascii_sentencecase("hello world\ngoodbye\nhello again"),
+            "Hello world\ngoodbye\nhello again");
+        TEST_EQUAL(ascii_sentencecase("hello world\n\ngoodbye\n\nhello again"),
+            "Hello world\n\nGoodbye\n\nHello again");
+        TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"),
+            "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
+
         TEST_EQUAL(cstr(p0), ""s);
         TEST_EQUAL(cstr(p1), ""s);
         TEST_EQUAL(cstr(p2), "Hello"s);

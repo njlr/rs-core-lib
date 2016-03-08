@@ -1942,26 +1942,50 @@ namespace Prion {
 
     // General string functions
 
-    inline string ascii_lowercase(const string& str) {
-        auto result = str;
-        std::transform(result.begin(), result.end(), result.begin(), ascii_tolower);
-        return result;
+    inline string ascii_lowercase(const string& s) {
+        auto r = s;
+        std::transform(r.begin(), r.end(), r.begin(), ascii_tolower);
+        return r;
     }
 
-    inline string ascii_uppercase(const string& str) {
-        auto result = str;
-        std::transform(result.begin(), result.end(), result.begin(), ascii_toupper);
-        return result;
+    inline string ascii_uppercase(const string& s) {
+        auto r = s;
+        std::transform(r.begin(), r.end(), r.begin(), ascii_toupper);
+        return r;
     }
 
-    inline string ascii_titlecase(const string& str) {
-        auto result = str;
+    inline string ascii_titlecase(const string& s) {
+        auto r = s;
         bool was_alpha = false;
-        for (char& c: result) {
-            c = was_alpha ? ascii_tolower(c) : ascii_toupper(c);
+        for (char& c: r) {
+            if (was_alpha)
+                c = ascii_tolower(c);
+            else
+                c = ascii_toupper(c);
             was_alpha = ascii_isalpha(c);
         }
-        return result;
+        return r;
+    }
+
+    inline string ascii_sentencecase(const string& s) {
+        auto r = s;
+        bool new_sentence = true, was_break = false;
+        for (char& c: r) {
+            if (c == '\n' || c == '\f' || c == '\r') {
+                if (was_break)
+                    new_sentence = true;
+                was_break = true;
+            } else {
+                was_break = false;
+                if (c == '.') {
+                    new_sentence = true;
+                } else if (new_sentence && ascii_isalpha(c)) {
+                    c = ascii_toupper(c);
+                    new_sentence = false;
+                }
+            }
+        }
+        return r;
     }
 
     template <typename C>

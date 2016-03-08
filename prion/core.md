@@ -1277,9 +1277,12 @@ extremely high values.
 * `string` **`ascii_lowercase`**`(const string& s)`
 * `string` **`ascii_uppercase`**`(const string& s)`
 * `string` **`ascii_titlecase`**`(const string& s)`
+* `string` **`ascii_sentencecase`**`(const string& s)`
 
 Simple ASCII-only case conversion functions. All non-ASCII characters are left
-unchanged.
+unchanged. The sentence case function capitalizes the first letter of every
+sentence (delimited by a full stop or two consecutive line breaks), leaving
+everything else alone.
 
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr)`
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr, size_t n)`

@@ -1564,9 +1564,12 @@ extremely high values.</p>
 <li><code>string</code> <strong><code>ascii_lowercase</code></strong><code>(const string&amp; s)</code></li>
 <li><code>string</code> <strong><code>ascii_uppercase</code></strong><code>(const string&amp; s)</code></li>
 <li><code>string</code> <strong><code>ascii_titlecase</code></strong><code>(const string&amp; s)</code></li>
+<li><code>string</code> <strong><code>ascii_sentencecase</code></strong><code>(const string&amp; s)</code></li>
 </ul>
 <p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
-unchanged.</p>
+unchanged. The sentence case function capitalizes the first letter of every
+sentence (delimited by a full stop or two consecutive line breaks), leaving
+everything else alone.</p>
 </div>
 <div class="defns">
 <ul>
