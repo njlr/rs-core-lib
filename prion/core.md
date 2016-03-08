@@ -1581,6 +1581,10 @@ these return their result through a reference argument to avoid having to
 explicitly specify the duration type. Behaviour is undefined if the value
 being represented is out of range for either the source or destination type.
 
+The Windows functions are only defined on Win32 builds; the Unix functions are
+always defined (since the relevant time structures are defined in the Windows
+API).
+
 For reference, the system time types are:
 
 * _Unix_

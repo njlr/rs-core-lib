@@ -2787,63 +2787,66 @@ namespace Prion {
 
     // System specific time and date conversions
 
-    #if defined(PRI_TARGET_UNIX)
+    template <typename R, typename P>
+    timespec duration_to_timespec(const std::chrono::duration<R, P>& d) noexcept {
+        using namespace Prion::Literals;
+        using namespace std::chrono;
+        int64_t nsec = duration_cast<nanoseconds>(d).count();
+        return {time_t(nsec / 1_G), long(nsec % 1_G)};
+    }
 
-        template <typename R, typename P>
-        timespec duration_to_timespec(const std::chrono::duration<R, P>& d) noexcept {
-            using namespace Prion::Literals;
-            using namespace std::chrono;
-            int64_t nsec = duration_cast<nanoseconds>(d).count();
-            return {time_t(nsec / 1_G), long(nsec % 1_G)};
-        }
+    template <typename R, typename P>
+    timeval duration_to_timeval(const std::chrono::duration<R, P>& d) noexcept {
+        using namespace Prion::Literals;
+        using namespace std::chrono;
+        #if defined(PRI_TARGET_UNIX)
+            using sec_type = time_t;
+            using usec_type = suseconds_t;
+        #else
+            using sec_type = long;
+            using usec_type = long;
+        #endif
+        int64_t usec = duration_cast<microseconds>(d).count();
+        return {sec_type(usec / 1_M), usec_type(usec % 1_M)};
+    }
 
-        template <typename R, typename P>
-        timeval duration_to_timeval(const std::chrono::duration<R, P>& d) noexcept {
-            using namespace Prion::Literals;
-            using namespace std::chrono;
-            int64_t usec = duration_cast<microseconds>(d).count();
-            return {time_t(usec / 1_M), suseconds_t(usec % 1_M)};
-        }
+    inline timespec timepoint_to_timespec(const std::chrono::system_clock::time_point& tp) noexcept {
+        using namespace std::chrono;
+        return duration_to_timespec(tp - system_clock::time_point());
+    }
 
-        inline timespec timepoint_to_timespec(const std::chrono::system_clock::time_point& tp) noexcept {
-            using namespace std::chrono;
-            return duration_to_timespec(tp - system_clock::time_point());
-        }
+    inline timeval timepoint_to_timeval(const std::chrono::system_clock::time_point& tp) noexcept {
+        using namespace std::chrono;
+        return duration_to_timeval(tp - system_clock::time_point());
+    }
 
-        inline timeval timepoint_to_timeval(const std::chrono::system_clock::time_point& tp) noexcept {
-            using namespace std::chrono;
-            return duration_to_timeval(tp - system_clock::time_point());
-        }
+    template <typename R, typename P>
+    void timespec_to_duration(const timespec& ts, std::chrono::duration<R, P>& d) noexcept {
+        using namespace std::chrono;
+        using D = duration<R, P>;
+        d = duration_cast<D>(seconds(ts.tv_sec)) + duration_cast<D>(nanoseconds(ts.tv_nsec));
+    }
 
-        template <typename R, typename P>
-        void timespec_to_duration(const timespec& ts, std::chrono::duration<R, P>& d) noexcept {
-            using namespace std::chrono;
-            using D = duration<R, P>;
-            d = duration_cast<D>(seconds(ts.tv_sec)) + duration_cast<D>(nanoseconds(ts.tv_nsec));
-        }
+    template <typename R, typename P>
+    void timeval_to_duration(const timeval& tv, std::chrono::duration<R, P>& d) noexcept {
+        using namespace std::chrono;
+        using D = duration<R, P>;
+        d = duration_cast<D>(seconds(tv.tv_sec)) + duration_cast<D>(microseconds(tv.tv_usec));
+    }
 
-        template <typename R, typename P>
-        void timeval_to_duration(const timeval& tv, std::chrono::duration<R, P>& d) noexcept {
-            using namespace std::chrono;
-            using D = duration<R, P>;
-            d = duration_cast<D>(seconds(tv.tv_sec)) + duration_cast<D>(microseconds(tv.tv_usec));
-        }
+    inline std::chrono::system_clock::time_point timespec_to_timepoint(const timespec& ts) noexcept {
+        using namespace std::chrono;
+        system_clock::duration d;
+        timespec_to_duration(ts, d);
+        return system_clock::time_point() + d;
+    }
 
-        inline std::chrono::system_clock::time_point timespec_to_timepoint(const timespec& ts) noexcept {
-            using namespace std::chrono;
-            system_clock::duration d;
-            timespec_to_duration(ts, d);
-            return system_clock::time_point() + d;
-        }
-
-        inline std::chrono::system_clock::time_point timeval_to_timepoint(const timeval& tv) noexcept {
-            using namespace std::chrono;
-            system_clock::duration d;
-            timeval_to_duration(tv, d);
-            return system_clock::time_point() + d;
-        }
-
-    #endif
+    inline std::chrono::system_clock::time_point timeval_to_timepoint(const timeval& tv) noexcept {
+        using namespace std::chrono;
+        system_clock::duration d;
+        timeval_to_duration(tv, d);
+        return system_clock::time_point() + d;
+    }
 
     #if defined(PRI_TARGET_WIN32)
 
