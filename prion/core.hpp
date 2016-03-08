@@ -121,6 +121,8 @@
 #endif
 
 #if defined(PRI_TARGET_WIN32)
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
     #include <windows.h>
     #include <io.h>
 #endif
