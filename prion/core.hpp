@@ -1856,7 +1856,8 @@ namespace Prion {
 
     #endif
 
-    inline bool save_file(const string& file, const string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+    inline bool save_file(const string& file, const string& src, bool append = false)
+        { return save_file(file, src.data(), src.size(), append); }
 
     // Terminal I/O operations
 
@@ -2872,6 +2873,48 @@ namespace Prion {
     #endif
 
     // [Things that need to go at the end because of dependencies]
+
+    // Logging
+
+    namespace PrionDetail {
+
+        template <typename T>
+        int hash_xcolour(T t) noexcept {
+            using namespace std::chrono;
+            static const auto init = uint32_t(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+            uint32_t x = init, y = 0;
+            auto pt = reinterpret_cast<const uint8_t*>(&t);
+            for (size_t i = 0; i < sizeof(T); i += 4) {
+                memcpy(&y, pt + i, 4);
+                x ^= y;
+            }
+            std::minstd_rand rng(x);
+            std::uniform_int_distribution<> dist(0, 123);
+            y = dist(rng);
+            return 100 * (y / 25) + 10 * (y / 5 % 5) + y % 5 + 222;
+        }
+
+        inline void log_message(const u8string& msg, bool timestamp) {
+            using namespace std::chrono;
+            static Mutex mtx;
+            auto lock = make_lock(mtx);
+            u8string text = xt_colour(hash_xcolour(Thread::current()));
+            if (timestamp)
+                text += "[" + format_date(system_clock::now(), 3) + "] ";
+            text += msg + xt_reset;
+            std::cout << text << std::endl;
+        }
+
+    }
+
+    inline void logx(const u8string& msg) { PrionDetail::log_message(msg, false); }
+    inline void logx(const char* msg) { PrionDetail::log_message(cstr(msg), false); }
+    template <typename... Args> inline void logx(Args... args)
+        { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), false); }
+    inline void logt(const u8string& msg) { PrionDetail::log_message(msg, true); }
+    inline void logt(const char* msg) { PrionDetail::log_message(cstr(msg), true); }
+    template <typename... Args> inline void logt(Args... args)
+        { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), true); }
 
     // UUID
 

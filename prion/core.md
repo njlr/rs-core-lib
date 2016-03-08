@@ -1156,6 +1156,24 @@ instead of overwriting it if it already exists (if the file does not exist,
 the `append` flag has no effect). The return value is true if everything went
 well, false if there was an error while opening or writing the file.
 
+### Logging ###
+
+* `void` **`logx`**`(const u8string& msg)`
+* `void` **`logx`**`(const char* msg)`
+* `template <typename... Args> void` **`logx`**`(Args... args)`
+* `void` **`logt`**`(const u8string& msg)`
+* `void` **`logt`**`(const char* msg)`
+* `template <typename... Args> void` **`logt`**`(Args... args)`
+
+These write a message to standard output, followed by a line feed and an
+output flush. If multiple arguments are supplied, they are delimited with a
+space. The `logt()` functions prefix each message with the time (in UTC).
+
+These functions are intended mainly for use in multithreaded code. A private
+mutex is used to ensure that messages from different threads are not
+interleaved. Output from different threads will be given different colours,
+chosen at random based on a hash of the thread ID.
+
 ### Terminal I/O operations ###
 
 * `bool` **`is_stdout_redirected`**`() noexcept`
