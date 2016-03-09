@@ -2216,7 +2216,7 @@ namespace Prion {
         struct RangeToString {
             string operator()(const R& r) const {
                 string s = "[";
-                for (auto& v: r) {
+                for (const auto& v: r) {
                     s += to_str(v);
                     s += ',';
                 }
@@ -2231,7 +2231,7 @@ namespace Prion {
         struct RangeToString<R, I, std::pair<K, V>> {
             string operator()(const R& r) const {
                 string s = "{";
-                for (auto& kv: r) {
+                for (const auto& kv: r) {
                     s += to_str(kv.first);
                     s += ':';
                     s += to_str(kv.second);
@@ -2244,8 +2244,8 @@ namespace Prion {
             }
         };
 
-        template <typename T, bool = std::is_integral<T>::value,
-            bool = IsRangeType<T>::value>
+        template <typename T, bool I = std::is_integral<T>::value,
+            bool R = IsRangeType<T>::value>
         struct ObjectToString {
             string operator()(const T& t) const {
                 std::ostringstream out;
@@ -2255,6 +2255,7 @@ namespace Prion {
         };
 
         template <typename T> struct ObjectToString<T, true, false> { string operator()(T t) const { return dec(t); } };
+        template <> struct ObjectToString<bool> { string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<int128_t> { string operator()(int128_t t) const { return dec(t); } };
         template <> struct ObjectToString<uint128_t> { string operator()(uint128_t t) const { return dec(t); } };
         template <typename T> struct ObjectToString<T, false, true>: RangeToString<T> {};
@@ -2263,13 +2264,15 @@ namespace Prion {
         template <> struct ObjectToString<const char*> { string operator()(const char* t) const { return t ? string(t) : string(); } };
         template <> struct ObjectToString<char> { string operator()(char t) const { return {t}; } };
 
+        template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, false, false> {
+            string operator()(const std::pair<T1, T2>& t) const {
+                return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}';
+            }
+        };
+
     }
 
     template <typename T> inline string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
-    template <typename T> inline string to_str(int128_t t) { return dec(t); }
-    template <typename T> inline string to_str(uint128_t t) { return dec(t); }
-    template <typename T1, typename T2> inline string to_str(const std::pair<T1, T2>& p)
-        { return '{' + PrionDetail::ObjectToString<T1>()(p.first) + ',' + PrionDetail::ObjectToString<T2>()(p.second) + '}'; }
 
     // HTML/XML tags
 

@@ -2784,8 +2784,9 @@ namespace {
     void check_string_formatting_and_parsing_functions() {
 
         string s;
-        vector<string> sv;
+        vector<bool> bv;
         vector<int> iv;
+        vector<string> sv;
         std::map<int, string> ism;
 
         TEST_EQUAL(bin(0, 1), "0");
@@ -2997,21 +2998,27 @@ namespace {
         TEST_EQUAL(to_str(""), "");
         TEST_EQUAL(to_str("Hello"), "Hello");
         TEST_EQUAL(to_str('X'), "X");
+        TEST_EQUAL(to_str(true), "true");
+        TEST_EQUAL(to_str(false), "false");
         TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
         TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
 
-        sv.clear();
+        bv.clear();
         iv.clear();
+        sv.clear();
         ism.clear();
 
+        TEST_EQUAL(to_str(bv), "[]");
         TEST_EQUAL(to_str(iv), "[]");
         TEST_EQUAL(to_str(sv), "[]");
         TEST_EQUAL(to_str(ism), "{}");
 
+        bv = {true,false};
         iv = {1,2,3};
         sv = {"hello","world","goodbye"};
         ism = {{1,"hello"},{2,"world"},{3,"goodbye"}};
 
+        TEST_EQUAL(to_str(bv), "[true,false]");
         TEST_EQUAL(to_str(iv), "[1,2,3]");
         TEST_EQUAL(to_str(sv), "[hello,world,goodbye]");
         TEST_EQUAL(to_str(ism), "{1:hello,2:world,3:goodbye}");
