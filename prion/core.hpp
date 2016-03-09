@@ -2216,7 +2216,7 @@ namespace Prion {
         struct RangeToString {
             string operator()(const R& r) const {
                 string s = "[";
-                for (const auto& v: r) {
+                for (const V& v: r) {
                     s += to_str(v);
                     s += ',';
                 }
@@ -2255,7 +2255,6 @@ namespace Prion {
         };
 
         template <typename T> struct ObjectToString<T, true, false> { string operator()(T t) const { return dec(t); } };
-        template <> struct ObjectToString<bool> { string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<int128_t> { string operator()(int128_t t) const { return dec(t); } };
         template <> struct ObjectToString<uint128_t> { string operator()(uint128_t t) const { return dec(t); } };
         template <typename T> struct ObjectToString<T, false, true>: RangeToString<T> {};
@@ -2263,6 +2262,7 @@ namespace Prion {
         template <> struct ObjectToString<char*> { string operator()(char* t) const { return t ? string(t) : string(); } };
         template <> struct ObjectToString<const char*> { string operator()(const char* t) const { return t ? string(t) : string(); } };
         template <> struct ObjectToString<char> { string operator()(char t) const { return {t}; } };
+        template <> struct ObjectToString<bool> { string operator()(bool t) const { return t ? "true" : "false"; } };
 
         template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, false, false> {
             string operator()(const std::pair<T1, T2>& t) const {
