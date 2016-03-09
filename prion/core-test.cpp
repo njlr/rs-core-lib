@@ -29,10 +29,10 @@
     #include <windows.h>
 #endif
 
-using namespace std::chrono;
-using namespace std::literals;
 using namespace Prion;
 using namespace Prion::Literals;
+using namespace std::chrono;
+using namespace std::literals;
 
 TEST_MAIN;
 
@@ -677,6 +677,84 @@ namespace {
 
     void check_arithmetic_literals() {
 
+        auto a = 123_s8;
+        auto b = 123_u8;
+        auto c = 123_s16;
+        auto d = 123_u16;
+        auto e = 123_s32;
+        auto f = 123_u32;
+        auto g = 123_s64;
+        auto h = 123_u64;
+
+        TEST_TYPE_OF(a, int8_t);
+        TEST_TYPE_OF(b, uint8_t);
+        TEST_TYPE_OF(c, int16_t);
+        TEST_TYPE_OF(d, uint16_t);
+        TEST_TYPE_OF(e, int32_t);
+        TEST_TYPE_OF(f, uint32_t);
+        TEST_TYPE_OF(g, int64_t);
+        TEST_TYPE_OF(h, uint64_t);
+
+        TEST_EQUAL(a, int8_t(123));
+        TEST_EQUAL(b, uint8_t(123));
+        TEST_EQUAL(c, int16_t(123));
+        TEST_EQUAL(d, uint16_t(123));
+        TEST_EQUAL(e, int32_t(123));
+        TEST_EQUAL(f, uint32_t(123));
+        TEST_EQUAL(g, int64_t(123));
+        TEST_EQUAL(h, uint64_t(123));
+
+        int128_t i = 0;
+        uint128_t u = 0;
+
+        TRY(i = 0_s128);
+        TEST_EQUAL(i, 0_s128);
+        TEST_EQUAL(dec(i), "0");
+        TEST_EQUAL(hex(i, 1), "0");
+        TEST_EQUAL(hex(i), "00000000000000000000000000000000");
+        TRY(i = 12345_s128);
+        TEST_EQUAL(i, 12345_s128);
+        TEST_EQUAL(dec(i), "12345");
+        TRY(i = 170141183460469231731687303715884105727_s128); // 2^127-1
+        TEST_EQUAL(i, 170141183460469231731687303715884105727_s128);
+        TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
+        TRY(i = -170141183460469231731687303715884105727_s128); // -(2^127-1)
+        TEST_EQUAL(i, -170141183460469231731687303715884105727_s128);
+        TEST_EQUAL(dec(i), "-170141183460469231731687303715884105727");
+        TRY(i = -170141183460469231731687303715884105728_s128); // -2^127
+        TEST_EQUAL(i, -170141183460469231731687303715884105728_s128);
+        TEST_EQUAL(dec(i), "-170141183460469231731687303715884105728");
+
+        TRY(i = 0x0_s128);
+        TEST_EQUAL(dec(i), "0");
+        TRY(i = 0x12345_s128);
+        TEST_EQUAL(hex(i, 1), "12345");
+        TEST_EQUAL(dec(i), "74565");
+        TRY(i = 0x7fffffffffffffffffffffffffffffff_s128);
+        TEST_EQUAL(hex(i), "7fffffffffffffffffffffffffffffff");
+        TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
+
+        TRY(u = 0_u128);
+        TEST_EQUAL(u, 0_u128);
+        TEST_EQUAL(dec(u), "0");
+        TEST_EQUAL(hex(u, 1), "0");
+        TEST_EQUAL(hex(u), "00000000000000000000000000000000");
+        TRY(u = 12345_u128);
+        TEST_EQUAL(u, 12345_u128);
+        TEST_EQUAL(dec(u), "12345");
+        TRY(u = 340282366920938463463374607431768211455_u128); // 2^128-1
+        TEST_EQUAL(u, 340282366920938463463374607431768211455_u128);
+        TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
+
+        TRY(u = 0x0_u128);
+        TEST_EQUAL(dec(u), "0");
+        TRY(u = 0x12345_u128);
+        TEST_EQUAL(hex(u, 1), "12345");
+        TEST_EQUAL(dec(u), "74565");
+        TRY(u = 0xffffffffffffffffffffffffffffffff_u128);
+        TEST_EQUAL(hex(u), "ffffffffffffffffffffffffffffffff");
+        TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
+
         ptrdiff_t t = 0;
         size_t z = 0;
 
@@ -759,57 +837,6 @@ namespace {
             TEST_EQUAL(dec(z), "4294967295");
 
         }
-
-        int128_t i = 0;
-        uint128_t u = 0;
-
-        TRY(i = 0_s128);
-        TEST_EQUAL(i, 0_s128);
-        TEST_EQUAL(dec(i), "0");
-        TEST_EQUAL(hex(i, 1), "0");
-        TEST_EQUAL(hex(i), "00000000000000000000000000000000");
-        TRY(i = 12345_s128);
-        TEST_EQUAL(i, 12345_s128);
-        TEST_EQUAL(dec(i), "12345");
-        TRY(i = 170141183460469231731687303715884105727_s128); // 2^127-1
-        TEST_EQUAL(i, 170141183460469231731687303715884105727_s128);
-        TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
-        TRY(i = -170141183460469231731687303715884105727_s128); // -(2^127-1)
-        TEST_EQUAL(i, -170141183460469231731687303715884105727_s128);
-        TEST_EQUAL(dec(i), "-170141183460469231731687303715884105727");
-        TRY(i = -170141183460469231731687303715884105728_s128); // -2^127
-        TEST_EQUAL(i, -170141183460469231731687303715884105728_s128);
-        TEST_EQUAL(dec(i), "-170141183460469231731687303715884105728");
-
-        TRY(i = 0x0_s128);
-        TEST_EQUAL(dec(i), "0");
-        TRY(i = 0x12345_s128);
-        TEST_EQUAL(hex(i, 1), "12345");
-        TEST_EQUAL(dec(i), "74565");
-        TRY(i = 0x7fffffffffffffffffffffffffffffff_s128);
-        TEST_EQUAL(hex(i), "7fffffffffffffffffffffffffffffff");
-        TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
-
-        TRY(u = 0_u128);
-        TEST_EQUAL(u, 0_u128);
-        TEST_EQUAL(dec(u), "0");
-        TEST_EQUAL(hex(u, 1), "0");
-        TEST_EQUAL(hex(u), "00000000000000000000000000000000");
-        TRY(u = 12345_u128);
-        TEST_EQUAL(u, 12345_u128);
-        TEST_EQUAL(dec(u), "12345");
-        TRY(u = 340282366920938463463374607431768211455_u128); // 2^128-1
-        TEST_EQUAL(u, 340282366920938463463374607431768211455_u128);
-        TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
-
-        TRY(u = 0x0_u128);
-        TEST_EQUAL(dec(u), "0");
-        TRY(u = 0x12345_u128);
-        TEST_EQUAL(hex(u, 1), "12345");
-        TEST_EQUAL(dec(u), "74565");
-        TRY(u = 0xffffffffffffffffffffffffffffffff_u128);
-        TEST_EQUAL(hex(u), "ffffffffffffffffffffffffffffffff");
-        TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
 
         TEST_EQUAL(42_k, 42000ull);
         TEST_EQUAL(42_M, 42000000ull);

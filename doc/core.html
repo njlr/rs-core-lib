@@ -801,19 +801,26 @@ mathematical constants, or to the best known accuracy for the physical ones.</p>
 <p>These are all in <code>namespace Prion::Literals</code>.</p>
 <div class="defns">
 <ul>
+<li><code>constexpr int8_t</code> <strong><code>operator""_s8</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint8_t</code> <strong><code>operator""_u8</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr int16_t</code> <strong><code>operator""_s16</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint16_t</code> <strong><code>operator""_u16</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr int32_t</code> <strong><code>operator""_s32</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint32_t</code> <strong><code>operator""_u32</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr int64_t</code> <strong><code>operator""_s64</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint64_t</code> <strong><code>operator""_u64</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator""_s128</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator""_u128</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Integer literals.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;char... CS&gt; constexpr ptrdiff_t</code> <strong><code>operator""_t</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr size_t</code> <strong><code>operator""_z</code></strong><code>() noexcept</code></li>
 </ul>
 <p>Literals for <code>ptrdiff_t</code> and <code>size_t</code>, anticipating similar features in C++17
 (see ISO N4254).</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator""_s128</code></strong><code>() noexcept</code></li>
-<li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator""_u128</code></strong><code>() noexcept</code></li>
-</ul>
-<p>Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
-usual <code>"0x"</code> prefix) are supported as well as decimal ones.</p>
 </div>
 <div class="defns">
 <ul>

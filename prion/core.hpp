@@ -870,14 +870,23 @@ namespace Prion {
 
     namespace Literals {
 
-        template <char... CS> constexpr ptrdiff_t operator""_t() noexcept
-            { return ptrdiff_t(PrionDetail::MakeInteger<size_t, CS...>::value); }
-        template <char... CS> constexpr size_t operator""_z() noexcept
-            { return PrionDetail::MakeInteger<size_t, CS...>::value; }
+        constexpr int8_t operator""_s8(unsigned long long n) noexcept { return int8_t(n); }
+        constexpr uint8_t operator""_u8(unsigned long long n) noexcept { return uint8_t(n); }
+        constexpr int16_t operator""_s16(unsigned long long n) noexcept { return int16_t(n); }
+        constexpr uint16_t operator""_u16(unsigned long long n) noexcept { return uint16_t(n); }
+        constexpr int32_t operator""_s32(unsigned long long n) noexcept { return int32_t(n); }
+        constexpr uint32_t operator""_u32(unsigned long long n) noexcept { return uint32_t(n); }
+        constexpr int64_t operator""_s64(unsigned long long n) noexcept { return int64_t(n); }
+        constexpr uint64_t operator""_u64(unsigned long long n) noexcept { return uint64_t(n); }
+
         template <char... CS> constexpr int128_t operator""_s128() noexcept
             { return int128_t(PrionDetail::MakeInteger<uint128_t, CS...>::value); }
         template <char... CS> constexpr uint128_t operator""_u128() noexcept
             { return PrionDetail::MakeInteger<uint128_t, CS...>::value; }
+        template <char... CS> constexpr ptrdiff_t operator""_t() noexcept
+            { return ptrdiff_t(PrionDetail::MakeInteger<size_t, CS...>::value); }
+        template <char... CS> constexpr size_t operator""_z() noexcept
+            { return PrionDetail::MakeInteger<size_t, CS...>::value; }
 
         constexpr unsigned long long operator""_k(unsigned long long n) noexcept
             { return 1000ull * n; }

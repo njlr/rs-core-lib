@@ -610,17 +610,24 @@ mathematical constants, or to the best known accuracy for the physical ones.
 
 These are all in `namespace Prion::Literals`.
 
+* `constexpr int8_t` **`operator""_s8`**`(unsigned long long n) noexcept`
+* `constexpr uint8_t` **`operator""_u8`**`(unsigned long long n) noexcept`
+* `constexpr int16_t` **`operator""_s16`**`(unsigned long long n) noexcept`
+* `constexpr uint16_t` **`operator""_u16`**`(unsigned long long n) noexcept`
+* `constexpr int32_t` **`operator""_s32`**`(unsigned long long n) noexcept`
+* `constexpr uint32_t` **`operator""_u32`**`(unsigned long long n) noexcept`
+* `constexpr int64_t` **`operator""_s64`**`(unsigned long long n) noexcept`
+* `constexpr uint64_t` **`operator""_u64`**`(unsigned long long n) noexcept`
+* `template <char... CS> constexpr int128_t` **`operator""_s128`**`() noexcept`
+* `template <char... CS> constexpr uint128_t` **`operator""_u128`**`() noexcept`
+
+Integer literals.
+
 * `template <char... CS> constexpr ptrdiff_t` **`operator""_t`**`() noexcept`
 * `template <char... CS> constexpr size_t` **`operator""_z`**`() noexcept`
 
 Literals for `ptrdiff_t` and `size_t`, anticipating similar features in C++17
 (see ISO N4254).
-
-* `template <char... CS> constexpr int128_t` **`operator""_s128`**`() noexcept`
-* `template <char... CS> constexpr uint128_t` **`operator""_u128`**`() noexcept`
-
-Signed and unsigned 128 bit integer literals. Hexadecimal constants (with the
-usual `"0x"` prefix) are supported as well as decimal ones.
 
 * `constexpr unsigned long long` **`operator""_k`**`(unsigned long long n) noexcept`
 * `constexpr unsigned long long` **`operator""_M`**`(unsigned long long n) noexcept`
