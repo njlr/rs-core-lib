@@ -2937,6 +2937,8 @@ namespace Prion {
             u8string text = xt_colour(hash_xcolour(Thread::current()));
             if (timestamp)
                 text += "[" + format_date(system_clock::now(), 3) + "] ";
+            else
+                text += "# ";
             text += msg + xt_reset;
             std::cout << text << std::endl;
         }
