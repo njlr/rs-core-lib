@@ -16,6 +16,8 @@
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <typeindex>
+#include <typeinfo>
 #include <type_traits>
 #include <unordered_set>
 #include <utility>
@@ -465,6 +467,19 @@ namespace {
 
         u8string s;
 
+        const std::type_info& v_info = typeid(void);
+        const std::type_info& i_info = typeid(int);
+        const std::type_info& s_info = typeid(string);
+        auto v_index = std::type_index(v_info);
+        auto i_index = std::type_index(i_info);
+        auto s_index = std::type_index(s_info);
+
+        TEST_EQUAL(type_name(v_info), "void");
+        TEST_MATCH(type_name(i_info), "^(signed )?int$");
+        TEST_MATCH(type_name(s_info), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
+        TEST_EQUAL(type_name(v_index), "void");
+        TEST_MATCH(type_name(i_index), "^(signed )?int$");
+        TEST_MATCH(type_name(s_index), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
         TEST_EQUAL(type_name<void>(), "void");
         TEST_MATCH(type_name<int>(), "^(signed )?int$");
         TEST_MATCH(type_name<string>(), "^std::([^:]+::)*(string|basic_string ?<.+>)$");

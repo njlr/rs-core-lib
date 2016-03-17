@@ -603,13 +603,14 @@ conversion.</p>
 <ul>
 <li><code>string</code> <strong><code>demangle</code></strong><code>(const string&amp; name)</code></li>
 <li><code>string</code> <strong><code>type_name</code></strong><code>(const std::type_info&amp; t)</code></li>
+<li><code>string</code> <strong><code>type_name</code></strong><code>(const std::type_index&amp; t)</code></li>
 <li><code>template &lt;typename T&gt; string</code> <strong><code>type_name</code></strong><code>()</code></li>
 <li><code>template &lt;typename T&gt; string</code> <strong><code>type_name</code></strong><code>(const T&amp;)</code></li>
 </ul>
 <p>Demangle a type name. The original mangled name can be supplied as an explicit
-string, as a <code>std::type_info</code> object, as a type argument to a template
-function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type is to be named
-(e.g. <code>type_name(42)</code>).</p>
+string, as a <code>std::type_info</code> or <code>std:type_index</code> object, as a type argument
+to a template function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type
+is to be named (e.g. <code>type_name(42)</code>).</p>
 </div>
 <h3 id="uuid">UUID</h3>
 <div class="defns">

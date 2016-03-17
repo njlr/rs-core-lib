@@ -103,6 +103,7 @@
 #include <string>
 #include <system_error>
 #include <tuple>
+#include <typeindex>
 #include <typeinfo>
 #include <type_traits>
 #include <utility>
@@ -782,6 +783,7 @@ namespace Prion {
     }
 
     inline string type_name(const std::type_info& t) { return demangle(t.name()); }
+    inline string type_name(const std::type_index& t) { return demangle(t.name()); }
     template <typename T> string type_name() { return type_name(typeid(T)); }
     template <typename T> string type_name(const T&) { return type_name(typeid(T)); }
 
