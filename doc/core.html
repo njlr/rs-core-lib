@@ -241,18 +241,50 @@ message. (A planned change in C++17 will make this unnecessary.)</p>
 <h3 id="basic-types">Basic types</h3>
 <div class="defns">
 <ul>
+<li><em>From <code>&lt;functional&gt;</code></em><ul>
+<li><code>using std::</code><strong><code>function</code></strong></li>
+</ul>
+</li>
+<li><em>From <code>&lt;iostream&gt;</code></em><ul>
+<li><code>using std::</code><strong><code>cerr</code></strong></li>
+<li><code>using std::</code><strong><code>cin</code></strong></li>
+<li><code>using std::</code><strong><code>clog</code></strong></li>
+<li><code>using std::</code><strong><code>cout</code></strong></li>
+<li><code>using std::</code><strong><code>endl</code></strong></li>
+<li><code>using std::</code><strong><code>flush</code></strong></li>
+</ul>
+</li>
+<li><em>From <code>&lt;memory&gt;</code></em><ul>
+<li><code>using std::</code><strong><code>make_shared</code></strong></li>
+<li><code>using std::</code><strong><code>make_unique</code></strong></li>
+<li><code>using std::</code><strong><code>shared_ptr</code></strong></li>
+<li><code>using std::</code><strong><code>unique_ptr</code></strong></li>
+</ul>
+</li>
+<li><em>From <code>&lt;string&gt;</code></em><ul>
 <li><code>using std::</code><strong><code>basic_string</code></strong></li>
 <li><code>using std::</code><strong><code>string</code></strong></li>
 <li><code>using std::</code><strong><code>u16string</code></strong></li>
 <li><code>using std::</code><strong><code>u32string</code></strong></li>
 <li><code>using std::</code><strong><code>wstring</code></strong></li>
-<li><code>using std::</code><strong><code>shared_ptr</code></strong></li>
-<li><code>using std::</code><strong><code>unique_ptr</code></strong></li>
-<li><code>using std::</code><strong><code>make_shared</code></strong></li>
-<li><code>using std::</code><strong><code>make_unique</code></strong></li>
+</ul>
+</li>
+<li><em>From <code>&lt;tuple&gt;</code></em><ul>
+<li><code>using std::</code><strong><code>make_tuple</code></strong></li>
 <li><code>using std::</code><strong><code>tie</code></strong></li>
 <li><code>using std::</code><strong><code>tuple</code></strong></li>
+</ul>
+</li>
+<li><em>From <code>&lt;utility&gt;</code></em><ul>
+<li><code>using std::</code><strong><code>make_pair</code></strong></li>
+<li><code>using std::</code><strong><code>move</code></strong></li>
+<li><code>using std::</code><strong><code>pair</code></strong></li>
+</ul>
+</li>
+<li><em>From <code>&lt;vector&gt;</code></em><ul>
 <li><code>using std::</code><strong><code>vector</code></strong></li>
+</ul>
+</li>
 </ul>
 <p>Imported for convenience.</p>
 </div>
@@ -278,7 +310,7 @@ being used simply as an array of bytes rather than encoded text.</p>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>SimpleBuffer</code></strong><ul>
 <li><code>using SimpleBuffer::</code><strong><code>const_iterator</code></strong> <code>= const T*</code></li>
 <li><code>using SimpleBuffer::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
-<li><code>using SimpleBuffer::</code><strong><code>delete_function</code></strong> <code>= std::function&lt;void(T*)&gt;</code></li>
+<li><code>using SimpleBuffer::</code><strong><code>delete_function</code></strong> <code>= function&lt;void(T*)&gt;</code></li>
 <li><code>using SimpleBuffer::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
 <li><code>using SimpleBuffer::</code><strong><code>iterator</code></strong> <code>= T*</code></li>
 <li><code>using SimpleBuffer::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
@@ -1024,7 +1056,7 @@ C-style arrays and is <code>constexpr</code>.</p>
 </ul>
 </li>
 <li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt;</code> <strong><code>irange</code></strong><code>(const Iterator&amp; i, const Iterator&amp; j)</code></li>
-<li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt;</code> <strong><code>irange</code></strong><code>(const std::pair&lt;Iterator, Iterator&gt;&amp; p)</code></li>
+<li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt;</code> <strong><code>irange</code></strong><code>(const pair&lt;Iterator, Iterator&gt;&amp; p)</code></li>
 </ul>
 <p>A wrapper for a pair of iterators, usable as a range in standard algorithms.</p>
 </div>
@@ -1062,7 +1094,7 @@ guaranteeing 128 bit integer support.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; std::pair&lt;T, T&gt;</code> <strong><code>divide</code></strong><code>(T lhs, T rhs) noexcept</code></li>
+<li><code>template &lt;typename T&gt; pair&lt;T, T&gt;</code> <strong><code>divide</code></strong><code>(T lhs, T rhs) noexcept</code></li>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>quo</code></strong><code>(T lhs, T rhs) noexcept</code></li>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>rem</code></strong><code>(T lhs, T rhs) noexcept</code></li>
 </ul>
@@ -1196,7 +1228,7 @@ apply if the result is not representable by the return type.</p>
 <li><code>template &lt;typename Function, size_t Index&gt; using</code> <strong><code>ArgumentType</code></strong> <code>= [type of given argument]</code></li>
 <li><code>template &lt;typename Function&gt; using</code> <strong><code>ResultType</code></strong> <code>= [result type]</code></li>
 <li><code>template &lt;typename Function&gt; using</code> <strong><code>FunctionSignature</code></strong> <code>= [result(args...)]</code></li>
-<li><code>template &lt;typename Function&gt; using</code> <strong><code>StdFunction</code></strong> <code>= std::function&lt;FunctionSignature&lt;Function&gt;&gt;</code></li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>StdFunction</code></strong> <code>= function&lt;FunctionSignature&lt;Function&gt;&gt;</code></li>
 </ul>
 <p>Properties of a function type. This will work with ordinary functions (if not
 overloaded), function pointers, function objects, lambda expressions, and
@@ -1351,21 +1383,21 @@ otherwise the same as for any other type.</p>
 <div class="defns">
 <ul>
 <li><code>class</code> <strong><code>ScopeExit</code></strong><ul>
-<li><code>using ScopeExit::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>using ScopeExit::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
 <li><code>explicit ScopeExit::</code><strong><code>ScopeExit</code></strong><code>(callback f)</code></li>
 <li><code>ScopeExit::</code><strong><code>~ScopeExit</code></strong><code>() noexcept</code></li>
 <li><code>void ScopeExit::</code><strong><code>release</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
 <li><code>class</code> <strong><code>ScopeSuccess</code></strong><ul>
-<li><code>using ScopeSuccess::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>using ScopeSuccess::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
 <li><code>explicit ScopeSuccess::</code><strong><code>ScopeSuccess</code></strong><code>(callback f)</code></li>
 <li><code>ScopeSuccess::</code><strong><code>~ScopeSuccess</code></strong><code>() noexcept</code></li>
 <li><code>void ScopeSuccess::</code><strong><code>release</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
 <li><code>class</code> <strong><code>ScopeFailure</code></strong><ul>
-<li><code>using ScopeFailure::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>using ScopeFailure::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
 <li><code>explicit ScopeFailure::</code><strong><code>ScopeFailure</code></strong><code>(callback f)</code></li>
 <li><code>ScopeFailure::</code><strong><code>~ScopeFailure</code></strong><code>() noexcept</code></li>
 <li><code>void ScopeFailure::</code><strong><code>release</code></strong><code>() noexcept</code></li>
@@ -1387,7 +1419,7 @@ anything).</p>
 scope guard object will do nothing on destruction.</p>
 <ul>
 <li><code>class</code> <strong><code>ScopedTransaction</code></strong><ul>
-<li><code>using ScopedTransaction::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>using ScopedTransaction::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
 <li><code>ScopedTransaction::</code><strong><code>ScopedTransaction</code></strong><code>() noexcept</code></li>
 <li><code>ScopedTransaction::</code><strong><code>~ScopedTransaction</code></strong><code>() noexcept</code></li>
 <li><code>void ScopedTransaction::</code><strong><code>call</code></strong><code>(callback func, callback undo)</code></li>
@@ -1752,7 +1784,7 @@ support don't implement C++11 threads yet.</p>
 <div class="defns">
 <ul>
 <li><code>class Thread</code><ul>
-<li><code>using Thread::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>using Thread::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
 <li><code>using Thread::</code><strong><code>id_type</code></strong> <code>= ...</code></li>
 <li><code>Thread::</code><strong><code>Thread</code></strong><code>() noexcept</code></li>
 <li><code>explicit Thread::</code><strong><code>Thread</code></strong><code>(callback f)</code></li>

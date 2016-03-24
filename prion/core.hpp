@@ -208,18 +208,37 @@ namespace Prion {
 
     // Basic types
 
+    // From <functional>
+    using std::function;
+    // From <iostream>
+    using std::cerr;
+    using std::cin;
+    using std::clog;
+    using std::cout;
+    using std::endl;
+    using std::flush;
+    // From <memory>
+    using std::make_shared;
+    using std::make_unique;
+    using std::shared_ptr;
+    using std::unique_ptr;
+    // From <string>
     using std::basic_string;
     using std::string;
     using std::u16string;
     using std::u32string;
     using std::wstring;
-    using std::shared_ptr;
-    using std::unique_ptr;
-    using std::make_shared;
-    using std::make_unique;
+    // From <tuple>
+    using std::make_tuple;
     using std::tie;
     using std::tuple;
+    // From <utility>
+    using std::make_pair;
+    using std::move;
+    using std::pair;
+    // From <vector>
     using std::vector;
+
     using u8string = std::string;
     using int128_t = __int128;
     using uint128_t = unsigned __int128;
@@ -371,7 +390,7 @@ namespace Prion {
     public:
         using const_iterator = const T*;
         using const_reference = const T&;
-        using delete_function = std::function<void(T*)>;
+        using delete_function = function<void(T*)>;
         using difference_type = ptrdiff_t;
         using iterator = T*;
         using reference = T&;
@@ -447,7 +466,7 @@ namespace Prion {
             clear();
             len = sb.len;
             ptr = sb.ptr;
-            del = std::move(sb.del);
+            del = move(sb.del);
             sb.abandon();
             return *this;
         }
@@ -470,7 +489,7 @@ namespace Prion {
         Stacklike() = default;
         Stacklike(Stacklike&& s) = default;
         ~Stacklike() noexcept { clear(); }
-        Stacklike& operator=(Stacklike&& s) { if (&s != this) { clear(); stack = std::move(s.stack); } return *this; }
+        Stacklike& operator=(Stacklike&& s) { if (&s != this) { clear(); stack = move(s.stack); } return *this; }
         iterator begin() noexcept { return stack.begin(); }
         const_iterator begin() const noexcept { return stack.cbegin(); }
         const_iterator cbegin() const noexcept { return stack.cbegin(); }
@@ -481,7 +500,7 @@ namespace Prion {
         const_iterator cend() const noexcept { return stack.cend(); }
         void pop() noexcept { if (! stack.empty()) stack.pop(); }
         void push(const T& t) { stack.push_back(t); }
-        void push(T&& t) { stack.push_back(std::move(t)); }
+        void push(T&& t) { stack.push_back(move(t)); }
         size_t size() const noexcept { return stack.size(); }
     private:
         vector<T> stack;
@@ -1125,7 +1144,7 @@ namespace Prion {
     };
 
     template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
-    template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
+    template <typename Iterator> constexpr Irange<Iterator> irange(const pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
     template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
 
     // Integer sequences
@@ -1226,7 +1245,7 @@ namespace Prion {
 
         template <typename T>
         struct Divide<T, NumMode::signed_integer> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
+            pair<T, T> operator()(T lhs, T rhs) const noexcept {
                 auto q = lhs / rhs, r = lhs % rhs;
                 if (r < T(0)) {
                     q += rhs < T(0) ? T(1) : T(-1);
@@ -1238,14 +1257,14 @@ namespace Prion {
 
         template <typename T>
         struct Divide<T, NumMode::unsigned_integer> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
+            pair<T, T> operator()(T lhs, T rhs) const noexcept {
                 return {lhs / rhs, lhs % rhs};
             }
         };
 
         template <typename T>
         struct Divide<T, NumMode::floating_point> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
+            pair<T, T> operator()(T lhs, T rhs) const noexcept {
                 using std::fabs;
                 using std::floor;
                 using std::fmod;
@@ -1290,7 +1309,7 @@ namespace Prion {
         { return static_max(args...) < t ? t : static_max(args...); }
     template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
         { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
-    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
+    template <typename T> pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
     template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
     template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
     template <typename T> constexpr T gcd(T a, T b) noexcept { return PrionDetail::unsigned_gcd(abs(a), abs(b)); }
@@ -1426,7 +1445,7 @@ namespace Prion {
             using argument_tuple = tuple<Args...>;
             using result_type = ReturnType;
             using signature = result_type(Args...);
-            using std_function = std::function<signature>;
+            using std_function = function<signature>;
         };
 
         template <typename ReturnType, typename... Args>
@@ -1608,7 +1627,7 @@ namespace Prion {
             }
         }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(std::move(r));
+            Resource temp(move(r));
             std::swap(res, temp.res);
             std::swap(del, temp.del);
             return *this;
@@ -1619,7 +1638,7 @@ namespace Prion {
         T get() const noexcept { return res; }
         T release() noexcept { del = {}; return res; }
     private:
-        using deleter = std::function<void(T&)>;
+        using deleter = function<void(T&)>;
         T res = T();
         deleter del = {};
         Resource(const Resource&) = delete;
@@ -1645,7 +1664,7 @@ namespace Prion {
             }
         }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(std::move(r));
+            Resource temp(move(r));
             std::swap(res, temp.res);
             std::swap(del, temp.del);
             return *this;
@@ -1659,7 +1678,7 @@ namespace Prion {
         const T& operator*() const noexcept { return *res; }
         T* operator->() const noexcept { return res; }
     private:
-        using deleter = std::function<void(T*)>;
+        using deleter = function<void(T*)>;
         T* res = nullptr;
         deleter del = {};
         Resource(const Resource&) = delete;
@@ -1685,7 +1704,7 @@ namespace Prion {
             }
         }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(std::move(r));
+            Resource temp(move(r));
             std::swap(res, temp.res);
             std::swap(del, temp.del);
             return *this;
@@ -1696,7 +1715,7 @@ namespace Prion {
         void* get() const noexcept { return res; }
         void* release() noexcept { del = {}; return res; }
     private:
-        using deleter = std::function<void(void*)>;
+        using deleter = function<void(void*)>;
         void* res = nullptr;
         deleter del = {};
         Resource(const Resource&) = delete;
@@ -1739,7 +1758,7 @@ namespace Prion {
         class ConditionalScopeExit:
         private ScopeExitBase<Mode> {
         public:
-            using callback = std::function<void()>;
+            using callback = function<void()>;
             explicit ConditionalScopeExit(callback f) {
                 if (Mode > 0) {
                     func = f;
@@ -1754,7 +1773,7 @@ namespace Prion {
             }
             void release() noexcept { func = nullptr; }
         private:
-            std::function<void()> func;
+            function<void()> func;
             ConditionalScopeExit(const ConditionalScopeExit&) = delete;
             ConditionalScopeExit(ConditionalScopeExit&&) = delete;
             ConditionalScopeExit& operator=(const ConditionalScopeExit&) = delete;
@@ -1770,7 +1789,7 @@ namespace Prion {
 
     class ScopedTransaction {
     public:
-        using callback = std::function<void()>;
+        using callback = function<void()>;
         ScopedTransaction() noexcept {}
         ~ScopedTransaction() noexcept { rollback(); }
         void call(callback func, callback undo) {
@@ -2238,7 +2257,7 @@ namespace Prion {
         };
 
         template <typename R, typename I, typename K, typename V>
-        struct RangeToString<R, I, std::pair<K, V>> {
+        struct RangeToString<R, I, pair<K, V>> {
             string operator()(const R& r) const {
                 string s = "{";
                 for (const auto& kv: r) {
@@ -2274,8 +2293,8 @@ namespace Prion {
         template <> struct ObjectToString<char> { string operator()(char t) const { return {t}; } };
         template <> struct ObjectToString<bool> { string operator()(bool t) const { return t ? "true" : "false"; } };
 
-        template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, false, false> {
-            string operator()(const std::pair<T1, T2>& t) const {
+        template <typename T1, typename T2> struct ObjectToString<pair<T1, T2>, false, false> {
+            string operator()(const pair<T1, T2>& t) const {
                 return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}';
             }
         };
@@ -2307,12 +2326,12 @@ namespace Prion {
             if (lines >= 1)
                 end += '\n';
         }
-        Tag(Tag&& t) noexcept: end(std::move(t.end)), os(t.os) { t.os = nullptr; }
+        Tag(Tag&& t) noexcept: end(move(t.end)), os(t.os) { t.os = nullptr; }
         ~Tag() noexcept { if (os) try { *os << end; } catch (...) {} }
         Tag& operator=(Tag&& t) noexcept {
             if (os)
                 *os << end;
-            end = std::move(t.end);
+            end = move(t.end);
             os = t.os;
             t.os = nullptr;
             return *this;
@@ -2332,7 +2351,7 @@ namespace Prion {
 
         class Thread {
         public:
-            using callback = std::function<void()>;
+            using callback = function<void()>;
             using id_type = pthread_t;
             Thread() noexcept = default;
             explicit Thread(callback f) {
@@ -2412,7 +2431,7 @@ namespace Prion {
 
         class Thread {
         public:
-            using callback = std::function<void()>;
+            using callback = function<void()>;
             using id_type = uint32_t;
             Thread() noexcept = default;
             explicit Thread(callback f) {
@@ -2560,7 +2579,7 @@ namespace Prion {
                 return wait_impl(lock, duration_cast<nanoseconds>(t), predicate(p));
             }
         private:
-            using predicate = std::function<bool()>;
+            using predicate = function<bool()>;
             pthread_cond_t pcond;
             PRI_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& ml, std::chrono::nanoseconds ns, predicate p) {
@@ -2617,7 +2636,7 @@ namespace Prion {
                 return wait_impl(lock, duration_cast<nanoseconds>(t), predicate(p));
             }
         private:
-            using predicate = std::function<bool()>;
+            using predicate = function<bool()>;
             CONDITION_VARIABLE wcond;
             PRI_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& lock, std::chrono::nanoseconds ns, predicate p) {
@@ -2950,7 +2969,7 @@ namespace Prion {
             else
                 text += "# ";
             text += msg + xt_reset;
-            std::cout << text << std::endl;
+            cout << text << endl;
         }
 
     }

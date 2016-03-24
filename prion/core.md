@@ -123,18 +123,36 @@ message. (A planned change in C++17 will make this unnecessary.)
 
 ### Basic types ###
 
-* `using std::`**`basic_string`**
-* `using std::`**`string`**
-* `using std::`**`u16string`**
-* `using std::`**`u32string`**
-* `using std::`**`wstring`**
-* `using std::`**`shared_ptr`**
-* `using std::`**`unique_ptr`**
-* `using std::`**`make_shared`**
-* `using std::`**`make_unique`**
-* `using std::`**`tie`**
-* `using std::`**`tuple`**
-* `using std::`**`vector`**
+* _From `<functional>`_
+    * `using std::`**`function`**
+* _From `<iostream>`_
+    * `using std::`**`cerr`**
+    * `using std::`**`cin`**
+    * `using std::`**`clog`**
+    * `using std::`**`cout`**
+    * `using std::`**`endl`**
+    * `using std::`**`flush`**
+* _From `<memory>`_
+    * `using std::`**`make_shared`**
+    * `using std::`**`make_unique`**
+    * `using std::`**`shared_ptr`**
+    * `using std::`**`unique_ptr`**
+* _From `<string>`_
+    * `using std::`**`basic_string`**
+    * `using std::`**`string`**
+    * `using std::`**`u16string`**
+    * `using std::`**`u32string`**
+    * `using std::`**`wstring`**
+* _From `<tuple>`_
+    * `using std::`**`make_tuple`**
+    * `using std::`**`tie`**
+    * `using std::`**`tuple`**
+* _From `<utility>`_
+    * `using std::`**`make_pair`**
+    * `using std::`**`move`**
+    * `using std::`**`pair`**
+* _From `<vector>`_
+    * `using std::`**`vector`**
 
 Imported for convenience.
 
@@ -155,7 +173,7 @@ Aliases for the compiler's 128 bit integer types (e.g. `__int128`).
 * `template <typename T> class` **`SimpleBuffer`**
     * `using SimpleBuffer::`**`const_iterator`** `= const T*`
     * `using SimpleBuffer::`**`const_reference`** `= const T&`
-    * `using SimpleBuffer::`**`delete_function`** `= std::function<void(T*)>`
+    * `using SimpleBuffer::`**`delete_function`** `= function<void(T*)>`
     * `using SimpleBuffer::`**`difference_type`** `= ptrdiff_t`
     * `using SimpleBuffer::`**`iterator`** `= T*`
     * `using SimpleBuffer::`**`reference`** `= T&`
@@ -803,7 +821,7 @@ C-style arrays and is `constexpr`.
     * `constexpr bool Irange::`**`empty`**`() const { return first == second; }`
     * `constexpr size_t Irange::`**`size`**`() const { return std::distance(first, second); }`
 * `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const Iterator& i, const Iterator& j)`
-* `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const std::pair<Iterator, Iterator>& p)`
+* `template <typename Iterator> constexpr Irange<Iterator>` **`irange`**`(const pair<Iterator, Iterator>& p)`
 
 A wrapper for a pair of iterators, usable as a range in standard algorithms.
 
@@ -834,7 +852,7 @@ guaranteeing 128 bit integer support.
 Clamps a value to a fixed range. This returns `static_cast<T>(min)` if
 `t<min`, `static_cast<T>(max)` if `t>max`, otherwise `t`.
 
-* `template <typename T> std::pair<T, T>` **`divide`**`(T lhs, T rhs) noexcept`
+* `template <typename T> pair<T, T>` **`divide`**`(T lhs, T rhs) noexcept`
 * `template <typename T> T` **`quo`**`(T lhs, T rhs) noexcept`
 * `template <typename T> T` **`rem`**`(T lhs, T rhs) noexcept`
 
@@ -943,7 +961,7 @@ apply if the result is not representable by the return type.
 * `template <typename Function, size_t Index> using` **`ArgumentType`** `= [type of given argument]`
 * `template <typename Function> using` **`ResultType`** `= [result type]`
 * `template <typename Function> using` **`FunctionSignature`** `= [result(args...)]`
-* `template <typename Function> using` **`StdFunction`** `= std::function<FunctionSignature<Function>>`
+* `template <typename Function> using` **`StdFunction`** `= function<FunctionSignature<Function>>`
 
 Properties of a function type. This will work with ordinary functions (if not
 overloaded), function pointers, function objects, lambda expressions, and
@@ -1081,17 +1099,17 @@ deleter will never be called if the resource pointer is null. Behaviour is
 otherwise the same as for any other type.
 
 * `class` **`ScopeExit`**
-    * `using ScopeExit::`**`callback`** `= std::function<void()>`
+    * `using ScopeExit::`**`callback`** `= function<void()>`
     * `explicit ScopeExit::`**`ScopeExit`**`(callback f)`
     * `ScopeExit::`**`~ScopeExit`**`() noexcept`
     * `void ScopeExit::`**`release`**`() noexcept`
 * `class` **`ScopeSuccess`**
-    * `using ScopeSuccess::`**`callback`** `= std::function<void()>`
+    * `using ScopeSuccess::`**`callback`** `= function<void()>`
     * `explicit ScopeSuccess::`**`ScopeSuccess`**`(callback f)`
     * `ScopeSuccess::`**`~ScopeSuccess`**`() noexcept`
     * `void ScopeSuccess::`**`release`**`() noexcept`
 * `class` **`ScopeFailure`**
-    * `using ScopeFailure::`**`callback`** `= std::function<void()>`
+    * `using ScopeFailure::`**`callback`** `= function<void()>`
     * `explicit ScopeFailure::`**`ScopeFailure`**`(callback f)`
     * `ScopeFailure::`**`~ScopeFailure`**`() noexcept`
     * `void ScopeFailure::`**`release`**`() noexcept`
@@ -1113,7 +1131,7 @@ scope guard object will do nothing on destruction.
 
 
 * `class` **`ScopedTransaction`**
-    * `using ScopedTransaction::`**`callback`** `= std::function<void()>`
+    * `using ScopedTransaction::`**`callback`** `= function<void()>`
     * `ScopedTransaction::`**`ScopedTransaction`**`() noexcept`
     * `ScopedTransaction::`**`~ScopedTransaction`**`() noexcept`
     * `void ScopedTransaction::`**`call`**`(callback func, callback undo)`
@@ -1443,7 +1461,7 @@ support don't implement C++11 threads yet.
 ### Thread class ###
 
 * `class Thread`
-    * `using Thread::`**`callback`** `= std::function<void()>`
+    * `using Thread::`**`callback`** `= function<void()>`
     * `using Thread::`**`id_type`** `= ...`
     * `Thread::`**`Thread`**`() noexcept`
     * `explicit Thread::`**`Thread`**`(callback f)`

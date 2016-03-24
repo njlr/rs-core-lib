@@ -189,7 +189,7 @@ namespace {
         TEST_EQUAL(b1[0], 42);
 
         TRY(b2.assign(10, 99));
-        TRY(b1 = std::move(b2));
+        TRY(b1 = move(b2));
         TEST_EQUAL(b1.size(), 10);
         TEST_EQUAL(b1[0], 99);
         TEST_EQUAL(b2.size(), 0);
@@ -198,7 +198,7 @@ namespace {
         TEST_EQUAL(bp->size(), 10);
         TEST_EQUAL(bp->at(0), 99);
 
-        TRY(bp.reset(new buf(std::move(b1))));
+        TRY(bp.reset(new buf(move(b1))));
         TEST_EQUAL(bp->size(), 10);
         TEST_EQUAL(bp->at(0), 99);
         TEST_EQUAL(b1.size(), 0);
@@ -404,7 +404,7 @@ namespace {
             TEST_EQUAL(Nnptest::count, 3);
             TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;+3;");
 
-            TRY(p = std::move(u));
+            TRY(p = move(u));
             TEST_EQUAL(p->num, 3);
             TEST_EQUAL(q->num, 2);
             TEST(! u);
@@ -1881,13 +1881,13 @@ namespace {
 
         auto lf1 = [] (int x) { return x * x; };
         auto sf1 = stdfun(lf1);
-        TEST_TYPE_OF(sf1, std::function<int(int)>);
+        TEST_TYPE_OF(sf1, function<int(int)>);
         TEST_EQUAL(sf1(5), 25);
 
         int z = 0;
         auto lf2 = [&] (int x, int y) { z = x * y; };
         auto sf2 = stdfun(lf2);
-        TEST_TYPE_OF(sf2, std::function<void(int, int)>);
+        TEST_TYPE_OF(sf2, function<void(int, int)>);
         TRY(sf2(6, 7));
         TEST_EQUAL(z, 42);
 
@@ -3034,8 +3034,8 @@ namespace {
         TEST_EQUAL(to_str('X'), "X");
         TEST_EQUAL(to_str(true), "true");
         TEST_EQUAL(to_str(false), "false");
-        TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
-        TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
+        TEST_EQUAL(to_str(make_pair(10,20)), "{10,20}");
+        TEST_EQUAL(to_str(make_pair("hello"s,"world"s)), "{hello,world}");
 
         bv.clear();
         iv.clear();
