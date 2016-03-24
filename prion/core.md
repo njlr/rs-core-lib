@@ -1328,6 +1328,11 @@ the 128-255 range are passed through unchanged instead of being escaped.
 
 Trim unwanted bytes from the ends of a string.
 
+* `string` **`unqualify`**`(const string& str)`
+
+Strips off any prefix ending in a dot or colon, e.g.
+`unqualify("Prion::unqualify()")` returns `"unqualify()"`.
+
 * `wstring` **`utf8_to_wstring`**`(const u8string& ustr)` _(Windows only)_
 * `u8string` **`wstring_to_utf8`**`(const wstring& wstr)` _(Windows only)_
 

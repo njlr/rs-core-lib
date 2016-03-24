@@ -1629,6 +1629,13 @@ the 128-255 range are passed through unchanged instead of being escaped.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>string</code> <strong><code>unqualify</code></strong><code>(const string&amp; str)</code></li>
+</ul>
+<p>Strips off any prefix ending in a dot or colon, e.g.
+<code>unqualify("Prion::unqualify()")</code> returns <code>"unqualify()"</code>.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>wstring</code> <strong><code>utf8_to_wstring</code></strong><code>(const u8string&amp; ustr)</code> <em>(Windows only)</em></li>
 <li><code>u8string</code> <strong><code>wstring_to_utf8</code></strong><code>(const wstring&amp; wstr)</code> <em>(Windows only)</em></li>
 </ul>

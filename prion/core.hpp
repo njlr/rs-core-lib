@@ -2069,6 +2069,14 @@ namespace Prion {
         return str.substr(0, str.find_last_not_of(chars) + 1);
     }
 
+    inline string unqualify(const string& str) {
+        size_t pos = str.find_last_of(".:");
+        if (pos == npos)
+            return str;
+        else
+            return str.substr(pos + 1, npos);
+    }
+
     // String formatting and parsing functions
 
     inline unsigned long long binnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
