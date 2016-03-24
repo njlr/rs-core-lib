@@ -886,7 +886,7 @@ namespace {
 
     void check_generic_algorithms() {
 
-        std::string s1, s2;
+        u8string s1, s2;
         int c;
 
         s1 = "Hello";
