@@ -1389,6 +1389,9 @@ appended. The tag letter will be chosen so that the numeric part is greater
 than or equal to 1 and less than 1000, if possible. Optionally a delimiter can
 be inserted between the number and letter.
 
+(These functions will not work properly with `long double` values that are
+outside the range of a `double`.)
+
 * `u8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
 * `u8string` **`hexdump`**`(const string& str, size_t block = 0)`
 

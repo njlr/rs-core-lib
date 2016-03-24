@@ -2147,7 +2147,7 @@ namespace Prion {
         if (ptr == nullptr)
             throw std::invalid_argument("Unknown suffix: " + str);
         x *= pow(10.0, 3 * (ptr - PrionDetail::si_prefixes + 1));
-        if (x < double(limits::min()) || x > double(limits::max()))
+        if (x < double(limits::lowest()) || x > double(limits::max()))
             throw std::range_error("Out of range: " + str);
         return T(x);
     }

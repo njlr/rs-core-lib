@@ -2923,6 +2923,7 @@ namespace {
         TEST_EQUAL(si_to_f("-42"), -42);
         TEST_EQUAL(si_to_f("1234.5"), 1234.5);
         TEST_EQUAL(si_to_f("-1234.5"), -1234.5);
+        TEST_EQUAL(si_to_f("0k"), 0);
         TEST_EQUAL(si_to_f("12.34k"), 12.34e3);
         TEST_EQUAL(si_to_f("12.34K"), 12.34e3);
         TEST_EQUAL(si_to_f("12.34 k"), 12.34e3);
@@ -2934,6 +2935,10 @@ namespace {
         TEST_EQUAL(si_to_f("12.34 E"), 12.34e18);
         TEST_EQUAL(si_to_f("12.34 Z"), 12.34e21);
         TEST_EQUAL(si_to_f("12.34 Y"), 12.34e24);
+        TEST_EQUAL(si_to_f("-12.34k"), -12.34e3);
+        TEST_EQUAL(si_to_f("-12.34K"), -12.34e3);
+        TEST_EQUAL(si_to_f("-12.34 k"), -12.34e3);
+        TEST_EQUAL(si_to_f("-12.34 K"), -12.34e3);
         TEST_THROW(si_to_f("1e9999"), std::range_error);
         TEST_THROW(si_to_f(""), std::invalid_argument);
         TEST_THROW(si_to_f("k999"), std::invalid_argument);
@@ -2942,6 +2947,7 @@ namespace {
         TEST_EQUAL(si_to_i("0"), 0);
         TEST_EQUAL(si_to_i("42"), 42);
         TEST_EQUAL(si_to_i("-42"), -42);
+        TEST_EQUAL(si_to_i("0k"), 0);
         TEST_EQUAL(si_to_i("12.34k"), 12340);
         TEST_EQUAL(si_to_i("12.34K"), 12340);
         TEST_EQUAL(si_to_i("12.34 k"), 12340);
@@ -2953,6 +2959,10 @@ namespace {
         TEST_THROW(si_to_i("12.34 E"), std::range_error);
         TEST_THROW(si_to_i("12.34 Z"), std::range_error);
         TEST_THROW(si_to_i("12.34 Y"), std::range_error);
+        TEST_EQUAL(si_to_i("-12.34k"), -12340);
+        TEST_EQUAL(si_to_i("-12.34K"), -12340);
+        TEST_EQUAL(si_to_i("-12.34 k"), -12340);
+        TEST_EQUAL(si_to_i("-12.34 K"), -12340);
         TEST_THROW(si_to_i("1e9999"), std::range_error);
         TEST_THROW(si_to_i(""), std::invalid_argument);
         TEST_THROW(si_to_i("k999"), std::invalid_argument);
