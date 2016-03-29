@@ -2105,13 +2105,13 @@ namespace Prion {
 
     template <typename T>
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
-        static const u8string modes = "eEfFgGzZ";
+        static const u8string modes = "EFGHefgh";
         if (modes.find(mode) == npos)
             throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
         u8string buf(20, '\0'), fmt;
         switch (mode) {
-            case 'z':  fmt = "%#.*g"; break;
-            case 'Z':  fmt = "%#.*G"; break;
+            case 'H':  fmt = "%#.*G"; break;
+            case 'h':  fmt = "%#.*g"; break;
             default:   fmt = u8string("%.*") + mode; break;
         }
         auto x = double(t);
@@ -2125,8 +2125,8 @@ namespace Prion {
             buf.resize(2 * buf.size());
         }
         buf.resize(rc);
-        if (mode != 'f' && mode != 'F') {
-            size_t p = buf.find_first_of("eE");
+        if (mode != 'F' && mode != 'f') {
+            size_t p = buf.find_first_of("Ee");
             if (p == npos)
                 p = buf.size();
             if (buf[p - 1] == '.') {
@@ -2186,15 +2186,15 @@ namespace Prion {
     u8string to_si(T t, int prec = 3, const u8string& delim = "") {
         auto x = double(t);
         if (x == 0)
-            return fp_format(x, 'z', prec);
+            return fp_format(x, 'h', prec);
         int step = clamp(int(floor(log10(fabs(x)) / 3.0)), 0, 8);
         x *= pow(10.0, - 3 * step);
-        u8string str = fp_format(x, 'z', prec);
+        u8string str = fp_format(x, 'h', prec);
         auto p = str.data() + size_t(str[0] == '-');
         if (step < 8 && strcmp(p, "1000") == 0) {
             ++step;
             x *= 0.001;
-            str = fp_format(x, 'z', prec);
+            str = fp_format(x, 'h', prec);
         }
         if (step > 0)
             str += delim;

@@ -1382,10 +1382,10 @@ range will be clamped to the nearest end of the return type's range (for
 * `template <typename T> u8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
 
 Simple floating point formatting, by calling `snprintf()`. `T` must be an
-arithmetic type; it will be converted to `double` internally. The special
-format `'z'` is the same as `'g'` except that trailing zeros are not stripped.
+arithmetic type; it will be converted to `double` internally. The additional
+format `'h'` is the same as `'g'` except that trailing zeros are not stripped.
 This will throw `std::invalid_argument` if the mode is not one of
-`[eEfFgGzZ]`; it may throw `std::system_error` under implementation defined
+`[EFGHefgh]`; it may throw `std::system_error` under implementation defined
 circumstances.
 
 * `template <typename T> T` **`from_si`**`(const u8string& str)`
