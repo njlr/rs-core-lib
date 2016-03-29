@@ -495,7 +495,10 @@ not a power of 2 in the supported range (8-128).</p>
 <p>These are convenience base classes that define members and
 operators that would normally just be repetitive boilerplate (similar to the
 ones in Boost). They all use the CRTP idiom; a class <code>T</code> should derive from
-<code>Mixin&lt;T&gt;</code> to automatically generate the desired boilerplate code.</p>
+<code>Mixin&lt;T&gt;</code> to automatically generate the desired boilerplate code. The table
+below shows which operations the user is required to define, and which ones
+the mixin will automatically define. (Here, <code>t</code> and <code>u</code> are objects of type
+<code>T</code>, <code>v</code> is an object of <code>T</code>'s value type, and <code>n</code> is an integer.)</p>
 <table>
 <thead>
 <tr>
@@ -507,38 +510,38 @@ ones in Boost). They all use the CRTP idiom; a class <code>T</code> should deriv
 <tbody>
 <tr>
 <td><strong><code>EqualityComparable</code></strong><code>&lt;T&gt;</code></td>
-<td><code>t1==t2</code></td>
-<td><code>t1!=t2</code></td>
+<td><code>t==u</code></td>
+<td><code>t!=u</code></td>
 </tr>
 <tr>
 <td><strong><code>LessThanComparable</code></strong><code>&lt;T&gt;</code></td>
-<td><code>t1==t2 t1&lt;t2</code></td>
-<td><code>t1!=t2 t1&gt;t2 t1&lt;=t2 t1&gt;=t2</code></td>
+<td><code>t==u, t&lt;u</code></td>
+<td><code>t!=u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
 </tr>
 <tr>
 <td><strong><code>InputIterator</code></strong><code>&lt;T,CV&gt;</code></td>
-<td><code>*t ++t t1==t2</code></td>
-<td><code>t-&gt; t++ t1!=t2</code></td>
+<td><code>*t, ++t, t==u</code></td>
+<td><code>t-&gt;, t++, t!=u</code></td>
 </tr>
 <tr>
 <td><strong><code>OutputIterator</code></strong><code>&lt;T&gt;</code></td>
 <td><code>t=v</code></td>
-<td><code>*t ++t t++</code></td>
+<td><code>*t, ++t, t++</code></td>
 </tr>
 <tr>
 <td><strong><code>ForwardIterator</code></strong><code>&lt;T,CV&gt;</code></td>
-<td><code>*t ++t t1==t2</code></td>
-<td><code>t-&gt; t++ t1!=t2</code></td>
+<td><code>*t, ++t, t==u</code></td>
+<td><code>t-&gt;, t++, t!=u</code></td>
 </tr>
 <tr>
 <td><strong><code>BidirectionalIterator</code></strong><code>&lt;T,CV&gt;</code></td>
-<td><code>*t ++t --t t1==t2</code></td>
-<td><code>t-&gt; t++ t-- t1!=t2</code></td>
+<td><code>*t, ++t, --t, t==u</code></td>
+<td><code>t-&gt;, t++, t--, t!=u</code></td>
 </tr>
 <tr>
 <td><strong><code>RandomAccessIterator</code></strong><code>&lt;T,CV&gt;</code></td>
-<td><code>*t t+=n t1-t2 t1==t2 t1&lt;t2</code></td>
-<td><code>t-&gt; t[n] ++t t++ --t t-- t-=n t+n n+t t-n t1!=t2 t1&gt;t2 t1&lt;=t2 t1&gt;=t2</code></td>
+<td><code>*t, t+=n, t-u</code></td>
+<td><code>t-&gt;, t[n], ++t, t++, --t, t--, t-=n, t+n, n+t, t-n,</code><br><code>t==u, t!=u, t&lt;u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
 </tr>
 </tbody>
 </table>

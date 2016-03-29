@@ -661,6 +661,8 @@ namespace Prion {
         friend T operator+(const T& lhs, ptrdiff_t rhs) { T t = lhs; t += rhs; return t; }
         friend T operator+(ptrdiff_t lhs, const T& rhs) { T t = rhs; t += lhs; return t; }
         friend T operator-(const T& lhs, ptrdiff_t rhs) { T t = lhs; t -= rhs; return t; }
+        friend bool operator==(const T& lhs, const T& rhs) noexcept { return lhs - rhs == 0; }
+        friend bool operator<(const T& lhs, const T& rhs) noexcept { return lhs - rhs < 0; }
     };
 
     // Smart pointers
@@ -1159,8 +1161,6 @@ namespace Prion {
         IntegerSequenceIterator& operator+=(ptrdiff_t n) noexcept { cur += n * del; return *this; }
         ptrdiff_t operator-(const IntegerSequenceIterator& rhs) const noexcept
             { return (ptrdiff_t(cur) - ptrdiff_t(rhs.cur)) / ptrdiff_t(del); }
-        bool operator==(const IntegerSequenceIterator& rhs) const noexcept { return cur == rhs.cur; }
-        bool operator<(const IntegerSequenceIterator& rhs) const noexcept { return del >= 0 ? cur < rhs.cur : cur > rhs.cur; }
     private:
         T cur, del;
     };
