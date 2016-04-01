@@ -2273,6 +2273,15 @@ namespace Prion {
             }
         };
 
+        template <typename R, typename I>
+        struct RangeToString<R, I, char> {
+            string operator()(const R& r) const {
+                using std::begin;
+                using std::end;
+                return string(begin(r), end(r));
+            }
+        };
+
         template <typename T, bool I = std::is_integral<T>::value,
             bool R = IsRangeType<T>::value>
         struct ObjectToString {
