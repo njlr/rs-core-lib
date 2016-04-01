@@ -1132,7 +1132,6 @@ anything).
 The `release()` function discards the saved function; after it is called, the
 scope guard object will do nothing on destruction.
 
-
 * `class` **`ScopedTransaction`**
     * `using ScopedTransaction::`**`callback`** `= function<void()>`
     * `ScopedTransaction::`**`ScopedTransaction`**`() noexcept`
