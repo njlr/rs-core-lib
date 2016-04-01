@@ -683,14 +683,14 @@ namespace Prion {
     class Nnptr {
     public:
         using element_type = T;
-        Nnptr(const Nnptr& p) noexcept = default;
+        Nnptr(const Nnptr& p) = default;
         Nnptr(Nnptr&& p) noexcept { ptr = p.ptr; }
         template <typename T2> Nnptr(const Nnptr<T2>& p) noexcept: ptr(p.ptr) {}
         template <typename T2> explicit Nnptr(T2* p): ptr(p) { check(p); }
         template <typename T2, typename D> Nnptr(T2* p, D d): ptr(p, d) { check(p); }
         template <typename T2, typename D> Nnptr(unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); }
-        ~Nnptr() noexcept = default;
-        Nnptr& operator=(const Nnptr& p) noexcept = default;
+        ~Nnptr() = default;
+        Nnptr& operator=(const Nnptr& p) = default;
         Nnptr& operator=(Nnptr&& p) noexcept { ptr = p.ptr; return *this; }
         template <typename T2> Nnptr& operator=(const Nnptr<T2>& p) noexcept { ptr = p.ptr; return *this; }
         template <typename T2, typename D> Nnptr& operator=(unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); return *this; }
@@ -1155,7 +1155,7 @@ namespace Prion {
     class IntegerSequenceIterator:
     public RandomAccessIterator<IntegerSequenceIterator<T>, const T> {
     public:
-        IntegerSequenceIterator() noexcept = default;
+        IntegerSequenceIterator() = default;
         IntegerSequenceIterator(T init, T delta): cur(init), del(delta) {}
         const T& operator*() const noexcept { return cur; }
         IntegerSequenceIterator& operator+=(ptrdiff_t n) noexcept { cur += n * del; return *this; }
@@ -1613,7 +1613,7 @@ namespace Prion {
     class Resource {
     public:
         using resource_type = T;
-        Resource() noexcept = default;
+        Resource() = default;
         explicit Resource(T t): res(t), del() {}
         template <typename D> Resource(T t, D d): res(t), del() {
             try { del = deleter(d); }
@@ -1650,7 +1650,7 @@ namespace Prion {
     public:
         using resource_type = T*;
         using value_type = T;
-        Resource() noexcept = default;
+        Resource() = default;
         explicit Resource(T* t): res(t), del() {}
         template <typename D> Resource(T* t, D d): res(t), del() {
             try { del = deleter(d); }
@@ -1690,7 +1690,7 @@ namespace Prion {
     public:
         using resource_type = void*;
         using value_type = void;
-        Resource() noexcept = default;
+        Resource() = default;
         explicit Resource(void* t): res(t), del() {}
         template <typename D> Resource(void* t, const D& d): res(t) {
             try { del = deleter(d); }
@@ -2353,7 +2353,7 @@ namespace Prion {
         public:
             using callback = function<void()>;
             using id_type = pthread_t;
-            Thread() noexcept = default;
+            Thread() = default;
             explicit Thread(callback f) {
                 if (f) {
                     impl = make_unique<impl_type>();
@@ -2433,7 +2433,7 @@ namespace Prion {
         public:
             using callback = function<void()>;
             using id_type = uint32_t;
-            Thread() noexcept = default;
+            Thread() = default;
             explicit Thread(callback f) {
                 if (f) {
                     impl = make_unique<impl_type>();
@@ -2538,7 +2538,7 @@ namespace Prion {
 
     class MutexLock {
     public:
-        MutexLock() noexcept = default;
+        MutexLock() = default;
         explicit MutexLock(Mutex& m) noexcept: mx(&m) { mx->lock(); }
         ~MutexLock() noexcept { if (mx) mx->unlock(); }
         MutexLock(MutexLock&& lock) noexcept: mx(lock.mx) { lock.mx = nullptr; }
