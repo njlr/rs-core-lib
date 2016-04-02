@@ -1204,9 +1204,10 @@ in <code>T</code>.</p>
 <li><code>template &lt;typename T1, typename T2&gt; constexpr T2</code> <strong><code>interpolate</code></strong><code>(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept</code></li>
 </ul>
 <p>Returns the value of <code>y</code> corresponding to <code>x</code>, by interpolating or
-extrapolating the line between <code>(x1,y1)</code> and <code>(x2,y2)</code>. Behaviour is undefined
-if <code>x1==x2</code> and <code>y1!=y2</code>, or if either type is not an arithmetic type; the
-result is unspecified if either type is not floating point.</p>
+extrapolating the line between <code>(x1,y1)</code> and <code>(x2,y2)</code>. If <code>x1=x2</code> it will
+return the average of <code>y1</code> and <code>y2</code>. The usual arithmetic rules apply if the
+result is not representable by the return type. Behaviour is undefined if
+either argument type is not floating point.</p>
 </div>
 <div class="defns">
 <ul>

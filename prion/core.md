@@ -941,9 +941,10 @@ Convert between degrees and radians.
 * `template <typename T1, typename T2> constexpr T2` **`interpolate`**`(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept`
 
 Returns the value of `y` corresponding to `x`, by interpolating or
-extrapolating the line between `(x1,y1)` and `(x2,y2)`. Behaviour is undefined
-if `x1==x2` and `y1!=y2`, or if either type is not an arithmetic type; the
-result is unspecified if either type is not floating point.
+extrapolating the line between `(x1,y1)` and `(x2,y2)`. If `x1=x2` it will
+return the average of `y1` and `y2`. The usual arithmetic rules apply if the
+result is not representable by the return type. Behaviour is undefined if
+either argument type is not floating point.
 
 * `template <typename T2, typename T1> T2` **`iceil`**`(T1 value) noexcept`
 * `template <typename T2, typename T1> T2` **`ifloor`**`(T1 value) noexcept`

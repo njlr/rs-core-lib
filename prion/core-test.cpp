@@ -1743,11 +1743,12 @@ namespace {
         TEST_EQUAL(interpolate(1.0, 15.0, 2.0, 5.0, 2.50), 0.0);
         TEST_EQUAL(interpolate(1.0, 15.0, 2.0, 5.0, 2.75), -2.5);
         TEST_EQUAL(interpolate(1.0, 15.0, 2.0, 5.0, 3.00), -5.0);
-        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 0.50), 5.0);
-        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 1.00), 5.0);
-        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 1.50), 5.0);
-        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 2.00), 5.0);
-        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 2.50), 5.0);
+        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 0.5), 5.0);
+        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 1.0), 5.0);
+        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 5.0, 1.5), 5.0);
+        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 10.0, 0.5), 7.5);
+        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 10.0, 1.0), 7.5);
+        TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 10.0, 1.5), 7.5);
 
         TEST_EQUAL(iceil<int>(42), 42);          TEST_EQUAL(ifloor<int>(42), 42);          TEST_EQUAL(round<int>(42), 42);
         TEST_EQUAL(iceil<double>(42), 42.0);     TEST_EQUAL(ifloor<double>(42), 42.0);     TEST_EQUAL(round<double>(42), 42.0);

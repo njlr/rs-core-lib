@@ -1420,7 +1420,7 @@ namespace Prion {
     template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
     template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
     template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept
-        { return y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
+        { return x1 == x2 ? (y1 + y2) * (T1(1) / T1(2)) : y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
     template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return PrionDetail::Round<T2, T1, '>'>()(value); }
     template <typename T2, typename T1> T2 ifloor(T1 value) noexcept { return PrionDetail::Round<T2, T1, '<'>()(value); }
     template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1, '='>()(value); }
