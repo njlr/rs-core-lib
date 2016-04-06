@@ -110,6 +110,10 @@
 #include <vector>
 #include <cxxabi.h>
 
+#if ! defined(PRI_TARGET_MINGW)
+    #include <mutex>
+#endif
+
 #if defined(PRI_TARGET_UNIX)
     #include <pthread.h>
     #include <sched.h>
@@ -2557,7 +2561,11 @@ namespace Prion {
         Mutex* mx = nullptr;
     };
 
-    inline MutexLock make_lock(Mutex& m) noexcept { return MutexLock(m); }
+    inline auto make_lock(Mutex& m) noexcept { return MutexLock(m); }
+
+    #if ! defined(PRI_TARGET_MINGW)
+        template <typename T> inline auto make_lock(T& t) { return std::unique_lock<T>(t); }
+    #endif
 
     #if defined(PRI_TARGET_UNIX)
 

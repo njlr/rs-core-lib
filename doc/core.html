@@ -1857,7 +1857,8 @@ slice.</p>
 </li>
 <li><code>MutexLock</code> <strong><code>make_lock</code></strong><code>(Mutex&amp; m) noexcept</code></li>
 </ul>
-<p>Mutex and exclusive lock.</p>
+<p>Mutex and exclusive lock. (A version of <code>make_lock()</code> that returns a
+<code>std::unique_lock&lt;std::mutex&gt;</code> is also defined on systems that support it.)</p>
 </div>
 <div class="defns">
 <ul>

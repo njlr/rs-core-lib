@@ -1531,7 +1531,8 @@ slice.
     * `MutexLock& MutexLock::`**`operator=`**`(MutexLock&& lock) noexcept`
 * `MutexLock` **`make_lock`**`(Mutex& m) noexcept`
 
-Mutex and exclusive lock.
+Mutex and exclusive lock. (A version of `make_lock()` that returns a
+`std::unique_lock<std::mutex>` is also defined on systems that support it.)
 
 * `class` **`ConditionVariable`**
     * `ConditionVariable::`**`ConditionVariable`**`()`
