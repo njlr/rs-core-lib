@@ -1272,6 +1272,17 @@ overloaded), function pointers, function objects, lambda expressions, and
 <h3 id="hash-functions">Hash functions</h3>
 <div class="defns">
 <ul>
+<li><code>class</code> <strong><code>Djb2</code></strong><ul>
+<li><code>Djb2&amp;</code> <strong><code>Djb2</code></strong><code>::operator()(const void* ptr, size_t n) noexcept</code></li>
+<li><code>Djb2&amp;</code> <strong><code>Djb2</code></strong><code>::operator()(const string&amp; s) noexcept</code></li>
+<li><code>Djb2::</code><strong><code>operator uint32_t</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>A simple, efficient hash algorithm for a string of bytes.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>size_t</code> <strong><code>hash_bytes</code></strong><code>(const void* ptr, size_t n)</code></li>
 <li><code>void</code> <strong><code>hash_bytes</code></strong><code>(size_t&amp; hash, const void* ptr, size_t n)</code></li>
 <li><code>template &lt;typename... Args&gt; size_t</code> <strong><code>hash_value</code></strong><code>(const Args&amp;... args) noexcept</code></li>

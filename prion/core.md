@@ -996,6 +996,13 @@ Trivial function objects.
 
 ### Hash functions ###
 
+* `class` **`Djb2`**
+    * `Djb2&` **`Djb2`**`::operator()(const void* ptr, size_t n) noexcept`
+    * `Djb2&` **`Djb2`**`::operator()(const string& s) noexcept`
+    * `Djb2::`**`operator uint32_t`**`() const noexcept`
+
+A simple, efficient hash algorithm for a string of bytes.
+
 * `size_t` **`hash_bytes`**`(const void* ptr, size_t n)`
 * `void` **`hash_bytes`**`(size_t& hash, const void* ptr, size_t n)`
 * `template <typename... Args> size_t` **`hash_value`**`(const Args&... args) noexcept`

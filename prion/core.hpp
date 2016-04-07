@@ -1523,6 +1523,21 @@ namespace Prion {
 
     }
 
+    class Djb2 {
+    public:
+        Djb2& operator()(const void* ptr, size_t n) noexcept {
+            auto p = static_cast<const uint8_t*>(ptr);
+            if (p)
+                for (size_t i = 0; i < n; ++i)
+                    hash = (hash << 5) + hash + p[i];
+            return *this;
+        }
+        Djb2& operator()(const string& s) noexcept { return (*this)(s.data(), s.size()); }
+        operator uint32_t() const noexcept { return hash; }
+    private:
+        uint32_t hash = 5381;
+    };
+
     inline void hash_combine(size_t&) noexcept {}
 
     template <typename T>
