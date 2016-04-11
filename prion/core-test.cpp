@@ -887,7 +887,7 @@ namespace {
     void check_generic_algorithms() {
 
         u8string s1, s2;
-        int c;
+        int n;
 
         s1 = "Hello";
         TRY(std::copy(s1.begin(), s1.end(), append(s2)));
@@ -913,26 +913,26 @@ namespace {
         TRY(std::copy(set1.begin(), set1.end(), overwrite(set2)));
         TEST_EQUAL(to_str(set2), "[7,8,9]");
 
-        s1 = "";               s2 = "";               TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 0);
-        s1 = "";               s2 = "hello";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
-        s1 = "hello";          s2 = "";               TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
-        s1 = "hello";          s2 = "world";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
-        s1 = "hello";          s2 = "hello";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 0);
-        s1 = "hello";          s2 = "goodbye";        TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
-        s1 = "hello";          s2 = "hello world";    TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
-        s1 = "hello world";    s2 = "hello";          TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
-        s1 = "hello goodbye";  s2 = "hello world";    TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, -1);
-        s1 = "hello world";    s2 = "hello goodbye";  TRY(c = compare_3way(s1, s2));                    TEST_EQUAL(c, 1);
-        s1 = "";               s2 = "";               TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 0);
-        s1 = "";               s2 = "hello";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
-        s1 = "hello";          s2 = "";               TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
-        s1 = "hello";          s2 = "world";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
-        s1 = "hello";          s2 = "hello";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 0);
-        s1 = "hello";          s2 = "goodbye";        TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
-        s1 = "hello";          s2 = "hello world";    TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
-        s1 = "hello world";    s2 = "hello";          TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
-        s1 = "hello goodbye";  s2 = "hello world";    TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, 1);
-        s1 = "hello world";    s2 = "hello goodbye";  TRY(c = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(c, -1);
+        s1 = "";               s2 = "";               TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, 0);
+        s1 = "";               s2 = "hello";          TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, -1);
+        s1 = "hello";          s2 = "";               TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, 1);
+        s1 = "hello";          s2 = "world";          TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, -1);
+        s1 = "hello";          s2 = "hello";          TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, 0);
+        s1 = "hello";          s2 = "goodbye";        TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, 1);
+        s1 = "hello";          s2 = "hello world";    TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, -1);
+        s1 = "hello world";    s2 = "hello";          TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, 1);
+        s1 = "hello goodbye";  s2 = "hello world";    TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, -1);
+        s1 = "hello world";    s2 = "hello goodbye";  TRY(n = compare_3way(s1, s2));                    TEST_EQUAL(n, 1);
+        s1 = "";               s2 = "";               TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 0);
+        s1 = "";               s2 = "hello";          TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, -1);
+        s1 = "hello";          s2 = "";               TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 1);
+        s1 = "hello";          s2 = "world";          TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 1);
+        s1 = "hello";          s2 = "hello";          TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 0);
+        s1 = "hello";          s2 = "goodbye";        TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, -1);
+        s1 = "hello";          s2 = "hello world";    TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, -1);
+        s1 = "hello world";    s2 = "hello";          TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 1);
+        s1 = "hello goodbye";  s2 = "hello world";    TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 1);
+        s1 = "hello world";    s2 = "hello goodbye";  TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, -1);
 
         const auto same_case = [] (char a, char b) { return ascii_isupper(a) == ascii_isupper(b); };
 
@@ -950,6 +950,13 @@ namespace {
         s1.clear();  TRY(do_n(1, f));  TEST_EQUAL(s1, "Hello");
         s1.clear();  TRY(do_n(2, f));  TEST_EQUAL(s1, "HelloHello");
         s1.clear();  TRY(do_n(3, f));  TEST_EQUAL(s1, "HelloHelloHello");
+
+        vector<int> v0, v5 = {1,2,3,4,5};
+
+        TRY(n = sum(v0));      TEST_EQUAL(n, 0);
+        TRY(n = sum(v5));      TEST_EQUAL(n, 15);
+        TRY(n = product(v0));  TEST_EQUAL(n, 1);
+        TRY(n = product(v5));  TEST_EQUAL(n, 120);
 
     }
 

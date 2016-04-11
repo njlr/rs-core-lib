@@ -262,6 +262,9 @@ namespace Prion {
     constexpr const char* ascii_whitespace = "\t\n\v\f\r ";
     constexpr size_t npos = string::npos;
 
+    template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
+    template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
+
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
     constexpr auto as_signed(int128_t t) noexcept { return int128_t(t); }
     constexpr auto as_signed(uint128_t t) noexcept { return int128_t(t); }
@@ -1049,6 +1052,22 @@ namespace Prion {
             f();
     }
 
+    template <typename Range>
+    RangeValue<Range> sum(const Range& r) {
+        auto t = RangeValue<Range>();
+        for (auto& x: r)
+            t = t + x;
+        return t;
+    }
+
+    template <typename Range>
+    RangeValue<Range> product(const Range& r) {
+        auto t = RangeValue<Range>(1);
+        for (auto& x: r)
+            t = t * x;
+        return t;
+    }
+
     // Memory algorithms
 
     inline int mem_compare(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept {
@@ -1118,9 +1137,6 @@ namespace Prion {
         template <typename T, size_t N> struct ArrayCount<T[N]> { static constexpr size_t value = N; };
 
     }
-
-    template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
-    template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
 
     template <typename T> constexpr size_t array_count(T&&) noexcept { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
 

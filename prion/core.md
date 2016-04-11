@@ -735,6 +735,14 @@ of `std::unique()`, has equality semantics).
 
 This simply calls the function `n` times.
 
+* `template <typename Range> [value type]` **`sum`**`(const Range& r)`
+* `template <typename Range> [value type]` **`product`**`(const Range& r)`
+
+Simple range sum and product functions, to save the trouble of calling
+`std::accumulate()` in trivial cases. Calling `sum()` on an empty range will
+return a default constructed value. The value type of `product()` must be
+constructible by a `static_cast` from `int`; an empty range will return 1.
+
 ### Integer sequences ###
 
 * `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T init, T stop) noexcept`
