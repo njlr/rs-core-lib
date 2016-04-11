@@ -1061,7 +1061,23 @@ namespace Prion {
     }
 
     template <typename Range>
+    RangeValue<Range> sum(Range&& r) {
+        auto t = RangeValue<Range>();
+        for (auto& x: r)
+            t = t + x;
+        return t;
+    }
+
+    template <typename Range>
     RangeValue<Range> product(const Range& r) {
+        auto t = RangeValue<Range>(1);
+        for (auto& x: r)
+            t = t * x;
+        return t;
+    }
+
+    template <typename Range>
+    RangeValue<Range> product(Range&& r) {
         auto t = RangeValue<Range>(1);
         for (auto& x: r)
             t = t * x;

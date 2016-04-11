@@ -951,12 +951,18 @@ namespace {
         s1.clear();  TRY(do_n(2, f));  TEST_EQUAL(s1, "HelloHello");
         s1.clear();  TRY(do_n(3, f));  TEST_EQUAL(s1, "HelloHelloHello");
 
-        vector<int> v0, v5 = {1,2,3,4,5};
+        vector<int> iv0, iv5 = {1,2,3,4,5};
+        const vector<int>& civ5(iv5);
+        double d, da5[] = {10,20,30,40,50};
 
-        TRY(n = sum(v0));      TEST_EQUAL(n, 0);
-        TRY(n = sum(v5));      TEST_EQUAL(n, 15);
-        TRY(n = product(v0));  TEST_EQUAL(n, 1);
-        TRY(n = product(v5));  TEST_EQUAL(n, 120);
+        TRY(n = sum(iv0));       TEST_EQUAL(n, 0);
+        TRY(n = sum(iv5));       TEST_EQUAL(n, 15);
+        TRY(n = sum(civ5));      TEST_EQUAL(n, 15);
+        TRY(n = product(iv0));   TEST_EQUAL(n, 1);
+        TRY(n = product(iv5));   TEST_EQUAL(n, 120);
+        TRY(n = product(civ5));  TEST_EQUAL(n, 120);
+        TRY(d = sum(da5));       TEST_EQUAL(d, 150);
+        TRY(d = product(da5));   TEST_EQUAL(d, 1.2e7);
 
     }
 
