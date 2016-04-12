@@ -732,8 +732,11 @@ predicate has less-than semantics (whereas that of `con_unique()`, like that
 of `std::unique()`, has equality semantics).
 
 * `template <typename F> void` **`do_n`**`(size_t n, F f)`
+* `template <typename F> void` **`for_n`**`(size_t n, F f)`
 
-This simply calls the function `n` times.
+These simply call the function `n` times. The `do_n()` loop expects a function
+that takes no arguments, while `for_n()` passes the iteration count (zero to
+`n-1`) as an argument.
 
 * `template <typename Range> [value type]` **`sum`**`(const Range& r)`
 * `template <typename Range> [value type]` **`product`**`(const Range& r)`
@@ -745,18 +748,20 @@ constructible by a `static_cast` from `int`; an empty range will return 1.
 
 ### Integer sequences ###
 
+* `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T stop) noexcept`
 * `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T init, T stop) noexcept`
 * `template <typename T> Irange<[random access iterator]>` **`iseq`**`(T init, T stop, T delta) noexcept`
+* `template <typename T> Irange<[random access iterator]>` **`xseq`**`(T stop) noexcept`
 * `template <typename T> Irange<[random access iterator]>` **`xseq`**`(T init, T stop) noexcept`
 * `template <typename T> Irange<[random access iterator]>` **`xseq`**`(T init, T stop, T delta) noexcept`
 
 Linear sequences of integers (`T` must be an integer type). The generated
-range starts with `init` and runs to `stop`, in steps of `delta` (defaulting
-to 1). The `iseq()` function produces an inclusive (closed) sequence that
-includes `stop`, while `xseq()` is an exclusive (half open) sequence that
-excludes it (if the exact value `stop` would never be generated, because
-`stop-init` is not a multiple of `delta`, there is no difference between the
-two).
+range starts with `init` (defaulting to zero) and runs to `stop`, in steps of
+`delta` (defaulting to 1). The `iseq()` function produces an inclusive
+(closed) sequence that includes `stop`, while `xseq()` is an exclusive (half
+open) sequence that excludes it (if the exact value `stop` would never be
+generated, because `stop-init` is not a multiple of `delta`, there is no
+difference between the two).
 
 If `stop=init`, or if `delta=0`, the `iseq()` sequence contains a single
 value, while the `xseq()` sequence is empty. Both sequences will be empty if

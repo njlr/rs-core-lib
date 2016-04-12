@@ -944,12 +944,17 @@ namespace {
         s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1));                        TEST_EQUAL(s1, "abcde");
         s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1, std::greater<char>()));  TEST_EQUAL(s1, "edcba");
 
-        auto f = [&] { s1 += "Hello"; };
+        auto f1 = [&] { s1 += "Hello"; };
+        auto f2 = [&] (size_t i) { s1 += dec(i) + ";"; };
 
-        s1.clear();  TRY(do_n(0, f));  TEST_EQUAL(s1, "");
-        s1.clear();  TRY(do_n(1, f));  TEST_EQUAL(s1, "Hello");
-        s1.clear();  TRY(do_n(2, f));  TEST_EQUAL(s1, "HelloHello");
-        s1.clear();  TRY(do_n(3, f));  TEST_EQUAL(s1, "HelloHelloHello");
+        s1.clear();  TRY(do_n(0, f1));   TEST_EQUAL(s1, "");
+        s1.clear();  TRY(do_n(1, f1));   TEST_EQUAL(s1, "Hello");
+        s1.clear();  TRY(do_n(2, f1));   TEST_EQUAL(s1, "HelloHello");
+        s1.clear();  TRY(do_n(3, f1));   TEST_EQUAL(s1, "HelloHelloHello");
+        s1.clear();  TRY(for_n(0, f2));  TEST_EQUAL(s1, "");
+        s1.clear();  TRY(for_n(1, f2));  TEST_EQUAL(s1, "0;");
+        s1.clear();  TRY(for_n(2, f2));  TEST_EQUAL(s1, "0;1;");
+        s1.clear();  TRY(for_n(3, f2));  TEST_EQUAL(s1, "0;1;2;");
 
         vector<int> iv0, iv5 = {1,2,3,4,5};
         const vector<int>& civ5(iv5);
@@ -971,6 +976,8 @@ namespace {
         vector<int> v;
         u8string s;
 
+        TRY(con_overwrite(iseq(5), v));            TRY(s = to_str(v));  TEST_EQUAL(s, "[0,1,2,3,4,5]");
+        TRY(con_overwrite(iseq(-5), v));           TRY(s = to_str(v));  TEST_EQUAL(s, "[0,-1,-2,-3,-4,-5]");
         TRY(con_overwrite(iseq(1, 5), v));         TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4,5]");
         TRY(con_overwrite(iseq(-1, -5), v));       TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4,-5]");
         TRY(con_overwrite(iseq(1, -1, 1), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
@@ -996,6 +1003,8 @@ namespace {
         TRY(con_overwrite(iseq(-1, -12, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10]");
         TRY(con_overwrite(iseq(-1, -13, -3), v));  TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-4,-7,-10,-13]");
 
+        TRY(con_overwrite(xseq(5), v));            TRY(s = to_str(v));  TEST_EQUAL(s, "[0,1,2,3,4]");
+        TRY(con_overwrite(xseq(-5), v));           TRY(s = to_str(v));  TEST_EQUAL(s, "[0,-1,-2,-3,-4]");
         TRY(con_overwrite(xseq(1, 5), v));         TRY(s = to_str(v));  TEST_EQUAL(s, "[1,2,3,4]");
         TRY(con_overwrite(xseq(-1, -5), v));       TRY(s = to_str(v));  TEST_EQUAL(s, "[-1,-2,-3,-4]");
         TRY(con_overwrite(xseq(1, -1, 1), v));     TRY(s = to_str(v));  TEST_EQUAL(s, "[]");

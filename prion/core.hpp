@@ -1052,6 +1052,12 @@ namespace Prion {
             f();
     }
 
+    template <typename F>
+    void for_n(size_t n, F f) {
+        for (size_t i = 0; i < n; ++i)
+            f(i);
+    }
+
     template <typename Range>
     RangeValue<Range> sum(const Range& r) {
         auto t = RangeValue<Range>();
@@ -1205,29 +1211,22 @@ namespace Prion {
 
         template <typename T>
         inline void adjust_integer_sequence(T& init, T& stop, T& delta, bool closed) noexcept {
-            if (delta == 0) {
-                stop = init + T(closed);
-                delta = 1;
+            if (delta == T(0)) {
+                stop = init + T(int(closed));
+                delta = T(1);
                 return;
             }
-            if (stop != init && (stop > init) != (delta > 0)) {
+            if (stop != init && (stop > init) != (delta > T())) {
                 stop = init;
                 return;
             }
             T rem = (stop - init) % delta;
-            if (rem != 0)
+            if (rem != T())
                 stop += delta - rem;
             else if (closed)
                 stop += delta;
         }
 
-    }
-
-    template <typename T>
-    Irange<IntegerSequenceIterator<T>> iseq(T init, T stop) noexcept {
-        T delta = init <= stop ? 1 : -1;
-        PrionDetail::adjust_integer_sequence(init, stop, delta, true);
-        return {{init, delta}, {stop, delta}};
     }
 
     template <typename T>
@@ -1237,16 +1236,31 @@ namespace Prion {
     }
 
     template <typename T>
-    Irange<IntegerSequenceIterator<T>> xseq(T init, T stop) noexcept {
-        T delta = init <= stop ? 1 : -1;
-        PrionDetail::adjust_integer_sequence(init, stop, delta, false);
-        return {{init, delta}, {stop, delta}};
+    Irange<IntegerSequenceIterator<T>> iseq(T init, T stop) noexcept {
+        T delta = stop >= init ? T(1) : T(-1);
+        return iseq(init, stop, delta);
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> iseq(T stop) noexcept {
+        return iseq(T(), stop);
     }
 
     template <typename T>
     Irange<IntegerSequenceIterator<T>> xseq(T init, T stop, T delta) noexcept {
         PrionDetail::adjust_integer_sequence(init, stop, delta, false);
         return {{init, delta}, {stop, delta}};
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> xseq(T init, T stop) noexcept {
+        T delta = stop >= init ? T(1) : T(-1);
+        return xseq(init, stop, delta);
+    }
+
+    template <typename T>
+    Irange<IntegerSequenceIterator<T>> xseq(T stop) noexcept {
+        return xseq(T(), stop);
     }
 
     // [Arithmetic functions]

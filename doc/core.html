@@ -955,8 +955,11 @@ of <code>std::unique()</code>, has equality semantics).</p>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename F&gt; void</code> <strong><code>do_n</code></strong><code>(size_t n, F f)</code></li>
+<li><code>template &lt;typename F&gt; void</code> <strong><code>for_n</code></strong><code>(size_t n, F f)</code></li>
 </ul>
-<p>This simply calls the function <code>n</code> times.</p>
+<p>These simply call the function <code>n</code> times. The <code>do_n()</code> loop expects a function
+that takes no arguments, while <code>for_n()</code> passes the iteration count (zero to
+<code>n-1</code>) as an argument.</p>
 </div>
 <div class="defns">
 <ul>
@@ -971,18 +974,20 @@ constructible by a <code>static_cast</code> from <code>int</code>; an empty rang
 <h3 id="integer-sequences">Integer sequences</h3>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T stop) noexcept</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop) noexcept</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T stop) noexcept</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T init, T stop) noexcept</code></li>
 <li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
 </ul>
 <p>Linear sequences of integers (<code>T</code> must be an integer type). The generated
-range starts with <code>init</code> and runs to <code>stop</code>, in steps of <code>delta</code> (defaulting
-to 1). The <code>iseq()</code> function produces an inclusive (closed) sequence that
-includes <code>stop</code>, while <code>xseq()</code> is an exclusive (half open) sequence that
-excludes it (if the exact value <code>stop</code> would never be generated, because
-<code>stop-init</code> is not a multiple of <code>delta</code>, there is no difference between the
-two).</p>
+range starts with <code>init</code> (defaulting to zero) and runs to <code>stop</code>, in steps of
+<code>delta</code> (defaulting to 1). The <code>iseq()</code> function produces an inclusive
+(closed) sequence that includes <code>stop</code>, while <code>xseq()</code> is an exclusive (half
+open) sequence that excludes it (if the exact value <code>stop</code> would never be
+generated, because <code>stop-init</code> is not a multiple of <code>delta</code>, there is no
+difference between the two).</p>
 <p>If <code>stop=init</code>, or if <code>delta=0</code>, the <code>iseq()</code> sequence contains a single
 value, while the <code>xseq()</code> sequence is empty. Both sequences will be empty if
 <code>stop-init</code> and <code>delta</code> have opposite signs.</p>
