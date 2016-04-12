@@ -1704,33 +1704,59 @@ namespace {
 
         uint16_t u = 0x1234;
 
-        TEST_EQUAL(rotl(u, 0), 0x1234);
-        TEST_EQUAL(rotl(u, 4), 0x2341);
-        TEST_EQUAL(rotl(u, 8), 0x3412);
-        TEST_EQUAL(rotl(u, 12), 0x4123);
-        TEST_EQUAL(rotr(u, 0), 0x1234);
-        TEST_EQUAL(rotr(u, 4), 0x4123);
-        TEST_EQUAL(rotr(u, 8), 0x3412);
-        TEST_EQUAL(rotr(u, 12), 0x2341);
+        TEST_EQUAL(rotl(u, 0), 0x1234);    TEST_EQUAL(rotr(u, 0), 0x1234);
+        TEST_EQUAL(rotl(u, 4), 0x2341);    TEST_EQUAL(rotr(u, 4), 0x4123);
+        TEST_EQUAL(rotl(u, 8), 0x3412);    TEST_EQUAL(rotr(u, 8), 0x3412);
+        TEST_EQUAL(rotl(u, 12), 0x4123);   TEST_EQUAL(rotr(u, 12), 0x2341);
+        TEST_EQUAL(rotl(u, 16), 0x1234);   TEST_EQUAL(rotr(u, 16), 0x1234);
+        TEST_EQUAL(rotl(u, 20), 0x2341);   TEST_EQUAL(rotr(u, 20), 0x4123);
+        TEST_EQUAL(rotl(u, 24), 0x3412);   TEST_EQUAL(rotr(u, 24), 0x3412);
+        TEST_EQUAL(rotl(u, 28), 0x4123);   TEST_EQUAL(rotr(u, 28), 0x2341);
+        TEST_EQUAL(rotl(u, 32), 0x1234);   TEST_EQUAL(rotr(u, 32), 0x1234);
+        TEST_EQUAL(rotl(u, -4), 0x4123);   TEST_EQUAL(rotr(u, -4), 0x2341);
+        TEST_EQUAL(rotl(u, -8), 0x3412);   TEST_EQUAL(rotr(u, -8), 0x3412);
+        TEST_EQUAL(rotl(u, -12), 0x2341);  TEST_EQUAL(rotr(u, -12), 0x4123);
+        TEST_EQUAL(rotl(u, -16), 0x1234);  TEST_EQUAL(rotr(u, -16), 0x1234);
+        TEST_EQUAL(rotl(u, -20), 0x4123);  TEST_EQUAL(rotr(u, -20), 0x2341);
+        TEST_EQUAL(rotl(u, -24), 0x3412);  TEST_EQUAL(rotr(u, -24), 0x3412);
+        TEST_EQUAL(rotl(u, -28), 0x2341);  TEST_EQUAL(rotr(u, -28), 0x4123);
+        TEST_EQUAL(rotl(u, -32), 0x1234);  TEST_EQUAL(rotr(u, -32), 0x1234);
 
         uint32_t v = 0x12345678;
 
-        TEST_EQUAL(rotl(v, 0), 0x12345678);
-        TEST_EQUAL(rotl(v, 4), 0x23456781);
-        TEST_EQUAL(rotl(v, 8), 0x34567812);
-        TEST_EQUAL(rotl(v, 12), 0x45678123);
-        TEST_EQUAL(rotl(v, 16), 0x56781234);
-        TEST_EQUAL(rotl(v, 20), 0x67812345);
-        TEST_EQUAL(rotl(v, 24), 0x78123456);
-        TEST_EQUAL(rotl(v, 28), 0x81234567);
-        TEST_EQUAL(rotr(v, 0), 0x12345678);
-        TEST_EQUAL(rotr(v, 4), 0x81234567);
-        TEST_EQUAL(rotr(v, 8), 0x78123456);
-        TEST_EQUAL(rotr(v, 12), 0x67812345);
-        TEST_EQUAL(rotr(v, 16), 0x56781234);
-        TEST_EQUAL(rotr(v, 20), 0x45678123);
-        TEST_EQUAL(rotr(v, 24), 0x34567812);
-        TEST_EQUAL(rotr(v, 28), 0x23456781);
+        TEST_EQUAL(rotl(v, 0), 0x12345678);    TEST_EQUAL(rotr(v, 0), 0x12345678);
+        TEST_EQUAL(rotl(v, 4), 0x23456781);    TEST_EQUAL(rotr(v, 4), 0x81234567);
+        TEST_EQUAL(rotl(v, 8), 0x34567812);    TEST_EQUAL(rotr(v, 8), 0x78123456);
+        TEST_EQUAL(rotl(v, 12), 0x45678123);   TEST_EQUAL(rotr(v, 12), 0x67812345);
+        TEST_EQUAL(rotl(v, 16), 0x56781234);   TEST_EQUAL(rotr(v, 16), 0x56781234);
+        TEST_EQUAL(rotl(v, 20), 0x67812345);   TEST_EQUAL(rotr(v, 20), 0x45678123);
+        TEST_EQUAL(rotl(v, 24), 0x78123456);   TEST_EQUAL(rotr(v, 24), 0x34567812);
+        TEST_EQUAL(rotl(v, 28), 0x81234567);   TEST_EQUAL(rotr(v, 28), 0x23456781);
+        TEST_EQUAL(rotl(v, 32), 0x12345678);   TEST_EQUAL(rotr(v, 32), 0x12345678);
+        TEST_EQUAL(rotl(v, 36), 0x23456781);   TEST_EQUAL(rotr(v, 36), 0x81234567);
+        TEST_EQUAL(rotl(v, 40), 0x34567812);   TEST_EQUAL(rotr(v, 40), 0x78123456);
+        TEST_EQUAL(rotl(v, 44), 0x45678123);   TEST_EQUAL(rotr(v, 44), 0x67812345);
+        TEST_EQUAL(rotl(v, 48), 0x56781234);   TEST_EQUAL(rotr(v, 48), 0x56781234);
+        TEST_EQUAL(rotl(v, 52), 0x67812345);   TEST_EQUAL(rotr(v, 52), 0x45678123);
+        TEST_EQUAL(rotl(v, 56), 0x78123456);   TEST_EQUAL(rotr(v, 56), 0x34567812);
+        TEST_EQUAL(rotl(v, 60), 0x81234567);   TEST_EQUAL(rotr(v, 60), 0x23456781);
+        TEST_EQUAL(rotl(v, 64), 0x12345678);   TEST_EQUAL(rotr(v, 64), 0x12345678);
+        TEST_EQUAL(rotl(v, -4), 0x81234567);   TEST_EQUAL(rotr(v, -4), 0x23456781);
+        TEST_EQUAL(rotl(v, -8), 0x78123456);   TEST_EQUAL(rotr(v, -8), 0x34567812);
+        TEST_EQUAL(rotl(v, -12), 0x67812345);  TEST_EQUAL(rotr(v, -12), 0x45678123);
+        TEST_EQUAL(rotl(v, -16), 0x56781234);  TEST_EQUAL(rotr(v, -16), 0x56781234);
+        TEST_EQUAL(rotl(v, -20), 0x45678123);  TEST_EQUAL(rotr(v, -20), 0x67812345);
+        TEST_EQUAL(rotl(v, -24), 0x34567812);  TEST_EQUAL(rotr(v, -24), 0x78123456);
+        TEST_EQUAL(rotl(v, -28), 0x23456781);  TEST_EQUAL(rotr(v, -28), 0x81234567);
+        TEST_EQUAL(rotl(v, -32), 0x12345678);  TEST_EQUAL(rotr(v, -32), 0x12345678);
+        TEST_EQUAL(rotl(v, -36), 0x81234567);  TEST_EQUAL(rotr(v, -36), 0x23456781);
+        TEST_EQUAL(rotl(v, -40), 0x78123456);  TEST_EQUAL(rotr(v, -40), 0x34567812);
+        TEST_EQUAL(rotl(v, -44), 0x67812345);  TEST_EQUAL(rotr(v, -44), 0x45678123);
+        TEST_EQUAL(rotl(v, -48), 0x56781234);  TEST_EQUAL(rotr(v, -48), 0x56781234);
+        TEST_EQUAL(rotl(v, -52), 0x45678123);  TEST_EQUAL(rotr(v, -52), 0x67812345);
+        TEST_EQUAL(rotl(v, -56), 0x34567812);  TEST_EQUAL(rotr(v, -56), 0x78123456);
+        TEST_EQUAL(rotl(v, -60), 0x23456781);  TEST_EQUAL(rotr(v, -60), 0x81234567);
+        TEST_EQUAL(rotl(v, -64), 0x12345678);  TEST_EQUAL(rotr(v, -64), 0x12345678);
 
     }
 

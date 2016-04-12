@@ -1202,9 +1202,9 @@ the argument is not an ASCII letter.</p>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>rotl</code></strong><code>(T t, int n) noexcept</code></li>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>rotr</code></strong><code>(T t, int n) noexcept</code></li>
 </ul>
-<p>Bitwise rotate left or right. As for the standard shift operators, behaviour
-is undefined if <code>n</code> is negative or greater than or equal to the number of bits
-in <code>T</code>.</p>
+<p>Bitwise rotate left or right. The bit count is reduced modulo the number of
+bits in <code>T</code>; a negative shift in one direction is treated as a positive shift
+in the other.</p>
 </div>
 <h3 id="floating-point-arithmetic-functions">Floating point arithmetic functions</h3>
 <div class="defns">

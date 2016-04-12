@@ -940,9 +940,9 @@ the argument is not an ASCII letter.
 * `template <typename T> constexpr T` **`rotl`**`(T t, int n) noexcept`
 * `template <typename T> constexpr T` **`rotr`**`(T t, int n) noexcept`
 
-Bitwise rotate left or right. As for the standard shift operators, behaviour
-is undefined if `n` is negative or greater than or equal to the number of bits
-in `T`.
+Bitwise rotate left or right. The bit count is reduced modulo the number of
+bits in `T`; a negative shift in one direction is treated as a positive shift
+in the other.
 
 ### Floating point arithmetic functions ###
 
