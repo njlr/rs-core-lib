@@ -1437,8 +1437,8 @@ namespace Prion {
     constexpr size_t bits_set(uint64_t x) noexcept { return __builtin_popcountll(x); }
     constexpr uint64_t letter_to_mask(char c) noexcept
         { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
-    template <typename T> constexpr T rotl(T t, int n) noexcept { return (t << n) | (t >> (8 * sizeof(T) - n)); }
-    template <typename T> constexpr T rotr(T t, int n) noexcept { return (t >> n) | (t << (8 * sizeof(T) - n)); }
+    template <typename T> constexpr T rotl(T t, int n) noexcept { return n == 0 ? t : (t << n) | (t >> (8 * sizeof(T) - n)); }
+    template <typename T> constexpr T rotr(T t, int n) noexcept { return n == 0 ? t : (t >> n) | (t << (8 * sizeof(T) - n)); }
 
     // Floating point arithmetic functions
 
