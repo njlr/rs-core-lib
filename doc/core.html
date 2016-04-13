@@ -1125,18 +1125,6 @@ quotient is out of <code>T</code>'s representable range.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>gcd</code></strong><code>(T a, T b) noexcept</code></li>
-<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>lcm</code></strong><code>(T a, T b) noexcept</code></li>
-</ul>
-<p>Return the greatest common divisor or lowest common multiple of two numbers.
-The argument type must be an integer. If one argument is zero, <code>gcd()</code> will
-return the other one, and <code>lcm()</code> will return zero. The return value is always
-positive (if not zero), regardless of the signs of the arguments. If the
-correct result for <code>lcm()</code> would be outside the range of <code>T</code>, behaviour is
-undefined if <code>T</code> is signed, unspecified if <code>T</code> is unsigned.</p>
-</div>
-<div class="defns">
-<ul>
 <li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>sign_of</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Returns the sign of its argument (-1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
@@ -1160,6 +1148,18 @@ type.</p>
 <p>These return the binomial coefficient (<code>a!/b!(a-b)!</code> if <code>0&lt;=b&lt;=a</code>, otherwise
 zero). <code>T</code> must be an integer type. Behaviour is undefined if the correct
 result would be out of range for the return type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>gcd</code></strong><code>(T a, T b) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>lcm</code></strong><code>(T a, T b) noexcept</code></li>
+</ul>
+<p>Return the greatest common divisor or lowest common multiple of two numbers.
+The argument type must be an integer. If one argument is zero, <code>gcd()</code> will
+return the other one, and <code>lcm()</code> will return zero. The return value is always
+positive (if not zero), regardless of the signs of the arguments. If the
+correct result for <code>lcm()</code> would be outside the range of <code>T</code>, behaviour is
+undefined if <code>T</code> is signed, unspecified if <code>T</code> is unsigned.</p>
 </div>
 <div class="defns">
 <ul>

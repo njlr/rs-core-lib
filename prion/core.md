@@ -879,16 +879,6 @@ rounding errors). The pair returned by `divide()` contains the quotient and
 remainder. For all three functions, behaviour is undefined if `rhs=0` or the
 quotient is out of `T`'s representable range.
 
-* `template <typename T> constexpr T` **`gcd`**`(T a, T b) noexcept`
-* `template <typename T> constexpr T` **`lcm`**`(T a, T b) noexcept`
-
-Return the greatest common divisor or lowest common multiple of two numbers.
-The argument type must be an integer. If one argument is zero, `gcd()` will
-return the other one, and `lcm()` will return zero. The return value is always
-positive (if not zero), regardless of the signs of the arguments. If the
-correct result for `lcm()` would be outside the range of `T`, behaviour is
-undefined if `T` is signed, unspecified if `T` is unsigned.
-
 * `template <typename T> constexpr int` **`sign_of`**`(T t) noexcept`
 
 Returns the sign of its argument (-1 if `t<0`, 0 if `t=0`, 1 if `t>0`).
@@ -909,6 +899,16 @@ type.
 These return the binomial coefficient (`a!/b!(a-b)!` if `0<=b<=a`, otherwise
 zero). `T` must be an integer type. Behaviour is undefined if the correct
 result would be out of range for the return type.
+
+* `template <typename T> constexpr T` **`gcd`**`(T a, T b) noexcept`
+* `template <typename T> constexpr T` **`lcm`**`(T a, T b) noexcept`
+
+Return the greatest common divisor or lowest common multiple of two numbers.
+The argument type must be an integer. If one argument is zero, `gcd()` will
+return the other one, and `lcm()` will return zero. The return value is always
+positive (if not zero), regardless of the signs of the arguments. If the
+correct result for `lcm()` would be outside the range of `T`, behaviour is
+undefined if `T` is signed, unspecified if `T` is unsigned.
 
 * `template <typename T> T` **`int_power`**`(T x, T y) noexcept`
 

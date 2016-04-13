@@ -1362,8 +1362,6 @@ namespace Prion {
     template <typename T> pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
     template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
     template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
-    template <typename T> constexpr T gcd(T a, T b) noexcept { return PrionDetail::unsigned_gcd(abs(a), abs(b)); }
-    template <typename T> constexpr T lcm(T a, T b) noexcept { return a == T(0) || b == T(0) ? T(0) : abs((a / gcd(a, b)) * b); }
     template <typename T> constexpr int sign_of(T t) noexcept { return PrionDetail::SignOf<T>()(t); }
 
     // Integer arithmetic functions
@@ -1397,6 +1395,18 @@ namespace Prion {
             d *= b--;
         }
         return n / d;
+    }
+
+    template <typename T>
+    constexpr T gcd(T a, T b) noexcept {
+        using std::abs;
+        return PrionDetail::unsigned_gcd(abs(a), abs(b));
+    }
+
+    template <typename T>
+    constexpr T lcm(T a, T b) noexcept {
+        using std::abs;
+        return a == T(0) || b == T(0) ? T(0) : abs((a / gcd(a, b)) * b);
     }
 
     template <typename T>
