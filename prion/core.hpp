@@ -1329,6 +1329,32 @@ namespace Prion {
 
         template <typename T> constexpr T unsigned_gcd(T a, T b) noexcept { return b == T(0) ? a : unsigned_gcd(b, a % b); }
 
+        template <typename T, bool I = std::is_integral<T>::value, bool F = std::is_floating_point<T>::value>
+        struct ShiftLeft;
+
+        template <typename T>
+        struct ShiftLeft<T, true, false> {
+            static constexpr int maxbits = 8 * sizeof(T);
+            T operator()(T t, int n) const {
+                if (n <= - maxbits || n >= maxbits)
+                    return 0;
+                else if (n >= 0)
+                    return t << n;
+                else if (t < 0)
+                    return - (- t >> - n);
+                else
+                    return t >> - n;
+            }
+        };
+
+        template <typename T>
+        struct ShiftLeft<T, false, true> {
+            T operator()(T t, int n) const {
+                using std::ldexp;
+                return ldexp(t, n);
+            }
+        };
+
         template <typename T, NumMode Mode = NumType<T>::value> struct SignOf;
 
         template <typename T>
@@ -1362,6 +1388,8 @@ namespace Prion {
     template <typename T> pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
     template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
     template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
+    template <typename T> T shift_left(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, n); }
+    template <typename T> T shift_right(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, - n); }
     template <typename T> constexpr int sign_of(T t) noexcept { return PrionDetail::SignOf<T>()(t); }
 
     // Integer arithmetic functions

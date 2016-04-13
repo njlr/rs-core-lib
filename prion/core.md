@@ -879,6 +879,13 @@ rounding errors). The pair returned by `divide()` contains the quotient and
 remainder. For all three functions, behaviour is undefined if `rhs=0` or the
 quotient is out of `T`'s representable range.
 
+* `template <typename T> T` **`shift_left`**`(T t, int n) noexcept`
+* `template <typename T> T` **`shift_right`**`(T t, int n) noexcept`
+
+Multiply or divide `t` by <code>2<sup>n</sup></code>. `T` may be an integer or
+floating point type. Results are unspecified if the correct result would be
+out of `T`'s representable range.
+
 * `template <typename T> constexpr int` **`sign_of`**`(T t) noexcept`
 
 Returns the sign of its argument (-1 if `t<0`, 0 if `t=0`, 1 if `t>0`).

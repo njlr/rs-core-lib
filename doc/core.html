@@ -1125,6 +1125,15 @@ quotient is out of <code>T</code>'s representable range.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>shift_left</code></strong><code>(T t, int n) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>shift_right</code></strong><code>(T t, int n) noexcept</code></li>
+</ul>
+<p>Multiply or divide <code>t</code> by <code>2<sup>n</sup></code>. <code>T</code> may be an integer or
+floating point type. Results are unspecified if the correct result would be
+out of <code>T</code>'s representable range.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>sign_of</code></strong><code>(T t) noexcept</code></li>
 </ul>
 <p>Returns the sign of its argument (-1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
