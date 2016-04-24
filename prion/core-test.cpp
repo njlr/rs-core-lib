@@ -2044,9 +2044,9 @@ namespace {
         size_t h1 = 0, h2 = 0, h3 = 0, h4 = 0, h5 = 0;
         string s0, s1 = "Hello world";
 
-        TRY(u = Djb2());      TEST_EQUAL(u, 0x00001505);
-        TRY(u = Djb2()(s0));  TEST_EQUAL(u, 0x00001505);
-        TRY(u = Djb2()(s1));  TEST_EQUAL(u, 0x89bb20a1);
+        TRY(u = Djb2a());      TEST_EQUAL(u, 0x00001505);
+        TRY(u = Djb2a()(s0));  TEST_EQUAL(u, 0x00001505);
+        TRY(u = Djb2a()(s1));  TEST_EQUAL(u, 0x33c13465);
 
         TRY(hash_combine(h1, 42));
         TRY(hash_combine(h2, 42, s1));
