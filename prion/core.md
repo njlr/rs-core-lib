@@ -1285,6 +1285,30 @@ Functions for generating variable Xterm codes. The RGB levels passed to the
 The grey level passed to the `xt_grey[_bg]()` functions is clamped to a range
 of 1-24.
 
+## Random numbers ##
+
+### Simple random generators ###
+
+* `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p = 0.5)`
+
+Returns true or false with the given probability (clamped to `[0,1]`).
+
+* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n)`
+* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n1, int n2)`
+
+Return a random integer in the range `[0,n)` (always 0 if `n<2`) or `[n1,n2]`
+(arguments can be in in either order).
+
+* `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)`
+
+Returns a random floating point number between `x` and `y` (arguments can be
+in either order).
+
+* `template <typename RNG, typename Range> [value type]` **`random_select`**`(RNG& rng, const Range& range)`
+
+Returns a random element from the range, or a default constructed value if the
+range is empty.
+
 ## Strings and related functions ##
 
 ### Character functions ###

@@ -68,6 +68,10 @@
 <li><a href="#terminal-io-operations">Terminal I/O operations</a></li>
 </ul>
 </li>
+<li><a href="#random-numbers">Random numbers</a><ul>
+<li><a href="#simple-random-generators">Simple random generators</a></li>
+</ul>
+</li>
 <li><a href="#strings-and-related-functions">Strings and related functions</a><ul>
 <li><a href="#character-functions">Character functions</a></li>
 <li><a href="#general-string-functions">General string functions</a></li>
@@ -1589,6 +1593,36 @@ on Windows.</p>
 666; each digit is clamped to a range of 1-6, yielding 216 different colours.
 The grey level passed to the <code>xt_grey[_bg]()</code> functions is clamped to a range
 of 1-24.</p>
+</div>
+<h2 id="random-numbers">Random numbers</h2>
+<h3 id="simple-random-generators">Simple random generators</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename RNG&gt; bool</code> <strong><code>random_bool</code></strong><code>(RNG&amp; rng, double p = 0.5)</code></li>
+</ul>
+<p>Returns true or false with the given probability (clamped to <code>[0,1]</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n)</code></li>
+<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n1, int n2)</code></li>
+</ul>
+<p>Return a random integer in the range <code>[0,n)</code> (always 0 if <code>n&lt;2</code>) or <code>[n1,n2]</code>
+(arguments can be in in either order).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_real</code></strong><code>(RNG&amp; rng, T x = 1, T y = 0)</code></li>
+</ul>
+<p>Returns a random floating point number between <code>x</code> and <code>y</code> (arguments can be
+in either order).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename RNG, typename Range&gt; [value type]</code> <strong><code>random_select</code></strong><code>(RNG&amp; rng, const Range&amp; range)</code></li>
+</ul>
+<p>Returns a random element from the range, or a default constructed value if the
+range is empty.</p>
 </div>
 <h2 id="strings-and-related-functions">Strings and related functions</h2>
 <h3 id="character-functions">Character functions</h3>

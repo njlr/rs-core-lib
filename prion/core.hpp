@@ -2061,6 +2061,57 @@ namespace Prion {
     inline string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
     inline string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
 
+    // [Random numbers]
+
+    // Simple random generators
+
+    template <typename RNG>
+    bool random_bool(RNG& rng, double p = 0.5) {
+        std::bernoulli_distribution d(clamp(p, 0, 1));
+        return d(rng);
+    }
+
+    template <typename RNG>
+    int random_int(RNG& rng, int n) {
+        if (n < 2)
+            return 0;
+        std::uniform_int_distribution<int> d(0, n - 1);
+        return d(rng);
+    }
+
+    template <typename RNG>
+    int random_int(RNG& rng, int n1, int n2) {
+        if (n1 == n2)
+            return n1;
+        if (n1 > n2)
+            std::swap(n1, n2);
+        std::uniform_int_distribution<int> d(n1, n2);
+        return d(rng);
+    }
+
+    template <typename T, typename RNG>
+    T random_real(RNG& rng, T x = T(1), T y = T(0)) {
+        if (x == y)
+            return x;
+        if (x > y)
+            std::swap(x, y);
+        std::uniform_real_distribution<T> d(x, y);
+        return d(rng);
+    }
+
+    template <typename RNG, typename Range>
+    RangeValue<Range> random_select(RNG& rng, const Range& range) {
+        using std::begin;
+        using std::end;
+        auto i = begin(range), j = end(range);
+        size_t n = std::distance(i, j);
+        if (n == 0)
+            return {};
+        std::uniform_int_distribution<size_t> d(0, n - 1);
+        std::advance(i, d(rng));
+        return *i;
+    }
+
     // [Strings and related functions]
 
     // Character functions

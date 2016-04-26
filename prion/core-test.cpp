@@ -547,7 +547,7 @@ namespace {
             TRY(us.insert(Uuid(i)));
         TEST_EQUAL(us.size(), 1000);
 
-        std::mt19937 rng{uint32_t(time(nullptr))};
+        std::mt19937 rng(42);
 
         for (int i = 0; i < 1000; ++i) {
             TRY(u = RandomUuid()(rng));
@@ -2412,6 +2412,89 @@ namespace {
 
     }
 
+    void check_simple_random_generators() {
+
+        std::mt19937 rng(42);
+
+        int n = 100000;
+        double x, lo, hi, sum, sum2, mean, sd;
+
+        sum = 0;
+        for (int i = 0; i < n; ++i)
+            TRY(sum += double(random_bool(rng, 0.25)));
+        TEST_NEAR_EPSILON(sum / n, 0.25, 0.01);
+
+        lo = 1000;
+        hi = -1000;
+        sum = sum2 = 0;
+        for (int i = 0; i < n; ++i) {
+            TRY(x = random_int(rng, 100));
+            lo = std::min(x, lo);
+            hi = std::max(x, hi);
+            sum += x;
+            sum2 += x * x;
+        }
+        mean = sum / n;
+        sd = sqrt(sum2 / n - mean * mean);
+        TEST_EQUAL(lo, 0);
+        TEST_EQUAL(hi, 99);
+        TEST_NEAR_EPSILON(mean, 49.5, 1);
+        TEST_NEAR_EPSILON(sd, 28.87, 1);
+
+        lo = 1000;
+        hi = -1000;
+        sum = sum2 = 0;
+        for (int i = 0; i < n; ++i) {
+            TRY(x = random_int(rng, 101, 200));
+            lo = std::min(x, lo);
+            hi = std::max(x, hi);
+            sum += x;
+            sum2 += x * x;
+        }
+        mean = sum / n;
+        sd = sqrt(sum2 / n - mean * mean);
+        TEST_EQUAL(lo, 101);
+        TEST_EQUAL(hi, 200);
+        TEST_NEAR_EPSILON(mean, 150.5, 1);
+        TEST_NEAR_EPSILON(sd, 28.87, 1);
+
+        lo = 1000;
+        hi = -1000;
+        sum = sum2 = 0;
+        for (int i = 0; i < n; ++i) {
+            TRY(x = random_real<double>(rng));
+            lo = std::min(x, lo);
+            hi = std::max(x, hi);
+            sum += x;
+            sum2 += x * x;
+        }
+        mean = sum / n;
+        sd = sqrt(sum2 / n - mean * mean);
+        TEST_NEAR_EPSILON(lo, 0, 0.001);
+        TEST_NEAR_EPSILON(hi, 1, 0.001);
+        TEST_NEAR_EPSILON(mean, 0.5, 0.01);
+        TEST_NEAR_EPSILON(sd, 0.2887, 0.01);
+
+        vector<int> v = {1,2,3,4,5,6,7,8,9,10};
+        lo = 1000;
+        hi = -1000;
+        sum = sum2 = 0;
+        for (int i = 0; i < n; ++i) {
+            TRY(x = random_select(rng, v));
+            lo = std::min(x, lo);
+            hi = std::max(x, hi);
+            sum += x;
+            sum2 += x * x;
+        }
+        mean = sum / n;
+        sd = sqrt(sum2 / n - mean * mean);
+        TEST_EQUAL(lo, 1);
+        TEST_EQUAL(hi, 10);
+        TEST_NEAR_EPSILON(mean, 5.5, 0.1);
+        TEST_NEAR_EPSILON(sd, 2.887, 0.1);
+
+    }
+
     void check_character_functions() {
 
         TEST(! ascii_isalnum('\0'));
@@ -3583,6 +3666,7 @@ TEST_MODULE(prion, core) {
     check_scope_guards();
     check_file_io_operations();
     check_terminal_io_operations();
+    check_simple_random_generators();
     check_character_functions();
     check_general_string_functions();
     check_string_formatting_and_parsing_functions();
