@@ -1055,12 +1055,15 @@ functions.
 
 Define a `Kwarg<K>` object for each keyword argument, where `K` is the
 argument type. Functions that will take keyword arguments should be declared
-with a variadic argument pack (possibly preceded by ordinary positional
-arguments). When calling the function, the keyword arguments should be
-supplied in the form `key=value`, where `key` is a `Kwarg<K>` object, and
-`value` is the argument value. The value type must be convertible to `K`. If
-`K` is `bool`, the keyword alone can be passed as an argument, with the value
-defaulting to `true`.
+with a variadic argument pack, possibly preceded by ordinary positional
+arguments. The variadic arguments must be passed by reference, since the
+global `Kwarg` objects are identified by address.
+
+When calling the function, the keyword arguments should be supplied in the
+form `key=value`, where `key` is a `Kwarg<K>` object, and `value` is the
+argument value. The value type must be convertible to `K`. If `K` is `bool`,
+the keyword alone can be passed as an argument, with the value defaulting to
+`true`.
 
 In the function body, call `kwget()` for each possible keyword argument, with
 the corresponding `Kwarg<K>` object as the key, a reference to the variable
