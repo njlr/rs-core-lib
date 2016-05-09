@@ -1300,7 +1300,7 @@ Returns true or false with the given probability (clamped to `[0,1]`).
 * `template <typename RNG> int` **`random_int`**`(RNG& rng, int n1, int n2)`
 
 Return a random integer in the range `[0,n)` (always 0 if `n<2`) or `[n1,n2]`
-(arguments can be in in either order).
+(arguments can be in either order).
 
 * `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)`
 
