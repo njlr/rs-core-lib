@@ -1571,31 +1571,14 @@ of 1-24.</p>
 <h3 id="simple-random-generators">Simple random generators</h3>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename RNG&gt; bool</code> <strong><code>random_bool</code></strong><code>(RNG&amp; rng, double p = 0.5)</code></li>
+<li><code>template &lt;typename RNG&gt; bool</code> <strong><code>random_bool</code></strong><code>(RNG&amp; rng, double p = 0.5)</code> <em>- True with probability p (clamped to 0-1)</em></li>
+<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n)</code> <em>- Random integer from 0 to n-1 (always 0 if n&lt;2)</em></li>
+<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n1, int n2)</code> <em>- Random integer from n1 to n2 inclusive (limits may be in either order)</em></li>
+<li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_real</code></strong><code>(RNG&amp; rng, T x = 1, T y = 0)</code> <em>- Random number between x and y (limits may be in either order)</em></li>
+<li><code>template &lt;typename RNG, typename Range&gt; [value type]</code> <strong><code>random_select</code></strong><code>(RNG&amp; rng, const Range&amp; range)</code> <em>- Random element from range (default constructed value if range is empty)</em></li>
 </ul>
-<p>Returns true or false with the given probability (clamped to <code>[0,1]</code>).</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n)</code></li>
-<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n1, int n2)</code></li>
-</ul>
-<p>Return a random integer in the range <code>[0,n)</code> (always 0 if <code>n&lt;2</code>) or <code>[n1,n2]</code>
-(arguments can be in either order).</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_real</code></strong><code>(RNG&amp; rng, T x = 1, T y = 0)</code></li>
-</ul>
-<p>Returns a random floating point number between <code>x</code> and <code>y</code> (arguments can be
-in either order).</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename RNG, typename Range&gt; [value type]</code> <strong><code>random_select</code></strong><code>(RNG&amp; rng, const Range&amp; range)</code></li>
-</ul>
-<p>Returns a random element from the range, or a default constructed value if the
-range is empty.</p>
+<p>Quick random number functions that call the standard library functions, for
+convenience when nothing more complicated is needed.</p>
 </div>
 <h2 id="strings-and-related-functions">Strings and related functions</h2>
 <h3 id="character-functions">Character functions</h3>

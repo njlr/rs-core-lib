@@ -1268,25 +1268,14 @@ of 1-24.
 
 ### Simple random generators ###
 
-* `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p = 0.5)`
+* `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p = 0.5)` _- True with probability p (clamped to 0-1)_
+* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n)` _- Random integer from 0 to n-1 (always 0 if n<2)_
+* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n1, int n2)` _- Random integer from n1 to n2 inclusive (limits may be in either order)_
+* `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)` _- Random number between x and y (limits may be in either order)_
+* `template <typename RNG, typename Range> [value type]` **`random_select`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
 
-Returns true or false with the given probability (clamped to `[0,1]`).
-
-* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n)`
-* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n1, int n2)`
-
-Return a random integer in the range `[0,n)` (always 0 if `n<2`) or `[n1,n2]`
-(arguments can be in either order).
-
-* `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)`
-
-Returns a random floating point number between `x` and `y` (arguments can be
-in either order).
-
-* `template <typename RNG, typename Range> [value type]` **`random_select`**`(RNG& rng, const Range& range)`
-
-Returns a random element from the range, or a default constructed value if the
-range is empty.
+Quick random number functions that call the standard library functions, for
+convenience when nothing more complicated is needed.
 
 ## Strings and related functions ##
 
