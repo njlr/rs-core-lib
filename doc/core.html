@@ -41,7 +41,6 @@
 <li><a href="#generic-algorithms">Generic algorithms</a></li>
 <li><a href="#integer-sequences">Integer sequences</a></li>
 <li><a href="#memory-algorithms">Memory algorithms</a></li>
-<li><a href="#secure-memory-algorithms">Secure memory algorithms</a></li>
 <li><a href="#range-traits">Range traits</a></li>
 <li><a href="#range-types">Range types</a></li>
 </ul>
@@ -1017,34 +1016,6 @@ lengths.</p>
 </ul>
 <p>Swap two blocks of memory. This will work if the two ranges overlap or are the
 same, but behaviour is undefined if either pointer is null.</p>
-</div>
-<h3 id="secure-memory-algorithms">Secure memory algorithms</h3>
-<p>These are designed to avoid compiler optimizations that would compromise the
-intended secure behaviour.</p>
-<div class="defns">
-<ul>
-<li><code>int</code> <strong><code>secure_compare</code></strong><code>(const void* lhs, const void* rhs, size_t n) noexcept</code></li>
-<li><code>int</code> <strong><code>secure_compare</code></strong><code>(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept</code></li>
-</ul>
-<p>Compare the byte content of two blocks of memory, returning -1 if the first
-block comes before the second in byte order, 0 if they are equal, or 1 if the
-first comes after the second. The second version gives the same result as
-<code>mem_compare()</code> (above). This will always take the same amount of time for a
-given length (or pair of lengths), regardless of the content of the blocks.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>void</code> <strong><code>secure_move</code></strong><code>(void* dst, const void* src, size_t n) noexcept</code></li>
-</ul>
-<p>This transfers the contents of the first block to the second, erasing (zeroing
-out) the first block. Overlapping blocks are allowed (only the non-overlapping
-part of the first block will be zeroed).</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>void</code> <strong><code>secure_zero</code></strong><code>(void* ptr, size_t n) noexcept</code></li>
-</ul>
-<p>Sets all bytes in the block to zero.</p>
 </div>
 <h3 id="range-traits">Range traits</h3>
 <div class="defns">

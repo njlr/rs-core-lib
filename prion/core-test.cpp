@@ -1071,38 +1071,6 @@ namespace {
 
     }
 
-    void check_secure_memory_algorithms() {
-
-        // Only testing the memory manipulation aspect of these
-
-        std::mt19937_64 rng(42);
-        uint64_t x = 0, y = 0;
-        int d = 0, e = 0;
-
-        for (int i = 0; i < 10000; ++i) {
-            x = rng();
-            if (rng() < (1ull << 62))
-                y = x;
-            else
-                y = rng();
-            e = x < y ? -1 : x == y ? 0 : 1;
-            BigEndian<uint64_t> bx = x, by = y;
-            TRY(d = secure_compare(&bx, &by, 8));
-            TEST_EQUAL(d, e);
-        }
-
-        x = 0x123456789abcdef0ull;
-        y = 0;
-        TRY(secure_move(&y, &x, 8));
-        TEST_EQUAL(x, 0);
-        TEST_EQUAL(y, 0x123456789abcdef0ull);
-
-        x = 0x123456789abcdef0ull;
-        TRY(secure_zero(&x, 8));
-        TEST_EQUAL(x, 0);
-
-    }
-
     void check_range_traits() {
 
         char array[] {'H','e','l','l','o'};
@@ -3651,7 +3619,6 @@ TEST_MODULE(prion, core) {
     check_generic_algorithms();
     check_integer_sequences();
     check_memory_algorithms();
-    check_secure_memory_algorithms();
     check_range_traits();
     check_range_types();
     check_generic_arithmetic_functions();
