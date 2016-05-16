@@ -1063,6 +1063,10 @@ namespace {
         s1 = "hello world";  s2 = "hello";        TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, 1);
         s1 = "hello";        s2 = "hello world";  TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, -1);
 
+        TRY(x = mem_compare(nullptr, 42, s2.data(), s2.size()));  TEST_EQUAL(x, -1);
+        TRY(x = mem_compare(s1.data(), s1.size(), nullptr, 42));  TEST_EQUAL(x, 1);
+        TRY(x = mem_compare(nullptr, 42, nullptr, 42));           TEST_EQUAL(x, 0);
+
         s1 = "hello";
         s2 = "world";
         TRY(mem_swap(&s1[0], &s2[0], 5));

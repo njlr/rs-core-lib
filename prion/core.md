@@ -780,7 +780,8 @@ lexicographical bytewise comparison), 0 if they are equal, 1 if the first is
 greater than the second. If the two blocks are equal up to the length of the
 shorter one, the shorter is considered less than the longer. This is similar
 to `memcmp()`, except that the memory blocks being compared may have different
-lengths.
+lengths. A null pointer is treated as less than any non-null pointer; the
+length accompanying a null pointer is ignored.
 
 * `void` **`mem_swap`**`(void* ptr1, void* ptr2, size_t n) noexcept`
 

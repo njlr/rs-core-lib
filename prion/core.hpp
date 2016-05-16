@@ -1093,6 +1093,8 @@ namespace Prion {
     // Memory algorithms
 
     inline int mem_compare(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept {
+        if (! lhs || ! rhs)
+            return rhs ? -1 : lhs ? 1 : 0;
         int rc = memcmp(lhs, rhs, std::min(n1, n2));
         return rc < 0 ? -1 : rc > 0 ? 1 : n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
     }
