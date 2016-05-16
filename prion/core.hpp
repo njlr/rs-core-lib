@@ -90,6 +90,7 @@
 #include <cwchar>
 #include <exception>
 #include <functional>
+#include <initializer_list>
 #include <iostream>
 #include <iterator>
 #include <limits>
@@ -2060,7 +2061,7 @@ namespace Prion {
     }
 
     template <typename RNG, typename Range>
-    RangeValue<Range> random_select(RNG& rng, const Range& range) {
+    RangeValue<Range> random_choice(RNG& rng, const Range& range) {
         using std::begin;
         using std::end;
         auto i = begin(range), j = end(range);
@@ -2070,6 +2071,14 @@ namespace Prion {
         std::uniform_int_distribution<size_t> d(0, n - 1);
         std::advance(i, d(rng));
         return *i;
+    }
+
+    template <typename RNG, typename T>
+    T random_choice(RNG& rng, std::initializer_list<T> list) {
+        if (list.size() == 0)
+            return {};
+        std::uniform_int_distribution<size_t> d(0, list.size() - 1);
+        return list.begin()[d(rng)];
     }
 
     // [Strings and related functions]

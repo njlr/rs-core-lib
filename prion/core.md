@@ -1273,7 +1273,8 @@ of 1-24.
 * `template <typename RNG> int` **`random_int`**`(RNG& rng, int n)` _- Random integer from 0 to n-1 (always 0 if n<2)_
 * `template <typename RNG> int` **`random_int`**`(RNG& rng, int n1, int n2)` _- Random integer from n1 to n2 inclusive (limits may be in either order)_
 * `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)` _- Random number between x and y (limits may be in either order)_
-* `template <typename RNG, typename Range> [value type]` **`random_select`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
+* `template <typename RNG, typename Range> [value type]` **`random_choice`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
+* `template <typename RNG, typename T> T` **`random_choice`**`(RNG& rng, initializer_list<T> list)` _- Random element from list_
 
 Quick random number functions that call the standard library functions, for
 convenience when nothing more complicated is needed.

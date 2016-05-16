@@ -2452,7 +2452,24 @@ namespace {
         hi = -1000;
         sum = sum2 = 0;
         for (int i = 0; i < n; ++i) {
-            TRY(x = random_select(rng, v));
+            TRY(x = random_choice(rng, v));
+            lo = std::min(x, lo);
+            hi = std::max(x, hi);
+            sum += x;
+            sum2 += x * x;
+        }
+        mean = sum / n;
+        sd = sqrt(sum2 / n - mean * mean);
+        TEST_EQUAL(lo, 1);
+        TEST_EQUAL(hi, 10);
+        TEST_NEAR_EPSILON(mean, 5.5, 0.1);
+        TEST_NEAR_EPSILON(sd, 2.887, 0.1);
+
+        lo = 1000;
+        hi = -1000;
+        sum = sum2 = 0;
+        for (int i = 0; i < n; ++i) {
+            TRY(x = random_choice(rng, {1,2,3,4,5,6,7,8,9,10}));
             lo = std::min(x, lo);
             hi = std::max(x, hi);
             sum += x;
