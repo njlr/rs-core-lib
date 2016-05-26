@@ -141,6 +141,9 @@
 #if defined(minor)
     #undef minor
 #endif
+#if defined(_P)
+    #undef _P
+#endif
 
 // Other preprocessor macros
 
