@@ -919,22 +919,31 @@ namespace Prion {
         template <char... CS> constexpr size_t operator""_z() noexcept
             { return PrionDetail::MakeInteger<size_t, CS...>::value; }
 
-        constexpr unsigned long long operator""_k(unsigned long long n) noexcept
-            { return 1000ull * n; }
-        constexpr unsigned long long operator""_M(unsigned long long n) noexcept
-            { return 1000000ull * n; }
-        constexpr unsigned long long operator""_G(unsigned long long n) noexcept
-            { return 1000000000ull * n; }
-        constexpr unsigned long long operator""_T(unsigned long long n) noexcept
-            { return 1000000000000ull * n; }
-        constexpr unsigned long long operator""_kb(unsigned long long n) noexcept
-            { return 1024ull * n; }
-        constexpr unsigned long long operator""_MB(unsigned long long n) noexcept
-            { return 1048576ull * n; }
-        constexpr unsigned long long operator""_GB(unsigned long long n) noexcept
-            { return 1073741824ull * n; }
-        constexpr unsigned long long operator""_TB(unsigned long long n) noexcept
-            { return 1099511627776ull * n; }
+        constexpr unsigned long long operator""_k(unsigned long long n) noexcept { return 1000ull * n; }
+        constexpr unsigned long long operator""_M(unsigned long long n) noexcept { return 1000000ull * n; }
+        constexpr unsigned long long operator""_G(unsigned long long n) noexcept { return 1000000000ull * n; }
+        constexpr unsigned long long operator""_T(unsigned long long n) noexcept { return 1000000000000ull * n; }
+        constexpr unsigned long long operator""_kb(unsigned long long n) noexcept { return 1024ull * n; }
+        constexpr unsigned long long operator""_MB(unsigned long long n) noexcept { return 1048576ull * n; }
+        constexpr unsigned long long operator""_GB(unsigned long long n) noexcept { return 1073741824ull * n; }
+        constexpr unsigned long long operator""_TB(unsigned long long n) noexcept { return 1099511627776ull * n; }
+
+        constexpr long double operator""_y(long double x) noexcept { return 1e-24 * x; }
+        constexpr long double operator""_z(long double x) noexcept { return 1e-21 * x; }
+        constexpr long double operator""_a(long double x) noexcept { return 1e-18 * x; }
+        constexpr long double operator""_f(long double x) noexcept { return 1e-15 * x; }
+        constexpr long double operator""_p(long double x) noexcept { return 1e-12 * x; }
+        constexpr long double operator""_n(long double x) noexcept { return 1e-9 * x; }
+        constexpr long double operator""_u(long double x) noexcept { return 1e-6 * x; }
+        constexpr long double operator""_m(long double x) noexcept { return 1e-3 * x; }
+        constexpr long double operator""_k(long double x) noexcept { return 1e3 * x; }
+        constexpr long double operator""_M(long double x) noexcept { return 1e6 * x; }
+        constexpr long double operator""_G(long double x) noexcept { return 1e9 * x; }
+        constexpr long double operator""_T(long double x) noexcept { return 1e12 * x; }
+        constexpr long double operator""_P(long double x) noexcept { return 1e15 * x; }
+        constexpr long double operator""_E(long double x) noexcept { return 1e18 * x; }
+        constexpr long double operator""_Z(long double x) noexcept { return 1e21 * x; }
+        constexpr long double operator""_Y(long double x) noexcept { return 1e24 * x; }
 
         constexpr float operator""_degf(long double x) noexcept
             { return float(x * (pi_ld / 180.0L)); }

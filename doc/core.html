@@ -863,17 +863,37 @@ mathematical constants, or to the best known accuracy for the physical ones.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_k</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_M</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_G</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_T</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_kb</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_MB</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_GB</code></strong><code>(unsigned long long n) noexcept</code></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_TB</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_k</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 10<sup>3</sup>)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_M</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 10<sup>6</sup>)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_G</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 10<sup>9</sup>)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_T</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 10<sup>12</sup>)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_kb</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>10</sup> = 1024)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_MB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>20</sup> = 1048576)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_GB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>30</sup> = 1073741824)</em></li>
+<li><code>constexpr unsigned long long</code> <strong><code>operator""_TB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>40</sup> = 1099511627776)</em></li>
 </ul>
-<p>Integer literals for abbreviating large constants. The first group apply
-powers of 1000, the second powers of 1024.</p>
+<p>Integer literals for abbreviating large constants.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr long double</code> <strong><code>operator""_y</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-24</const>sup&gt;; yocto-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_z</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-21</const>sup&gt;; zepto-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_a</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-18</const>sup&gt;; atto-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_f</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-15</const>sup&gt;; femto-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_p</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-12</const>sup&gt;; pico-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_n</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-9</const>sup&gt;; nano-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_u</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-6</const>sup&gt;; micro-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_m</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>-3</const>sup&gt;; milli-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_k</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>3</const>sup&gt;; kilo-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_M</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>6</const>sup&gt;; mega-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_G</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>9</const>sup&gt;; giga-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_T</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>12</const>sup&gt;; tera-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_P</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>15</const>sup&gt;; peta-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_E</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>18</const>sup&gt;; exa-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_Z</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>21</const>sup&gt;; zetta-)</em></li>
+<li><code>constexpr long double</code> <strong><code>operator""_Y</code></strong><code>(long double x) noexcept</code> <em>(&times; 10<sup>24</const>sup&gt;; yotta-)</em></li>
+</ul>
+<p>Floating point literals corresponding to SI prefixes.</p>
 </div>
 <div class="defns">
 <ul>
