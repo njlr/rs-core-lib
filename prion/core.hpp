@@ -126,11 +126,13 @@
     #endif
 #endif
 
-#if defined(PRI_TARGET_WIN32)
+#if defined(PRI_TARGET_WINDOWS)
     #include <winsock2.h>
     #include <ws2tcpip.h>
     #include <windows.h>
     #include <io.h>
+#elif defined(PRI_TARGET_WIN32)
+    #include <windows.h>
 #endif
 
 // Fix GNU brain damage

@@ -47,6 +47,7 @@ SCRIPTS      := $(LIBROOT)/prion-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
+	CXXFLAGS += -mwin32
 	LDFLAGS += -Wl,--enable-auto-import
 	LIBTAG := cygwin
 endif
