@@ -1104,12 +1104,14 @@ Example:
     * `Resource& Resource::`**`operator=`**`(Resource&& r) noexcept`
     * `Resource::`**`operator T&`**`() noexcept`
     * `Resource::`**`operator T`**`() const noexcept`
-    * `T& Resource::`**`get`**`() noexcept`
-    * `T Resource::`**`get`**`() const noexcept`
-    * `T Resource::`**`release`**`() noexcept`
+    * `explicit Resource::`**`operator bool`**`() const noexcept`
+    * `bool Resource::`**`operator!`**`() const noexcept`
     * `value_type& Resource::`**`operator*`**`() noexcept` _[only if T is a non-void pointer]_
     * `const value_type& Resource::`**`operator*`**`() const noexcept` _[only if T is a non-void pointer]_
     * `T Resource::`**`operator->`**`() const noexcept` _[only if T is a non-void pointer]_
+    * `T& Resource::`**`get`**`() noexcept`
+    * `T Resource::`**`get`**`() const noexcept`
+    * `T Resource::`**`release`**`() noexcept`
 * `template <typename T, typename D> Resource<T>` **`make_resource`**`(T&& t, D d)`
 
 This holds a resource of some kind, and a deleter function that will be called
@@ -1123,8 +1125,10 @@ constructor will call `d(t)` if anything goes wrong (in practise this can only
 happen if copying `D` throws).
 
 The template is specialized for pointer types; if `T` is a pointer, the
-deleter will never be called if the resource pointer is null. Behaviour is
-otherwise the same as for any other type.
+deleter will never be called if the resource pointer is null. The `bool`
+conversion and `!` operator have their usual meaning for pointers; for other
+types, they will fail to compile if `T` does not have an explicit conversion
+to `bool`. Behaviour is otherwise the same for pointer and non-pointer types.
 
 * `class` **`ScopeExit`**
     * `using ScopeExit::`**`callback`** `= function<void()>`

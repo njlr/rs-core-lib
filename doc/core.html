@@ -1393,12 +1393,14 @@ Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768,
 <li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
 <li><code>Resource::</code><strong><code>operator T&amp;</code></strong><code>() noexcept</code></li>
 <li><code>Resource::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
-<li><code>T&amp; Resource::</code><strong><code>get</code></strong><code>() noexcept</code></li>
-<li><code>T Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
-<li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+<li><code>explicit Resource::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
+<li><code>bool Resource::</code><strong><code>operator!</code></strong><code>() const noexcept</code></li>
 <li><code>value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() noexcept</code> <em>[only if T is a non-void pointer]</em></li>
 <li><code>const value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() const noexcept</code> <em>[only if T is a non-void pointer]</em></li>
 <li><code>T Resource::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code> <em>[only if T is a non-void pointer]</em></li>
+<li><code>T&amp; Resource::</code><strong><code>get</code></strong><code>() noexcept</code></li>
+<li><code>T Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
 <li><code>template &lt;typename T, typename D&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T&amp;&amp; t, D d)</code></li>
@@ -1413,8 +1415,11 @@ called, the resource object has been moved from, or the deleter is null. The
 constructor will call <code>d(t)</code> if anything goes wrong (in practise this can only
 happen if copying <code>D</code> throws).</p>
 <p>The template is specialized for pointer types; if <code>T</code> is a pointer, the
-deleter will never be called if the resource pointer is null. Behaviour is
-otherwise the same as for any other type.</p>
+deleter will never be called if the resource pointer is null. The <code>bool</code>
+conversion and <code>!</code> operator have their usual meaning for pointers; for other
+types, they will fail to compile if <code>T</code> does not have an explicit conversion
+to <code>bool</code>. Behaviour is otherwise the same as for pointer and non-pointer
+types.</p>
 </div>
 <div class="defns">
 <ul>

@@ -1723,6 +1723,8 @@ namespace Prion {
         }
         operator T&() noexcept { return res; }
         operator T() const noexcept { return res; }
+        explicit operator bool() const noexcept { return static_cast<bool>(res); }
+        bool operator!() const noexcept { return ! static_cast<bool>(res); }
         T& get() noexcept { return res; }
         T get() const noexcept { return res; }
         T release() noexcept { del = {}; return res; }
@@ -1760,12 +1762,14 @@ namespace Prion {
         }
         operator T*&() noexcept { return res; }
         operator T*() const noexcept { return res; }
-        T*& get() noexcept { return res; }
-        T* get() const noexcept { return res; }
-        T* release() noexcept { del = {}; return res; }
+        explicit operator bool() const noexcept { return res != nullptr; }
+        bool operator!() const noexcept { return res == nullptr; }
         T& operator*() noexcept { return *res; }
         const T& operator*() const noexcept { return *res; }
         T* operator->() const noexcept { return res; }
+        T*& get() noexcept { return res; }
+        T* get() const noexcept { return res; }
+        T* release() noexcept { del = {}; return res; }
     private:
         using deleter = function<void(T*)>;
         T* res = nullptr;

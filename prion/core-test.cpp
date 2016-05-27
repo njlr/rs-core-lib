@@ -2133,6 +2133,7 @@ namespace {
             n = 1;
             Resource<int> r;
             TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST(bool(r));
             TEST_EQUAL(r.get(), 2);
             TEST_EQUAL(n, 1);
         }
@@ -2142,6 +2143,7 @@ namespace {
             n = 1;
             Resource<int> r;
             TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST(bool(r));
             TEST_EQUAL(r.get(), 2);
             TEST_EQUAL(n, 1);
             TRY(r = {});
@@ -2153,6 +2155,7 @@ namespace {
             n = 1;
             Resource<int> r;
             TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST(bool(r));
             TEST_EQUAL(r.get(), 2);
             TEST_EQUAL(n, 1);
             TRY(r.release());
@@ -2164,6 +2167,7 @@ namespace {
             n = 1;
             Resource<int> r;
             TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST(bool(r));
             TEST_EQUAL(r.get(), 2);
             TEST_EQUAL(n, 1);
             TRY(r.get() = 3);
