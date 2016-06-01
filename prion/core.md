@@ -614,6 +614,7 @@ mathematical constants, or to the best known accuracy for the physical ones.
 * _Astronomical constants_
     * **`earth_mass`** _= 5.972&times;10<sup>24</sup> kg_
     * **`earth_radius`** _= 6.371&times;10<sup>6</sup> m_
+    * **`earth_gravity`** _= 9.807 m s<sup>-2</sup>_
     * **`jupiter_mass`** _= 1.899&times;10<sup>27</sup> kg_
     * **`jupiter_radius`** _= 6.991&times;10<sup>7</sup> m_
     * **`solar_mass`** _= 1.989&times;10<sup>30</sup> kg_

@@ -864,6 +864,7 @@ namespace Prion {
 
     PRI_DEFINE_CONSTANT(earth_mass,         5.97219e24);          // kg
     PRI_DEFINE_CONSTANT(earth_radius,       6.3710e6);            // m
+    PRI_DEFINE_CONSTANT(earth_gravity,      9.80665);             // m s^-2
     PRI_DEFINE_CONSTANT(jupiter_mass,       1.8986e27);           // kg
     PRI_DEFINE_CONSTANT(jupiter_radius,     6.9911e7);            // m
     PRI_DEFINE_CONSTANT(solar_mass,         1.98855e30);          // kg
