@@ -848,6 +848,27 @@ namespace Prion {
     PRI_DEFINE_CONSTANT(sqrt_pi,   1.77245385090551602729816748334114518279754945612239);
     PRI_DEFINE_CONSTANT(sqrt_2pi,  2.50662827463100050241576528481104525300698674060994);
 
+    // Conversion factors
+
+    PRI_DEFINE_CONSTANT(inch,           0.0254);              // m
+    PRI_DEFINE_CONSTANT(foot,           0.3048);              // m
+    PRI_DEFINE_CONSTANT(yard,           0.9144);              // m
+    PRI_DEFINE_CONSTANT(mile,           1609.344);            // m
+    PRI_DEFINE_CONSTANT(nautical_mile,  1852.0);              // m
+    PRI_DEFINE_CONSTANT(ounce,          0.028349523125);      // kg
+    PRI_DEFINE_CONSTANT(pound,          0.45359237);          // kg
+    PRI_DEFINE_CONSTANT(short_ton,      907.18474);           // kg
+    PRI_DEFINE_CONSTANT(long_ton,       1016.0469088);        // kg
+    PRI_DEFINE_CONSTANT(pound_force,    4.4482216152605);     // N
+    PRI_DEFINE_CONSTANT(erg,            1.0e-7);              // J
+    PRI_DEFINE_CONSTANT(foot_pound,     1.3558179483314004);  // J
+    PRI_DEFINE_CONSTANT(calorie,        4.184);               // J
+    PRI_DEFINE_CONSTANT(ton_tnt,        4.184e9);             // J
+    PRI_DEFINE_CONSTANT(horsepower,     745.69987158227022);  // W
+    PRI_DEFINE_CONSTANT(mmHg,           133.322387415);       // Pa
+    PRI_DEFINE_CONSTANT(atmosphere,     101325.0);            // Pa
+    PRI_DEFINE_CONSTANT(zero_celsius,   273.15);              // K
+
     // Physical constants
 
     PRI_DEFINE_CONSTANT(atomic_mass_unit,           1.660538921e-27);  // kg

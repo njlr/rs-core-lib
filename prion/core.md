@@ -588,8 +588,8 @@ specializations for the standard types). The `value` argument must be a
 floating point literal with no type suffix.
 
 The values quoted for the following constants are approximate; the values
-actually supplied are accurate to at least `long double` precision for the
-mathematical constants, or to the best known accuracy for the physical ones.
+actually supplied are accurate to at least `long double` precision where an
+exact value is defined, or to the best known accuracy.
 
 * _Mathematical constants_
     * **`e`** _= 2.7183_
@@ -601,6 +601,25 @@ mathematical constants, or to the best known accuracy for the physical ones.
     * **`sqrt_5`** _= &radic;5 = 2.2361_
     * **`sqrt_pi`** _= &radic;&pi; = 1.7725_
     * **`sqrt_2pi`** _= &radic;2&pi; = 2.5066_
+* _Conversion factors_
+    * **`inch`** _= 0.0254 m_
+    * **`foot`** _= 0.3048 m_
+    * **`yard`** _= 0.9144 m_
+    * **`mile`** _= 1609 m_
+    * **`nautical_mile`** _= 1852 m_
+    * **`ounce`** _= 0.02835 kg_
+    * **`pound`** _= 0.4536 kg_
+    * **`short_ton`** _= 907.2 kg_
+    * **`long_ton`** _= 1016 kg_
+    * **`pound_force`** _= 4.448 N_
+    * **`erg`** _= 10<sup>-7</sup> J_
+    * **`foot_pound`** _= 1.356 J_
+    * **`calorie`** _= 4.184 J_
+    * **`ton_tnt`** _= 4.184&times;10<sup>9</sup> J_
+    * **`horsepower`** _= 745.7 W_
+    * **`mmHg`** _= 133.3 Pa_
+    * **`atmosphere`** _= 101300 Pa_
+    * **`zero_celsius`** _= 273.15 K_
 * _Physical constants_
     * **`atomic_mass_unit`** _= 1.661&times;10<sup>-27</sup> kg_
     * **`avogadro_constant`** _= 6.022&times;10<sup>23</sup> mol<sup>-1</sup>_
