@@ -1365,6 +1365,13 @@ extremely high values.
 
 ### General string functions ###
 
+* `bool` **`ascii_icase_equal`**`(const string& lhs, const string& rhs) noexcept`
+* `bool` **`ascii_icase_less`**`(const string& lhs, const string& rhs) noexcept`
+
+Comparison functions that treat upper and lower case ASCII letters as
+equivalent (comparison between letters and non-letters uses the upper case
+code points).
+
 * `string` **`ascii_lowercase`**`(const string& s)`
 * `string` **`ascii_uppercase`**`(const string& s)`
 * `string` **`ascii_titlecase`**`(const string& s)`

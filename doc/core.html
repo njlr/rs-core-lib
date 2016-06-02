@@ -1679,6 +1679,15 @@ extremely high values.</p>
 <h3 id="general-string-functions">General string functions</h3>
 <div class="defns">
 <ul>
+<li><code>bool</code> <strong><code>ascii_icase_equal</code></strong><code>(const string&amp; lhs, const string&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>ascii_icase_less</code></strong><code>(const string&amp; lhs, const string&amp; rhs) noexcept</code></li>
+</ul>
+<p>Comparison functions that treat upper and lower case ASCII letters as
+equivalent (comparison between letters and non-letters uses the upper case
+code points).</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>string</code> <strong><code>ascii_lowercase</code></strong><code>(const string&amp; s)</code></li>
 <li><code>string</code> <strong><code>ascii_uppercase</code></strong><code>(const string&amp; s)</code></li>
 <li><code>string</code> <strong><code>ascii_titlecase</code></strong><code>(const string&amp; s)</code></li>

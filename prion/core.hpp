@@ -2146,6 +2146,24 @@ namespace Prion {
 
     // General string functions
 
+    inline bool ascii_icase_equal(const string& lhs, const string& rhs) noexcept {
+        if (lhs.size() != rhs.size())
+            return false;
+        for (size_t i = 0, n = lhs.size(); i < n; ++i)
+            if (ascii_toupper(lhs[i]) != ascii_toupper(rhs[i]))
+                return false;
+        return true;
+    }
+
+    inline bool ascii_icase_less(const string& lhs, const string& rhs) noexcept {
+        for (size_t i = 0, n = std::min(lhs.size(), rhs.size()); i < n; ++i) {
+            char a = ascii_toupper(lhs[i]), b = ascii_toupper(rhs[i]);
+            if (a != b)
+                return uint8_t(a) < uint8_t(b);
+        }
+        return lhs.size() < rhs.size();
+    }
+
     inline string ascii_lowercase(const string& s) {
         auto r = s;
         std::transform(r.begin(), r.end(), r.begin(), ascii_tolower);
