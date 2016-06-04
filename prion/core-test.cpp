@@ -3017,6 +3017,60 @@ namespace {
 
     }
 
+    void check_unicode_functions() {
+
+        // UTF-32    UTF-16     UTF-8
+        // 0000004d  004d       4d
+        // 00000430  0430       d0 b0
+        // 00004e8c  4e8c       e4 ba 8c
+        // 00010302  d800 df02  f0 90 8c 82
+        // 0010fffd  dbff dffd  f4 8f bf bd
+
+        u8string s8, t8 = "\x4d\xd0\xb0\xe4\xba\x8c\xf0\x90\x8c\x82\xf4\x8f\xbf\xbd";
+        u16string s16, t16 = {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
+        u32string s32, t32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
+        wstring sw, tw =
+            #if WCHAR_MAX > 0xffff
+                {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
+            #else
+                {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
+            #endif
+
+        TRY(s8 = uconv<u8string>(""s));     TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<u8string>(u""s));    TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<u8string>(U""s));    TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<u8string>(L""s));    TEST_EQUAL(s8, ""s);
+        TRY(s16 = uconv<u16string>(""s));   TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<u16string>(u""s));  TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<u16string>(U""s));  TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<u16string>(L""s));  TEST_EQUAL(s16, u""s);
+        TRY(s32 = uconv<u32string>(""s));   TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<u32string>(u""s));  TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<u32string>(U""s));  TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<u32string>(L""s));  TEST_EQUAL(s32, U""s);
+        TRY(sw = uconv<wstring>(""s));      TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<wstring>(u""s));     TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<wstring>(U""s));     TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<wstring>(L""s));     TEST_EQUAL(sw, L""s);
+        TRY(s8 = uconv<u8string>(t8));      TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<u8string>(t16));     TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<u8string>(t32));     TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<u8string>(tw));      TEST_EQUAL(s8, t8);
+        TRY(s16 = uconv<u16string>(t8));    TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<u16string>(t16));   TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<u16string>(t32));   TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<u16string>(tw));    TEST_EQUAL(s16, t16);
+        TRY(s32 = uconv<u32string>(t8));    TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<u32string>(t16));   TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<u32string>(t32));   TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<u32string>(tw));    TEST_EQUAL(s32, t32);
+        TRY(sw = uconv<wstring>(t8));       TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<wstring>(t16));      TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<wstring>(t32));      TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<wstring>(tw));       TEST_EQUAL(sw, tw);
+
+    }
+
     void check_string_formatting_and_parsing_functions() {
 
         string s;
@@ -3697,6 +3751,7 @@ TEST_MODULE(prion, core) {
     check_simple_random_generators();
     check_character_functions();
     check_general_string_functions();
+    check_unicode_functions();
     check_string_formatting_and_parsing_functions();
     check_html_xml_tags();
     check_thread_class();

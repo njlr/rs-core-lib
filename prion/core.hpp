@@ -361,31 +361,146 @@ namespace Prion {
         return result;
     }
 
-    #if defined(PRI_TARGET_WIN32)
+    namespace PrionDetail {
 
-        inline wstring utf8_to_wstring(const u8string& ustr) {
-            if (ustr.empty())
-                return {};
-            int rc = MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), nullptr, 0);
-            if (rc <= 0)
-                return {};
-            wstring result(rc, 0);
-            MultiByteToWideChar(CP_UTF8, 0, ustr.data(), ustr.size(), &result[0], rc);
-            return result;
-        }
+        template <typename Src, typename Dst,
+            size_t N1 = sizeof(typename Src::value_type),
+            size_t N2 = sizeof(typename Dst::value_type)>
+        struct UtfConvert {
+            Dst operator()(const Src& s) const {
+                return UtfConvert<u32string, Dst>()(UtfConvert<Src, u32string>()(s));
+            }
+        };
 
-        inline u8string wstring_to_utf8(const wstring& wstr) {
-            if (wstr.empty())
-                return {};
-            int rc = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), nullptr, 0, nullptr, nullptr);
-            if (rc <= 0)
-                return {};
-            u8string result(rc, 0);
-            WideCharToMultiByte(CP_UTF8, 0, wstr.data(), wstr.size(), &result[0], rc, nullptr, nullptr);
-            return result;
-        }
+        template <typename Src, typename Dst, size_t N>
+        struct UtfConvert<Src, Dst, N, N> {
+            Dst operator()(const Src& s) const {
+                using dc = typename Dst::value_type;
+                return Dst(reinterpret_cast<const dc*>(s.data()), s.size());
+            }
+        };
 
-    #endif
+        template <typename Src, typename Dst>
+        struct UtfConvert<Src, Dst, 1, 4> {
+            Dst operator()(const Src& s) const {
+                using dc = typename Dst::value_type;
+                auto p = reinterpret_cast<const uint8_t*>(s.data()), q = p + s.size();
+                Dst d;
+                while (p < q) {
+                    if (*p <= 0x7f) {
+                        d += dc(*p++);
+                    } else if (p[0] <= 0xc1 || p[0] >= 0xf5 || q - p < 2 || p[1] < 0x80 || p[1] > 0xbf
+                            || (p[0] == 0xe0 && p[1] < 0xa0) || (p[0] == 0xed && p[1] > 0x9f)
+                            || (p[0] == 0xf0 && p[1] < 0x90) || (p[0] == 0xf4 && p[1] > 0x8f)) {
+                        d += dc(0xfeff);
+                        ++p;
+                    } else if (p[0] <= 0xdf) {
+                        d += (dc(p[0] & 0x1f) << 6) | dc(p[1] & 0x3f);
+                        p += 2;
+                    } else if (p[0] <= 0xef) {
+                        if (q - p < 3 || p[2] < 0x80 || p[2] > 0xbf) {
+                            d += dc(0xfeff);
+                            p += 2;
+                        } else {
+                            d += (dc(p[0] & 0x0f) << 12) | (dc(p[1] & 0x3f) << 6) | dc(p[2] & 0x3f);
+                            p += 3;
+                        }
+                    } else {
+                        if (q - p < 3 || p[2] < 0x80 || p[2] > 0xbf) {
+                            d += dc(0xfeff);
+                            p += 2;
+                        } else if (q - p < 4 || p[3] < 0x80 || p[3] > 0xbf) {
+                            d += dc(0xfeff);
+                            p += 3;
+                        } else {
+                            d += (dc(p[0] & 0x07) << 18) | (dc(p[1] & 0x3f) << 12)
+                                | (dc(p[2] & 0x3f) << 6) | dc(p[3] & 0x3f);
+                            p += 4;
+                        }
+                    }
+                }
+                return d;
+            }
+        };
+
+        template <typename Src, typename Dst>
+        struct UtfConvert<Src, Dst, 2, 4> {
+            Dst operator()(const Src& s) const {
+                using dc = typename Dst::value_type;
+                auto p = reinterpret_cast<const uint16_t*>(s.data()), q = p + s.size();
+                Dst d;
+                while (p < q) {
+                    if (*p <= 0xd7ff || *p >= 0xe000) {
+                        d += dc(*p++);
+                    } else if (q - p >= 2 && p[0] >= 0xd800 && p[0] <= 0xdbff && p[1] >= 0xdc00 && p[1] <= 0xdfff) {
+                        d += dc(0x10000) + ((dc(p[0]) & 0x3ff) << 10) + (dc(p[1]) & 0x3ff);
+                        p += 2;
+                    } else {
+                        d += dc(0xfeff);
+                        ++p;
+                    }
+                }
+                return d;
+            }
+        };
+
+        template <typename Src, typename Dst>
+        struct UtfConvert<Src, Dst, 4, 1> {
+            Dst operator()(const Src& s) const {
+                using dc = typename Dst::value_type;
+                Dst d;
+                for (auto c: s) {
+                    auto u = uint32_t(c);
+                    if (u <= 0x7f) {
+                        d += dc(u);
+                    } else if (u <= 0x7ff) {
+                        d += dc(0xc0 | (u >> 6));
+                        d += dc(0x80 | (u & 0x3f));
+                    } else if (u <= 0xd7ff || (u >= 0xe000 && u <= 0xffff)) {
+                        d += dc(0xe0 | (u >> 12));
+                        d += dc(0x80 | ((u >> 6) & 0x3f));
+                        d += dc(0x80 | (u & 0x3f));
+                    } else if (u >= 0x10000 && u <= 0x10ffff) {
+                        d += dc(0xf0 | (u >> 18));
+                        d += dc(0x80 | ((u >> 12) & 0x3f));
+                        d += dc(0x80 | ((u >> 6) & 0x3f));
+                        d += dc(0x80 | (u & 0x3f));
+                    } else {
+                        d += dc(0xef);
+                        d += dc(0xbf);
+                        d += dc(0xbf);
+                    }
+                }
+                return d;
+            }
+        };
+
+        template <typename Src, typename Dst>
+        struct UtfConvert<Src, Dst, 4, 2> {
+            Dst operator()(const Src& s) const {
+                using dc = typename Dst::value_type;
+                Dst d;
+                for (auto c: s) {
+                    auto u = uint32_t(c);
+                    if (u <= 0xd7ff || (u >= 0xe000 && u <= 0xffff)) {
+                        d += dc(u);
+                    } else if (u >= 0x10000 && u <= 0x10ffff) {
+                        d += dc(0xd800 + ((u >> 10) - 0x40));
+                        d += dc(0xdc00 + (u & 0x3ff));
+                    } else {
+                        d += dc(0xfeff);
+                    }
+                }
+                return d;
+            }
+        };
+
+    }
+
+    template <typename Dst, typename Src>
+    Dst uconv(const Src& s) {
+        return PrionDetail::UtfConvert<Src, Dst>()(s);
+    }
 
     // [Types]
 
@@ -1993,9 +2108,9 @@ namespace Prion {
         }
 
         inline bool load_file(const string& file, string& dst, size_t limit = npos)
-            { return load_file(utf8_to_wstring(file), dst, limit); }
+            { return load_file(uconv<wstring>(file), dst, limit); }
         inline bool save_file(const string& file, const void* ptr, size_t n, bool append)
-            { return save_file(utf8_to_wstring(file), ptr, n, append); }
+            { return save_file(uconv<wstring>(file), ptr, n, append); }
         inline bool save_file(const wstring& file, const string& src, bool append = false)
             { return save_file(file, src.data(), src.size(), append); }
 

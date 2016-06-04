@@ -74,6 +74,7 @@
 <li><a href="#strings-and-related-functions">Strings and related functions</a><ul>
 <li><a href="#character-functions">Character functions</a></li>
 <li><a href="#general-string-functions">General string functions</a></li>
+<li><a href="#unicode-functions">Unicode functions</a></li>
 <li><a href="#string-formatting-and-parsing-functions">String formatting and parsing functions</a></li>
 <li><a href="#htmlxml-tags">HTML/XML tags</a></li>
 </ul>
@@ -1753,15 +1754,17 @@ the 128-255 range are passed through unchanged instead of being escaped.</p>
 <p>Strips off any prefix ending in a dot or colon, e.g.
 <code>unqualify("Prion::unqualify()")</code> returns <code>"unqualify()"</code>.</p>
 </div>
+<h3 id="unicode-functions">Unicode functions</h3>
 <div class="defns">
 <ul>
-<li><code>wstring</code> <strong><code>utf8_to_wstring</code></strong><code>(const u8string&amp; ustr)</code> <em>(Windows only)</em></li>
-<li><code>u8string</code> <strong><code>wstring_to_utf8</code></strong><code>(const wstring&amp; wstr)</code> <em>(Windows only)</em></li>
+<li><code>template &lt;typename S2, typename S1&gt; S2</code> <strong><code>uconv</code></strong><code>(const S1&amp; s)</code></li>
 </ul>
-<p>These are only defined on Windows, and provide conversions between UTF-8 and
-the native UTF-16 API. They are minimal wrappers for <code>MultiByteToWideChar()</code>
-and <code>WideCharToMultiByte()</code>. These do not do any error checking; the output
-will be garbage if the input was not valid Unicode.</p>
+<p>Converts between UTF representations. The input and output types (<code>S1</code> and
+<code>S2</code>) must be instantiations of <code>basic_string</code> with 8, 16, or 32 bit character
+types. If the character types are the same size, the input string is copied to
+the output without any validity checking; otherwise, invalid UTF in the input
+is replaced with the standard Unicode replacement character (<code>U+FEFF</code>) in the
+output.</p>
 </div>
 <h3 id="string-formatting-and-parsing-functions">String formatting and parsing functions</h3>
 <div class="defns">

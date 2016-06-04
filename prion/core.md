@@ -1423,13 +1423,16 @@ Trim unwanted bytes from the ends of a string.
 Strips off any prefix ending in a dot or colon, e.g.
 `unqualify("Prion::unqualify()")` returns `"unqualify()"`.
 
-* `wstring` **`utf8_to_wstring`**`(const u8string& ustr)` _(Windows only)_
-* `u8string` **`wstring_to_utf8`**`(const wstring& wstr)` _(Windows only)_
+### Unicode functions ###
 
-These are only defined on Windows, and provide conversions between UTF-8 and
-the native UTF-16 API. They are minimal wrappers for `MultiByteToWideChar()`
-and `WideCharToMultiByte()`. These do not do any error checking; the output
-will be garbage if the input was not valid Unicode.
+* `template <typename S2, typename S1> S2` **`uconv`**`(const S1& s)`
+
+Converts between UTF representations. The input and output types (`S1` and
+`S2`) must be instantiations of `basic_string` with 8, 16, or 32 bit character
+types. If the character types are the same size, the input string is copied to
+the output without any validity checking; otherwise, invalid UTF in the input
+is replaced with the standard Unicode replacement character (`U+FEFF`) in the
+output.
 
 ### String formatting and parsing functions ###
 
