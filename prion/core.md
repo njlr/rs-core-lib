@@ -1463,32 +1463,21 @@ This will throw `std::invalid_argument` if the mode is not one of
 `[EFGHefgh]`; it may throw `std::system_error` under implementation defined
 circumstances.
 
-* `template <typename T> T` **`from_si`**`(const u8string& str)`
-* `double` **`si_to_f`**`(const u8string& str)`
-* `long long` **`si_to_i`**`(const u8string& str)`
-* `template <typename T> u8string` **`to_si`**`(T t, int prec = 3, const u8string& delim = "")`
+* `int64_t` **`si_to_int`**`(const u8string& s)`
+* `double` **`si_to_float`**`(const u8string& s)`
 
-Convert between numbers and a string representation tagged with an SI prefix.
-In both template functions `T` must be an arithmetic type; `si_to_f()` and
-`si_to_i()` are just shorthand for the corresponding instantiation of
-`from_si()`.
+These parse a number from a string representation tagged with an SI multiplier
+abbreviation (e.g. `"123k"`). For the integer version, only tags representing
+positive powers of 1000 (starting with`"k"`) are recognised, and are case
+insensitive. For the floating point version, all tags representing powers of
+100 are recognised (`"u"` is used for "micro"), and are case sensitive, except
+that `"K"` is equivalent to `"k"`. For both versions, a space is allowed
+between the number and the tag, and any additional text after the number or
+tag is ignored.
 
-The `from_si()` function converts a string to a number; for example, `"1.23k"`
-will yield 1230. Only SI prefix tags representing positive powers of 10 are
-recognised, starting from `"k"`, not fractional ones; tag letters are case
-insensitive; whitespace between the number and the tag letter is ignored, as
-is anything after a single letter. This will throw `std::invalid_argument` if
-the string does not start with a valid number or a tag letter is not
-recognised, or `std::range_error` if the result is too big for the return
+This will throw `std::invalid_argument` if the string does not start with a
+valid number, or `std::range_error` if the result is too big for the return
 type.
-
-The `to_si()` function converts a number to a string with an SI prefix
-appended. The tag letter will be chosen so that the numeric part is greater
-than or equal to 1 and less than 1000, if possible. Optionally a delimiter can
-be inserted between the number and letter.
-
-(These functions will not work properly with `long double` values that are
-outside the range of a `double`.)
 
 * `u8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
 * `u8string` **`hexdump`**`(const string& str, size_t block = 0)`

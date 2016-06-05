@@ -2454,62 +2454,57 @@ namespace Prion {
         return buf;
     }
 
-    namespace PrionDetail {
-
-        constexpr const char* si_prefixes = "KMGTPEZY";
-
-    }
-
-    template <typename T>
-    T from_si(const u8string& str) {
-        using limits = std::numeric_limits<T>;
-        char* next = nullptr;
+    inline int64_t si_to_int(const u8string& s) {
+        using limits = std::numeric_limits<int64_t>;
+        static constexpr const char* prefixes = "KMGTPEZY";
+        char* endp = nullptr;
         errno = 0;
-        double x = strtod(str.data(), &next);
-        if (errno == ERANGE && fabs(x) == HUGE_VAL)
-            throw std::range_error("Out of range: " + str);
-        else if (errno == ERANGE)
-            x = 0;
-        else if (next == str.data())
-            throw std::invalid_argument("Invalid number: " + str);
-        auto endp = str.data() + str.size();
-        while (next != endp && ascii_isspace(*next))
-            ++next;
-        if (next == endp || ! ascii_isalpha(*next))
-            return x;
-        auto ptr = strchr(PrionDetail::si_prefixes, ascii_toupper(*next));
-        if (ptr == nullptr)
-            throw std::invalid_argument("Unknown suffix: " + str);
-        x *= pow(10.0, 3 * (ptr - PrionDetail::si_prefixes + 1));
-        if (x < double(limits::lowest()) || x > double(limits::max()))
-            throw std::range_error("Out of range: " + str);
-        return T(x);
+        int64_t n = strtoll(s.data(), &endp, 10);
+        if (errno == ERANGE)
+            throw std::range_error("Out of range: " + quote(s, true));
+        if (errno || endp == s.data())
+            throw std::invalid_argument("Invalid number: " + quote(s, true));
+        if (ascii_isspace(*endp))
+            ++endp;
+        if (n && ascii_isalpha(*endp)) {
+            auto pp = strchr(prefixes, ascii_toupper(*endp));
+            if (pp) {
+                int64_t steps = pp - prefixes + 1;
+                double limit = log10(double(limits::max()) / double(abs(n))) / 3;
+                if (steps > limit)
+                    throw std::range_error("Out of range: " + quote(s, true));
+                n *= int_power(int64_t(1000), steps);
+            }
+        }
+        return n;
     }
 
-    inline double si_to_f(const u8string& str) { return from_si<double>(str); }
-    inline long long si_to_i(const u8string& str) { return from_si<long long>(str); }
-
-    template <typename T>
-    u8string to_si(T t, int prec = 3, const u8string& delim = "") {
-        auto x = double(t);
-        if (x == 0)
-            return fp_format(x, 'h', prec);
-        int step = clamp(int(floor(log10(fabs(x)) / 3.0)), 0, 8);
-        x *= pow(10.0, - 3 * step);
-        u8string str = fp_format(x, 'h', prec);
-        auto p = str.data() + size_t(str[0] == '-');
-        if (step < 8 && strcmp(p, "1000") == 0) {
-            ++step;
-            x *= 0.001;
-            str = fp_format(x, 'h', prec);
+    inline double si_to_float(const u8string& s) {
+        using limits = std::numeric_limits<double>;
+        static constexpr const char* prefixes = "yzafpnum kMGTPEZY";
+        char* endp = nullptr;
+        errno = 0;
+        double x = strtod(s.data(), &endp);
+        if (errno == ERANGE)
+            throw std::range_error("Out of range: " + quote(s, true));
+        if (errno || endp == s.data())
+            throw std::invalid_argument("Invalid number: " + quote(s, true));
+        if (ascii_isspace(*endp))
+            ++endp;
+        char c = *endp;
+        if (x && ascii_isalpha(c)) {
+            if (c == 'K')
+                c = 'k';
+            auto pp = strchr(prefixes, c);
+            if (pp) {
+                int steps = pp - prefixes - 8;
+                double limit = log10(limits::max() / fabs(x)) / 3;
+                if (steps > limit)
+                    throw std::range_error("Out of range: " + quote(s, true));
+                x *= pow(1000.0, steps);
+            }
         }
-        if (step > 0)
-            str += delim;
-        if (step == 1)
-            str += 'k';
-        else if (step >= 2)
-            str += PrionDetail::si_prefixes[step - 1];
-        return str;
+        return x;
     }
 
     inline u8string hexdump(const void* ptr, size_t n, size_t block = 0) {
