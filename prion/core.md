@@ -1431,7 +1431,7 @@ Converts between UTF representations. The input and output types (`S1` and
 `S2`) must be instantiations of `basic_string` with 8, 16, or 32 bit character
 types. If the character types are the same size, the input string is copied to
 the output without any validity checking; otherwise, invalid UTF in the input
-is replaced with the standard Unicode replacement character (`U+FEFF`) in the
+is replaced with the standard Unicode replacement character (`U+FFFD`) in the
 output.
 
 ### String formatting and parsing functions ###

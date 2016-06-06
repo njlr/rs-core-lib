@@ -392,14 +392,14 @@ namespace Prion {
                     } else if (p[0] <= 0xc1 || p[0] >= 0xf5 || q - p < 2 || p[1] < 0x80 || p[1] > 0xbf
                             || (p[0] == 0xe0 && p[1] < 0xa0) || (p[0] == 0xed && p[1] > 0x9f)
                             || (p[0] == 0xf0 && p[1] < 0x90) || (p[0] == 0xf4 && p[1] > 0x8f)) {
-                        d += dc(0xfeff);
+                        d += dc(0xfffd);
                         ++p;
                     } else if (p[0] <= 0xdf) {
                         d += (dc(p[0] & 0x1f) << 6) | dc(p[1] & 0x3f);
                         p += 2;
                     } else if (p[0] <= 0xef) {
                         if (q - p < 3 || p[2] < 0x80 || p[2] > 0xbf) {
-                            d += dc(0xfeff);
+                            d += dc(0xfffd);
                             p += 2;
                         } else {
                             d += (dc(p[0] & 0x0f) << 12) | (dc(p[1] & 0x3f) << 6) | dc(p[2] & 0x3f);
@@ -407,10 +407,10 @@ namespace Prion {
                         }
                     } else {
                         if (q - p < 3 || p[2] < 0x80 || p[2] > 0xbf) {
-                            d += dc(0xfeff);
+                            d += dc(0xfffd);
                             p += 2;
                         } else if (q - p < 4 || p[3] < 0x80 || p[3] > 0xbf) {
-                            d += dc(0xfeff);
+                            d += dc(0xfffd);
                             p += 3;
                         } else {
                             d += (dc(p[0] & 0x07) << 18) | (dc(p[1] & 0x3f) << 12)
@@ -436,7 +436,7 @@ namespace Prion {
                         d += dc(0x10000) + ((dc(p[0]) & 0x3ff) << 10) + (dc(p[1]) & 0x3ff);
                         p += 2;
                     } else {
-                        d += dc(0xfeff);
+                        d += dc(0xfffd);
                         ++p;
                     }
                 }
@@ -488,7 +488,7 @@ namespace Prion {
                         d += dc(0xd800 + ((u >> 10) - 0x40));
                         d += dc(0xdc00 + (u & 0x3ff));
                     } else {
-                        d += dc(0xfeff);
+                        d += dc(0xfffd);
                     }
                 }
                 return d;
