@@ -1211,7 +1211,7 @@ namespace Prion {
     }
 
     template <typename Range>
-    RangeValue<Range> sum(const Range& r) {
+    RangeValue<Range> sum_of(const Range& r) {
         auto t = RangeValue<Range>();
         for (auto& x: r)
             t = t + x;
@@ -1219,7 +1219,7 @@ namespace Prion {
     }
 
     template <typename Range>
-    RangeValue<Range> sum(Range&& r) {
+    RangeValue<Range> sum_of(Range&& r) {
         auto t = RangeValue<Range>();
         for (auto& x: r)
             t = t + x;
@@ -1227,7 +1227,7 @@ namespace Prion {
     }
 
     template <typename Range>
-    RangeValue<Range> product(const Range& r) {
+    RangeValue<Range> product_of(const Range& r) {
         auto t = RangeValue<Range>(1);
         for (auto& x: r)
             t = t * x;
@@ -1235,7 +1235,7 @@ namespace Prion {
     }
 
     template <typename Range>
-    RangeValue<Range> product(Range&& r) {
+    RangeValue<Range> product_of(Range&& r) {
         auto t = RangeValue<Range>(1);
         for (auto& x: r)
             t = t * x;

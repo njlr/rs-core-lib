@@ -1009,13 +1009,13 @@ that takes no arguments, while <code>for_n()</code> passes the iteration count (
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>sum</code></strong><code>(const Range&amp; r)</code></li>
-<li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>product</code></strong><code>(const Range&amp; r)</code></li>
+<li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>sum_of</code></strong><code>(const Range&amp; r)</code></li>
+<li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>product_of</code></strong><code>(const Range&amp; r)</code></li>
 </ul>
 <p>Simple range sum and product functions, to save the trouble of calling
-<code>std::accumulate()</code> in trivial cases. Calling <code>sum()</code> on an empty range will
-return a default constructed value. The value type of <code>product()</code> must be
-constructible by a <code>static_cast</code> from <code>int</code>; an empty range will return 1.</p>
+<code>std::accumulate()</code> in trivial cases. Calling <code>sum_of()</code> on an empty range
+will return a default constructed value. The value type of <code>product_of()</code> must
+be constructible by a <code>static_cast</code> from <code>int</code>; an empty range will return 1.</p>
 </div>
 <h3 id="integer-sequences">Integer sequences</h3>
 <div class="defns">

@@ -776,13 +776,13 @@ These simply call the function `n` times. The `do_n()` loop expects a function
 that takes no arguments, while `for_n()` passes the iteration count (zero to
 `n-1`) as an argument.
 
-* `template <typename Range> [value type]` **`sum`**`(const Range& r)`
-* `template <typename Range> [value type]` **`product`**`(const Range& r)`
+* `template <typename Range> [value type]` **`sum_of`**`(const Range& r)`
+* `template <typename Range> [value type]` **`product_of`**`(const Range& r)`
 
 Simple range sum and product functions, to save the trouble of calling
-`std::accumulate()` in trivial cases. Calling `sum()` on an empty range will
-return a default constructed value. The value type of `product()` must be
-constructible by a `static_cast` from `int`; an empty range will return 1.
+`std::accumulate()` in trivial cases. Calling `sum_of()` on an empty range
+will return a default constructed value. The value type of `product_of()` must
+be constructible by a `static_cast` from `int`; an empty range will return 1.
 
 ### Integer sequences ###
 
