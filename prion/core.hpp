@@ -361,6 +361,8 @@ namespace Prion {
         return result;
     }
 
+    // Unicode functions
+
     namespace PrionDetail {
 
         template <typename Src, typename Dst,
