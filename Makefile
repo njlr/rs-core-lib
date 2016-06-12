@@ -97,19 +97,6 @@ EXTRALIBS := $(shell grep -h PRI_LDLIB $(HEADERS) $(SOURCES) \
 	| sed -E -e 's/$(LIBTAG)://' -e 's/[^ ]+/-l&/g' \
 	| sort -u)
 
-PCRELIBS := $(shell find $(LIBPATH) -name 'libpcre16.*' -or -name 'libpcre32.*' 2>/dev/null \
-	| grep -Ev '\.pc$$' | sed -E 's!.*/!!')
-
-ifneq ($(filter libpcre16.%,$(PCRELIBS)),)
-	DEFINES += -DUNICORN_PCRE16=1
-	LDLIBS += -lpcre16
-endif
-
-ifneq ($(filter libpcre32.%,$(PCRELIBS)),)
-	DEFINES += -DUNICORN_PCRE32=1
-	LDLIBS += -lpcre32
-endif
-
 ifneq ($(shell grep -Fior 'sdl2/sdl.h' $(NAME)),)
 	DEFINES += -DSDL_MAIN_HANDLED=1
 	ifeq ($(HOST),cygwin)
