@@ -692,6 +692,9 @@ namespace {
 
     void check_arithmetic_literals() {
 
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Woverflow"
+
         auto a = 123_s8;
         auto b = 123_u8;
         auto c = 123_s16;
@@ -898,6 +901,8 @@ namespace {
         TEST_NEAR(-90.0_deg, -1.570796);
         TEST_NEAR(-180.0_deg, -3.141593);
         TEST_NEAR(-360.0_deg, -6.283185);
+
+        #pragma GCC diagnostic pop
 
     }
 

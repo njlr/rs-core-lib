@@ -386,7 +386,8 @@ namespace Prion {
         struct UtfConvert<Src, Dst, 1, 4> {
             Dst operator()(const Src& s) const {
                 using dc = typename Dst::value_type;
-                auto p = reinterpret_cast<const uint8_t*>(s.data()), q = p + s.size();
+                auto p = reinterpret_cast<const uint8_t*>(s.data());
+                auto q = p + s.size();
                 Dst d;
                 while (p < q) {
                     if (*p <= 0x7f) {
@@ -429,7 +430,8 @@ namespace Prion {
         struct UtfConvert<Src, Dst, 2, 4> {
             Dst operator()(const Src& s) const {
                 using dc = typename Dst::value_type;
-                auto p = reinterpret_cast<const uint16_t*>(s.data()), q = p + s.size();
+                auto p = reinterpret_cast<const uint16_t*>(s.data());
+                auto q = p + s.size();
                 Dst d;
                 while (p < q) {
                     if (*p <= 0xd7ff || *p >= 0xe000) {
