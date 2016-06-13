@@ -1212,6 +1212,28 @@ namespace Prion {
             f(i);
     }
 
+    template <typename Range1, typename Range2, typename Compare>
+    bool sets_intersect(const Range1& r1, const Range2& r2, Compare c) {
+        using std::begin;
+        using std::end;
+        auto i = begin(r1), end1 = end(r1);
+        auto j = begin(r2), end2 = end(r2);
+        while (i != end1 && j != end2) {
+            if (c(*i, *j))
+                ++i;
+            else if (c(*j, *i))
+                ++j;
+            else
+                return true;
+        }
+        return false;
+    }
+
+    template <typename Range1, typename Range2>
+    bool sets_intersect(const Range1& r1, const Range2& r2) {
+        return sets_intersect(r1, r2, std::less<>());
+    }
+
     template <typename Range>
     RangeValue<Range> sum_of(const Range& r) {
         auto t = RangeValue<Range>();

@@ -973,6 +973,15 @@ namespace {
         s1.clear();  TRY(for_n(2, f2));  TEST_EQUAL(s1, "0;1;");
         s1.clear();  TRY(for_n(3, f2));  TEST_EQUAL(s1, "0;1;2;");
 
+        std::set<int> is1, is2;
+        TEST(! sets_intersect(is1, is2));
+        is1 = {1,2,3,4,5};
+        TEST(! sets_intersect(is1, is2));
+        is2 = {3,6,9};
+        TEST(sets_intersect(is1, is2));
+        is2 = {10,20};
+        TEST(! sets_intersect(is1, is2));
+
         vector<int> iv0, iv5 = {1,2,3,4,5};
         const vector<int>& civ5(iv5);
         double d, da5[] = {10,20,30,40,50};

@@ -1009,6 +1009,14 @@ that takes no arguments, while <code>for_n()</code> passes the iteration count (
 </div>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename Range1, typename Range2&gt; bool</code> <strong><code>sets_intersect</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2)</code></li>
+<li><code>template &lt;typename Range1, typename Range2, typename Compare&gt; bool</code> <strong><code>sets_intersect</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2, Compare c)</code></li>
+</ul>
+<p>Test whether two ordered ranges (sets) have any elements in common. The ranges
+are assumed to be ordered in accordance with the comparison predicate.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>sum_of</code></strong><code>(const Range&amp; r)</code></li>
 <li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>product_of</code></strong><code>(const Range&amp; r)</code></li>
 </ul>

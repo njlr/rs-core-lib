@@ -776,6 +776,12 @@ These simply call the function `n` times. The `do_n()` loop expects a function
 that takes no arguments, while `for_n()` passes the iteration count (zero to
 `n-1`) as an argument.
 
+* `template <typename Range1, typename Range2> bool` **`sets_intersect`**`(const Range1& r1, const Range2& r2)`
+* `template <typename Range1, typename Range2, typename Compare> bool` **`sets_intersect`**`(const Range1& r1, const Range2& r2, Compare c)`
+
+Test whether two ordered ranges (sets) have any elements in common. The ranges
+are assumed to be ordered in accordance with the comparison predicate.
+
 * `template <typename Range> [value type]` **`sum_of`**`(const Range& r)`
 * `template <typename Range> [value type]` **`product_of`**`(const Range& r)`
 
