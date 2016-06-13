@@ -38,7 +38,7 @@
         #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
             #define PRI_TARGET_IOS 1
         #elif TARGET_OS_MAC
-            #define PRI_TARGET_MACOSX 1
+            #define PRI_TARGET_MACOS 1
         #endif
     #elif defined(__linux__)
         #define PRI_TARGET_LINUX 1
@@ -2892,8 +2892,8 @@ namespace Prion {
     #if defined(PRI_TARGET_UNIX)
 
         // The Posix standard recommends using clock_gettime() with
-        // CLOCK_REALTIME to find the current time for a CV wait. OSX doesn't
-        // have clock_gettime(), but the Apple man page for
+        // CLOCK_REALTIME to find the current time for a CV wait. Darwin
+        // doesn't have clock_gettime(), but the Apple man page for
         // pthread_cond_timedwait() recommends using gettimeofday() instead,
         // and manually converting timeval to timespec.
 

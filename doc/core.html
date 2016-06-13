@@ -106,7 +106,7 @@
 <li><code>#define</code> <strong><code>PRI_TARGET_UNIX</code></strong> <code>1</code> <em>-- defined on all Unix/Posix builds</em></li>
 <li><code>#define</code> <strong><code>PRI_TARGET_APPLE</code></strong> <code>1</code> <em>-- defined on all Apple (Darwin) builds</em></li>
 <li><code>#define</code> <strong><code>PRI_TARGET_IOS</code></strong> <code>1</code> <em>-- defined on iOS builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_MACOSX</code></strong> <code>1</code> <em>-- defined on Mac OS X builds</em></li>
+<li><code>#define</code> <strong><code>PRI_TARGET_MACOS</code></strong> <code>1</code> <em>-- defined on macOS builds</em></li>
 <li><code>#define</code> <strong><code>PRI_TARGET_LINUX</code></strong> <code>1</code> <em>-- defined on Linux builds</em></li>
 </ul>
 </li>
@@ -135,7 +135,7 @@ on the Windows OS, i.e. both native Win32 and Cygwin builds.</p>
 <code>PRI_TARGET_MINGW</code> will always be defined if <code>PRI_TARGET_WINDOWS</code> is defined.
 I may add MSVC support in a future version.</p>
 <p>On Apple platforms, <code>PRI_TARGET_APPLE</code> will always be defined; one of
-<code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOSX</code> will also be defined.</p>
+<code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOS</code> will also be defined.</p>
 </div>
 <div class="defns">
 <ul>
@@ -201,7 +201,7 @@ only.</p>
 <tbody>
 <tr>
 <td><code>apple:</code></td>
-<td>Mac OS X + iOS</td>
+<td>macOS or iOS</td>
 <td><code>PRI_TARGET_APPLE</code></td>
 </tr>
 <tr>

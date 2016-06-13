@@ -17,7 +17,7 @@ By Ross Smith
     * `#define` **`PRI_TARGET_UNIX`** `1` _-- defined on all Unix/Posix builds_
     * `#define` **`PRI_TARGET_APPLE`** `1` _-- defined on all Apple (Darwin) builds_
     * `#define` **`PRI_TARGET_IOS`** `1` _-- defined on iOS builds_
-    * `#define` **`PRI_TARGET_MACOSX`** `1` _-- defined on Mac OS X builds_
+    * `#define` **`PRI_TARGET_MACOS`** `1` _-- defined on macOS builds_
     * `#define` **`PRI_TARGET_LINUX`** `1` _-- defined on Linux builds_
 * _Windows targets_
     * `#define` **`PRI_TARGET_WINDOWS`** `1` _-- defined on non-Cygwin native Windows builds_
@@ -46,7 +46,7 @@ Currently only Mingw builds are supported for native Windows targets, so
 I may add MSVC support in a future version.
 
 On Apple platforms, `PRI_TARGET_APPLE` will always be defined; one of
-`PRI_TARGET_IOS` or `PRI_TARGET_MACOSX` will also be defined.
+`PRI_TARGET_IOS` or `PRI_TARGET_MACOS` will also be defined.
 
 * `#define` **`PRI_ASSERT`**`(expr)`
 
@@ -96,12 +96,12 @@ specific targets can be prefixed with a target identifier, e.g.
 `PRI_LDLIB(apple: foo bar)` will link with `-lfoo -lbar` for Apple targets
 only.
 
-Tag        | Build target    | Corresponding macro
----        | ------------    | -------------------
-`apple:`   | Mac OS X + iOS  | `PRI_TARGET_APPLE`
-`linux:`   | Linux           | `PRI_TARGET_LINUX`
-`mingw:`   | Mingw           | `PRI_TARGET_MINGW`
-`cygwin:`  | Cygwin          | `PRI_TARGET_CYGWIN`
+Tag        | Build target  | Corresponding macro
+---        | ------------  | -------------------
+`apple:`   | macOS or iOS  | `PRI_TARGET_APPLE`
+`linux:`   | Linux         | `PRI_TARGET_LINUX`
+`mingw:`   | Mingw         | `PRI_TARGET_MINGW`
+`cygwin:`  | Cygwin        | `PRI_TARGET_CYGWIN`
 
 Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate

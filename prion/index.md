@@ -20,10 +20,10 @@ referenced by inclusion in other projects' makefiles; it can also be used to
 run Prion's own unit tests.
 
 Prion is written in C++14; you will need an up-to-date C++ compiler, probably
-a recent version of Clang or GCC. I developed it mainly on Mac OS X, currently
-using Clang 7.0, as well as testing with GCC 4.9 and 5.x. All test builds are
-made using strict compilation mode (`-Wall -Wextra -Werror`). It will not work
-with any existing release of Microsoft Visual C++.
+a recent version of Clang or GCC. I developed it mainly on macOS, currently
+using Clang 7.0, as well as testing with GCC 5.x. All test builds are made
+using strict compilation mode (`-Wall -Wextra -Werror`). It will not work with
+any existing release of Microsoft Visual C++.
 
 Because I'm primarily targeting a shortlist of compilers rather than a
 specific edition of the C++ standard, the code makes a few assumptions that
