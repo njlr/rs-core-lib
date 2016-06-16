@@ -698,6 +698,7 @@ namespace Prion {
                 string text(bytes, '\0');
                 WideCharToMultiByte(CP_UTF8, 0, wptr, units, &text[0], bytes, nullptr, nullptr);
                 text.resize(text.find_last_not_of(ascii_whitespace) + 1);
+                text.shrink_to_fit();
                 return text;
             }
             virtual const char* name() const noexcept { return "Win32"; }
@@ -3166,6 +3167,7 @@ namespace Prion {
             rc = strftime(&result[0], result.size(), format.data(), &stm);
         }
         result.resize(rc);
+        result.shrink_to_fit();
         return result;
     }
 
