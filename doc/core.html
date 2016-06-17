@@ -1628,8 +1628,8 @@ of 1-24.</p>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename RNG&gt; bool</code> <strong><code>random_bool</code></strong><code>(RNG&amp; rng, double p = 0.5)</code> <em>- True with probability p (clamped to 0-1)</em></li>
-<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n)</code> <em>- Random integer from 0 to n-1 (always 0 if n&lt;2)</em></li>
-<li><code>template &lt;typename RNG&gt; int</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, int n1, int n2)</code> <em>- Random integer from n1 to n2 inclusive (limits may be in either order)</em></li>
+<li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, T n)</code> <em>- Random integer from 0 to n-1 (always 0 if n&lt;2)</em></li>
+<li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_int</code></strong><code>(RNG&amp; rng, T n1, T n2)</code> <em>- Random integer from n1 to n2 inclusive (limits may be in either order)</em></li>
 <li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_real</code></strong><code>(RNG&amp; rng, T x = 1, T y = 0)</code> <em>- Random number between x and y (limits may be in either order)</em></li>
 <li><code>template &lt;typename RNG, typename Range&gt; [value type]</code> <strong><code>random_choice</code></strong><code>(RNG&amp; rng, const Range&amp; range)</code> <em>- Random element from range (default constructed value if range is empty)</em></li>
 <li><code>template &lt;typename RNG, typename T&gt; T</code> <strong><code>random_choice</code></strong><code>(RNG&amp; rng, initializer_list&lt;T&gt; list)</code> <em>- Random element from list</em></li>

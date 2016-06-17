@@ -1318,8 +1318,8 @@ of 1-24.
 ### Simple random generators ###
 
 * `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p = 0.5)` _- True with probability p (clamped to 0-1)_
-* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n)` _- Random integer from 0 to n-1 (always 0 if n<2)_
-* `template <typename RNG> int` **`random_int`**`(RNG& rng, int n1, int n2)` _- Random integer from n1 to n2 inclusive (limits may be in either order)_
+* `template <typename T, typename RNG> T` **`random_int`**`(RNG& rng, T n)` _- Random integer from 0 to n-1 (always 0 if n<2)_
+* `template <typename T, typename RNG> T` **`random_int`**`(RNG& rng, T n1, T n2)` _- Random integer from n1 to n2 inclusive (limits may be in either order)_
 * `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)` _- Random number between x and y (limits may be in either order)_
 * `template <typename RNG, typename Range> [value type]` **`random_choice`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
 * `template <typename RNG, typename T> T` **`random_choice`**`(RNG& rng, initializer_list<T> list)` _- Random element from list_

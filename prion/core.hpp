@@ -2214,21 +2214,21 @@ namespace Prion {
         return d(rng);
     }
 
-    template <typename RNG>
-    int random_int(RNG& rng, int n) {
-        if (n < 2)
-            return 0;
-        std::uniform_int_distribution<int> d(0, n - 1);
+    template <typename T, typename RNG>
+    T random_int(RNG& rng, T n) {
+        if (n < T(2))
+            return T(0);
+        std::uniform_int_distribution<T> d(T(0), n - T(1));
         return d(rng);
     }
 
-    template <typename RNG>
-    int random_int(RNG& rng, int n1, int n2) {
+    template <typename T, typename RNG>
+    T random_int(RNG& rng, T n1, T n2) {
         if (n1 == n2)
             return n1;
         if (n1 > n2)
             std::swap(n1, n2);
-        std::uniform_int_distribution<int> d(n1, n2);
+        std::uniform_int_distribution<T> d(n1, n2);
         return d(rng);
     }
 
