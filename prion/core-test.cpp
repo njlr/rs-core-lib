@@ -2927,6 +2927,22 @@ namespace {
         TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"),
             "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
 
+        TRY(s = bquote(""s));                      TEST_EQUAL(s, "\"\""s);
+        TRY(s = bquote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
+        TRY(s = bquote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
+        TRY(s = bquote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
+        TRY(s = bquote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
+        TRY(s = bquote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
+        TRY(s = bquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
+
+        TRY(s = uquote(""s));                      TEST_EQUAL(s, "\"\""s);
+        TRY(s = uquote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
+        TRY(s = uquote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
+        TRY(s = uquote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
+        TRY(s = uquote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
+        TRY(s = uquote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
+        TRY(s = uquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\x80\xff\""s);
+
         TEST_EQUAL(cstr(p0), ""s);
         TEST_EQUAL(cstr(p1), ""s);
         TEST_EQUAL(cstr(p2), "Hello"s);
@@ -2983,15 +2999,6 @@ namespace {
         TRY(split("**Hello**world**"s, overwrite(sv), "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
         TRY(split("*****"s, overwrite(sv), "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
         TRY(split("*****"s, overwrite(sv), "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
-
-        TRY(s = quote(""s));                            TEST_EQUAL(s, "\"\""s);
-        TRY(s = quote("\"\""s));                        TEST_EQUAL(s, "\"\\\"\\\"\""s);
-        TRY(s = quote("Hello world"s));                 TEST_EQUAL(s, "\"Hello world\""s);
-        TRY(s = quote("\\Hello\\world\\"s));            TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
-        TRY(s = quote("\"Hello\" \"world\""s));         TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
-        TRY(s = quote("\t\n\f\r"s));                    TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
-        TRY(s = quote("\x00\x01\x7f\x80\xff"s));        TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
-        TRY(s = quote("\x00\x01\x7f\x80\xff"s, true));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\x80\xff\""s);
 
         TEST_EQUAL(trim(""), "");
         TEST_EQUAL(trim("Hello"), "Hello");

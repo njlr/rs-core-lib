@@ -1388,6 +1388,13 @@ unchanged. The sentence case function capitalizes the first letter of every
 sentence (delimited by a full stop or two consecutive line breaks), leaving
 everything else alone.
 
+* `u8string` **`bquote`**`(const string& str)`
+* `u8string` **`uquote`**`(const u8string& str)`
+
+Return a quoted string; internal quotes, backslashes, and control characters
+are escaped. The `bquote()` function also escapes all non-ASCII bytes, while
+`uquote()` passes them through unchanged.
+
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr)`
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr, size_t n)`
 
@@ -1411,12 +1418,6 @@ Returns a string containing `4*depth` spaces, for indentation.
 Join strings into a single string, using the given delimiter, or split a
 string into substrings, discarding any sequence of delimiter characters. The
 dereferenced iterators must be assignment compatible with `string`.
-
-* `string` **`quote`**`(const string& str, bool allow_8bit = false)`
-
-Returns a quoted string; internal quotes, backslashes, control characters, and
-non-ASCII characters are escaped. If the `allow_8bit` flag is set, bytes in
-the 128-255 range are passed through unchanged instead of being escaped.
 
 * `string` **`trim`**`(const string& str, const string& chars = ascii_whitespace)`
 * `string` **`trim_left`**`(const string& str, const string& chars = ascii_whitespace)`

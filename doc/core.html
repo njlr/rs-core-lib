@@ -1709,6 +1709,15 @@ everything else alone.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>u8string</code> <strong><code>bquote</code></strong><code>(const string&amp; str)</code></li>
+<li><code>u8string</code> <strong><code>uquote</code></strong><code>(const u8string&amp; str)</code></li>
+</ul>
+<p>Return a quoted string; internal quotes, backslashes, and control characters
+are escaped. The <code>bquote()</code> function also escapes all non-ASCII bytes, while
+<code>uquote()</code> passes them through unchanged.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>cstr</code></strong><code>(const C* ptr)</code></li>
 <li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>cstr</code></strong><code>(const C* ptr, size_t n)</code></li>
 </ul>
@@ -1738,14 +1747,6 @@ of undefined behaviour.</p>
 <p>Join strings into a single string, using the given delimiter, or split a
 string into substrings, discarding any sequence of delimiter characters. The
 dereferenced iterators must be assignment compatible with <code>string</code>.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>string</code> <strong><code>quote</code></strong><code>(const string&amp; str, bool allow_8bit = false)</code></li>
-</ul>
-<p>Returns a quoted string; internal quotes, backslashes, control characters, and
-non-ASCII characters are escaped. If the <code>allow_8bit</code> flag is set, bytes in
-the 128-255 range are passed through unchanged instead of being escaped.</p>
 </div>
 <div class="defns">
 <ul>

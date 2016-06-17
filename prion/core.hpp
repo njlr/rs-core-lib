@@ -333,33 +333,35 @@ namespace Prion {
             return s;
         }
 
+        inline u8string quote_string(const string& str, bool allow_8bit) {
+            u8string result = "\"";
+            for (auto c: str) {
+                auto b = uint8_t(c);
+                if (c == 0)                        result += "\\0";
+                else if (c == '\t')                result += "\\t";
+                else if (c == '\n')                result += "\\n";
+                else if (c == '\f')                result += "\\f";
+                else if (c == '\r')                result += "\\r";
+                else if (c == '\"')                result += "\\\"";
+                else if (c == '\\')                result += "\\\\";
+                else if (c >= 0x20 && c <= 0x7e)   result += c;
+                else if (allow_8bit && b >= 0x80)  result += c;
+                else {
+                    result += "\\x";
+                    PrionDetail::append_hex_byte(b, result);
+                }
+            }
+            result += '\"';
+            return result;
+        }
+
     }
 
     template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
-
-    inline string quote(const string& str, bool allow_8bit = false) {
-        string result = "\"";
-        for (auto c: str) {
-            auto b = uint8_t(c);
-            if (c == 0)                        result += "\\0";
-            else if (c == '\t')                result += "\\t";
-            else if (c == '\n')                result += "\\n";
-            else if (c == '\f')                result += "\\f";
-            else if (c == '\r')                result += "\\r";
-            else if (c == '\"')                result += "\\\"";
-            else if (c == '\\')                result += "\\\\";
-            else if (c >= 0x20 && c <= 0x7e)   result += c;
-            else if (allow_8bit && b >= 0x80)  result += c;
-            else {
-                result += "\\x";
-                PrionDetail::append_hex_byte(b, result);
-            }
-        }
-        result += '\"';
-        return result;
-    }
+    inline u8string bquote(const string& str) { return PrionDetail::quote_string(str, false); }
+    inline u8string uquote(const u8string& str) { return PrionDetail::quote_string(str, true); }
 
     // Unicode functions
 
@@ -2441,7 +2443,7 @@ namespace Prion {
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
         static const u8string modes = "EFGHefgh";
         if (modes.find(mode) == npos)
-            throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
+            throw std::invalid_argument("Invalid floating point mode: " + uquote(u8string{mode}));
         u8string buf(20, '\0'), fmt;
         switch (mode) {
             case 'H':  fmt = "%#.*G"; break;
@@ -2488,9 +2490,9 @@ namespace Prion {
         errno = 0;
         int64_t n = strtoll(s.data(), &endp, 10);
         if (errno == ERANGE)
-            throw std::range_error("Out of range: " + quote(s, true));
+            throw std::range_error("Out of range: " + uquote(s));
         if (errno || endp == s.data())
-            throw std::invalid_argument("Invalid number: " + quote(s, true));
+            throw std::invalid_argument("Invalid number: " + uquote(s));
         if (ascii_isspace(*endp))
             ++endp;
         if (n && ascii_isalpha(*endp)) {
@@ -2499,7 +2501,7 @@ namespace Prion {
                 int64_t steps = pp - prefixes + 1;
                 double limit = log10(double(limits::max()) / double(abs(n))) / 3;
                 if (steps > limit)
-                    throw std::range_error("Out of range: " + quote(s, true));
+                    throw std::range_error("Out of range: " + uquote(s));
                 n *= int_power(int64_t(1000), steps);
             }
         }
@@ -2513,9 +2515,9 @@ namespace Prion {
         errno = 0;
         double x = strtod(s.data(), &endp);
         if (errno == ERANGE)
-            throw std::range_error("Out of range: " + quote(s, true));
+            throw std::range_error("Out of range: " + uquote(s));
         if (errno || endp == s.data())
-            throw std::invalid_argument("Invalid number: " + quote(s, true));
+            throw std::invalid_argument("Invalid number: " + uquote(s));
         if (ascii_isspace(*endp))
             ++endp;
         char c = *endp;
@@ -2527,7 +2529,7 @@ namespace Prion {
                 int steps = pp - prefixes - 8;
                 double limit = log10(limits::max() / fabs(x)) / 3;
                 if (steps > limit)
-                    throw std::range_error("Out of range: " + quote(s, true));
+                    throw std::range_error("Out of range: " + uquote(s));
                 x *= pow(1000.0, steps);
             }
         }
@@ -2649,7 +2651,7 @@ namespace Prion {
         Tag(const u8string& text, std::ostream& out) {
             u8string start = trim_right(text, "\n");
             if (start.empty() || start[0] != '<' || ! ascii_isalnum_w(start[1]) || start.back() != '>')
-                throw std::invalid_argument("Invalid HTML tag: " + quote(text));
+                throw std::invalid_argument("Invalid HTML tag: " + uquote(text));
             if (start.end()[-2] == '/') {
                 out << text;
                 return;
