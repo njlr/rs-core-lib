@@ -1419,6 +1419,11 @@ Join strings into a single string, using the given delimiter, or split a
 string into substrings, discarding any sequence of delimiter characters. The
 dereferenced iterators must be assignment compatible with `string`.
 
+* `template <typename C> void` **`null_term`**`(basic_string<C>& str)`
+
+Cuts off a string at the first null character (useful after the string has
+been used as an output buffer by some C APIs).
+
 * `string` **`trim`**`(const string& str, const string& chars = ascii_whitespace)`
 * `string` **`trim_left`**`(const string& str, const string& chars = ascii_whitespace)`
 * `string` **`trim_right`**`(const string& str, const string& chars = ascii_whitespace)`

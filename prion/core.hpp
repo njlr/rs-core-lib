@@ -2382,6 +2382,13 @@ namespace Prion {
         return result;
     }
 
+    template <typename C>
+    void null_term(basic_string<C>& str) {
+        auto p = str.find(C(0));
+        if (p != npos)
+            str.resize(p);
+    }
+
     template <typename OutputIterator>
     void split(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
         if (delim.empty()) {

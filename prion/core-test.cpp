@@ -2880,6 +2880,7 @@ namespace {
     void check_general_string_functions() {
 
         string s;
+        wstring ws;
         vector<string> sv;
 
         const char* p0 = nullptr;
@@ -2990,6 +2991,13 @@ namespace {
         sv = {"Hello"};                  TEST_EQUAL(join(sv, "<*>"s), "Hello");
         sv = {"Hello","world"};          TEST_EQUAL(join(sv, "<*>"s), "Hello<*>world");
         sv = {"Hello","world","again"};  TEST_EQUAL(join(sv, "<*>"s), "Hello<*>world<*>again");
+
+        s = ""s;                TRY(null_term(s));   TEST_EQUAL(s, "");
+        s = "Hello world"s;     TRY(null_term(s));   TEST_EQUAL(s, "Hello world");
+        s = "Hello\0world"s;    TRY(null_term(s));   TEST_EQUAL(s, "Hello");
+        ws = L""s;              TRY(null_term(ws));  TEST_EQUAL(ws, L"");
+        ws = L"Hello world"s;   TRY(null_term(ws));  TEST_EQUAL(ws, L"Hello world");
+        ws = L"Hello\0world"s;  TRY(null_term(ws));  TEST_EQUAL(ws, L"Hello");
 
         TRY(split("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
         TRY(split("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join(sv, "/"), "Hello");
