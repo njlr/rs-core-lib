@@ -342,6 +342,40 @@ namespace {
 
     }
 
+    struct Mvtest {
+        int x = 42;
+    };
+
+    void check_movable_wrapper() {
+
+        Movable<Mvtest> a, b;
+
+        TEST_EQUAL(a->x, 42);
+        TEST_EQUAL(b->x, 42);
+        a->x = 86;
+        TRY(b = move(a));
+        TEST_EQUAL(a->x, 42);
+        TEST_EQUAL(b->x, 86);
+        TRY(swap(a, b));
+        TEST_EQUAL(a->x, 86);
+        TEST_EQUAL(b->x, 42);
+
+        static const Mvtest bar = {99};
+
+        Movable<Mvtest, &bar> c, d;
+
+        TEST_EQUAL(c->x, 99);
+        TEST_EQUAL(d->x, 99);
+        c->x = 86;
+        TRY(d = move(c));
+        TEST_EQUAL(c->x, 99);
+        TEST_EQUAL(d->x, 86);
+        TRY(swap(c, d));
+        TEST_EQUAL(c->x, 86);
+        TEST_EQUAL(d->x, 99);
+
+    }
+
     struct Nnptest {
         int num;
         static int count;
@@ -3724,6 +3758,7 @@ TEST_MODULE(prion, core) {
     check_endian_integers();
     check_exceptions();
     check_metaprogramming_and_type_traits();
+    check_movable_wrapper();
     check_smart_pointers();
     check_type_related_functions();
     check_uuid();
