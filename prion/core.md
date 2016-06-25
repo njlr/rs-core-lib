@@ -369,32 +369,6 @@ mixins supply the standard member types:
 * `using` **`reference`** `= CV&`
 * `using` **`value_type`** `= std::remove_const_t<CV>`
 
-### Move semantics wrapper ###
-
-* `template <typename T, const T* DefPtr = nullptr> class` **`Movable`**
-    * `using Movable::`**`value_type`** `= T`
-    * `Movable::`**`Movable`**`()`
-    * `Movable::`**`~Movable`**`() noexcept`
-    * `Movable::`**`Movable`**`(Movable&& m)`
-    * `Movable& Movable::`**`operator=`**`(Movable&& m)`
-    * `T& Movable::`**`operator*`**`() noexcept`
-    * `const T& Movable::`**`operator*`**`() const noexcept`
-    * `T* Movable::`**`operator->`**`() noexcept`
-    * `const T* Movable::`**`operator->`**`() const noexcept`
-    * `static const T& Movable::`**`defval`**`() noexcept`
-* `void` **`swap`**`(Movable& x, Movable& y) noexcept`
-
-Wraps a copyable object, turning it into a movable but non-copyable object
-that will be reset to a predetermined default value when moved from. If the
-`DefPtr` template argument is set, it must point to a static object that will
-be used as the default value (`Movable`'s default constructor will also set
-the wrapped `T` object to this value); if it is left null, `T`'s default
-constructor will be used.
-
-If `T` is a nontrivial class, normally the default value should be chosen so
-that copying it will not throw an exception; in this case, all operations on
-`Movable` will be `noexcept`.
-
 ### Smart pointers ###
 
 * `template <typename T> class` **`Nnptr`**

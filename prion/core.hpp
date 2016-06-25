@@ -800,42 +800,6 @@ namespace Prion {
         friend bool operator<(const T& lhs, const T& rhs) noexcept { return lhs - rhs < 0; }
     };
 
-    // Move semantics wrapper
-
-    namespace PrionDetail {
-
-        template <typename T, const void* DefPtr = nullptr>
-        struct DefVal {
-            static const T& value() { return *static_cast<const T*>(DefPtr); }
-        };
-
-        template <typename T>
-        struct DefVal<T, nullptr> {
-            static const T& value() { static const T t{}; return t; }
-        };
-
-    }
-
-    template <typename T, const T* DefPtr = nullptr>
-    class Movable {
-    public:
-        using value_type = T;
-        Movable(): value{defval()} {}
-        ~Movable() = default;
-        Movable(const Movable& m) = delete;
-        Movable(Movable&& m): value{move(m.value)} { m.value = defval(); }
-        Movable& operator=(const Movable& m) = delete;
-        Movable& operator=(Movable&& m) { value = move(m.value); m.value = defval(); return *this; }
-        T& operator*() noexcept { return value; }
-        const T& operator*() const noexcept { return value; }
-        T* operator->() noexcept { return &value; }
-        const T* operator->() const noexcept { return &value; }
-        static const T& defval() noexcept { return PrionDetail::DefVal<T, static_cast<const void*>(DefPtr)>::value(); }
-        friend void swap(Movable& x, Movable& y) noexcept { auto t = move(x.value); x.value = move(y.value); y.value = move(t); }
-    private:
-        T value;
-    };
-
     // Smart pointers
 
     class NullPointer:

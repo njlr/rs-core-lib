@@ -24,7 +24,6 @@
 <li><a href="#exceptions">Exceptions</a></li>
 <li><a href="#metaprogramming-and-type-traits">Metaprogramming and type traits</a></li>
 <li><a href="#mixins">Mixins</a></li>
-<li><a href="#move-semantics-wrapper">Move semantics wrapper</a></li>
 <li><a href="#smart-pointers">Smart pointers</a></li>
 <li><a href="#type-related-functions">Type related functions</a></li>
 <li><a href="#uuid">UUID</a></li>
@@ -561,34 +560,6 @@ mixins supply the standard member types:</p>
 <li><code>using</code> <strong><code>reference</code></strong> <code>= CV&amp;</code></li>
 <li><code>using</code> <strong><code>value_type</code></strong> <code>= std::remove_const_t&lt;CV&gt;</code></li>
 </ul>
-</div>
-<h3 id="move-semantics-wrapper">Move semantics wrapper</h3>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename T, const T* DefPtr = nullptr&gt; class</code> <strong><code>Movable</code></strong><ul>
-<li><code>using Movable::</code><strong><code>value_type</code></strong> <code>= T</code></li>
-<li><code>Movable::</code><strong><code>Movable</code></strong><code>()</code></li>
-<li><code>Movable::</code><strong><code>~Movable</code></strong><code>() noexcept</code></li>
-<li><code>Movable::</code><strong><code>Movable</code></strong><code>(Movable&amp;&amp; m)</code></li>
-<li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(Movable&amp;&amp; m)</code></li>
-<li><code>T&amp; Movable::</code><strong><code>operator*</code></strong><code>() noexcept</code></li>
-<li><code>const T&amp; Movable::</code><strong><code>operator*</code></strong><code>() const noexcept</code></li>
-<li><code>T* Movable::</code><strong><code>operator-&gt;</code></strong><code>() noexcept</code></li>
-<li><code>const T* Movable::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code></li>
-<li><code>static const T&amp; Movable::</code><strong><code>defval</code></strong><code>() noexcept</code></li>
-</ul>
-</li>
-<li><code>void</code> <strong><code>swap</code></strong><code>(Movable&amp; x, Movable&amp; y) noexcept</code></li>
-</ul>
-<p>Wraps a copyable object, turning it into a movable but non-copyable object
-that will be reset to a predetermined default value when moved from. If the
-<code>DefPtr</code> template argument is set, it must point to a static object that will
-be used as the default value (<code>Movable</code>'s default constructor will also set
-the wrapped <code>T</code> object to this value); if it is left null, <code>T</code>'s default
-constructor will be used.</p>
-<p>If <code>T</code> is a nontrivial class, normally the default value should be chosen so
-that copying it will not throw an exception; in this case, all operations on
-<code>Movable</code> will be <code>noexcept</code>.</p>
 </div>
 <h3 id="smart-pointers">Smart pointers</h3>
 <div class="defns">
