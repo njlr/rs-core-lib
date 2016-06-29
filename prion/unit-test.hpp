@@ -1,7 +1,6 @@
 #pragma once
 
 #include "prion/core.hpp"
-#include <pcre.h>
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -14,6 +13,7 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -114,7 +114,9 @@
 #define TEST_MATCH(str, pattern) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, ::Test::regex_match(pattern, str, true), \
+        std::string local_test_string(str); \
+        std::regex local_test_regex(pattern); \
+        TEST_IMPL(local_test_status, std::regex_search(local_test_string, local_test_regex), \
             "regex match(" # str ", " # pattern ")"); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
@@ -125,7 +127,9 @@
 #define TEST_MATCH_ICASE(str, pattern) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, ::Test::regex_match(pattern, str, false), \
+        std::string local_test_string(str); \
+        std::regex local_test_regex(pattern, std::regex::icase); \
+        TEST_IMPL(local_test_status, std::regex_search(local_test_string, local_test_regex), \
             "regex match(" # str ", " # pattern ")"); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
@@ -365,23 +369,6 @@ struct Test {
         return i == e1 && j == e2;
     }
 
-    static bool regex_match(const std::string& pattern, const std::string& str, bool case_sensitive) {
-        int options = PCRE_DOTALL | PCRE_NEWLINE_LF | PCRE_UTF8;
-        if (! case_sensitive)
-            options |= PCRE_CASELESS;
-        const char* estr = nullptr;
-        int epos = 0;
-        std::shared_ptr<pcre> p(pcre_compile(pattern.data(), options, &estr, &epos, nullptr), pcre_free);
-        if (! p)
-            throw std::invalid_argument("Invalid regex: " + preformat(pattern) + "\n" + estr);
-        int caps = 0;
-        pcre_fullinfo(p.get(), nullptr, PCRE_INFO_CAPTURECOUNT, &caps);
-        std::vector<int> ofs(3 * (caps + 1));
-        auto rc = pcre_exec(p.get(), nullptr, str.data(), int(str.size()),
-            0, 0, ofs.data(), int(ofs.size()));
-        return rc > 0;
-    }
-
     template <typename C>
     static std::string preformat_string(const std::basic_string<C>& t) {
         using utype = std::make_unsigned_t<C>;
@@ -469,8 +456,12 @@ struct Test {
 
     static int test_main() {
         using namespace std::chrono;
+        std::regex unit_pattern;
         const char* unit_ptr = getenv("UNIT");
-        std::string unit_pattern = unit_ptr ? unit_ptr : ".*";
+        if (unit_ptr)
+            unit_pattern = std::regex(unit_ptr, std::regex::icase);
+        else
+            unit_pattern = std::regex(".");
         std::cout << std::endl;
         try {
             size_t test_count = 0;
@@ -479,7 +470,7 @@ struct Test {
             std::cout << x_decor << rule << x_reset << std::endl;
             auto start = system_clock::now();
             for (auto&& test: test_functions()) {
-                if (regex_match(unit_pattern, test.first, false)) {
+                if (std::regex_search(test.first, unit_pattern)) {
                     std::cout << x_info << "Testing " << test.first << x_reset << std::endl;
                     test.second();
                     ++test_count;

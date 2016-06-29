@@ -29,8 +29,8 @@ once.</p>
 </ul>
 <p>Supplies the main function for a test program. This must appear at global
 scope in one module if there is no user-supplied <code>main()</code> function. The main
-function will check for a <code>UNIT</code> environment variable, parsing it as a PCRE
-regular expression, and only the tests whose name (in <em>"project/module"</em> form)
+function will check for a <code>UNIT</code> environment variable, parsing it as a regular
+expression, and only the tests whose name (in <em>"project/module"</em> form)
 contains the pattern will be run. The return value from <code>TEST_MAIN</code> is zero on
 success, 1 if any tests failed.</p>
 </div>
@@ -87,7 +87,7 @@ sizes, or any of the elements fail to match.</p>
 <li><code>#define</code> <strong><code>TEST_MATCH</code></strong><code>(string, pattern)</code></li>
 <li><code>#define</code> <strong><code>TEST_MATCH_ICASE</code></strong><code>(string, pattern)</code></li>
 </ul>
-<p>Evaluates the string expression, and searches it for the given PCRE regular
+<p>Evaluates the string expression, and searches it for the given regular
 expression (supplied as a string constant), optionally case sensitive or
 insensitive The test fails if the string fails to match, or an exception is
 thrown.</p>

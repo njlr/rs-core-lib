@@ -8,42 +8,41 @@
 # otherwise, if any application modules exist, the application is installable;
 # otherwise, nothing is installable.
 
-LIBROOT      ?= ..
-NAME         := $(shell ls */*.{c,h,cpp,hpp} 2>/dev/null | sed -E 's!/.*!!' \
-				| uniq -c | sort | tail -n 1 | sed -E 's!^[ 0-9]+!!')
-TAG          := $(shell echo "$$PWD" | sed -E 's!^([^/]*/)*([^/]*-)?!!')
-PREFIX       := /usr/local
-HOST         := $(shell uname | tr A-Z a-z | sed -E 's/[^a-z].*//')
-TARGET       := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e 's/[0-9.]*$$//' | tr A-Z a-z)
-XHOST        := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
-CXX          := g++
-CXXFLAGS     := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
-DEFINES      := -DNDEBUG=1
-OPT          := -O2
-TESTOPT      := -O1
-AR           := ar
-ARFLAGS      := -rsu
-LDFLAGS      := -Lbuild/$(TARGET)
-LDLIBS       :=
-EXE          :=
-DEPENDS      := dependencies.make
-STATICLIB    := build/$(TARGET)/lib$(NAME).a
-SOURCES      := $(wildcard $(NAME)/*.c $(NAME)/*.cpp)
-APPSOURCES   := $(wildcard $(NAME)/app-*.cpp)
-TESTSOURCES  := $(wildcard $(NAME)/*-test.cpp)
-LIBSOURCES   := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
-HEADERS      := $(wildcard $(NAME)/*.h $(NAME)/*.hpp)
-LIBHEADERS   := $(filter-out $(NAME)/library.hpp Makefile,$(shell grep -EL '// NOT INSTALLED' $(HEADERS) Makefile)) # Dummy entry to avoid empty list
-APPOBJECTS   := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(APPSOURCES))
-TESTOBJECTS  := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(TESTSOURCES))
-LIBOBJECTS   := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(LIBSOURCES))
-DOCINDEX     := $(wildcard $(NAME)/index.md)
-DOCSOURCES   := $(sort $(wildcard $(NAME)/*.md))
-DOCS         := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
-CORELIBS 	 := $(shell ls $(LIBROOT)/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!' | sort -u)
-LIBREGEX     := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
-LIBTAG       :=
-SCRIPTS      := $(LIBROOT)/prion-lib/scripts
+LIBROOT ?= ..
+NAME := $(shell ls */*.{c,h,cpp,hpp} 2>/dev/null | sed -E 's!/.*!!'| uniq -c | sort | tail -n 1 | sed -E 's!^[ 0-9]+!!')
+TAG := $(shell echo "$$PWD" | sed -E 's!^([^/]*/)*([^/]*-)?!!')
+PREFIX := /usr/local
+HOST := $(shell uname | tr A-Z a-z | sed -E 's/[^a-z].*//')
+TARGET := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e 's/[0-9.]*$$//' | tr A-Z a-z)
+XHOST := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
+CXX := g++
+CXXFLAGS := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
+DEFINES := -DNDEBUG=1
+OPT := -O2
+TESTOPT := -O1
+AR := ar
+ARFLAGS := -rsu
+LDFLAGS := -Lbuild/$(TARGET)
+LDLIBS :=
+EXE :=
+DEPENDS := dependencies.make
+STATICLIB := build/$(TARGET)/lib$(NAME).a
+SOURCES := $(wildcard $(NAME)/*.c $(NAME)/*.cpp)
+APPSOURCES := $(wildcard $(NAME)/app-*.cpp)
+TESTSOURCES := $(wildcard $(NAME)/*-test.cpp)
+LIBSOURCES := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
+HEADERS := $(wildcard $(NAME)/*.h $(NAME)/*.hpp)
+LIBHEADERS := $(filter-out $(NAME)/library.hpp Makefile,$(shell grep -EL '// NOT INSTALLED' $(HEADERS) Makefile)) # Dummy entry to avoid empty list
+APPOBJECTS := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(APPSOURCES))
+TESTOBJECTS := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(TESTSOURCES))
+LIBOBJECTS := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(LIBSOURCES))
+DOCINDEX := $(wildcard $(NAME)/index.md)
+DOCSOURCES := $(sort $(wildcard $(NAME)/*.md))
+DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
+CORELIBS := $(shell ls $(LIBROOT)/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!' | sort -u)
+LIBREGEX := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
+LIBTAG :=
+SCRIPTS := $(LIBROOT)/prion-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
@@ -107,10 +106,9 @@ ifneq ($(shell grep -Fior 'sdl2/sdl.h' $(NAME)),)
 	# LDLIBS := -lSDL2main $(LDLIBS)
 endif
 
-LD      := $(CXX)
-LDLIBS  := $(LDLIBS) -lpcre -lz
-APP     := build/$(TARGET)/$(NAME)$(EXE)
-TESTER  := build/$(TARGET)/test-$(NAME)$(EXE)
+LD := $(CXX)
+APP := build/$(TARGET)/$(NAME)$(EXE)
+TESTER := build/$(TARGET)/test-$(NAME)$(EXE)
 
 .DELETE_ON_ERROR:
 

@@ -22,8 +22,8 @@ once.
 
 Supplies the main function for a test program. This must appear at global
 scope in one module if there is no user-supplied `main()` function. The main
-function will check for a `UNIT` environment variable, parsing it as a PCRE
-regular expression, and only the tests whose name (in _"project/module"_ form)
+function will check for a `UNIT` environment variable, parsing it as a regular
+expression, and only the tests whose name (in _"project/module"_ form)
 contains the pattern will be run. The return value from `TEST_MAIN` is zero on
 success, 1 if any tests failed.
 
@@ -68,7 +68,7 @@ sizes, or any of the elements fail to match.
 * `#define` **`TEST_MATCH`**`(string, pattern)`
 * `#define` **`TEST_MATCH_ICASE`**`(string, pattern)`
 
-Evaluates the string expression, and searches it for the given PCRE regular
+Evaluates the string expression, and searches it for the given regular
 expression (supplied as a string constant), optionally case sensitive or
 insensitive The test fails if the string fails to match, or an exception is
 thrown.
