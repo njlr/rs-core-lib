@@ -222,6 +222,8 @@ with <code>-lfoo</code> for Apple targets only).</p>
 <p>Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate
 <code>PRI_LDLIB()</code> line for each target.</p>
+<p><code>PRI_LDLIB()</code> lines are picked up at the <code>"make dep"</code> stage; if you change a
+link library, the change will not be detected until dependencies are rebuilt.</p>
 </div>
 <div class="defns">
 <ul>

@@ -161,7 +161,7 @@
 
 #define PRI_MERGE_(a, b) a ## b
 #define PRI_LDLIB_LABEL_(a) PRI_MERGE_(PRI_LDLIB_, a)
-#define PRI_LDLIB(libs) static constexpr const char* PRI_LDLIB_LABEL_(__LINE__)(# libs);
+#define PRI_LDLIB(libs) static constexpr const char* PRI_LDLIB_LABEL_(__LINE__) __attribute__((unused)) = # libs;
 
 namespace Prion {
 
