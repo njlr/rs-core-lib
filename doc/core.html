@@ -180,16 +180,14 @@ std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, Bar b) { ... }
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_LDLIB</code></strong><code>(libs)</code></li>
+<li><code>#define</code> <strong><code>PRI_LDLIB</code></strong><code>([tag:]lib)</code></li>
 </ul>
 <p>This instructs the makefile to link with one or more static libraries. Specify
 library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo)</code> will link with
-<code>-lfoo</code>). Libraries can be supplied as a space delimited list in a single
-<code>PRI_LDLIB()</code> invocation, or in multiple invocations; link order is only
-preserved within a single invocation. Libraries that are needed only on
-specific targets can be prefixed with a target identifier, e.g.
-<code>PRI_LDLIB(apple: foo bar)</code> will link with <code>-lfoo -lbar</code> for Apple targets
-only.</p>
+<code>-lfoo</code>). A separate <code>PRI_LDLIB()</code> line is required for each library.
+Libraries that are needed only on specific targets can be prefixed with one of
+the target identifiers listed below (e.g. <code>PRI_LDLIB(apple:foo)</code> will link
+with <code>-lfoo</code> for Apple targets only).</p>
 <table>
 <thead>
 <tr>

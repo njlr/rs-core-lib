@@ -89,13 +89,6 @@ else
 	LIBPATH := /usr/lib $(subst :, ,$(LIBRARY_PATH))
 endif
 
-EXTRALIBS := $(shell grep -h PRI_LDLIB $(HEADERS) $(SOURCES) \
-	| grep -v 'define PRI_LDLIB' \
-	| sed -E 's/PRI_LDLIB\((.*)\).*/\1/' \
-	| grep -E '$(LIBTAG):|^[^:]+$$' \
-	| sed -E -e 's/$(LIBTAG)://' -e 's/[^ ]+/-l&/g' \
-	| sort -u)
-
 ifneq ($(shell grep -Fior 'sdl2/sdl.h' $(NAME)),)
 	DEFINES += -DSDL_MAIN_HANDLED=1
 	ifeq ($(HOST),cygwin)
@@ -130,12 +123,26 @@ cleanall:
 	rm -rf build doc *.stackdump __test_*
 
 dep:
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM */*.cpp \
+	$(CXX) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
 		| sed -E -e 's! \.\./$(NAME)/! !g' \
 				 -e 's!^[[:graph:]]*\.o:!build/$$(TARGET)/&!' \
 				 -e 's!^ +!  !' \
 				 -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
+	$(CXX) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
+		| grep -h PRI_LDLIB \
+		| sed -E 's/.*"([A-Za-z0-9_: ]+)".*/\1/' \
+		| tr -d ' ' \
+		| nl -pn rz \
+		| sed -E 's/^([0-9]+)[^A-Za-z0-9_]+(.+)/\2 \1/' \
+		| sort \
+		| while read tag num; do if [ "$$tag" != "$$pre" ]; then echo $$num $$tag; pre=$$tag; fi; done \
+		| sort \
+		| sed -E -e 's/^[0-9]+ //' \
+			-e 's/^(.+):(.+)$$/ifeq ($$(LIBTAG),\1);LDLIBS += -l\2;endif/' \
+			-e 's/^[A-Za-z0-9_]+$$/LDLIBS += -l&/' \
+		| tr ';' '\n' \
+		>> $(DEPENDS)
 
 help: help-suffix
 
@@ -262,8 +269,6 @@ endif
 endif
 
 -include $(DEPENDS)
-
-LDLIBS := $(EXTRALIBS) $(LDLIBS)
 
 build/$(TARGET)/%-test.o: $(NAME)/%-test.cpp
 	@mkdir -p $(dir $@)
