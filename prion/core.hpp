@@ -156,9 +156,12 @@
 
 #define PRI_CHAR(C, T) (::Prion::PrionDetail::select_char<T>(C, u ## C, U ## C, L ## C))
 #define PRI_CSTR(S, T) (::Prion::PrionDetail::select_cstr<T>(S, u ## S, U ## S, L ## S))
-#define PRI_LDLIB(libs) static constexpr const char* PRI_LDLIB_ ## __COUNTER__ __attribute__((unused)) = # libs;
 #define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
+
+#define PRI_MERGE_(a, b) a ## b
+#define PRI_LDLIB_LABEL_(a) PRI_MERGE_(PRI_LDLIB_, a)
+#define PRI_LDLIB(libs) static constexpr const char* PRI_LDLIB_LABEL_(__COUNTER__) __attribute__((unused)) = # libs;
 
 namespace Prion {
 
