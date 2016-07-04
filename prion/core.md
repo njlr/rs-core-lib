@@ -1008,7 +1008,7 @@ apply if the result is not representable by the return type.
     * `static constexpr size_t Arity::`**`value`**
 * `template <typename Function> using` **`ArgumentTuple`** `= [tuple type]`
 * `template <typename Function, size_t Index> using` **`ArgumentType`** `= [type of given argument]`
-* `template <typename Function> using` **`ResultType`** `= [result type]`
+* `template <typename Function> using` **`ReturnType`** `= [return type]`
 * `template <typename Function> using` **`FunctionSignature`** `= [result(args...)]`
 * `template <typename Function> using` **`StdFunction`** `= function<FunctionSignature<Function>>`
 

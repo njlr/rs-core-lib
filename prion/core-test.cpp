@@ -1957,11 +1957,11 @@ namespace {
         { using T = ArgumentType<FTE2, 0>; TEST_TYPE(T, size_t); }
         { using T = ArgumentType<FTE2, 1>; TEST_TYPE(T, char); }
 
-        TEST_TYPE(ResultType<FTA0>, u8string);  TEST_TYPE(ResultType<FTA1>, u8string);  TEST_TYPE(ResultType<FTA2>, u8string);
-        TEST_TYPE(ResultType<FTB0>, u8string);  TEST_TYPE(ResultType<FTB1>, u8string);  TEST_TYPE(ResultType<FTB2>, u8string);
-        TEST_TYPE(ResultType<FTC0>, u8string);  TEST_TYPE(ResultType<FTC1>, u8string);  TEST_TYPE(ResultType<FTC2>, u8string);
-        TEST_TYPE(ResultType<FTD0>, u8string);  TEST_TYPE(ResultType<FTD1>, u8string);  TEST_TYPE(ResultType<FTD2>, u8string);
-        TEST_TYPE(ResultType<FTE0>, u8string);  TEST_TYPE(ResultType<FTE1>, u8string);  TEST_TYPE(ResultType<FTE2>, u8string);
+        TEST_TYPE(ReturnType<FTA0>, u8string);  TEST_TYPE(ReturnType<FTA1>, u8string);  TEST_TYPE(ReturnType<FTA2>, u8string);
+        TEST_TYPE(ReturnType<FTB0>, u8string);  TEST_TYPE(ReturnType<FTB1>, u8string);  TEST_TYPE(ReturnType<FTB2>, u8string);
+        TEST_TYPE(ReturnType<FTC0>, u8string);  TEST_TYPE(ReturnType<FTC1>, u8string);  TEST_TYPE(ReturnType<FTC2>, u8string);
+        TEST_TYPE(ReturnType<FTD0>, u8string);  TEST_TYPE(ReturnType<FTD1>, u8string);  TEST_TYPE(ReturnType<FTD2>, u8string);
+        TEST_TYPE(ReturnType<FTE0>, u8string);  TEST_TYPE(ReturnType<FTE1>, u8string);  TEST_TYPE(ReturnType<FTE2>, u8string);
 
     }
 

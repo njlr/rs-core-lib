@@ -1692,8 +1692,8 @@ namespace Prion {
         struct FunctionTraits<ReturnType (Args...)> {
             static constexpr size_t arity = sizeof...(Args);
             using argument_tuple = tuple<Args...>;
-            using result_type = ReturnType;
-            using signature = result_type(Args...);
+            using return_type = ReturnType;
+            using signature = return_type(Args...);
             using std_function = function<signature>;
         };
 
@@ -1715,7 +1715,7 @@ namespace Prion {
         { static constexpr size_t value = PrionDetail::FunctionTraits<Function>::arity; };
     template <typename Function> using ArgumentTuple = typename PrionDetail::FunctionTraits<Function>::argument_tuple;
     template <typename Function, size_t Index> using ArgumentType = std::tuple_element_t<Index, ArgumentTuple<Function>>;
-    template <typename Function> using ResultType = typename PrionDetail::FunctionTraits<Function>::result_type;
+    template <typename Function> using ReturnType = typename PrionDetail::FunctionTraits<Function>::return_type;
     template <typename Function> using FunctionSignature = typename PrionDetail::FunctionTraits<Function>::signature;
     template <typename Function> using StdFunction = typename PrionDetail::FunctionTraits<Function>::std_function;
 

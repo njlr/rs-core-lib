@@ -16,7 +16,10 @@ HOST := $(shell uname | tr A-Z a-z | sed -E 's/[^a-z].*//')
 TARGET := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e 's/[0-9.]*$$//' | tr A-Z a-z)
 XHOST := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
 CXX := g++
-CXXFLAGS := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
+FLAGS := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
+CCFLAGS :=
+CXXFLAGS :=
+OBJCFLAGS :=
 DEFINES := -DNDEBUG=1
 OPT := -O2
 TESTOPT := -O1
@@ -27,15 +30,15 @@ LDLIBS :=
 EXE :=
 DEPENDS := dependencies.make
 STATICLIB := build/$(TARGET)/lib$(NAME).a
-SOURCES := $(wildcard $(NAME)/*.c $(NAME)/*.cpp)
-APPSOURCES := $(wildcard $(NAME)/app-*.cpp)
-TESTSOURCES := $(wildcard $(NAME)/*-test.cpp)
-LIBSOURCES := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
 HEADERS := $(wildcard $(NAME)/*.h $(NAME)/*.hpp)
 LIBHEADERS := $(filter-out $(NAME)/library.hpp Makefile,$(shell grep -EL '// NOT INSTALLED' $(HEADERS) Makefile)) # Dummy entry to avoid empty list
-APPOBJECTS := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(APPSOURCES))
-TESTOBJECTS := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(TESTSOURCES))
-LIBOBJECTS := $(patsubst $(NAME)/%.cpp,build/$(TARGET)/%.o,$(LIBSOURCES))
+SOURCES := $(wildcard $(NAME)/*.c $(NAME)/*.cpp $(NAME)/*.m $(NAME)/*.mm)
+APPSOURCES := $(filter $(NAME)/app-%,$(SOURCES))
+TESTSOURCES := $(filter %-test.c %-test.cpp %-test.m %-test.mm,$(SOURCES))
+LIBSOURCES := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
+APPOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(APPSOURCES)')
+LIBOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(LIBSOURCES)')
+TESTOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(TESTSOURCES)')
 DOCINDEX := $(wildcard $(NAME)/index.md)
 DOCSOURCES := $(sort $(wildcard $(NAME)/*.md))
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
@@ -46,7 +49,7 @@ SCRIPTS := $(LIBROOT)/prion-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
-	CXXFLAGS += -mwin32
+	FLAGS += -mwin32
 	LDFLAGS += -Wl,--enable-auto-import
 	LIBTAG := cygwin
 endif
@@ -54,6 +57,7 @@ endif
 ifeq ($(HOST),darwin)
 	CXX := clang++
 	DEFINES += -D_DARWIN_C_SOURCE=1
+	LDFLAGS += -framework Cocoa
 	LIBTAG := mac
 endif
 
@@ -61,22 +65,16 @@ ifeq ($(HOST),linux)
 	LIBTAG := linux
 endif
 
-CXXVERSION := $(shell $(CXX) --version | head -n 1 | grep -Eo '[0-9]+(\.[0-9]+)+' | sed -E 's/\..*//')
-
 ifeq ($(CXX),clang++)
 	CXXFLAGS += -std=c++1z -stdlib=libc++
 else
-	ifeq ($(CXXVERSION),4)
-		CXXFLAGS += -std=gnu++14
-	else
-		CXXFLAGS += -std=gnu++1z
-	endif
+	CXXFLAGS += -std=gnu++1z
 endif
 
 ifeq ($(XHOST),mingw)
 	MINGW := $(shell type -P gcc | sed -E 's!/bin/.+!!')
 	PREFIX := $(MINGW)
-	CXXFLAGS += -mthreads
+	FLAGS += -mthreads
 	DEFINES += -DNOMINMAX=1 -DUNICODE=1 -D_UNICODE=1 -DWINVER=0x601 -D_WIN32_WINNT=0x601 -DPCRE_STATIC=1
 	LIBPATH := $(MINGW)/lib $(subst ;, ,$(LIBRARY_PATH))
 	LIBTAG := mingw
@@ -92,7 +90,7 @@ endif
 ifneq ($(shell grep -Fior 'sdl2/sdl.h' $(NAME)),)
 	DEFINES += -DSDL_MAIN_HANDLED=1
 	ifeq ($(HOST),cygwin)
-		CXXFLAGS += -mwindows
+		FLAGS += -mwindows
 	endif
 	# TODO - probably needed for iOS
 	# undef SDL_MAIN_HANDLED
@@ -123,13 +121,13 @@ cleanall:
 	rm -rf build doc *.stackdump __test_*
 
 dep:
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
 		| sed -E -e 's! \.\./$(NAME)/! !g' \
 				 -e 's!^[[:graph:]]*\.o:!build/$$(TARGET)/&!' \
 				 -e 's!^ +!  !' \
 				 -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
-	$(CXX) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
 		| grep -h PRI_LDLIB \
 		| sed -E 's/.*"([A-Za-z0-9_: ]+)".*/\1/' \
 		| tr -d ' ' \
@@ -270,13 +268,37 @@ endif
 
 -include $(DEPENDS)
 
+build/$(TARGET)/%-test.o: $(NAME)/%-test.c
+	@mkdir -p $(dir $@)
+	$(CXX) $(FLAGS) $(CCFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
+
 build/$(TARGET)/%-test.o: $(NAME)/%-test.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
+
+build/$(TARGET)/%-test.o: $(NAME)/%-test.m
+	@mkdir -p $(dir $@)
+	$(CXX) $(FLAGS) $(OBJCFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
+
+build/$(TARGET)/%-test.o: $(NAME)/%-test.mm
+	@mkdir -p $(dir $@)
+	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
+
+build/$(TARGET)/%.o: $(NAME)/%.c
+	@mkdir -p $(dir $@)
+	$(CXX) $(FLAGS) $(CCFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
 build/$(TARGET)/%.o: $(NAME)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
+
+build/$(TARGET)/%.o: $(NAME)/%.m
+	@mkdir -p $(dir $@)
+	$(CXX) $(FLAGS) $(OBJCFLAGS) $(DEFINES) $(OPT) -c $< -o $@
+
+build/$(TARGET)/%.o: $(NAME)/%.mm
+	@mkdir -p $(dir $@)
+	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
 $(STATICLIB): $(LIBOBJECTS)
 	@mkdir -p $(dir $@)
@@ -285,11 +307,11 @@ $(STATICLIB): $(LIBOBJECTS)
 
 $(APP): $(APPOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
-	$(LD) $(CXXFLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(LD) $(FLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(TESTER): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
-	$(LD) $(CXXFLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(LD) $(FLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 $(NAME)/library.hpp: $(LIBHEADERS)
 	echo "#pragma once" > $@
