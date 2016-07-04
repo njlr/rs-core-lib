@@ -647,7 +647,10 @@ namespace Prion {
 
     // Endian integers
 
-    enum class End { big, little };
+    enum ByteOrder {
+        big_endian = 1,
+        little_endian = 2,
+    };
 
     namespace PrionDetail {
 
@@ -657,20 +660,23 @@ namespace Prion {
             return N == 1 ? t : T((swap_ends(U(t) & ((U(1) << (4 * N)) - 1), N / 2) << (4 * N)) | swap_ends(U(t) >> (4 * N), N / 2));
         }
 
-        template <End E, typename T>
+        template <ByteOrder B, typename T>
         constexpr T order_bytes(T t) noexcept {
-            return (E == End::big) == big_endian_target ? t : swap_ends(t);
+            return (B == big_endian) == big_endian_target ? t : swap_ends(t);
         }
 
     }
 
-    template <typename T, End E>
+    template <typename T, ByteOrder B>
     class Endian {
     public:
+        using value_type = T;
+        static constexpr auto byte_order = B;
         constexpr Endian() noexcept: value(0) {}
-        constexpr Endian(T t) noexcept: value(PrionDetail::order_bytes<E>(t)) {}
+        constexpr Endian(T t) noexcept: value(PrionDetail::order_bytes<B>(t)) {}
+        explicit Endian(const void* p) noexcept { memcpy(&value, p, sizeof(T)); }
         constexpr operator T() const noexcept { return get(); }
-        constexpr T get() const noexcept { return PrionDetail::order_bytes<E>(value); }
+        constexpr T get() const noexcept { return PrionDetail::order_bytes<B>(value); }
         constexpr const T* ptr() const noexcept { return &value; }
         T* ptr() noexcept { return &value; }
         constexpr T rep() const noexcept { return value; }
@@ -679,12 +685,12 @@ namespace Prion {
         T value;
     };
 
-    template <typename T> using BigEndian = Endian<T, End::big>;
-    template <typename T> using LittleEndian = Endian<T, End::little>;
+    template <typename T> using BigEndian = Endian<T, big_endian>;
+    template <typename T> using LittleEndian = Endian<T, little_endian>;
 
-    template <typename T, End E> std::ostream& operator<<(std::ostream& out, Endian<T, E> t) { return out << t.get(); }
-    template <End E> std::ostream& operator<<(std::ostream& out, Endian<int128_t, E> t) { return out << dec(t.get()); }
-    template <End E> std::ostream& operator<<(std::ostream& out, Endian<uint128_t, E> t) { return out << dec(t.get()); }
+    template <typename T, ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<T, B> t) { return out << t.get(); }
+    template <ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<int128_t, B> t) { return out << dec(t.get()); }
+    template <ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<uint128_t, B> t) { return out << dec(t.get()); }
 
     // Exceptions
 

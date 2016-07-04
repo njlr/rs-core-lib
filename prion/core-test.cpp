@@ -242,16 +242,16 @@ namespace {
         a64 = PrionDetail::swap_ends(c64);    TEST_EQUAL(a64, 0xf0debc9a78563412ull);
         a128 = PrionDetail::swap_ends(c128);  TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
 
-        a8 = PrionDetail::order_bytes<End::big>(c8);         TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::order_bytes<End::big>(c16);       TEST_EQUAL(a16, 0x3412u);
-        a32 = PrionDetail::order_bytes<End::big>(c32);       TEST_EQUAL(a32, 0x78563412ul);
-        a64 = PrionDetail::order_bytes<End::big>(c64);       TEST_EQUAL(a64, 0xf0debc9a78563412ull);
-        a128 = PrionDetail::order_bytes<End::big>(c128);     TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
-        a8 = PrionDetail::order_bytes<End::little>(c8);      TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::order_bytes<End::little>(c16);    TEST_EQUAL(a16, 0x1234u);
-        a32 = PrionDetail::order_bytes<End::little>(c32);    TEST_EQUAL(a32, 0x12345678ul);
-        a64 = PrionDetail::order_bytes<End::little>(c64);    TEST_EQUAL(a64, 0x123456789abcdef0ull);
-        a128 = PrionDetail::order_bytes<End::little>(c128);  TEST_EQUAL(a128, 0x123456789abcdef013579bdf2468ace0_u128);
+        a8 = PrionDetail::order_bytes<big_endian>(c8);         TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::order_bytes<big_endian>(c16);       TEST_EQUAL(a16, 0x3412u);
+        a32 = PrionDetail::order_bytes<big_endian>(c32);       TEST_EQUAL(a32, 0x78563412ul);
+        a64 = PrionDetail::order_bytes<big_endian>(c64);       TEST_EQUAL(a64, 0xf0debc9a78563412ull);
+        a128 = PrionDetail::order_bytes<big_endian>(c128);     TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
+        a8 = PrionDetail::order_bytes<little_endian>(c8);      TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::order_bytes<little_endian>(c16);    TEST_EQUAL(a16, 0x1234u);
+        a32 = PrionDetail::order_bytes<little_endian>(c32);    TEST_EQUAL(a32, 0x12345678ul);
+        a64 = PrionDetail::order_bytes<little_endian>(c64);    TEST_EQUAL(a64, 0x123456789abcdef0ull);
+        a128 = PrionDetail::order_bytes<little_endian>(c128);  TEST_EQUAL(a128, 0x123456789abcdef013579bdf2468ace0_u128);
 
         constexpr BigEndian<uint8_t> cbe8 = c8;
         constexpr BigEndian<uint16_t> cbe16 = c16;

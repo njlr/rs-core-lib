@@ -284,24 +284,28 @@ standard container, but is often useful for RAII).
 
 ### Endian integers ###
 
-* `enum class` **`End`**
-    * `End::`**`big`**
-    * `End::`**`little`**
-* `template <typename T, End E> class` **`Endian`**
+* `enum` **`ByteOrder`**
+    * **`big_endian`**
+    * **`little_endian`**
+* `template <typename T, ByteOrder B> class` **`Endian`**
+    * `using Endian::`**`value_type`**` = T`
+    * `static constexpr ByteOrder Endian::`**`byte_order`** `= B`
     * `constexpr Endian::`**`Endian`**`() noexcept`
     * `constexpr Endian::`**`Endian`**`(T t) noexcept`
+    * `explicit Endian::`**`Endian`**`(const void* p) noexcept`
     * `constexpr Endian::`**`operator T`**`() const noexcept`
     * `constexpr T Endian::`**`get`**`() const noexcept`
     * `constexpr const T* Endian::`**`ptr`**`() const noexcept`
     * `T* Endian::`**`ptr`**`() noexcept`
     * `constexpr T Endian::`**`rep`**`() const noexcept`
     * `T& Endian::`**`rep`**`() noexcept`
-* `template <typename T> using` **`BigEndian`**` = Endian<T, End::big>`
-* `template <typename T> using` **`LittleEndian`**` = Endian<T, End::little>`
-* `template <typename T, End E> std::ostream&` **`operator<<`**`(std::ostream& out, Endian<T, E> t)`
+* `template <typename T> using` **`BigEndian`**` = Endian<T, big_endian>`
+* `template <typename T> using` **`LittleEndian`**` = Endian<T, little_endian>`
+* `template <typename T, ByteOrder B> std::ostream&` **`operator<<`**`(std::ostream& out, Endian<T, B> t)`
 
 An `Endian` object holds an integer in a defined byte order. Assignment to or
 from an endian integer performs any necessary reordering transparently. The
+constructor from a pointer copies `sizeof(T)` bytes into the object; the
 `ptr()` and `rep()` functions give access to the internal, byte ordered form.
 The `Endian` class is a literal type and can be used in `constexpr`
 expressions.

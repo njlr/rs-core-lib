@@ -425,14 +425,17 @@ standard container, but is often useful for RAII).</p>
 <h3 id="endian-integers">Endian integers</h3>
 <div class="defns">
 <ul>
-<li><code>enum class</code> <strong><code>End</code></strong><ul>
-<li><code>End::</code><strong><code>big</code></strong></li>
-<li><code>End::</code><strong><code>little</code></strong></li>
+<li><code>enum</code> <strong><code>ByteOrder</code></strong><ul>
+<li><strong><code>big_endian</code></strong></li>
+<li><strong><code>little_endian</code></strong></li>
 </ul>
 </li>
-<li><code>template &lt;typename T, End E&gt; class</code> <strong><code>Endian</code></strong><ul>
+<li><code>template &lt;typename T, ByteOrder B&gt; class</code> <strong><code>Endian</code></strong><ul>
+<li><code>using Endian::</code><strong><code>value_type</code></strong><code>= T</code></li>
+<li><code>static constexpr ByteOrder Endian::</code><strong><code>byte_order</code></strong> <code>= B</code></li>
 <li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>() noexcept</code></li>
 <li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(T t) noexcept</code></li>
+<li><code>explicit Endian::</code><strong><code>Endian</code></strong><code>(const void* p) noexcept</code></li>
 <li><code>constexpr Endian::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
 <li><code>constexpr T Endian::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
 <li><code>constexpr const T* Endian::</code><strong><code>ptr</code></strong><code>() const noexcept</code></li>
@@ -441,12 +444,13 @@ standard container, but is often useful for RAII).</p>
 <li><code>T&amp; Endian::</code><strong><code>rep</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong><code>= Endian&lt;T, End::big&gt;</code></li>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong><code>= Endian&lt;T, End::little&gt;</code></li>
-<li><code>template &lt;typename T, End E&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, E&gt; t)</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong><code>= Endian&lt;T, big_endian&gt;</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong><code>= Endian&lt;T, little_endian&gt;</code></li>
+<li><code>template &lt;typename T, ByteOrder B&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, B&gt; t)</code></li>
 </ul>
 <p>An <code>Endian</code> object holds an integer in a defined byte order. Assignment to or
 from an endian integer performs any necessary reordering transparently. The
+constructor from a pointer copies <code>sizeof(T)</code> bytes into the object; the
 <code>ptr()</code> and <code>rep()</code> functions give access to the internal, byte ordered form.
 The <code>Endian</code> class is a literal type and can be used in <code>constexpr</code>
 expressions.</p>
