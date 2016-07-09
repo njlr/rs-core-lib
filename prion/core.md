@@ -305,10 +305,10 @@ standard container, but is often useful for RAII).
 
 An `Endian` object holds an integer in a defined byte order. Assignment to or
 from an endian integer performs any necessary reordering transparently. The
-constructor from a pointer copies `sizeof(T)` bytes into the object; the
-`ptr()` and `rep()` functions give access to the internal, byte ordered form.
-The `Endian` class is a literal type and can be used in `constexpr`
-expressions.
+default constructor sets the value to zero. The constructor from a pointer
+copies `sizeof(T)` bytes into the object. The `ptr()` and `rep()` functions
+give access to the internal, byte ordered form. The `Endian` class is a
+literal type and can be used in `constexpr` expressions.
 
 ### Exceptions ###
 
