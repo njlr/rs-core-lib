@@ -164,9 +164,12 @@ types that can be used in strings (<code>char</code>, <code>char16_t</code>, <co
 <li><code>#define</code> <strong><code>PRI_ENUM</code></strong><code>(EnumType, first_value, first_name, ...)</code></li>
 <li><code>#define</code> <strong><code>PRI_ENUM_CLASS</code></strong><code>(EnumType, first_value, first_name, ...)</code></li>
 </ul>
-<p>These define an enumeration and an output operator that prints the name of an
-enumeration constant (or the integer value if the output argument is not a
-valid enumeration constant).</p>
+<p>These define an enumeration, given the name of the enumeration type, the
+integer value of the first entry, and a list of value names. They will also
+define an output operator that prints the name of an enumeration constant (or
+the integer value if the argument is not a named value), and an implementation
+of the function <code>enum_values&lt;EnumType&gt;()</code>, which will return a <code>vector</code>
+containing a list of the enumeration's values.</p>
 <p>Example:</p>
 <pre><code>PRI_ENUM(Foo, 1, alpha, bravo, charlie)
 PRI_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)

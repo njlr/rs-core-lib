@@ -187,15 +187,22 @@ namespace Prion {
 }
 
 #define PRI_ENUM_IMPLEMENTATION(EnumType, class_tag, name_prefix, first_value, first_name, ...) \
-    enum class_tag EnumType { first_name = first_value, __VA_ARGS__ }; \
+    enum class_tag EnumType { first_name = first_value, __VA_ARGS__, prion_enum_sentinel }; \
     inline std::ostream& operator<<(std::ostream& out, EnumType t) { \
         ::Prion::PrionDetail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
         return out; \
+    } \
+    inline vector<EnumType> prion_enum_values(EnumType) __attribute__((unused)); \
+    inline vector<EnumType> prion_enum_values(EnumType) { \
+        int n = int(EnumType::prion_enum_sentinel) - first_value; \
+        vector<EnumType> v(n); \
+        for (int i = 0; i < n; ++i) \
+            v[i] = EnumType(first_value + i); \
+        return v; \
     }
 
 #define PRI_ENUM(EnumType, first_value, first_name, ...) \
     PRI_ENUM_IMPLEMENTATION(EnumType,, "", first_value, first_name, __VA_ARGS__)
-
 #define PRI_ENUM_CLASS(EnumType, first_value, first_name, ...) \
     PRI_ENUM_IMPLEMENTATION(EnumType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
 
@@ -273,6 +280,8 @@ namespace Prion {
 
     template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
     template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
+
+    template <typename T> vector<T> enum_values() { return prion_enum_values(T()); }
 
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
     constexpr auto as_signed(int128_t t) noexcept { return int128_t(t); }

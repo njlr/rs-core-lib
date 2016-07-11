@@ -92,6 +92,9 @@ namespace {
         auto cp3 = PRI_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
         auto cp4 = PRI_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
 
+        vector<Foo> vf;
+        vector<Bar> vb;
+
         TEST_EQUAL(int(alpha), 1);
         TEST_EQUAL(int(bravo), 2);
         TEST_EQUAL(int(charlie), 3);
@@ -103,6 +106,10 @@ namespace {
         TEST_EQUAL(to_str(Foo(4)), "4");
         TEST_EQUAL(to_str(Foo(99)), "99");
 
+        TRY(vf = enum_values<Foo>());
+        TEST_EQUAL(vf.size(), 3);
+        TEST_EQUAL(to_str(vf), "[alpha,bravo,charlie]");
+
         TEST_EQUAL(int(Bar::alpha), 1);
         TEST_EQUAL(int(Bar::bravo), 2);
         TEST_EQUAL(int(Bar::charlie), 3);
@@ -113,6 +120,10 @@ namespace {
         TEST_EQUAL(to_str(Bar(0)), "0");
         TEST_EQUAL(to_str(Bar(4)), "4");
         TEST_EQUAL(to_str(Bar(99)), "99");
+
+        TRY(vb = enum_values<Bar>());
+        TEST_EQUAL(vb.size(), 3);
+        TEST_EQUAL(to_str(vb), "[Bar::alpha,Bar::bravo,Bar::charlie]");
 
     }
 

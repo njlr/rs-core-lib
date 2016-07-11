@@ -69,9 +69,12 @@ types that can be used in strings (`char`, `char16_t`, `char32_t`, or
 * `#define` **`PRI_ENUM`**`(EnumType, first_value, first_name, ...)`
 * `#define` **`PRI_ENUM_CLASS`**`(EnumType, first_value, first_name, ...)`
 
-These define an enumeration and an output operator that prints the name of an
-enumeration constant (or the integer value if the output argument is not a
-valid enumeration constant).
+These define an enumeration, given the name of the enumeration type, the
+integer value of the first entry, and a list of value names. They will also
+define an output operator that prints the name of an enumeration constant (or
+the integer value if the argument is not a named value), and an implementation
+of the function `enum_values<EnumType>()`, which will return a `vector`
+containing a list of the enumeration's values.
 
 Example:
 
