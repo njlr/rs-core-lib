@@ -80,10 +80,6 @@ ifeq ($(XHOST),mingw)
 	LIBTAG := mingw
 else
 	DEFINES += -D_REENTRANT=1 -D_XOPEN_SOURCE=700
-	LDLIBS += -lpthread
-	ifneq ($(XHOST),linux)
-		LDLIBS += -liconv
-	endif
 	LIBPATH := /usr/lib $(subst :, ,$(LIBRARY_PATH))
 endif
 
@@ -92,9 +88,6 @@ ifneq ($(shell grep -Fior 'sdl2/sdl.h' $(NAME)),)
 	ifeq ($(HOST),cygwin)
 		FLAGS += -mwindows
 	endif
-	# TODO - probably needed for iOS
-	# undef SDL_MAIN_HANDLED
-	# LDLIBS := -lSDL2main $(LDLIBS)
 endif
 
 LD := $(CXX)
@@ -141,6 +134,9 @@ dep:
 			-e 's/^[A-Za-z0-9_]+$$/LDLIBS += -l&/' \
 		| tr ';' '\n' \
 		>> $(DEPENDS)
+ifneq ($(XHOST),mingw)
+	echo 'LDLIBS += -lpthread -lz' >> $(DEPENDS)
+endif
 
 help: help-suffix
 
