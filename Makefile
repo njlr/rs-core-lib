@@ -134,9 +134,6 @@ dep:
 			-e 's/^[A-Za-z0-9_]+$$/LDLIBS += -l&/' \
 		| tr ';' '\n' \
 		>> $(DEPENDS)
-ifneq ($(XHOST),mingw)
-	echo 'LDLIBS += -lpthread -lz' >> $(DEPENDS)
-endif
 
 help: help-suffix
 
@@ -263,6 +260,13 @@ endif
 endif
 
 -include $(DEPENDS)
+
+ifneq ($(XHOST),mingw)
+	ifneq ($(XHOST),linux)
+		LDLIBS += -liconv
+	endif
+	LDLIBS += -lpthread -lz
+endif
 
 build/$(TARGET)/%-test.o: $(NAME)/%-test.c
 	@mkdir -p $(dir $@)
