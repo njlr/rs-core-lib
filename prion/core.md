@@ -1146,7 +1146,7 @@ Example:
     * `T& Resource::`**`get`**`() noexcept`
     * `T Resource::`**`get`**`() const noexcept`
     * `T Resource::`**`release`**`() noexcept`
-* `template <typename T, typename D> Resource<T>` **`make_resource`**`(T&& t, D d)`
+* `template <typename T, typename D> Resource<T>` **`make_resource`**`(T t, D d)`
 
 This holds a resource of some kind, and a deleter function that will be called
 on destruction, similar to a `unique_ptr` (but without the requirement that

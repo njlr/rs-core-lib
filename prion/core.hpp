@@ -2000,7 +2000,7 @@ namespace Prion {
     };
 
     template <typename T, typename D>
-    Resource<T> make_resource(T&& t, D d) {
+    Resource<T> make_resource(T t, D d) {
         return {t, d};
     }
 

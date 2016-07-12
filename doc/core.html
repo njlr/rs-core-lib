@@ -1441,7 +1441,7 @@ Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768,
 <li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
-<li><code>template &lt;typename T, typename D&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T&amp;&amp; t, D d)</code></li>
+<li><code>template &lt;typename T, typename D&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T t, D d)</code></li>
 </ul>
 <p>This holds a resource of some kind, and a deleter function that will be called
 on destruction, similar to a <code>unique_ptr</code> (but without the requirement that
