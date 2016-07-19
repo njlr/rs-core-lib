@@ -169,8 +169,13 @@ being used simply as an array of bytes rather than encoded text.
 
 * `using` **`int128_t`** `= [signed 128 bit integer]`
 * `using` **`uint128_t`** `= [unsigned 128 bit integer]`
+* `constexpr uint128_t` **`make_uint128`**`(uint64_t hi, uint64_t lo) noexcept`
+* `constexpr int128_t` **`make_int128`**`(uint64_t hi, uint64_t lo) noexcept`
 
-Aliases for the compiler's 128 bit integer types (e.g. `__int128`).
+Aliases for the compiler's 128 bit integer types (e.g. `__int128`). (The
+function to make a signed `int128_t` only accepts unsigned arguments because
+it is not clear how signed arguments should naturally be interpreted.
+Behaviour is undefined if the high bit of `hi` is set.)
 
 ### Containers ###
 

@@ -263,6 +263,9 @@ namespace Prion {
     using int128_t = __int128;
     using uint128_t = unsigned __int128;
 
+    constexpr uint128_t make_uint128(uint64_t hi, uint64_t lo) noexcept { return (uint128_t(hi) << 64) + uint128_t(lo); }
+    constexpr int128_t make_int128(uint64_t hi, uint64_t lo) noexcept { return int128_t(make_uint128(hi, lo)); }
+
     // Things needed early
 
     #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
