@@ -308,8 +308,13 @@ being used simply as an array of bytes rather than encoded text.</p>
 <ul>
 <li><code>using</code> <strong><code>int128_t</code></strong> <code>= [signed 128 bit integer]</code></li>
 <li><code>using</code> <strong><code>uint128_t</code></strong> <code>= [unsigned 128 bit integer]</code></li>
+<li><code>constexpr uint128_t</code> <strong><code>make_uint128</code></strong><code>(uint64_t hi, uint64_t lo) noexcept</code></li>
+<li><code>constexpr int128_t</code> <strong><code>make_int128</code></strong><code>(uint64_t hi, uint64_t lo) noexcept</code></li>
 </ul>
-<p>Aliases for the compiler's 128 bit integer types (e.g. <code>__int128</code>).</p>
+<p>Aliases for the compiler's 128 bit integer types (e.g. <code>__int128</code>). (The
+function to make a signed <code>int128_t</code> only accepts unsigned arguments because
+it is not clear how signed arguments should naturally be interpreted.
+Behaviour is undefined if the high bit of <code>hi</code> is set.)</p>
 </div>
 <h3 id="containers">Containers</h3>
 <div class="defns">
