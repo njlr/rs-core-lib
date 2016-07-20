@@ -1339,6 +1339,8 @@ namespace Prion {
 
     template <typename Iterator>
     struct Irange {
+        using iterator = Iterator;
+        using value_type = typename std::iterator_traits<Iterator>::value_type;
         Iterator first, second;
         constexpr Iterator begin() const { return first; }
         constexpr Iterator end() const { return second; }

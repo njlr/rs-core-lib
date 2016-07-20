@@ -859,6 +859,8 @@ C-style arrays and is `constexpr`.
 ### Range types ###
 
 * `template <typename Iterator> struct` **`Irange`**
+    * `using Irange::`**`iterator`** `= Iterator`
+    * `using Irange::`**`value_type`** `= [Iterator's value type]`
     * `Iterator Irange::`**`first`**
     * `Iterator Irange::`**`second`**
     * `constexpr Iterator Irange::`**`begin`**`() const { return first; }`
