@@ -1104,6 +1104,8 @@ C-style arrays and is <code>constexpr</code>.</p>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename Iterator&gt; struct</code> <strong><code>Irange</code></strong><ul>
+<li><code>using Irange::</code><strong><code>iterator</code></strong> <code>= Iterator</code></li>
+<li><code>using Irange::</code><strong><code>value_type</code></strong> <code>= [Iterator's value type]</code></li>
 <li><code>Iterator Irange::</code><strong><code>first</code></strong></li>
 <li><code>Iterator Irange::</code><strong><code>second</code></strong></li>
 <li><code>constexpr Iterator Irange::</code><strong><code>begin</code></strong><code>() const { return first; }</code></li>
