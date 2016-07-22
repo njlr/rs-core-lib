@@ -1779,10 +1779,12 @@ been used as an output buffer by some C APIs).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>string</code> <strong><code>unqualify</code></strong><code>(const string&amp; str)</code></li>
+<li><code>string</code> <strong><code>unqualify</code></strong><code>(const string&amp; str, const string&amp; delims = ".:")</code></li>
 </ul>
-<p>Strips off any prefix ending in a dot or colon, e.g.
-<code>unqualify("Prion::unqualify()")</code> returns <code>"unqualify()"</code>.</p>
+<p>Strips off any prefix ending in one of the delimiter characters (e.g.
+<code>unqualify("Prion::unqualify()")</code> returns <code>"unqualify()"</code>). This will return
+the original string unchanged if the delimiter string is empty or none of its
+characters are found.</p>
 </div>
 <h3 id="unicode-functions">Unicode functions</h3>
 <div class="defns">

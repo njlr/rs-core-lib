@@ -1445,10 +1445,12 @@ been used as an output buffer by some C APIs).
 
 Trim unwanted bytes from the ends of a string.
 
-* `string` **`unqualify`**`(const string& str)`
+* `string` **`unqualify`**`(const string& str, const string& delims = ".:")`
 
-Strips off any prefix ending in a dot or colon, e.g.
-`unqualify("Prion::unqualify()")` returns `"unqualify()"`.
+Strips off any prefix ending in one of the delimiter characters (e.g.
+`unqualify("Prion::unqualify()")` returns `"unqualify()"`). This will return
+the original string unchanged if the delimiter string is empty or none of its
+characters are found.
 
 ### Unicode functions ###
 

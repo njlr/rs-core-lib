@@ -2454,8 +2454,10 @@ namespace Prion {
         return str.substr(0, str.find_last_not_of(chars) + 1);
     }
 
-    inline string unqualify(const string& str) {
-        size_t pos = str.find_last_of(".:");
+    inline string unqualify(const string& str, const string& delims = ".:") {
+        if (delims.empty())
+            return str;
+        size_t pos = str.find_last_of(delims);
         if (pos == npos)
             return str;
         else
