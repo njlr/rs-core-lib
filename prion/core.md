@@ -592,17 +592,17 @@ string element.
     * `static constexpr double` **`name`** `= value`
     * `static constexpr float` **`name ## _f`** `= value ## f`
     * `static constexpr long double` **`name ## _ld`** `= value ## l`
-    * `template <typename T> constexpr T` **`c_ ## name`**`() noexcept`
+    * `template <typename T> static constexpr T` **`name ## _v`** `= T(value ## l)`
 
 Defines a floating point constant, in several forms. This generates a set of
-three named constants (for the three standard floating point types), and a
-function template that converts the long double value by default (with
-specializations for the standard types). The `value` argument must be a
-floating point literal with no type suffix.
+three named constants (for the three standard floating point types) and a
+variable template. The `value` argument must be a floating point literal with
+no type suffix.
 
 The values quoted for the following constants are approximate; the values
 actually supplied are accurate to at least `long double` precision where an
-exact value is defined, or to the best known accuracy.
+exact value is defined, or to the best known accuracy for the empirical
+constants.
 
 * _Mathematical constants_
     * **`e`** _= 2.7183_

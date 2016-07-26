@@ -701,6 +701,20 @@ namespace {
 
     }
 
+    void check_arithmetic_constants() {
+
+        TEST_TYPE_OF(pi, double);
+        TEST_TYPE_OF(pi_f, float);
+        TEST_TYPE_OF(pi_ld, long double);
+        TEST_TYPE_OF(pi_v<float>, float);
+
+        TEST_NEAR(pi, 3.141593);
+        TEST_NEAR(pi_f, 3.141593);
+        TEST_NEAR(pi_ld, 3.141593);
+        TEST_NEAR(pi_v<float>, 3.141593);
+
+    }
+
     void check_arithmetic_literals() {
 
         #pragma GCC diagnostic push
@@ -3739,6 +3753,7 @@ TEST_MODULE(prion, core) {
     check_type_related_functions();
     check_uuid();
     check_version_number();
+    check_arithmetic_constants();
     check_arithmetic_literals();
     check_generic_algorithms();
     check_integer_sequences();

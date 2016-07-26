@@ -790,18 +790,18 @@ string element.</p>
 <li><code>static constexpr double</code> <strong><code>name</code></strong> <code>= value</code></li>
 <li><code>static constexpr float</code> <strong><code>name ## _f</code></strong> <code>= value ## f</code></li>
 <li><code>static constexpr long double</code> <strong><code>name ## _ld</code></strong> <code>= value ## l</code></li>
-<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>c_ ## name</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename T&gt; static constexpr T</code> <strong><code>name ## _v</code></strong> <code>= T(value ## l)</code></li>
 </ul>
 </li>
 </ul>
 <p>Defines a floating point constant, in several forms. This generates a set of
-three named constants (for the three standard floating point types), and a
-function template that converts the long double value by default (with
-specializations for the standard types). The <code>value</code> argument must be a
-floating point literal with no type suffix.</p>
+three named constants (for the three standard floating point types) and a
+variable template. The <code>value</code> argument must be a floating point literal with
+no type suffix.</p>
 <p>The values quoted for the following constants are approximate; the values
 actually supplied are accurate to at least <code>long double</code> precision where an
-exact value is defined, or to the best known accuracy.</p>
+exact value is defined, or to the best known accuracy for the empirical
+constants.</p>
 </div>
 <div class="defns">
 <ul>

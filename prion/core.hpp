@@ -969,15 +969,10 @@ namespace Prion {
     // Arithmetic constants
 
     #define PRI_DEFINE_CONSTANT(name, value) \
-        static constexpr double name = value; \
-        static constexpr float name ## _f = value ## f; \
-        static constexpr long double name ## _ld = value ## l; \
-        template <typename T> constexpr T c_ ## name() noexcept __attribute__((unused)); \
-        template <> constexpr float c_ ## name<float>() noexcept __attribute__((unused)); \
-        template <> constexpr double c_ ## name<double>() noexcept __attribute__((unused)); \
-        template <typename T> constexpr T c_ ## name() noexcept { return static_cast<T>(name ## _ld); } \
-        template <> constexpr float c_ ## name<float>() noexcept { return name ## _f; } \
-        template <> constexpr double c_ ## name<double>() noexcept { return name; }
+        constexpr double name = value; \
+        constexpr float name ## _f = value ## f; \
+        constexpr long double name ## _ld = value ## l; \
+        template <typename T> constexpr T name ## _v = T(value ## l);
 
     // Mathematical constants
 
@@ -1680,8 +1675,8 @@ namespace Prion {
 
     }
 
-    template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / c_pi<T>()); }
-    template <typename T> constexpr T radians(T deg) noexcept { return deg * (c_pi<T>() / T(180)); }
+    template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / pi_v<T>); }
+    template <typename T> constexpr T radians(T deg) noexcept { return deg * (pi_v<T> / T(180)); }
     template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept
         { return x1 == x2 ? (y1 + y2) * (T1(1) / T1(2)) : y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
     template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return PrionDetail::Round<T2, T1, '>'>()(value); }
