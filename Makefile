@@ -30,17 +30,17 @@ LDLIBS :=
 EXE :=
 DEPENDS := dependencies.make
 STATICLIB := build/$(TARGET)/lib$(NAME).a
-HEADERS := $(wildcard $(NAME)/*.h $(NAME)/*.hpp)
+HEADERS := $(shell find $(NAME) -name *.h -or -name *.hpp)
 LIBHEADERS := $(filter-out $(NAME)/library.hpp Makefile,$(shell grep -EL '// NOT INSTALLED' $(HEADERS) Makefile)) # Dummy entry to avoid empty list
-SOURCES := $(wildcard $(NAME)/*.c $(NAME)/*.cpp $(NAME)/*.m $(NAME)/*.mm)
-APPSOURCES := $(filter $(NAME)/app-%,$(SOURCES))
-TESTSOURCES := $(filter %-test.c %-test.cpp %-test.m %-test.mm,$(SOURCES))
+SOURCES := $(shell find $(NAME) -name *.c -or -name *.cpp -or -name *.m -or -name *.mm)
+APPSOURCES := $(shell echo "$(SOURCES)" | tr ' ' '\n' | grep app-)
+TESTSOURCES := $(shell echo "$(SOURCES)" | tr ' ' '\n' | grep '[-]test')
 LIBSOURCES := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
 APPOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(APPSOURCES)')
 LIBOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(LIBSOURCES)')
 TESTOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(TESTSOURCES)')
 DOCINDEX := $(wildcard $(NAME)/index.md)
-DOCSOURCES := $(sort $(wildcard $(NAME)/*.md))
+DOCSOURCES := $(shell find $(NAME) -name *.md | sort)
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
 CORELIBS := $(shell ls $(LIBROOT)/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!' | sort -u)
 LIBREGEX := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
@@ -116,9 +116,9 @@ cleanall:
 dep:
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
 		| sed -E -e 's! \.\./$(NAME)/! !g' \
-				 -e 's!^[[:graph:]]*\.o:!build/$$(TARGET)/&!' \
+				 -e 's!^[[:graph:]]*\.o: $(NAME)(/|/[[:graph:]]+/)!build/$$(TARGET)\1&!' \
 				 -e 's!^ +!  !' \
-				 -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
+		         -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
 		| grep -h PRI_LDLIB \
@@ -130,8 +130,8 @@ dep:
 		| while read tag num; do if [ "$$tag" != "$$pre" ]; then echo $$num $$tag; pre=$$tag; fi; done \
 		| sort \
 		| sed -E -e 's/^[0-9]+ //' \
-			-e 's/^(.+):(.+)$$/ifeq ($$(LIBTAG),\1);LDLIBS += -l\2;endif/' \
-			-e 's/^[A-Za-z0-9_]+$$/LDLIBS += -l&/' \
+			     -e 's/^(.+):(.+)$$/ifeq ($$(LIBTAG),\1);LDLIBS += -l\2;endif/' \
+			     -e 's/^[A-Za-z0-9_]+$$/LDLIBS += -l&/' \
 		| tr ';' '\n' \
 		>> $(DEPENDS)
 
