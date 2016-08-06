@@ -2185,35 +2185,38 @@ namespace Prion {
 
     }
 
-    static constexpr const char* xt_up           = "\x1b[A";    // Cursor up
-    static constexpr const char* xt_down         = "\x1b[B";    // Cursor down
-    static constexpr const char* xt_right        = "\x1b[C";    // Cursor right
-    static constexpr const char* xt_left         = "\x1b[D";    // Cursor left
-    static constexpr const char* xt_erase_left   = "\x1b[1K";   // Erase left
-    static constexpr const char* xt_erase_right  = "\x1b[K";    // Erase right
-    static constexpr const char* xt_erase_above  = "\x1b[1J";   // Erase above
-    static constexpr const char* xt_erase_below  = "\x1b[J";    // Erase below
-    static constexpr const char* xt_erase_line   = "\x1b[2K";   // Erase line
-    static constexpr const char* xt_clear        = "\x1b[2J";   // Clear screen
-    static constexpr const char* xt_reset        = "\x1b[0m";   // Reset attributes
-    static constexpr const char* xt_bold         = "\x1b[1m";   // Bold
-    static constexpr const char* xt_under        = "\x1b[4m";   // Underline
-    static constexpr const char* xt_black        = "\x1b[30m";  // Black fg
-    static constexpr const char* xt_red          = "\x1b[31m";  // Red fg
-    static constexpr const char* xt_green        = "\x1b[32m";  // Green fg
-    static constexpr const char* xt_yellow       = "\x1b[33m";  // Yellow fg
-    static constexpr const char* xt_blue         = "\x1b[34m";  // Blue fg
-    static constexpr const char* xt_magenta      = "\x1b[35m";  // Magenta fg
-    static constexpr const char* xt_cyan         = "\x1b[36m";  // Cyan fg
-    static constexpr const char* xt_white        = "\x1b[37m";  // White fg
-    static constexpr const char* xt_black_bg     = "\x1b[40m";  // Black bg
-    static constexpr const char* xt_red_bg       = "\x1b[41m";  // Red bg
-    static constexpr const char* xt_green_bg     = "\x1b[42m";  // Green bg
-    static constexpr const char* xt_yellow_bg    = "\x1b[43m";  // Yellow bg
-    static constexpr const char* xt_blue_bg      = "\x1b[44m";  // Blue bg
-    static constexpr const char* xt_magenta_bg   = "\x1b[45m";  // Magenta bg
-    static constexpr const char* xt_cyan_bg      = "\x1b[46m";  // Cyan bg
-    static constexpr const char* xt_white_bg     = "\x1b[47m";  // White bg
+    constexpr const char* xt_up           = "\x1b[A";    // Cursor up
+    constexpr const char* xt_down         = "\x1b[B";    // Cursor down
+    constexpr const char* xt_right        = "\x1b[C";    // Cursor right
+    constexpr const char* xt_left         = "\x1b[D";    // Cursor left
+    constexpr const char* xt_erase_left   = "\x1b[1K";   // Erase left
+    constexpr const char* xt_erase_right  = "\x1b[K";    // Erase right
+    constexpr const char* xt_erase_above  = "\x1b[1J";   // Erase above
+    constexpr const char* xt_erase_below  = "\x1b[J";    // Erase below
+    constexpr const char* xt_erase_line   = "\x1b[2K";   // Erase line
+    constexpr const char* xt_clear        = "\x1b[2J";   // Clear screen
+    constexpr const char* xt_reset        = "\x1b[0m";   // Reset attributes
+    constexpr const char* xt_bold         = "\x1b[1m";   // Bold
+    constexpr const char* xt_under        = "\x1b[4m";   // Underline
+    constexpr const char* xt_bold_off     = "\x1b[22m";  // Bold off
+    constexpr const char* xt_under_off    = "\x1b[24m";  // Underline off
+    constexpr const char* xt_colour_off   = "\x1b[39m";  // Colour off
+    constexpr const char* xt_black        = "\x1b[30m";  // Black fg
+    constexpr const char* xt_red          = "\x1b[31m";  // Red fg
+    constexpr const char* xt_green        = "\x1b[32m";  // Green fg
+    constexpr const char* xt_yellow       = "\x1b[33m";  // Yellow fg
+    constexpr const char* xt_blue         = "\x1b[34m";  // Blue fg
+    constexpr const char* xt_magenta      = "\x1b[35m";  // Magenta fg
+    constexpr const char* xt_cyan         = "\x1b[36m";  // Cyan fg
+    constexpr const char* xt_white        = "\x1b[37m";  // White fg
+    constexpr const char* xt_black_bg     = "\x1b[40m";  // Black bg
+    constexpr const char* xt_red_bg       = "\x1b[41m";  // Red bg
+    constexpr const char* xt_green_bg     = "\x1b[42m";  // Green bg
+    constexpr const char* xt_yellow_bg    = "\x1b[43m";  // Yellow bg
+    constexpr const char* xt_blue_bg      = "\x1b[44m";  // Blue bg
+    constexpr const char* xt_magenta_bg   = "\x1b[45m";  // Magenta bg
+    constexpr const char* xt_cyan_bg      = "\x1b[46m";  // Cyan bg
+    constexpr const char* xt_white_bg     = "\x1b[47m";  // White bg
 
     inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
     inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces

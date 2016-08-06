@@ -1294,6 +1294,9 @@ on Windows.
 * `constexpr const char*` **`xt_reset`** `=        <esc> [0m   = Reset attributes`
 * `constexpr const char*` **`xt_bold`** `=         <esc> [1m   = Bold`
 * `constexpr const char*` **`xt_under`** `=        <esc> [4m   = Underline`
+* `constexpr const char*` **`xt_bold_off`** `=     <esc> [22m  = Bold off`
+* `constexpr const char*` **`xt_under_off`** `=    <esc> [24m  = Underline off`
+* `constexpr const char*` **`xt_colour_off`** `=   <esc> [39m  = Colour off`
 * `constexpr const char*` **`xt_black`** `=        <esc> [30m  = Black foreground`
 * `constexpr const char*` **`xt_red`** `=          <esc> [31m  = Red foreground`
 * `constexpr const char*` **`xt_green`** `=        <esc> [32m  = Green foreground`
