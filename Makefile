@@ -121,6 +121,8 @@ dep:
 		         -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
+		| grep -Ev '^#' \
+		| awk '/PRI_LDLIB/ { getline t; print $$0 t; next }; 1' \
 		| grep -h PRI_LDLIB \
 		| sed -E 's/.*"([A-Za-z0-9_: ]+)".*/\1/' \
 		| tr -d ' ' \
