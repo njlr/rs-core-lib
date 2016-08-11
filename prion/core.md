@@ -111,6 +111,19 @@ needed on multiple targets, but not on all targets, you will need a separate
 `PRI_LDLIB()` lines are picked up at the `"make dep"` stage; if you change a
 link library, the change will not be detected until dependencies are rebuilt.
 
+* `#define` **`PRI_MOVE_ONLY`**`(T)`
+    * `T(const T&) = delete;`
+    * `T(T&&) = default;`
+    * `T& operator=(const T&) = delete;`
+    * `T& operator=(T&&) = default;`
+* `#define` **`PRI_NO_COPY_MOVE`**`(T)`
+    * `T(const T&) = delete;`
+    * `T(T&&) = delete;`
+    * `T& operator=(const T&) = delete;`
+    * `T& operator=(T&&) = delete;`
+
+Convenience macros for defaulted or deleted copy and move operations.
+
 * `#define` **`PRI_OVERLOAD`**`(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }`
 
 Creates a function object wrapping a set of overloaded functions, that can be

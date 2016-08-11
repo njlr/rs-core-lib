@@ -161,7 +161,7 @@
 
 #define PRI_MERGE_(a, b) a ## b
 #define PRI_LDLIB_LABEL_(a) PRI_MERGE_(PRI_LDLIB_, a)
-#define PRI_LDLIB(libs) static constexpr const char* PRI_LDLIB_LABEL_(__COUNTER__) __attribute__((unused)) = # libs;
+#define PRI_LDLIB(lib) static constexpr const char* PRI_LDLIB_LABEL_(__COUNTER__) __attribute__((unused)) = # lib;
 
 namespace Prion {
 
@@ -206,14 +206,18 @@ namespace Prion {
 #define PRI_ENUM_CLASS(EnumType, first_value, first_name, ...) \
     PRI_ENUM_IMPLEMENTATION(EnumType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
 
-// For internal use only
-
+#define PRI_MOVE_ONLY(T) \
+    T(const T&) = delete; \
+    T(T&&) = default; \
+    T& operator=(const T&) = delete; \
+    T& operator=(T&&) = default;
 #define PRI_NO_COPY_MOVE(T) \
     T(const T&) = delete; \
     T(T&&) = delete; \
     T& operator=(const T&) = delete; \
     T& operator=(T&&) = delete;
 
+// For internal use only
 // Must be used in the global namespace
 #define PRI_DEFINE_STD_HASH(T) \
     namespace std { \
@@ -2035,6 +2039,7 @@ namespace Prion {
         class ConditionalScopeExit:
         private ScopeExitBase<Mode> {
         public:
+            PRI_NO_COPY_MOVE(ConditionalScopeExit)
             using callback = function<void()>;
             explicit ConditionalScopeExit(callback f) {
                 if (Mode > 0) {
@@ -2051,10 +2056,6 @@ namespace Prion {
             void release() noexcept { func = nullptr; }
         private:
             function<void()> func;
-            ConditionalScopeExit(const ConditionalScopeExit&) = delete;
-            ConditionalScopeExit(ConditionalScopeExit&&) = delete;
-            ConditionalScopeExit& operator=(const ConditionalScopeExit&) = delete;
-            ConditionalScopeExit& operator=(ConditionalScopeExit&&) = delete;
             static void silent_call(callback& f) noexcept { if (f) { try { f(); } catch (...) {} } }
         };
 
@@ -2066,6 +2067,7 @@ namespace Prion {
 
     class ScopedTransaction {
     public:
+        PRI_NO_COPY_MOVE(ScopedTransaction)
         using callback = function<void()>;
         ScopedTransaction() noexcept {}
         ~ScopedTransaction() noexcept { rollback(); }
@@ -2083,10 +2085,6 @@ namespace Prion {
         }
     private:
         vector<callback> stack;
-        ScopedTransaction(const ScopedTransaction&) = delete;
-        ScopedTransaction(ScopedTransaction&&) = delete;
-        ScopedTransaction& operator=(const ScopedTransaction&) = delete;
-        ScopedTransaction& operator=(ScopedTransaction&&) = delete;
     };
 
     // [I/O utilities]
