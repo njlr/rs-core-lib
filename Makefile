@@ -42,7 +42,7 @@ TESTOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g'
 DOCINDEX := $(wildcard $(NAME)/index.md)
 DOCSOURCES := $(shell find $(NAME) -name '*.md' | sort)
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
-CORELIBS := $(shell ls $(LIBROOT)/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!' | sort -u)
+CORELIBS := $(shell ls '$(LIBROOT)'/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!' | sort -u)
 LIBREGEX := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
 LIBTAG :=
 SCRIPTS := $(LIBROOT)/prion-lib/scripts
@@ -121,7 +121,10 @@ dep:
 		         -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
+		| grep -Ev '^#' \
+		| awk '/PRI_LDLIB/ { getline t; print $$0 t; next }; 1' \
 		| grep -h PRI_LDLIB \
+		| tr ';' '\n' \
 		| sed -E 's/.*"([A-Za-z0-9_: ]+)".*/\1/' \
 		| tr -d ' ' \
 		| nl -pn rz \
