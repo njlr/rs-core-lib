@@ -144,79 +144,64 @@ namespace {
 
     void check_containers() {
 
-        using buf = SimpleBuffer<int32_t>;
+        Blob b;
 
-        buf b1, b2;
-        shared_ptr<buf> bp;
-        int32_t array[] = {1,2,3,4,5};
+        TEST(b.empty());
+        TEST_EQUAL(b.size(), 0);
+        TEST_EQUAL(b.hex(), "");
+        TEST_EQUAL(b.str(), "");
+        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "");
 
-        TRY(bp.reset(new buf));
-        TEST(bp->empty());
+        TRY(b = Blob(nullptr, 1));
+        TEST(b.empty());
+        TEST_EQUAL(b.size(), 0);
 
-        TRY(bp.reset(new buf(10)));
-        TEST_EQUAL(bp->size(), 10);
+        TRY(b = Blob(5, 'a'));
+        TEST(! b.empty());
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.hex(), "61 61 61 61 61");
+        TEST_EQUAL(b.str(), "aaaaa");
+        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "aaaaa");
 
-        TRY(bp.reset(new buf(20, 42)));
-        TEST_EQUAL(bp->size(), 20);
-        TEST_EQUAL(bp->at(0), 42);
-        TEST_THROW(bp->at(20), std::out_of_range);
+        TRY(b.fill('z'));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.hex(), "7a 7a 7a 7a 7a");
+        TEST_EQUAL(b.str(), "zzzzz");
 
-        TRY(bp->copy(array, 5));
-        TEST_EQUAL(bp->size(), 5);
-        TEST_EQUAL(bp->at(0), 1);
-        TEST_EQUAL(bp->at(4), 5);
+        TRY(b.clear());
+        TEST(b.empty());
+        TEST_EQUAL(b.size(), 0);
+        TEST_EQUAL(b.hex(), "");
+        TEST_EQUAL(b.str(), "");
 
-        TRY(bp->copy(array + 0, array + 5));
-        TEST_EQUAL(bp->size(), 5);
-        TEST_EQUAL(bp->at(0), 1);
-        TEST_EQUAL(bp->at(4), 5);
+        TRY(b.reset(10, 'a'));
+        TEST(! b.empty());
+        TEST_EQUAL(b.size(), 10);
+        TEST_EQUAL(b.hex(), "61 61 61 61 61 61 61 61 61 61");
+        TEST_EQUAL(b.str(), "aaaaaaaaaa");
 
-        TRY(b1.assign(10));
-        TEST_EQUAL(b1.size(), 10);
-        TEST_EQUAL(b1.bytes(), 40);
+        TRY(b.copy("hello", 5));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.hex(), "68 65 6c 6c 6f");
+        TEST_EQUAL(b.str(), "hello");
 
-        TRY(b1.assign(20, 42));
-        TEST_EQUAL(b1.size(), 20);
-        TEST_EQUAL(b1.bytes(), 80);
-        TEST_EQUAL(b1[0], 42);
-        TEST_EQUAL(b1.at(0), 42);
-        TEST_THROW(b1.at(20), std::out_of_range);
+        u8string s, h = "hello", w = "world";
 
-        TRY(b1.copy(array, 5));
-        TEST_EQUAL(b1.size(), 5);
-        TEST_EQUAL(b1.bytes(), 20);
-        TEST_EQUAL(b1[0], 1);
-        TEST_EQUAL(b1[4], 5);
-
-        TRY(b1.copy(array + 0, array + 5));
-        TEST_EQUAL(b1.size(), 5);
-        TEST_EQUAL(b1.bytes(), 20);
-        TEST_EQUAL(b1[0], 1);
-        TEST_EQUAL(b1[4], 5);
-
-        TRY(b2.assign(20, 42));
-        TRY(b1 = b2);
-        TEST_EQUAL(b1.size(), 20);
-        TEST_EQUAL(b1[0], 42);
-
-        TRY(b2.assign(10, 99));
-        TRY(b1 = move(b2));
-        TEST_EQUAL(b1.size(), 10);
-        TEST_EQUAL(b1[0], 99);
-        TEST_EQUAL(b2.size(), 0);
-
-        TRY(bp.reset(new buf(b1)));
-        TEST_EQUAL(bp->size(), 10);
-        TEST_EQUAL(bp->at(0), 99);
-
-        TRY(bp.reset(new buf(move(b1))));
-        TEST_EQUAL(bp->size(), 10);
-        TEST_EQUAL(bp->at(0), 99);
-        TEST_EQUAL(b1.size(), 0);
+        TRY(b.clear());
+        TRY(b.reset(&h[0], 5, [&] (void*) { s += "a"; }));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.str(), "hello");
+        TEST_EQUAL(s, "");
+        TRY(b = Blob(&w[0], 5, [&] (void*) { s += "b"; }));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.str(), "world");
+        TEST_EQUAL(s, "a");
+        TRY(b.clear());
+        TEST_EQUAL(s, "ab");
 
         Stacklike<TopTail> st;
-        u8string s;
 
+        s.clear();
         TEST(st.empty());
         TRY(st.push(TopTail(s, 'a')));
         TEST_EQUAL(st.size(), 1);

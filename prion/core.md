@@ -192,92 +192,83 @@ Behaviour is undefined if the high bit of `hi` is set.)
 
 ### Containers ###
 
-* `template <typename T> class` **`SimpleBuffer`**
-    * `using SimpleBuffer::`**`const_iterator`** `= const T*`
-    * `using SimpleBuffer::`**`const_reference`** `= const T&`
-    * `using SimpleBuffer::`**`delete_function`** `= function<void(T*)>`
-    * `using SimpleBuffer::`**`difference_type`** `= ptrdiff_t`
-    * `using SimpleBuffer::`**`iterator`** `= T*`
-    * `using SimpleBuffer::`**`reference`** `= T&`
-    * `using SimpleBuffer::`**`size_type`** `= size_t`
-    * `using SimpleBuffer::`**`value_type`** `= T`
-    * `SimpleBuffer::`**`SimpleBuffer`**`() noexcept`
-    * `explicit SimpleBuffer::`**`SimpleBuffer`**`(size_t n)`
-    * `SimpleBuffer::`**`SimpleBuffer`**`(size_t n, T t)`
-    * `SimpleBuffer::`**`SimpleBuffer`**`(T* p, size_t n) noexcept`
-    * `SimpleBuffer::`**`SimpleBuffer`**`(T* p, size_t n, delete_function d)`
-    * `SimpleBuffer::`**`SimpleBuffer`**`(const SimpleBuffer& sb)`
-    * `SimpleBuffer::`**`SimpleBuffer`**`(SimpleBuffer&& sb) noexcept`
-    * `SimpleBuffer::`**`~SimpleBuffer`**`() noexcept`
-    * `SimpleBuffer& SimpleBuffer::`**`operator=`**`(const SimpleBuffer& sb)`
-    * `SimpleBuffer& SimpleBuffer::`**`operator=`**`(SimpleBuffer&& sb) noexcept`
-    * `T& SimpleBuffer::`**`operator[]`**`(size_t i) noexcept`
-    * `const T& SimpleBuffer::`**`operator[]`**`(size_t i) const noexcept`
-    * `void SimpleBuffer::`**`assign`**`(size_t n)`
-    * `void SimpleBuffer::`**`assign`**`(size_t n, T t)`
-    * `void SimpleBuffer::`**`assign`**`(T* p, size_t n) noexcept`
-    * `void SimpleBuffer::`**`assign`**`(T* p, size_t n, delete_function d)`
-    * `T& SimpleBuffer::`**`at`**`(size_t i)`
-    * `const T& SimpleBuffer::`**`at`**`(size_t i) const`
-    * `T* SimpleBuffer::`**`begin`**`() noexcept`
-    * `const T* SimpleBuffer::`**`begin`**`() const noexcept`
-    * `const T* SimpleBuffer::`**`cbegin`**`() const noexcept`
-    * `T* SimpleBuffer::`**`data`**`() noexcept`
-    * `const T* SimpleBuffer::`**`data`**`() const noexcept`
-    * `const T* SimpleBuffer::`**`cdata`**`() const noexcept`
-    * `T* SimpleBuffer::`**`end`**`() noexcept`
-    * `const T* SimpleBuffer::`**`end`**`() const noexcept`
-    * `const T* SimpleBuffer::`**`cend`**`() const noexcept`
-    * `size_t SimpleBuffer::`**`bytes`**`() const noexcept`
-    * `size_t SimpleBuffer::`**`capacity`**`() const noexcept`
-    * `void SimpleBuffer::`**`clear`**`() noexcept`
-    * `void SimpleBuffer::`**`copy`**`(const T* p, size_t n)`
-    * `void SimpleBuffer::`**`copy`**`(const T* p1, const T* p2)`
-    * `bool SimpleBuffer::`**`empty`**`() const noexcept`
-    * `size_t SimpleBuffer::`**`max_size`**`() const noexcept`
-    * `size_t SimpleBuffer::`**`size`**`() const noexcept`
-    * `void SimpleBuffer::`**`swap`**`(SimpleBuffer& sb2) noexcept`
-* `bool` **`operator==`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool` **`operator!=`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool` **`operator<`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool` **`operator>`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool` **`operator<=`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `bool` **`operator>=`**`(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept`
-* `void` **`swap`**`(SimpleBuffer& sb1, SimpleBuffer& sb2) noexcept`
+* `class` **`Blob`**
+    * `Blob::`**`Blob`**`()`
+    * `explicit Blob::`**`Blob`**`(size_t n)`
+    * `Blob::`**`Blob`**`(size_t n, uint8_t x)`
+    * `Blob::`**`Blob`**`(void* p, size_t n)`
+    * `template <typename F> Blob::`**`Blob`**`(void* p, size_t n, F f)`
+    * `Blob::`**`~Blob`**`() noexcept`
+    * `Blob::`**`Blob`**`(const Blob& b)`
+    * `Blob::`**`Blob`**`(Blob&& b) noexcept: ptr(b.ptr), len(b.len)`
+    * `Blob& Blob::`**`operator=`**`(const Blob& b)`
+    * `Blob& Blob::`**`operator=`**`(Blob&& b) noexcept`
+    * `void* Blob::`**`data`**`() noexcept`
+    * `const void* Blob::`**`data`**`() const noexcept`
+    * `uint8_t* Blob::`**`bdata`**`() noexcept`
+    * `const uint8_t* Blob::`**`bdata`**`() const noexcept`
+    * `char* Blob::`**`cdata`**`() noexcept`
+    * `const char* Blob::`**`cdata`**`() const noexcept`
+    * `Irange<uint8_t*> Blob::`**`bytes`**`() noexcept`
+    * `Irange<const uint8_t*> Blob::`**`bytes`**`() const noexcept`
+    * `Irange<char*> Blob::`**`chars`**`() noexcept`
+    * `Irange<const char*> Blob::`**`chars`**`() const noexcept`
+    * `void Blob::`**`clear`**`() noexcept`
+    * `void Blob::`**`copy`**`(const void* p, size_t n)`
+    * `bool Blob::`**`empty`**`() const noexcept`
+    * `void Blob::`**`fill`**`(uint8_t x) noexcept`
+    * `size_t Blob::`**`hash`**`() const noexcept`
+    * `u8string Blob::`**`hex`**`(size_t block = 0) const`
+    * `void Blob::`**`reset`**`(size_t n)`
+    * `void Blob::`**`reset`**`(size_t n, uint8_t x)`
+    * `void Blob::`**`reset`**`(void* p, size_t n)`
+    * `template <typename F> void Blob::`**`reset`**`(void* p, size_t n, F f)`
+    * `size_t Blob::`**`size`**`() const noexcept`
+    * `string Blob::`**`str`**`() const`
+    * `void Blob::`**`swap`**`(Blob& b) noexcept`
+* `bool` **`operator==`**`(const Blob& lhs, const Blob& rhs) noexcept`
+* `bool` **`operator!=`**`(const Blob& lhs, const Blob& rhs) noexcept`
+* `bool` **`operator<`**`(const Blob& lhs, const Blob& rhs) noexcept`
+* `bool` **`operator>`**`(const Blob& lhs, const Blob& rhs) noexcept`
+* `bool` **`operator<=`**`(const Blob& lhs, const Blob& rhs) noexcept`
+* `bool` **`operator>=`**`(const Blob& lhs, const Blob& rhs) noexcept`
+* `void` **`swap`**`(Blob& sb1, Blob& sb2) noexcept`
+* `class std::`**`hash`**`<Blob>`
 
-This is a simple dynamically allocated array. The element type `T` must be
-trivially copyable; the implementation will use `memcpy()` wherever possible
-instead of copying discrete `T` objects. Most of the member functions are
-equivalent to those of `std::vector` and should be self explanatory.
+A simple wrapper for a block of memory.
 
-Unlike a `std::vector`, a `SimpleBuffer` always allocates exactly the required
-amount of memory (`capacity()` is always equal to `size()`). Any operation
-that changes the buffer's size will reallocate it and invalidate all iterators
-and references into the old buffer.
-
-The constructor and `assign()` function that take only a length do not
-initialize the newly allocated memory. The versions that take a length and
-value will fill the entire buffer with the value. The versions that take a
-pointer, size, and optional deallocation function take ownership of the
+The constructor and `reset()` functions that take a length, and optionally a
+byte value, allocate memory using `malloc()`. The versions that take only a
+length do not initialize the newly allocated memory; the ones that take a
+length and value will fill the entire blob with the value. The versions that
+take a pointer, size, and optional deallocation function take ownership of the
 referenced data, and will deallocate it when it is discarded. If no
 deallocation function is supplied, the memory is assumed to have been acquired
-with `malloc()`, and will be released with `free()`. When a buffer is copied,
-the memory for the new copy is always allocated using `new T[]`, regardless of
-how the source buffer was allocated.
+with `malloc()`, and will be released with `free()`. When a blob is copied,
+the memory for the new copy is always allocated using `malloc()`, regardless
+of how the source blob was allocated.
 
-For all functions that take a pointer, behaviour is undefined if the pointer
-is null.
+Unlike a `std::vector`, a `Blob` always allocates exactly the required amount
+of memory. Any operation that changes the blob's size will reallocate it and
+invalidate all pointers into the old blob.
 
-The `data()` and `cdata()` functions are synonyms for `begin()` and
-`cbegin()`. The `bytes()` function reports the array's size in bytes (equal to
-`size()*sizeof(T)`).
+For all functions that take a pointer and length, if a null pointer is passed,
+the length is ignored and the effect is the same as passing a valid pointer
+and zero length.
 
-The `copy()` functions reallocate the buffer to the required size and copy the
+The `[bc]data()` functions return pointers to the beginning of the blob. The
+`bytes()` and `chars()` functions return a pair of pointers marking the
+beginning and end of the blob.
+
+The `copy()` function reallocates the blob to the required size and copies the
 referenced data.
 
+The `hex()` function returns the blob's data in hex form; if a nonzero block
+size is supplied, a line feed will be inserted after each block.
+
+The `str()` function copies the entire blob into a string.
+
 The comparison operators perform bytewise comparison by calling `memcmp()`.
-This will usually not give the same ordering as a lexicographical comparison
-using `T`'s less-than operator.
 
 * `template <typename T> class` **`Stacklike`**
     * `using Stacklike<T>::`**`iterator`** `= [random access iterator]`

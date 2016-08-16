@@ -531,109 +531,6 @@ namespace Prion {
 
     // Containers
 
-    namespace PrionDetail {
-
-        struct DeleteArray { template <typename T> void operator()(T* ptr) const noexcept { delete[] ptr; } };
-        struct FreeMemory { template <typename T> void operator()(T* ptr) const noexcept { std::free(ptr); } };
-
-    }
-
-    template <typename T>
-    class SimpleBuffer {
-    public:
-        using const_iterator = const T*;
-        using const_reference = const T&;
-        using delete_function = function<void(T*)>;
-        using difference_type = ptrdiff_t;
-        using iterator = T*;
-        using reference = T&;
-        using size_type = size_t;
-        using value_type = T;
-        SimpleBuffer() noexcept {}
-        explicit SimpleBuffer(size_t n): len(n), ptr(new T[n]) {}
-        SimpleBuffer(size_t n, T t): len(n), ptr(new T[n]) { std::fill_n(ptr, n, t); }
-        SimpleBuffer(T* p, size_t n) noexcept: len(n), ptr(p), del(PrionDetail::FreeMemory()) {}
-        SimpleBuffer(T* p, size_t n, delete_function d): len(n), ptr(p), del(d) {}
-        SimpleBuffer(const SimpleBuffer& sb): len(sb.len), ptr(new T[len]) { memcpy(ptr, sb.ptr, bytes()); }
-        SimpleBuffer(SimpleBuffer&& sb) noexcept: len(sb.len), ptr(sb.ptr), del(sb.del) { sb.abandon(); }
-        ~SimpleBuffer() noexcept { clear(); }
-        SimpleBuffer& operator=(const SimpleBuffer& sb);
-        SimpleBuffer& operator=(SimpleBuffer&& sb) noexcept;
-        T& operator[](size_t i) noexcept { return ptr[i]; }
-        const T& operator[](size_t i) const noexcept { return ptr[i]; }
-        void assign(size_t n);
-        void assign(size_t n, T t) { assign(n); std::fill_n(ptr, n, t); }
-        void assign(T* p, size_t n) noexcept { clear(); len = n; ptr = p; del = PrionDetail::FreeMemory(); }
-        void assign(T* p, size_t n, delete_function d) { SimpleBuffer temp(p, n, d); swap(temp); }
-        T& at(size_t i) { check_index(i); return ptr[i]; }
-        const T& at(size_t i) const { check_index(i); return ptr[i]; }
-        T* begin() noexcept { return ptr; }
-        const T* begin() const noexcept { return ptr; }
-        const T* cbegin() const noexcept { return ptr; }
-        T* data() noexcept { return ptr; }
-        const T* data() const noexcept { return ptr; }
-        const T* cdata() const noexcept { return ptr; }
-        T* end() noexcept { return ptr + len; }
-        const T* end() const noexcept { return ptr + len; }
-        const T* cend() const noexcept { return ptr + len; }
-        size_t bytes() const noexcept { return len * sizeof(T); }
-        size_t capacity() const noexcept { return len; }
-        void clear() noexcept { if (ptr && del) del(ptr); abandon(); }
-        void copy(const T* p, size_t n) { assign(n); memcpy(ptr, p, bytes()); }
-        void copy(const T* p1, const T* p2) { copy(p1, p2 - p1); }
-        bool empty() const noexcept { return len == 0; }
-        size_t max_size() const noexcept { return npos / sizeof(T); }
-        size_t size() const noexcept { return len; }
-        void swap(SimpleBuffer& sb2) noexcept { std::swap(len, sb2.len); std::swap(ptr, sb2.ptr); std::swap(del, sb2.del); }
-        friend void swap(SimpleBuffer& sb1, SimpleBuffer& sb2) noexcept { sb1.swap(sb2); }
-        friend bool operator==(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept
-            { return lhs.len == rhs.len && memcmp(lhs.ptr, rhs.ptr, lhs.bytes()) == 0; }
-        friend bool operator!=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (lhs == rhs); }
-        friend bool operator<(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept {
-            auto rc = memcmp(lhs.ptr, rhs.ptr, std::min(lhs.bytes(), rhs.bytes()));
-            return rc == 0 ? lhs.len < rhs.len : rc < 0;
-        }
-        friend bool operator>(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return rhs < lhs; }
-        friend bool operator<=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (rhs < lhs); }
-        friend bool operator>=(const SimpleBuffer& lhs, const SimpleBuffer& rhs) noexcept { return ! (lhs < rhs); }
-    private:
-        #if ! defined(__GNUC__) || __GNUC__ >= 5
-            PRI_STATIC_ASSERT(std::is_trivially_copyable<T>::value);
-        #endif
-        size_t len = 0;
-        T* ptr = nullptr;
-        delete_function del = PrionDetail::DeleteArray();
-        void check_index(size_t i) const { if (i >= len) throw std::out_of_range("Buffer index out of range"); }
-        void abandon() noexcept { len = 0; ptr = nullptr; del = nullptr; }
-    };
-
-        template <typename T>
-        SimpleBuffer<T>& SimpleBuffer<T>::operator=(const SimpleBuffer<T>& sb) {
-            SimpleBuffer temp(sb);
-            swap(temp);
-            return *this;
-        }
-
-        template <typename T>
-        SimpleBuffer<T>& SimpleBuffer<T>::operator=(SimpleBuffer<T>&& sb) noexcept {
-            clear();
-            len = sb.len;
-            ptr = sb.ptr;
-            del = move(sb.del);
-            sb.abandon();
-            return *this;
-        }
-
-        template <typename T>
-        void SimpleBuffer<T>::assign(size_t n) {
-            if (n != len) {
-                T* temp = new T[n];
-                clear();
-                len = n;
-                ptr = temp;
-            }
-        }
-
     template <typename T>
     class Stacklike {
     public:
@@ -3312,6 +3209,86 @@ namespace Prion {
 
     // [Things that need to go at the end because of dependencies]
 
+    // Blob class
+
+    class Blob:
+    public LessThanComparable<Blob> {
+    public:
+        Blob() = default;
+        explicit Blob(size_t n) { init_size(n); }
+        Blob(size_t n, uint8_t x) { init_size(n); memset(ptr, x, len); }
+        Blob(void* p, size_t n): Blob(p, n, &std::free) {}
+        template <typename F> Blob(void* p, size_t n, F f) {
+            if (p && n) {
+                ptr = p;
+                len = n;
+                del = f;
+            }
+        }
+        ~Blob() noexcept { if (ptr && del) try { del(ptr); } catch (...) {} }
+        Blob(const Blob& b) { init_copy(b.data(), b.size()); }
+        Blob(Blob&& b) noexcept: ptr(b.ptr), len(b.len) { del.swap(b.del); }
+        Blob& operator=(const Blob& b) { copy(b.data(), b.size()); return *this; }
+        Blob& operator=(Blob&& b) noexcept { Blob b2(move(b)); swap(b2); return *this; }
+        void* data() noexcept { return ptr; }
+        const void* data() const noexcept { return ptr; }
+        uint8_t* bdata() noexcept { return static_cast<uint8_t*>(ptr); }
+        const uint8_t* bdata() const noexcept { return static_cast<const uint8_t*>(ptr); }
+        char* cdata() noexcept { return static_cast<char*>(ptr); }
+        const char* cdata() const noexcept { return static_cast<const char*>(ptr); }
+        Irange<uint8_t*> bytes() noexcept { return {bdata(), bdata() + len}; }
+        Irange<const uint8_t*> bytes() const noexcept { return {bdata(), bdata() + len}; }
+        Irange<char*> chars() noexcept { return {cdata(), cdata() + len}; }
+        Irange<const char*> chars() const noexcept { return {cdata(), cdata() + len}; }
+        void clear() noexcept { Blob b; swap(b); }
+        void copy(const void* p, size_t n) { Blob b; b.init_copy(p, n); swap(b); }
+        bool empty() const noexcept { return len == 0; }
+        void fill(uint8_t x) noexcept { memset(ptr, x, len); }
+        size_t hash() const noexcept { return hash_bytes(ptr, len); }
+        u8string hex(size_t block = 0) const { return hexdump(ptr, len, block); }
+        void reset(size_t n) { Blob b(n); swap(b); }
+        void reset(size_t n, uint8_t x) { Blob b(n, x); swap(b); }
+        void reset(void* p, size_t n) { Blob b(p, n); swap(b); }
+        template <typename F> void reset(void* p, size_t n, F f) { Blob b(p, n, f); swap(b); }
+        size_t size() const noexcept { return len; }
+        string str() const { return empty() ? string() : string(cdata(), len); }
+        void swap(Blob& b) noexcept {
+            std::swap(ptr, b.ptr);
+            std::swap(len, b.len);
+            del.swap(b.del);
+        }
+    private:
+        void* ptr = nullptr;
+        size_t len = 0;
+        function<void(void*)> del;
+        void init_copy(const void* p, size_t n) {
+            if (p && n) {
+                init_size(n);
+                memcpy(ptr, p, n);
+            }
+        }
+        void init_size(size_t n) {
+            if (n) {
+                ptr = std::malloc(n);
+                if (! ptr)
+                    throw std::bad_alloc();
+                len = n;
+                del = &std::free;
+            }
+        }
+    };
+
+    inline bool operator==(const Blob& lhs, const Blob& rhs) noexcept {
+        return lhs.size() == rhs.size() && memcmp(lhs.data(), rhs.data(), lhs.size()) == 0;
+    }
+
+    inline bool operator<(const Blob& lhs, const Blob& rhs) noexcept {
+        auto cmp = memcmp(lhs.data(), rhs.data(), std::min(lhs.size(), rhs.size()));
+        return cmp < 0 || (cmp == 0 && lhs.size() < rhs.size());
+    }
+
+    inline void swap(Blob& b1, Blob& b2) noexcept { b1.swap(b2); }
+
     // Logging
 
     namespace PrionDetail {
@@ -3560,4 +3537,5 @@ namespace Prion {
 
 }
 
+PRI_DEFINE_STD_HASH(Prion::Blob)
 PRI_DEFINE_STD_HASH(Prion::Uuid)
