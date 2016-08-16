@@ -1670,14 +1670,6 @@ namespace Prion {
 
     // Hash functions
 
-    namespace PrionDetail {
-
-        inline void mix_hash(size_t& h1, size_t h2) noexcept {
-            h1 ^= h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2);
-        }
-
-    }
-
     class Djb2a {
     public:
         Djb2a& operator()(const void* ptr, size_t n) noexcept {
@@ -1693,11 +1685,17 @@ namespace Prion {
         uint32_t hash = 5381;
     };
 
+    inline uint32_t djb2a(const void* ptr, size_t n) noexcept {
+        Djb2a d;
+        d(ptr, n);
+        return d;
+    }
+
     inline void hash_combine(size_t&) noexcept {}
 
     template <typename T>
     void hash_combine(size_t& hash, const T& t) noexcept {
-        PrionDetail::mix_hash(hash, std::hash<T>()(t));
+        hash ^= std::hash<T>()(t) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
     }
 
     template <typename T, typename... Args>
@@ -1711,21 +1709,6 @@ namespace Prion {
         size_t hash = 0;
         hash_combine(hash, args...);
         return hash;
-    }
-
-    inline size_t hash_bytes(const void* ptr, size_t n) {
-        #if defined(PRI_COMPILER_CLANG)
-            return std::__murmur2_or_cityhash<size_t>()(ptr, n);
-        #elif defined(PRI_COMPILER_GCC)
-            return std::_Hash_impl::hash(ptr, n);
-        #else
-            string s(static_cast<const char*>(ptr), n);
-            return std::hash<string>()(s);
-        #endif
-    }
-
-    inline void hash_bytes(size_t& hash, const void* ptr, size_t n) {
-        PrionDetail::mix_hash(hash, hash_bytes(ptr, n));
     }
 
     template <typename Range>
@@ -3244,7 +3227,7 @@ namespace Prion {
         void copy(const void* p, size_t n) { Blob b; b.init_copy(p, n); swap(b); }
         bool empty() const noexcept { return len == 0; }
         void fill(uint8_t x) noexcept { memset(ptr, x, len); }
-        size_t hash() const noexcept { return hash_bytes(ptr, len); }
+        size_t hash() const noexcept { return djb2a(ptr, len); }
         u8string hex(size_t block = 0) const { return hexdump(ptr, len, block); }
         void reset(size_t n) { Blob b(n); swap(b); }
         void reset(size_t n, uint8_t x) { Blob b(n, x); swap(b); }
@@ -3385,7 +3368,7 @@ namespace Prion {
         uint8_t* end() noexcept { return bytes + 16; }
         const uint8_t* end() const noexcept { return bytes + 16; }
         uint128_t as_integer() const noexcept { return whole; }
-        size_t hash() const noexcept { return hash_bytes(bytes, 16); }
+        size_t hash() const noexcept { return djb2a(bytes, 16); }
         u8string str() const;
         friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
         friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }

@@ -1060,11 +1060,10 @@ Trivial function objects.
     * `Djb2a&` **`Djb2a`**`::operator()(const void* ptr, size_t n) noexcept`
     * `Djb2a&` **`Djb2a`**`::operator()(const string& s) noexcept`
     * `Djb2a::`**`operator uint32_t`**`() const noexcept`
+* `uint32_t` **`djb2a`**`(const void* ptr, size_t n) noexcept`
 
 A simple, efficient hash algorithm for a string of bytes.
 
-* `size_t` **`hash_bytes`**`(const void* ptr, size_t n)`
-* `void` **`hash_bytes`**`(size_t& hash, const void* ptr, size_t n)`
 * `template <typename... Args> size_t` **`hash_value`**`(const Args&... args) noexcept`
 * `template <typename... Args> void` **`hash_combine`**`(size_t& hash, const Args&... args) noexcept`
 * `template <typename Range> size_t` **`hash_range`**`(const Range& range) noexcept`
@@ -1076,8 +1075,7 @@ compound types. The first version of each pair of functions (`hash_value()`
 and `hash_combine()` have different names to avoid overload resolution
 problems) calculates the hash of the supplied data; the second version takes
 an existing hash value and mixes it with additional data. All of these call
-`std::hash` for the element type (`hash_bytes()` calls `hash<string>`, or its
-underlying hash function if possible; calling it with a null pointer is safe).
+the element type's `std::hash`.
 
 * `template <typename... Args> struct` **`TupleHash`**
     * `size_t` **`operator()`**`(const tuple<Args...>& t) const`
