@@ -793,6 +793,13 @@ These simply call the function `n` times. The `do_n()` loop expects a function
 that takes no arguments, while `for_n()` passes the iteration count (zero to
 `n-1`) as an argument.
 
+* `template <typename M, typename K> M::mapped_type` **`find_in_map`**`(const M& map, const K& key)`
+* `template <typename M, typename K, typename T> M::mapped_type` **`find_in_map`**`(const M& map, const K& key, const T& def)`
+
+Find a key in a map, returning the corresponding value, or the supplied
+default value (or a default constructed `mapped_type`) if the key is not
+found.
+
 * `template <typename Range1, typename Range2> bool` **`sets_intersect`**`(const Range1& r1, const Range2& r2)`
 * `template <typename Range1, typename Range2, typename Compare> bool` **`sets_intersect`**`(const Range1& r1, const Range2& r2, Compare c)`
 

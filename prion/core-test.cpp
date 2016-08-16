@@ -988,6 +988,22 @@ namespace {
         s1.clear();  TRY(for_n(2, f2));  TEST_EQUAL(s1, "0;1;");
         s1.clear();  TRY(for_n(3, f2));  TEST_EQUAL(s1, "0;1;2;");
 
+        std::map<int, u8string> m = {
+            {1, "alpha"},
+            {2, "bravo"},
+            {3, "charlie"},
+        };
+        u8string s;
+
+        TRY(s = find_in_map(m, 1));          TEST_EQUAL(s, "alpha");
+        TRY(s = find_in_map(m, 2));          TEST_EQUAL(s, "bravo");
+        TRY(s = find_in_map(m, 3));          TEST_EQUAL(s, "charlie");
+        TRY(s = find_in_map(m, 4));          TEST_EQUAL(s, "");
+        TRY(s = find_in_map(m, 1, "none"));  TEST_EQUAL(s, "alpha");
+        TRY(s = find_in_map(m, 2, "none"));  TEST_EQUAL(s, "bravo");
+        TRY(s = find_in_map(m, 3, "none"));  TEST_EQUAL(s, "charlie");
+        TRY(s = find_in_map(m, 4, "none"));  TEST_EQUAL(s, "none");
+
         std::set<int> is1, is2;
         TEST(! sets_intersect(is1, is2));
         is1 = {1,2,3,4,5};

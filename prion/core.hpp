@@ -1134,6 +1134,21 @@ namespace Prion {
             f(i);
     }
 
+    template <typename M, typename K, typename T>
+    typename M::mapped_type find_in_map(const M& map, const K& key, const T& def) {
+        auto i = map.find(key);
+        if (i == map.end())
+            return def;
+        else
+            return i->second;
+    }
+
+    template <typename M, typename K>
+    typename M::mapped_type find_in_map(const M& map, const K& key) {
+        typename M::mapped_type t{};
+        return find_in_map(map, key, t);
+    }
+
     template <typename Range1, typename Range2, typename Compare>
     bool sets_intersect(const Range1& r1, const Range2& r2, Compare c) {
         using std::begin;
