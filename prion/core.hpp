@@ -2461,6 +2461,8 @@ namespace Prion {
             }
         }
         result.pop_back();
+        if (block)
+            result += '\n';
         return result;
     }
 
