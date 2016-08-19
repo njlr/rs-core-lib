@@ -55,6 +55,11 @@ A simple assertion macro for quick and dirty debugging. If the expression
 exception, with a message containing the text of the expression and the source
 code location.
 
+* `#define` **`PRI_BITMASK_OPERATORS`**`(EC)`
+
+Defines bit manipulation and related operators for an `enum class` (unary `!`,
+`~`; binary `&`, `&=`, `|`, `|=`, `^`, `^=`).
+
 * `#define` **`PRI_CHAR`**`(C, T)`
 * `#define` **`PRI_CSTR`**`(S, T)`
 

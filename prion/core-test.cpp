@@ -55,6 +55,14 @@ namespace {
     PRI_ENUM(Foo, 1, alpha, bravo, charlie)
     PRI_ENUM_CLASS(Bar, 1, alpha, bravo, charlie)
 
+    enum class Zap: uint32_t {
+        alpha = 1,
+        bravo = 2,
+        charlie = 4,
+    };
+
+    PRI_BITMASK_OPERATORS(Zap)
+
     void check_preprocessor_macros() {
 
         int n = 42;
@@ -124,6 +132,26 @@ namespace {
         TRY(vb = enum_values<Bar>());
         TEST_EQUAL(vb.size(), 3);
         TEST_EQUAL(to_str(vb), "[Bar::alpha,Bar::bravo,Bar::charlie]");
+
+        Zap x = Zap::alpha, y = Zap::bravo, z = Zap(0);
+
+        TEST(x);    TEST(bool(x));
+        TEST(y);    TEST(bool(y));
+        TEST(! z);  TEST(! bool(z));
+
+        TRY(z = ~ x);             TEST_EQUAL(uint32_t(z), 0xfffffffe);
+        TRY(z = ~ y);             TEST_EQUAL(uint32_t(z), 0xfffffffd);
+        TRY(z = ~ Zap(0));        TEST_EQUAL(uint32_t(z), 0xffffffff);
+        TRY(z = x & y);           TEST_EQUAL(uint32_t(z), 0);
+        TRY(z = x | y);           TEST_EQUAL(uint32_t(z), 3);
+        TRY(z = x ^ y);           TEST_EQUAL(uint32_t(z), 3);
+        TRY(z = x); TRY(z &= y);  TEST_EQUAL(uint32_t(z), 0);
+        TRY(z = x); TRY(z |= y);  TEST_EQUAL(uint32_t(z), 3);
+        TRY(z = x); TRY(z ^= y);  TEST_EQUAL(uint32_t(z), 3);
+
+        TEST(Zap::alpha == Zap::alpha);   TEST(Zap::alpha < Zap::bravo);    TEST(Zap::alpha < Zap::charlie);
+        TEST(Zap::bravo > Zap::alpha);    TEST(Zap::bravo == Zap::bravo);   TEST(Zap::bravo < Zap::charlie);
+        TEST(Zap::charlie > Zap::alpha);  TEST(Zap::charlie > Zap::bravo);  TEST(Zap::charlie == Zap::charlie);
 
     }
 
