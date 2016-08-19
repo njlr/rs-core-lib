@@ -3038,6 +3038,11 @@ namespace Prion {
         PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(duration<double>(t)));
     }
 
+    template <typename C, typename D>
+    void sleep_until(std::chrono::time_point<C, D> t) noexcept {
+        sleep_for(t - C::now());
+    }
+
     // Time and date formatting
 
     namespace PrionDetail {
