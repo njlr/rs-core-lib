@@ -887,15 +887,15 @@ namespace Prion {
 
     // Mathematical constants
 
-    PRI_DEFINE_CONSTANT(e,         2.71828182845904523536028747135266249775724709369996);
-    PRI_DEFINE_CONSTANT(ln_2,      0.69314718055994530941723212145817656807550013436026);
-    PRI_DEFINE_CONSTANT(ln_10,     2.30258509299404568401799145468436420760110148862877);
-    PRI_DEFINE_CONSTANT(pi,        3.14159265358979323846264338327950288419716939937511);
-    PRI_DEFINE_CONSTANT(sqrt_2,    1.41421356237309504880168872420969807856967187537695);
-    PRI_DEFINE_CONSTANT(sqrt_3,    1.73205080756887729352744634150587236694280525381038);
-    PRI_DEFINE_CONSTANT(sqrt_5,    2.23606797749978969640917366873127623544061835961153);
-    PRI_DEFINE_CONSTANT(sqrt_pi,   1.77245385090551602729816748334114518279754945612239);
-    PRI_DEFINE_CONSTANT(sqrt_2pi,  2.50662827463100050241576528481104525300698674060994);
+    PRI_DEFINE_CONSTANT(e,         2.71828'18284'59045'23536'02874'71352'66249'77572'47093'69996);
+    PRI_DEFINE_CONSTANT(ln_2,      0.69314'71805'59945'30941'72321'21458'17656'80755'00134'36026);
+    PRI_DEFINE_CONSTANT(ln_10,     2.30258'50929'94045'68401'79914'54684'36420'76011'01488'62877);
+    PRI_DEFINE_CONSTANT(pi,        3.14159'26535'89793'23846'26433'83279'50288'41971'69399'37511);
+    PRI_DEFINE_CONSTANT(sqrt_2,    1.41421'35623'73095'04880'16887'24209'69807'85696'71875'37695);
+    PRI_DEFINE_CONSTANT(sqrt_3,    1.73205'08075'68877'29352'74463'41505'87236'69428'05253'81038);
+    PRI_DEFINE_CONSTANT(sqrt_5,    2.23606'79774'99789'69640'91736'68731'27623'54406'18359'61153);
+    PRI_DEFINE_CONSTANT(sqrt_pi,   1.77245'38509'05516'02729'81674'83341'14518'27975'49456'12239);
+    PRI_DEFINE_CONSTANT(sqrt_2pi,  2.50662'82746'31000'50241'57652'84811'04525'30069'86740'60994);
 
     // Conversion factors
 
@@ -944,23 +944,27 @@ namespace Prion {
     PRI_DEFINE_CONSTANT(astronomical_unit,  1.49597870700e11);    // m
     PRI_DEFINE_CONSTANT(light_year,         9.4607304725808e15);  // m
     PRI_DEFINE_CONSTANT(parsec,             3.08567758149e16);    // m
-    PRI_DEFINE_CONSTANT(julian_day,         86400.0);             // s
-    PRI_DEFINE_CONSTANT(julian_year,        31557600.0);          // s
-    PRI_DEFINE_CONSTANT(sidereal_year,      31558149.7635);       // s
-    PRI_DEFINE_CONSTANT(tropical_year,      31556925.19);         // s
+    PRI_DEFINE_CONSTANT(julian_day,         86'400.0);            // s
+    PRI_DEFINE_CONSTANT(julian_year,        31'557'600.0);        // s
+    PRI_DEFINE_CONSTANT(sidereal_year,      31'558'149.7635);     // s
+    PRI_DEFINE_CONSTANT(tropical_year,      31'556'925.19);       // s
 
     // Arithmetic literals
 
     namespace PrionDetail {
 
-        template <typename T, char C> constexpr T digit_value() noexcept
-            { return T(C >= 'A' && C <= 'Z' ? C - 'A' + 10 : C >= 'a' && C <= 'z' ? C - 'a' + 10 : C - '0'); }
+        template <typename T, char C> constexpr T digit_value() noexcept {
+            return T(C >= '0' && C <= '9' ? C - '0'
+                : C >= 'A' && C <= 'Z' ? C - 'A' + 10
+                : C >= 'a' && C <= 'z' ? C - 'a' + 10 : -1);
+        }
 
         template <typename T, int Base, char C, char... CS>
         struct BaseInteger {
             using prev_type = BaseInteger<T, Base, CS...>;
-            static constexpr T scale = T(Base) * prev_type::scale;
-            static constexpr T value = digit_value<T, C>() * scale + prev_type::value;
+            static constexpr T digit = digit_value<T, C>();
+            static constexpr T scale = prev_type::scale * (digit == T(-1) ? T(1) : T(Base));
+            static constexpr T value = prev_type::value + (digit == T(-1) ? T(0) : digit * scale);
         };
 
         template <typename T, int Base, char C>
@@ -996,13 +1000,13 @@ namespace Prion {
             { return PrionDetail::MakeInteger<size_t, CS...>::value; }
 
         constexpr unsigned long long operator""_k(unsigned long long n) noexcept { return 1000ull * n; }
-        constexpr unsigned long long operator""_M(unsigned long long n) noexcept { return 1000000ull * n; }
-        constexpr unsigned long long operator""_G(unsigned long long n) noexcept { return 1000000000ull * n; }
-        constexpr unsigned long long operator""_T(unsigned long long n) noexcept { return 1000000000000ull * n; }
+        constexpr unsigned long long operator""_M(unsigned long long n) noexcept { return 1'000'000ull * n; }
+        constexpr unsigned long long operator""_G(unsigned long long n) noexcept { return 1'000'000'000ull * n; }
+        constexpr unsigned long long operator""_T(unsigned long long n) noexcept { return 1'000'000'000'000ull * n; }
         constexpr unsigned long long operator""_kb(unsigned long long n) noexcept { return 1024ull * n; }
-        constexpr unsigned long long operator""_MB(unsigned long long n) noexcept { return 1048576ull * n; }
-        constexpr unsigned long long operator""_GB(unsigned long long n) noexcept { return 1073741824ull * n; }
-        constexpr unsigned long long operator""_TB(unsigned long long n) noexcept { return 1099511627776ull * n; }
+        constexpr unsigned long long operator""_MB(unsigned long long n) noexcept { return 1'048'576ull * n; }
+        constexpr unsigned long long operator""_GB(unsigned long long n) noexcept { return 1'073'741'824ull * n; }
+        constexpr unsigned long long operator""_TB(unsigned long long n) noexcept { return 1'099'511'627'776ull * n; }
 
         constexpr long double operator""_y(long double x) noexcept { return 1e-24 * x; }
         constexpr long double operator""_z(long double x) noexcept { return 1e-21 * x; }
@@ -3052,8 +3056,8 @@ namespace Prion {
             if (sec < 0 || frac < 0)
                 result += '-';
             sec = std::abs(sec);
-            int y = sec / 31557600;
-            sec -= 31557600 * y;
+            int y = sec / 31'557'600;
+            sec -= 31'557'600 * y;
             int d = sec / 86400;
             sec -= 86400 * d;
             int h = sec / 3600;
@@ -3205,7 +3209,7 @@ namespace Prion {
             using namespace Prion::Literals;
             using namespace std::chrono;
             static constexpr int64_t filetime_freq = 10_M; // FILETIME ticks (100 ns) per second
-            static constexpr int64_t windows_epoch = 11644473600ll; // Windows epoch (1601) to Unix epoch (1970)
+            static constexpr int64_t windows_epoch = 11'644'473'600ll; // Windows epoch (1601) to Unix epoch (1970)
             int64_t ticks = (int64_t(ft.dwHighDateTime) << 32) + int64_t(ft.dwLowDateTime);
             int64_t sec = ticks / filetime_freq - windows_epoch;
             int64_t nsec = 100ll * (ticks % filetime_freq);

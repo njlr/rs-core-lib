@@ -771,14 +771,14 @@ namespace {
         TRY(i = 12345_s128);
         TEST_EQUAL(i, 12345_s128);
         TEST_EQUAL(dec(i), "12345");
-        TRY(i = 170141183460469231731687303715884105727_s128); // 2^127-1
-        TEST_EQUAL(i, 170141183460469231731687303715884105727_s128);
+        TRY(i = 170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // 2^127-1
+        TEST_EQUAL(i, 170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
         TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
-        TRY(i = -170141183460469231731687303715884105727_s128); // -(2^127-1)
-        TEST_EQUAL(i, -170141183460469231731687303715884105727_s128);
+        TRY(i = -170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // -(2^127-1)
+        TEST_EQUAL(i, -170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
         TEST_EQUAL(dec(i), "-170141183460469231731687303715884105727");
-        TRY(i = -170141183460469231731687303715884105728_s128); // -2^127
-        TEST_EQUAL(i, -170141183460469231731687303715884105728_s128);
+        TRY(i = -170'141'183'460'469'231'731'687'303'715'884'105'728_s128); // -2^127
+        TEST_EQUAL(i, -170'141'183'460'469'231'731'687'303'715'884'105'728_s128);
         TEST_EQUAL(dec(i), "-170141183460469231731687303715884105728");
 
         TRY(i = 0x0_s128);
@@ -798,8 +798,8 @@ namespace {
         TRY(u = 12345_u128);
         TEST_EQUAL(u, 12345_u128);
         TEST_EQUAL(dec(u), "12345");
-        TRY(u = 340282366920938463463374607431768211455_u128); // 2^128-1
-        TEST_EQUAL(u, 340282366920938463463374607431768211455_u128);
+        TRY(u = 340'282'366'920'938'463'463'374'607'431'768'211'455_u128); // 2^128-1
+        TEST_EQUAL(u, 340'282'366'920'938'463'463'374'607'431'768'211'455_u128);
         TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
 
         TRY(u = 0x0_u128);
@@ -844,14 +844,14 @@ namespace {
 
             TRY(t = 0_t);
             TEST_EQUAL(hex(t), "0000000000000000");
-            TRY(t = 9223372036854775807_t); // 2^63-1
-            TEST_EQUAL(t, 9223372036854775807_t);
+            TRY(t = 9'223'372'036'854'775'807_t); // 2^63-1
+            TEST_EQUAL(t, 9'223'372'036'854'775'807_t);
             TEST_EQUAL(dec(t), "9223372036854775807");
-            TRY(t = -9223372036854775807_t); // -(2^63-1)
-            TEST_EQUAL(t, -9223372036854775807_t);
+            TRY(t = -9'223'372'036'854'775'807_t); // -(2^63-1)
+            TEST_EQUAL(t, -9'223'372'036'854'775'807_t);
             TEST_EQUAL(dec(t), "-9223372036854775807");
-            TRY(t = -9223372036854775808_t); // -2^63
-            TEST_EQUAL(t, -9223372036854775808_t);
+            TRY(t = -9'223'372'036'854'775'808_t); // -2^63
+            TEST_EQUAL(t, -9'223'372'036'854'775'808_t);
             TEST_EQUAL(dec(t), "-9223372036854775808");
             TRY(t = 0x7fffffffffffffff_t);
             TEST_EQUAL(hex(t), "7fffffffffffffff");
@@ -859,8 +859,8 @@ namespace {
 
             TRY(z = 0_z);
             TEST_EQUAL(hex(z), "0000000000000000");
-            TRY(z = 18446744073709551615_z); // 2^64-1
-            TEST_EQUAL(z, 18446744073709551615_z);
+            TRY(z = 18'446'744'073'709'551'615_z); // 2^64-1
+            TEST_EQUAL(z, 18'446'744'073'709'551'615_z);
             TEST_EQUAL(dec(z), "18446744073709551615");
             TRY(z = 0xffffffffffffffff_z);
             TEST_EQUAL(hex(z), "ffffffffffffffff");
@@ -870,14 +870,14 @@ namespace {
 
             TRY(t = 0_t);
             TEST_EQUAL(hex(t), "00000000");
-            TRY(t = 2147483647_t); // 2^31-1
-            TEST_EQUAL(t, 2147483647_t);
+            TRY(t = 2'147'483'647_t); // 2^31-1
+            TEST_EQUAL(t, 2'147'483'647_t);
             TEST_EQUAL(dec(t), "2147483647");
-            TRY(t = -2147483647_t); // -(2^31-1)
-            TEST_EQUAL(t, -2147483647_t);
+            TRY(t = -2'147'483'647_t); // -(2^31-1)
+            TEST_EQUAL(t, -2'147'483'647_t);
             TEST_EQUAL(dec(t), "-2147483647");
-            TRY(t = -2147483648_t); // -2^31
-            TEST_EQUAL(t, -2147483648_t);
+            TRY(t = -2'147'483'648_t); // -2^31
+            TEST_EQUAL(t, -2'147'483'648_t);
             TEST_EQUAL(dec(t), "-2147483648");
             TRY(t = 0x7fffffff_t);
             TEST_EQUAL(hex(t), "7fffffff");
@@ -885,8 +885,8 @@ namespace {
 
             TRY(z = 0_z);
             TEST_EQUAL(hex(z), "00000000");
-            TRY(z = 4294967295_z); // 2^32-1
-            TEST_EQUAL(z, 4294967295_z);
+            TRY(z = 4'294'967'295_z); // 2^32-1
+            TEST_EQUAL(z, 4'294'967'295_z);
             TEST_EQUAL(dec(z), "4294967295");
             TRY(z = 0xffffffff_z);
             TEST_EQUAL(hex(z), "ffffffff");
@@ -894,14 +894,14 @@ namespace {
 
         }
 
-        TEST_EQUAL(42_k, 42000ull);
-        TEST_EQUAL(42_M, 42000000ull);
-        TEST_EQUAL(42_G, 42000000000ull);
-        TEST_EQUAL(42_T, 42000000000000ull);
-        TEST_EQUAL(42_kb, 43008ull);
-        TEST_EQUAL(42_MB, 44040192ull);
-        TEST_EQUAL(42_GB, 45097156608ull);
-        TEST_EQUAL(42_TB, 46179488366592ull);
+        TEST_EQUAL(42_k, 42'000ull);
+        TEST_EQUAL(42_M, 42'000'000ull);
+        TEST_EQUAL(42_G, 42'000'000'000ull);
+        TEST_EQUAL(42_T, 42'000'000'000'000ull);
+        TEST_EQUAL(42_kb, 43'008ull);
+        TEST_EQUAL(42_MB, 44'040'192ull);
+        TEST_EQUAL(42_GB, 45'097'156'608ull);
+        TEST_EQUAL(42_TB, 46'179'488'366'592ull);
 
         TEST_NEAR_EPSILON(1.2345_y, 1.2345e-24, 1e-30);
         TEST_NEAR_EPSILON(1.2345_z, 1.2345e-21, 1e-27);
@@ -1473,11 +1473,11 @@ namespace {
         TEST_EQUAL(as_unsigned(u16), 42);
         TEST_EQUAL(as_signed(s32), -42);
         TEST_EQUAL(as_signed(u32), 42);
-        TEST_EQUAL(as_unsigned(s32), 4294967254ul);
+        TEST_EQUAL(as_unsigned(s32), 4'294'967'254ul);
         TEST_EQUAL(as_unsigned(u32), 42);
         TEST_EQUAL(as_signed(s64), -42);
         TEST_EQUAL(as_signed(u64), 42);
-        TEST_EQUAL(as_unsigned(s64), 18446744073709551574ull);
+        TEST_EQUAL(as_unsigned(s64), 18'446'744'073'709'551'574ull);
         TEST_EQUAL(as_unsigned(u64), 42);
         TEST_EQUAL(to_str(as_signed(s128)), "-42");
         TEST_EQUAL(to_str(as_signed(u128)), "42");
@@ -3225,14 +3225,14 @@ namespace {
         TEST_EQUAL(decnum("0042"), 42);
         TEST_EQUAL(decnum("+42"), 42);
         TEST_EQUAL(decnum("-42"), -42);
-        TEST_EQUAL(decnum("9223372036854775806"), 9223372036854775806ll); // 2^63-2
-        TEST_EQUAL(decnum("9223372036854775807"), 9223372036854775807ll); // 2^63-1
-        TEST_EQUAL(decnum("9223372036854775808"), 9223372036854775807ll); // 2^63
-        TEST_EQUAL(decnum("9223372036854775809"), 9223372036854775807ll); // 2^63+1
-        TEST_EQUAL(decnum("-9223372036854775806"), -9223372036854775806ll); // -(2^63-2)
-        TEST_EQUAL(decnum("-9223372036854775807"), -9223372036854775807ll); // -(2^63-1)
-        TEST_EQUAL(decnum("-9223372036854775808"), -9223372036854775807ll-1); // -2^63
-        TEST_EQUAL(decnum("-9223372036854775809"), -9223372036854775807ll-1); // -(2^63+1)
+        TEST_EQUAL(decnum("9223372036854775806"), 9'223'372'036'854'775'806ll); // 2^63-2
+        TEST_EQUAL(decnum("9223372036854775807"), 9'223'372'036'854'775'807ll); // 2^63-1
+        TEST_EQUAL(decnum("9223372036854775808"), 9'223'372'036'854'775'807ll); // 2^63
+        TEST_EQUAL(decnum("9223372036854775809"), 9'223'372'036'854'775'807ll); // 2^63+1
+        TEST_EQUAL(decnum("-9223372036854775806"), -9'223'372'036'854'775'806ll); // -(2^63-2)
+        TEST_EQUAL(decnum("-9223372036854775807"), -9'223'372'036'854'775'807ll); // -(2^63-1)
+        TEST_EQUAL(decnum("-9223372036854775808"), -9'223'372'036'854'775'807ll-1); // -2^63
+        TEST_EQUAL(decnum("-9223372036854775809"), -9'223'372'036'854'775'807ll-1); // -(2^63+1)
 
         TEST_EQUAL(hexnum(""), 0);
         TEST_EQUAL(hexnum("0"), 0);
@@ -3282,21 +3282,21 @@ namespace {
         TEST_EQUAL(si_to_int("42"), 42);
         TEST_EQUAL(si_to_int("-42"), -42);
         TEST_EQUAL(si_to_int("0k"), 0);
-        TEST_EQUAL(si_to_int("123k"), 123000);
-        TEST_EQUAL(si_to_int("123K"), 123000);
-        TEST_EQUAL(si_to_int("123 k"), 123000);
-        TEST_EQUAL(si_to_int("123 K"), 123000);
-        TEST_EQUAL(si_to_int("123 M"), 123000000ll);
-        TEST_EQUAL(si_to_int("123 G"), 123000000000ll);
-        TEST_EQUAL(si_to_int("123 T"), 123000000000000ll);
-        TEST_EQUAL(si_to_int("123 P"), 123000000000000000ll);
+        TEST_EQUAL(si_to_int("123k"), 123'000);
+        TEST_EQUAL(si_to_int("123K"), 123'000);
+        TEST_EQUAL(si_to_int("123 k"), 123'000);
+        TEST_EQUAL(si_to_int("123 K"), 123'000);
+        TEST_EQUAL(si_to_int("123 M"), 123'000'000ll);
+        TEST_EQUAL(si_to_int("123 G"), 123'000'000'000ll);
+        TEST_EQUAL(si_to_int("123 T"), 123'000'000'000'000ll);
+        TEST_EQUAL(si_to_int("123 P"), 123'000'000'000'000'000ll);
         TEST_THROW(si_to_int("123 E"), std::range_error);
         TEST_THROW(si_to_int("123 Z"), std::range_error);
         TEST_THROW(si_to_int("123 Y"), std::range_error);
-        TEST_EQUAL(si_to_int("-123k"), -123000);
-        TEST_EQUAL(si_to_int("-123K"), -123000);
-        TEST_EQUAL(si_to_int("-123 k"), -123000);
-        TEST_EQUAL(si_to_int("-123 K"), -123000);
+        TEST_EQUAL(si_to_int("-123k"), -123'000);
+        TEST_EQUAL(si_to_int("-123K"), -123'000);
+        TEST_EQUAL(si_to_int("-123 k"), -123'000);
+        TEST_EQUAL(si_to_int("-123 K"), -123'000);
         TEST_THROW(si_to_int(""), std::invalid_argument);
         TEST_THROW(si_to_int("k9"), std::invalid_argument);
 
@@ -3566,7 +3566,7 @@ namespace {
         TRY(from_seconds(7200.0, h));   TEST_EQUAL(h.count(), 2);
         TRY(from_seconds(7200.0, m));   TEST_EQUAL(m.count(), 120);
         TRY(from_seconds(7200.0, s));   TEST_EQUAL(s.count(), 7200);
-        TRY(from_seconds(7200.0, ms));  TEST_EQUAL(ms.count(), 7200000);
+        TRY(from_seconds(7200.0, ms));  TEST_EQUAL(ms.count(), 7'200'000);
 
         TEST_EQUAL(to_seconds(hours(10)), 36000);
         TEST_EQUAL(to_seconds(minutes(10)), 600);
@@ -3578,7 +3578,7 @@ namespace {
         TEST_EQUAL(t1, 0);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5));
         TRY(t1 = int64_t(system_clock::to_time_t(tp)));
-        TEST_EQUAL(t1, 946782245);
+        TEST_EQUAL(t1, 946'782'245);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5, Zone::local));
         TRY(t2 = int64_t(system_clock::to_time_t(tp)));
         TEST_COMPARE(abs(t2 - t1), <=, 86400);
@@ -3677,68 +3677,68 @@ namespace {
         timespec ts;
         timeval tv;
 
-        ts = {0, 0};              TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 0);
-        ts = {0, 0};              TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 0);
-        ts = {0, 0};              TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 0);
-        ts = {0, 0};              TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 0);
-        ts = {0, 125000000};      TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 0.125);
-        ts = {0, 125000000};      TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 0);
-        ts = {0, 125000000};      TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 125);
-        ts = {0, 125000000};      TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 0);
-        ts = {86400, 0};          TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 86400);
-        ts = {86400, 0};          TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 1);
-        ts = {86400, 0};          TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 86400000);
-        ts = {86400, 0};          TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 86400);
-        ts = {86400, 125000000};  TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 86400.125);
-        ts = {86400, 125000000};  TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 1);
-        ts = {86400, 125000000};  TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 86400125);
-        ts = {86400, 125000000};  TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 86400);
-        tv = {0, 0};              TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 0);
-        tv = {0, 0};              TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 0);
-        tv = {0, 0};              TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 0);
-        tv = {0, 0};              TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 0);
-        tv = {0, 125000};         TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 0.125);
-        tv = {0, 125000};         TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 0);
-        tv = {0, 125000};         TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 125);
-        tv = {0, 125000};         TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 0);
-        tv = {86400, 0};          TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 86400);
-        tv = {86400, 0};          TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 1);
-        tv = {86400, 0};          TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 86400000);
-        tv = {86400, 0};          TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 86400);
-        tv = {86400, 125000};     TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 86400.125);
-        tv = {86400, 125000};     TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 1);
-        tv = {86400, 125000};     TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 86400125);
-        tv = {86400, 125000};     TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 86400);
+        ts = {0, 0};                 TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 0);
+        ts = {0, 0};                 TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 0);
+        ts = {0, 0};                 TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 0);
+        ts = {0, 0};                 TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 0);
+        ts = {0, 125'000'000};       TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 0.125);
+        ts = {0, 125'000'000};       TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 0);
+        ts = {0, 125'000'000};       TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 125);
+        ts = {0, 125'000'000};       TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 0);
+        ts = {86'400, 0};            TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 86'400);
+        ts = {86'400, 0};            TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 1);
+        ts = {86'400, 0};            TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 86'400'000);
+        ts = {86'400, 0};            TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 86'400);
+        ts = {86'400, 125'000'000};  TRY(timespec_to_duration(ts, fs));   TEST_EQUAL(fs.count(), 86'400.125);
+        ts = {86'400, 125'000'000};  TRY(timespec_to_duration(ts, id));   TEST_EQUAL(id.count(), 1);
+        ts = {86'400, 125'000'000};  TRY(timespec_to_duration(ts, ims));  TEST_EQUAL(ims.count(), 86'400'125);
+        ts = {86'400, 125'000'000};  TRY(timespec_to_duration(ts, is));   TEST_EQUAL(is.count(), 86'400);
+        tv = {0, 0};                 TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 0);
+        tv = {0, 0};                 TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 0);
+        tv = {0, 0};                 TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 0);
+        tv = {0, 0};                 TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 0);
+        tv = {0, 125'000};           TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 0.125);
+        tv = {0, 125'000};           TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 0);
+        tv = {0, 125'000};           TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 125);
+        tv = {0, 125'000};           TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 0);
+        tv = {86'400, 0};            TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 86'400);
+        tv = {86'400, 0};            TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 1);
+        tv = {86'400, 0};            TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 86'400'000);
+        tv = {86'400, 0};            TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 86'400);
+        tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, fs));    TEST_EQUAL(fs.count(), 86'400.125);
+        tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, id));    TEST_EQUAL(id.count(), 1);
+        tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 86'400'125);
+        tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 86'400);
 
-        fs = DblSec(0);           TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);      TEST_EQUAL(ts.tv_nsec, 0);
-        id = IntDays(0);          TRY(ts = duration_to_timespec(id));   TEST_EQUAL(ts.tv_sec, 0);      TEST_EQUAL(ts.tv_nsec, 0);
-        ims = IntMsec(0);         TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 0);      TEST_EQUAL(ts.tv_nsec, 0);
-        is = IntSec(0);           TRY(ts = duration_to_timespec(is));   TEST_EQUAL(ts.tv_sec, 0);      TEST_EQUAL(ts.tv_nsec, 0);
-        fs = DblSec(0.125);       TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);      TEST_EQUAL(ts.tv_nsec, 125000000);
-        ims = IntMsec(125);       TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 0);      TEST_EQUAL(ts.tv_nsec, 125000000);
-        fs = DblSec(86400);       TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86400);  TEST_EQUAL(ts.tv_nsec, 0);
-        id = IntDays(1);          TRY(ts = duration_to_timespec(id));   TEST_EQUAL(ts.tv_sec, 86400);  TEST_EQUAL(ts.tv_nsec, 0);
-        ims = IntMsec(86400000);  TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 86400);  TEST_EQUAL(ts.tv_nsec, 0);
-        is = IntSec(86400);       TRY(ts = duration_to_timespec(is));   TEST_EQUAL(ts.tv_sec, 86400);  TEST_EQUAL(ts.tv_nsec, 0);
-        fs = DblSec(86400.125);   TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86400);  TEST_EQUAL(ts.tv_nsec, 125000000);
-        ims = IntMsec(86400125);  TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 86400);  TEST_EQUAL(ts.tv_nsec, 125000000);
-        fs = DblSec(0);           TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);      TEST_EQUAL(tv.tv_usec, 0);
-        id = IntDays(0);          TRY(tv = duration_to_timeval(id));    TEST_EQUAL(tv.tv_sec, 0);      TEST_EQUAL(tv.tv_usec, 0);
-        ims = IntMsec(0);         TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 0);      TEST_EQUAL(tv.tv_usec, 0);
-        is = IntSec(0);           TRY(tv = duration_to_timeval(is));    TEST_EQUAL(tv.tv_sec, 0);      TEST_EQUAL(tv.tv_usec, 0);
-        fs = DblSec(0.125);       TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);      TEST_EQUAL(tv.tv_usec, 125000);
-        ims = IntMsec(125);       TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 0);      TEST_EQUAL(tv.tv_usec, 125000);
-        fs = DblSec(86400);       TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86400);  TEST_EQUAL(tv.tv_usec, 0);
-        id = IntDays(1);          TRY(tv = duration_to_timeval(id));    TEST_EQUAL(tv.tv_sec, 86400);  TEST_EQUAL(tv.tv_usec, 0);
-        ims = IntMsec(86400000);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86400);  TEST_EQUAL(tv.tv_usec, 0);
-        is = IntSec(86400);       TRY(tv = duration_to_timeval(is));    TEST_EQUAL(tv.tv_sec, 86400);  TEST_EQUAL(tv.tv_usec, 0);
-        fs = DblSec(86400.125);   TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86400);  TEST_EQUAL(tv.tv_usec, 125000);
-        ims = IntMsec(86400125);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86400);  TEST_EQUAL(tv.tv_usec, 125000);
+        fs = DblSec(0);             TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+        id = IntDays(0);            TRY(ts = duration_to_timespec(id));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+        ims = IntMsec(0);           TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+        is = IntSec(0);             TRY(ts = duration_to_timespec(is));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+        fs = DblSec(0.125);         TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
+        ims = IntMsec(125);         TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
+        fs = DblSec(86'400);        TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+        id = IntDays(1);            TRY(ts = duration_to_timespec(id));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+        ims = IntMsec(86'400'000);  TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+        is = IntSec(86'400);        TRY(ts = duration_to_timespec(is));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+        fs = DblSec(86'400.125);    TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
+        ims = IntMsec(86'400'125);  TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
+        fs = DblSec(0);             TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+        id = IntDays(0);            TRY(tv = duration_to_timeval(id));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+        ims = IntMsec(0);           TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+        is = IntSec(0);             TRY(tv = duration_to_timeval(is));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+        fs = DblSec(0.125);         TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
+        ims = IntMsec(125);         TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
+        fs = DblSec(86'400);        TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+        id = IntDays(1);            TRY(tv = duration_to_timeval(id));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+        ims = IntMsec(86'400'000);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+        is = IntSec(86'400);        TRY(tv = duration_to_timeval(is));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+        fs = DblSec(86'400.125);    TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
+        ims = IntMsec(86'400'125);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
 
         #if defined(PRI_TARGET_WIN32)
 
-            static constexpr int64_t epoch = 11644473600ll;
-            static constexpr int64_t freq = 10000000ll;
+            static constexpr int64_t epoch = 11'644'473'600ll;
+            static constexpr int64_t freq = 10'000'000ll;
 
             int64_t n;
             FILETIME ft;
@@ -3751,21 +3751,21 @@ namespace {
             d = tp - system_clock::from_time_t(0);
             TEST_EQUAL(d.count(), 0);
 
-            n += 86400 * freq;
+            n += 86'400 * freq;
             ft = {uint32_t(n), uint32_t(n >> 32)};
             TRY(tp = filetime_to_timepoint(ft));
             d = tp - system_clock::from_time_t(0);
-            TEST_EQUAL(duration_cast<IntMsec>(d).count(), 86400000);
+            TEST_EQUAL(duration_cast<IntMsec>(d).count(), 86'400'000);
 
             tp = system_clock::from_time_t(0);
             TRY(ft = timepoint_to_filetime(tp));
             TEST_EQUAL(ft.dwHighDateTime, 0);
             TEST_EQUAL(ft.dwLowDateTime, 0);
 
-            tp = system_clock::from_time_t(86400);
+            tp = system_clock::from_time_t(86'400);
             TRY(ft = timepoint_to_filetime(tp));
             TEST_EQUAL(ft.dwHighDateTime, 201);
-            TEST_EQUAL(ft.dwLowDateTime, 711573504);
+            TEST_EQUAL(ft.dwLowDateTime, 711'573'504);
 
         #endif
 
