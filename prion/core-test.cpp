@@ -3533,6 +3533,25 @@ namespace {
 
     }
 
+    void check_time_and_date_types() {
+
+        auto ds = Dseconds(1.25);
+        auto ms = duration_cast<milliseconds>(ds);
+        TEST_EQUAL(ms.count(), 1250);
+
+        auto dd = Ddays(7);
+        auto s = duration_cast<seconds>(dd);
+        TEST_EQUAL(s.count(), 604800);
+
+        auto dy = Dyears(100);
+        s = duration_cast<seconds>(dy);
+        TEST_EQUAL(s.count(), 3155760000);
+
+        TEST(ReliableClock::is_steady);
+        TEST_COMPARE(ReliableClock::now().time_since_epoch().count(), >, 0);
+
+    }
+
     void check_general_time_and_date_operations() {
 
         hours h;
@@ -3566,8 +3585,6 @@ namespace {
 
     void check_time_and_date_formatting() {
 
-        using DblSec = duration<double>;
-
         system_clock::time_point tp;
         system_clock::duration d;
         u8string str;
@@ -3597,36 +3614,36 @@ namespace {
         TRY(str = format_date(tp, 0, Zone::local));
         TEST_EQUAL(str, "2000-01-02 03:04:05");
 
-        TEST_EQUAL(format_time(DblSec(0)), "0s");
-        TEST_EQUAL(format_time(DblSec(0), 3), "0.000s");
-        TEST_EQUAL(format_time(DblSec(0.25), 3), "0.250s");
-        TEST_EQUAL(format_time(DblSec(0.5), 3), "0.500s");
-        TEST_EQUAL(format_time(DblSec(0.75), 3), "0.750s");
-        TEST_EQUAL(format_time(DblSec(1), 3), "1.000s");
-        TEST_EQUAL(format_time(DblSec(1.25), 3), "1.250s");
-        TEST_EQUAL(format_time(DblSec(59.999), 3), "59.999s");
-        TEST_EQUAL(format_time(DblSec(60), 3), "1m00.000s");
-        TEST_EQUAL(format_time(DblSec(1234), 3), "20m34.000s");
-        TEST_EQUAL(format_time(DblSec(12345), 3), "3h25m45.000s");
-        TEST_EQUAL(format_time(DblSec(123456), 3), "1d10h17m36.000s");
-        TEST_EQUAL(format_time(DblSec(1234567), 3), "14d06h56m07.000s");
-        TEST_EQUAL(format_time(DblSec(12345678), 3), "142d21h21m18.000s");
-        TEST_EQUAL(format_time(DblSec(123456789), 3), "3y333d03h33m09.000s");
-        TEST_EQUAL(format_time(DblSec(1234567890), 3), "39y044d05h31m30.000s");
-        TEST_EQUAL(format_time(DblSec(-0.25), 3), "-0.250s");
-        TEST_EQUAL(format_time(DblSec(-0.5), 3), "-0.500s");
-        TEST_EQUAL(format_time(DblSec(-0.75), 3), "-0.750s");
-        TEST_EQUAL(format_time(DblSec(-1), 3), "-1.000s");
-        TEST_EQUAL(format_time(DblSec(-1.25), 3), "-1.250s");
-        TEST_EQUAL(format_time(DblSec(-59.999), 3), "-59.999s");
-        TEST_EQUAL(format_time(DblSec(-60), 3), "-1m00.000s");
-        TEST_EQUAL(format_time(DblSec(-1234), 3), "-20m34.000s");
-        TEST_EQUAL(format_time(DblSec(-12345), 3), "-3h25m45.000s");
-        TEST_EQUAL(format_time(DblSec(-123456), 3), "-1d10h17m36.000s");
-        TEST_EQUAL(format_time(DblSec(-1234567), 3), "-14d06h56m07.000s");
-        TEST_EQUAL(format_time(DblSec(-12345678), 3), "-142d21h21m18.000s");
-        TEST_EQUAL(format_time(DblSec(-123456789), 3), "-3y333d03h33m09.000s");
-        TEST_EQUAL(format_time(DblSec(-1234567890), 3), "-39y044d05h31m30.000s");
+        TEST_EQUAL(format_time(Dseconds(0)), "0s");
+        TEST_EQUAL(format_time(Dseconds(0), 3), "0.000s");
+        TEST_EQUAL(format_time(Dseconds(0.25), 3), "0.250s");
+        TEST_EQUAL(format_time(Dseconds(0.5), 3), "0.500s");
+        TEST_EQUAL(format_time(Dseconds(0.75), 3), "0.750s");
+        TEST_EQUAL(format_time(Dseconds(1), 3), "1.000s");
+        TEST_EQUAL(format_time(Dseconds(1.25), 3), "1.250s");
+        TEST_EQUAL(format_time(Dseconds(59.999), 3), "59.999s");
+        TEST_EQUAL(format_time(Dseconds(60), 3), "1m00.000s");
+        TEST_EQUAL(format_time(Dseconds(1234), 3), "20m34.000s");
+        TEST_EQUAL(format_time(Dseconds(12345), 3), "3h25m45.000s");
+        TEST_EQUAL(format_time(Dseconds(123456), 3), "1d10h17m36.000s");
+        TEST_EQUAL(format_time(Dseconds(1234567), 3), "14d06h56m07.000s");
+        TEST_EQUAL(format_time(Dseconds(12345678), 3), "142d21h21m18.000s");
+        TEST_EQUAL(format_time(Dseconds(123456789), 3), "3y333d03h33m09.000s");
+        TEST_EQUAL(format_time(Dseconds(1234567890), 3), "39y044d05h31m30.000s");
+        TEST_EQUAL(format_time(Dseconds(-0.25), 3), "-0.250s");
+        TEST_EQUAL(format_time(Dseconds(-0.5), 3), "-0.500s");
+        TEST_EQUAL(format_time(Dseconds(-0.75), 3), "-0.750s");
+        TEST_EQUAL(format_time(Dseconds(-1), 3), "-1.000s");
+        TEST_EQUAL(format_time(Dseconds(-1.25), 3), "-1.250s");
+        TEST_EQUAL(format_time(Dseconds(-59.999), 3), "-59.999s");
+        TEST_EQUAL(format_time(Dseconds(-60), 3), "-1m00.000s");
+        TEST_EQUAL(format_time(Dseconds(-1234), 3), "-20m34.000s");
+        TEST_EQUAL(format_time(Dseconds(-12345), 3), "-3h25m45.000s");
+        TEST_EQUAL(format_time(Dseconds(-123456), 3), "-1d10h17m36.000s");
+        TEST_EQUAL(format_time(Dseconds(-1234567), 3), "-14d06h56m07.000s");
+        TEST_EQUAL(format_time(Dseconds(-12345678), 3), "-142d21h21m18.000s");
+        TEST_EQUAL(format_time(Dseconds(-123456789), 3), "-3y333d03h33m09.000s");
+        TEST_EQUAL(format_time(Dseconds(-1234567890), 3), "-39y044d05h31m30.000s");
         TEST_EQUAL(format_time(nanoseconds(1), 10), "0.0000000010s");
         TEST_EQUAL(format_time(microseconds(1), 7), "0.0000010s");
         TEST_EQUAL(format_time(milliseconds(1), 4), "0.0010s");
@@ -3647,12 +3664,11 @@ namespace {
         using IntMsec = duration<int64_t, std::ratio<1, 1000>>;
         using IntSec = duration<int64_t>;
         using IntDays = duration<int64_t, std::ratio<86400>>;
-        using DblSec = duration<double>;
 
         IntMsec ims;
         IntSec is;
         IntDays id;
-        DblSec fs;
+        Dseconds fs;
         timespec ts;
         timeval tv;
 
@@ -3689,29 +3705,29 @@ namespace {
         tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, ims));   TEST_EQUAL(ims.count(), 86'400'125);
         tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, is));    TEST_EQUAL(is.count(), 86'400);
 
-        fs = DblSec(0);             TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+        fs = Dseconds(0);           TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
         id = IntDays(0);            TRY(ts = duration_to_timespec(id));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
         ims = IntMsec(0);           TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
         is = IntSec(0);             TRY(ts = duration_to_timespec(is));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
-        fs = DblSec(0.125);         TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
+        fs = Dseconds(0.125);       TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
         ims = IntMsec(125);         TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
-        fs = DblSec(86'400);        TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+        fs = Dseconds(86'400);      TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
         id = IntDays(1);            TRY(ts = duration_to_timespec(id));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
         ims = IntMsec(86'400'000);  TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
         is = IntSec(86'400);        TRY(ts = duration_to_timespec(is));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
-        fs = DblSec(86'400.125);    TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
+        fs = Dseconds(86'400.125);  TRY(ts = duration_to_timespec(fs));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
         ims = IntMsec(86'400'125);  TRY(ts = duration_to_timespec(ims));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
-        fs = DblSec(0);             TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+        fs = Dseconds(0);           TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
         id = IntDays(0);            TRY(tv = duration_to_timeval(id));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
         ims = IntMsec(0);           TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
         is = IntSec(0);             TRY(tv = duration_to_timeval(is));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
-        fs = DblSec(0.125);         TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
+        fs = Dseconds(0.125);       TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
         ims = IntMsec(125);         TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
-        fs = DblSec(86'400);        TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+        fs = Dseconds(86'400);      TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
         id = IntDays(1);            TRY(tv = duration_to_timeval(id));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
         ims = IntMsec(86'400'000);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
         is = IntSec(86'400);        TRY(tv = duration_to_timeval(is));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
-        fs = DblSec(86'400.125);    TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
+        fs = Dseconds(86'400.125);  TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
         ims = IntMsec(86'400'125);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
 
         #if defined(PRI_TARGET_WIN32)
@@ -3790,6 +3806,7 @@ TEST_MODULE(prion, core) {
     check_html_xml_tags();
     check_thread_class();
     check_synchronisation_objects();
+    check_time_and_date_types();
     check_general_time_and_date_operations();
     check_time_and_date_formatting();
     check_system_specific_time_and_date_conversions();

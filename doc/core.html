@@ -85,6 +85,7 @@
 </ul>
 </li>
 <li><a href="#time-and-date-operations">Time and date operations</a><ul>
+<li><a href="#time-and-date-types">Time and date types</a></li>
 <li><a href="#general-time-and-date-operations">General time and date operations</a></li>
 <li><a href="#time-and-date-formatting">Time and date formatting</a></li>
 <li><a href="#system-specific-time-and-date-conversions">System specific time and date conversions</a></li>
@@ -1989,6 +1990,23 @@ time types is left out for brevity. For all functions here that accept or
 return a broken down date, results are unspecified if the date is outside the
 range of a <code>time_t</code> (1970-2038 on 32-bit systems), or if the fields are set to
 values that do not represent a valid date.</p>
+<h3 id="time-and-date-types">Time and date types</h3>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>Dseconds</code></strong> <code>= duration&lt;double&gt;</code></li>
+<li><code>using</code> <strong><code>Ddays</code></strong> <code>= duration&lt;double, ratio&lt;86400&gt;&gt;</code></li>
+<li><code>using</code> <strong><code>Dyears</code></strong> <code>= duration&lt;double, ratio&lt;31557600&gt;&gt;</code></li>
+</ul>
+<p>Floating point duration types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>ReliableClock</code></strong> <code>= [high_resolution_clock or steady_clock]</code></li>
+</ul>
+<p>This is the highest resolution clock that can be trusted to be steady. It will
+be <code>high_resolution_clock</code> if <code>high_resolution_clock::is_steady</code> is true,
+otherwise <code>steady_clock</code>.</p>
+</div>
 <h3 id="general-time-and-date-operations">General time and date operations</h3>
 <div class="defns">
 <ul>

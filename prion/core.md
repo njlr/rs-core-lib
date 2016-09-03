@@ -1638,6 +1638,20 @@ return a broken down date, results are unspecified if the date is outside the
 range of a `time_t` (1970-2038 on 32-bit systems), or if the fields are set to
 values that do not represent a valid date.
 
+### Time and date types ###
+
+* `using` **`Dseconds`** `= duration<double>`
+* `using` **`Ddays`** `= duration<double, ratio<86400>>`
+* `using` **`Dyears`** `= duration<double, ratio<31557600>>`
+
+Floating point duration types.
+
+* `using` **`ReliableClock`** `= [high_resolution_clock or steady_clock]`
+
+This is the highest resolution clock that can be trusted to be steady. It will
+be `high_resolution_clock` if `high_resolution_clock::is_steady` is true,
+otherwise `steady_clock`.
+
 ### General time and date operations ###
 
 * `enum class` **`Zone`**

@@ -2934,6 +2934,14 @@ namespace Prion {
 
     // [Time and date operations]
 
+    // Time and date types
+
+    using Dseconds = std::chrono::duration<double>;
+    using Ddays = std::chrono::duration<double, std::ratio<86400>>;
+    using Dyears = std::chrono::duration<double, std::ratio<31557600>>;
+    using ReliableClock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
+        std::chrono::high_resolution_clock, std::chrono::steady_clock>;
+
     // General time and date operations
 
     PRI_ENUM_CLASS(Zone, 1, utc, local)
@@ -2973,13 +2981,13 @@ namespace Prion {
     template <typename R, typename P>
     void from_seconds(double s, std::chrono::duration<R, P>& d) noexcept {
         using namespace std::chrono;
-        d = duration_cast<duration<R, P>>(duration<double>(s));
+        d = duration_cast<duration<R, P>>(Dseconds(s));
     }
 
     template <typename R, typename P>
     double to_seconds(const std::chrono::duration<R, P>& d) noexcept {
         using namespace std::chrono;
-        return duration_cast<duration<double>>(d).count();
+        return duration_cast<Dseconds>(d).count();
     }
 
     inline std::chrono::system_clock::time_point make_date(int year, int month, int day,
@@ -3020,7 +3028,7 @@ namespace Prion {
 
     inline void sleep_for(double t) noexcept {
         using namespace std::chrono;
-        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(duration<double>(t)));
+        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(Dseconds(t)));
     }
 
     template <typename C, typename D>
@@ -3118,7 +3126,7 @@ namespace Prion {
         using namespace std::chrono;
         auto whole = duration_cast<seconds>(time);
         auto frac = time - duration_cast<duration<R, P>>(whole);
-        return PrionDetail::format_time(whole.count(), duration_cast<duration<double>>(frac).count(), prec);
+        return PrionDetail::format_time(whole.count(), duration_cast<Dseconds>(frac).count(), prec);
     }
 
     // System specific time and date conversions
