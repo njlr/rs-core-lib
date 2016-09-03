@@ -999,31 +999,10 @@ namespace Prion {
         template <char... CS> constexpr size_t operator""_z() noexcept
             { return PrionDetail::MakeInteger<size_t, CS...>::value; }
 
-        constexpr unsigned long long operator""_k(unsigned long long n) noexcept { return 1000ull * n; }
-        constexpr unsigned long long operator""_M(unsigned long long n) noexcept { return 1'000'000ull * n; }
-        constexpr unsigned long long operator""_G(unsigned long long n) noexcept { return 1'000'000'000ull * n; }
-        constexpr unsigned long long operator""_T(unsigned long long n) noexcept { return 1'000'000'000'000ull * n; }
-        constexpr unsigned long long operator""_kb(unsigned long long n) noexcept { return 1024ull * n; }
+        constexpr unsigned long long operator""_KB(unsigned long long n) noexcept { return 1024ull * n; }
         constexpr unsigned long long operator""_MB(unsigned long long n) noexcept { return 1'048'576ull * n; }
         constexpr unsigned long long operator""_GB(unsigned long long n) noexcept { return 1'073'741'824ull * n; }
         constexpr unsigned long long operator""_TB(unsigned long long n) noexcept { return 1'099'511'627'776ull * n; }
-
-        constexpr long double operator""_y(long double x) noexcept { return 1e-24 * x; }
-        constexpr long double operator""_z(long double x) noexcept { return 1e-21 * x; }
-        constexpr long double operator""_a(long double x) noexcept { return 1e-18 * x; }
-        constexpr long double operator""_f(long double x) noexcept { return 1e-15 * x; }
-        constexpr long double operator""_p(long double x) noexcept { return 1e-12 * x; }
-        constexpr long double operator""_n(long double x) noexcept { return 1e-9 * x; }
-        constexpr long double operator""_u(long double x) noexcept { return 1e-6 * x; }
-        constexpr long double operator""_m(long double x) noexcept { return 1e-3 * x; }
-        constexpr long double operator""_k(long double x) noexcept { return 1e3 * x; }
-        constexpr long double operator""_M(long double x) noexcept { return 1e6 * x; }
-        constexpr long double operator""_G(long double x) noexcept { return 1e9 * x; }
-        constexpr long double operator""_T(long double x) noexcept { return 1e12 * x; }
-        constexpr long double operator""_P(long double x) noexcept { return 1e15 * x; }
-        constexpr long double operator""_E(long double x) noexcept { return 1e18 * x; }
-        constexpr long double operator""_Z(long double x) noexcept { return 1e21 * x; }
-        constexpr long double operator""_Y(long double x) noexcept { return 1e24 * x; }
 
         constexpr float operator""_degf(long double x) noexcept
             { return float(x * (pi_ld / 180.0L)); }
@@ -2003,7 +1982,7 @@ namespace Prion {
     namespace PrionDetail {
 
         inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
-            static constexpr size_t bufsize = 64_kb;
+            static constexpr size_t bufsize = 64_KB;
             size_t offset = 0;
             while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
                 dst.resize(std::min(offset + bufsize, limit), 0);
@@ -2868,6 +2847,7 @@ namespace Prion {
             bool wait_impl(MutexLock& ml, std::chrono::nanoseconds ns, predicate p) {
                 using namespace Prion::Literals;
                 using namespace std::chrono;
+                static constexpr unsigned long G = 1'000'000'000ul;
                 if (p())
                     return true;
                 auto nsc = ns.count();
@@ -2881,9 +2861,9 @@ namespace Prion {
                 #else
                     clock_gettime(CLOCK_REALTIME, &ts);
                 #endif
-                ts.tv_nsec += nsc % 1_G;
-                ts.tv_sec += nsc / 1_G + ts.tv_nsec / 1_G;
-                ts.tv_nsec %= 1_G;
+                ts.tv_nsec += nsc % G;
+                ts.tv_sec += nsc / G + ts.tv_nsec / G;
+                ts.tv_nsec %= G;
                 for (;;) {
                     int rc = pthread_cond_timedwait(&pcond, &ml.mx->pmutex, &ts);
                     if (rc == ETIMEDOUT)
@@ -2969,11 +2949,12 @@ namespace Prion {
 
         inline void sleep_for(SleepUnit t) noexcept {
             #if defined(PRI_TARGET_UNIX)
+                static constexpr unsigned long M = 1'000'000;
                 auto usec = t.count();
                 if (usec > 0) {
                     timeval tv;
-                    tv.tv_sec = usec / 1_M;
-                    tv.tv_usec = usec % 1_M;
+                    tv.tv_sec = usec / M;
+                    tv.tv_usec = usec % M;
                     select(0, nullptr, nullptr, nullptr, &tv);
                 } else {
                     sched_yield();
@@ -3146,8 +3127,9 @@ namespace Prion {
     timespec duration_to_timespec(const std::chrono::duration<R, P>& d) noexcept {
         using namespace Prion::Literals;
         using namespace std::chrono;
+        static constexpr int64_t G = 1'000'000'000ll;
         int64_t nsec = duration_cast<nanoseconds>(d).count();
-        return {time_t(nsec / 1_G), long(nsec % 1_G)};
+        return {time_t(nsec / G), long(nsec % G)};
     }
 
     template <typename R, typename P>
@@ -3161,8 +3143,9 @@ namespace Prion {
             using sec_type = long;
             using usec_type = long;
         #endif
+        static constexpr int64_t M = 1'000'000;
         int64_t usec = duration_cast<microseconds>(d).count();
-        return {sec_type(usec / 1_M), usec_type(usec % 1_M)};
+        return {sec_type(usec / M), usec_type(usec % M)};
     }
 
     inline timespec timepoint_to_timespec(const std::chrono::system_clock::time_point& tp) noexcept {

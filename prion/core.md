@@ -693,35 +693,12 @@ Integer literals.
 Literals for `ptrdiff_t` and `size_t`, anticipating similar features in C++17
 (see ISO N4254).
 
-* `constexpr unsigned long long` **`operator""_k`**`(unsigned long long n) noexcept` _(&times; 10<sup>3</sup>)_
-* `constexpr unsigned long long` **`operator""_M`**`(unsigned long long n) noexcept` _(&times; 10<sup>6</sup>)_
-* `constexpr unsigned long long` **`operator""_G`**`(unsigned long long n) noexcept` _(&times; 10<sup>9</sup>)_
-* `constexpr unsigned long long` **`operator""_T`**`(unsigned long long n) noexcept` _(&times; 10<sup>12</sup>)_
-* `constexpr unsigned long long` **`operator""_kb`**`(unsigned long long n) noexcept` _(&times; 2<sup>10</sup> = 1024)_
-* `constexpr unsigned long long` **`operator""_MB`**`(unsigned long long n) noexcept` _(&times; 2<sup>20</sup> = 1048576)_
-* `constexpr unsigned long long` **`operator""_GB`**`(unsigned long long n) noexcept` _(&times; 2<sup>30</sup> = 1073741824)_
-* `constexpr unsigned long long` **`operator""_TB`**`(unsigned long long n) noexcept` _(&times; 2<sup>40</sup> = 1099511627776)_
+* `constexpr unsigned long long` **`operator""_KB`**`(unsigned long long n) noexcept` _(&times; 2<sup>10</sup> = 1024)_
+* `constexpr unsigned long long` **`operator""_MB`**`(unsigned long long n) noexcept` _(&times; 2<sup>20</sup> = 1 048 576)_
+* `constexpr unsigned long long` **`operator""_GB`**`(unsigned long long n) noexcept` _(&times; 2<sup>30</sup> = 1 073 741 824)_
+* `constexpr unsigned long long` **`operator""_TB`**`(unsigned long long n) noexcept` _(&times; 2<sup>40</sup> = 1 099 511 627 776)_
 
 Integer literals for abbreviating large constants.
-
-* `constexpr long double` **`operator""_y`**`(long double x) noexcept` _(&times; 10<sup>-24</const>sup>; yocto-)_
-* `constexpr long double` **`operator""_z`**`(long double x) noexcept` _(&times; 10<sup>-21</const>sup>; zepto-)_
-* `constexpr long double` **`operator""_a`**`(long double x) noexcept` _(&times; 10<sup>-18</const>sup>; atto-)_
-* `constexpr long double` **`operator""_f`**`(long double x) noexcept` _(&times; 10<sup>-15</const>sup>; femto-)_
-* `constexpr long double` **`operator""_p`**`(long double x) noexcept` _(&times; 10<sup>-12</const>sup>; pico-)_
-* `constexpr long double` **`operator""_n`**`(long double x) noexcept` _(&times; 10<sup>-9</const>sup>; nano-)_
-* `constexpr long double` **`operator""_u`**`(long double x) noexcept` _(&times; 10<sup>-6</const>sup>; micro-)_
-* `constexpr long double` **`operator""_m`**`(long double x) noexcept` _(&times; 10<sup>-3</const>sup>; milli-)_
-* `constexpr long double` **`operator""_k`**`(long double x) noexcept` _(&times; 10<sup>3</const>sup>; kilo-)_
-* `constexpr long double` **`operator""_M`**`(long double x) noexcept` _(&times; 10<sup>6</const>sup>; mega-)_
-* `constexpr long double` **`operator""_G`**`(long double x) noexcept` _(&times; 10<sup>9</const>sup>; giga-)_
-* `constexpr long double` **`operator""_T`**`(long double x) noexcept` _(&times; 10<sup>12</const>sup>; tera-)_
-* `constexpr long double` **`operator""_P`**`(long double x) noexcept` _(&times; 10<sup>15</const>sup>; peta-)_
-* `constexpr long double` **`operator""_E`**`(long double x) noexcept` _(&times; 10<sup>18</const>sup>; exa-)_
-* `constexpr long double` **`operator""_Z`**`(long double x) noexcept` _(&times; 10<sup>21</const>sup>; zetta-)_
-* `constexpr long double` **`operator""_Y`**`(long double x) noexcept` _(&times; 10<sup>24</const>sup>; yotta-)_
-
-Floating point literals corresponding to SI prefixes.
 
 * `constexpr float` **`operator""_degf`**`(long double x) noexcept`
 * `constexpr float` **`operator""_degf`**`(unsigned long long x) noexcept`
