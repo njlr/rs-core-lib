@@ -2475,6 +2475,8 @@ namespace Prion {
     }
 
     inline u8string hexdump(const string& str, size_t block = 0) { return hexdump(str.data(), str.size(), block); }
+    inline u8string tf(bool b) { return b ? "true" : "false"; }
+    inline u8string yn(bool b) { return b ? "yes" : "no"; }
 
     template <typename T> string to_str(const T& t);
 

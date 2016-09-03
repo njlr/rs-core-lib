@@ -1508,6 +1508,11 @@ type.
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
 
+* `u8string` **`tf`**`(bool b)`
+* `u8string` **`yn`**`(bool b)`
+
+Convert a boolean to `"true"/"false"` or `"yes"/"no"`.
+
 * `template <typename T> string` **`to_str`**`(const T& t)`
 
 Formats an object as a string. For most types this uses the type's output

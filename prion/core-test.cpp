@@ -3318,6 +3318,11 @@ namespace {
         TEST_EQUAL(hexdump("Hello world!"s, 5), "48 65 6c 6c 6f\n20 77 6f 72 6c\n64 21\n");
         TEST_EQUAL(hexdump("Hello world!"s, 6), "48 65 6c 6c 6f 20\n77 6f 72 6c 64 21\n");
 
+        TEST_EQUAL(tf(true), "true");
+        TEST_EQUAL(tf(false), "false");
+        TEST_EQUAL(yn(true), "yes");
+        TEST_EQUAL(yn(false), "no");
+
         s = "Hello";
 
         TEST_EQUAL(to_str(0), "0");
