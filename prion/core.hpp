@@ -202,9 +202,13 @@ namespace Prion {
         ::Prion::PrionDetail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
         return out; \
     } \
+    constexpr bool enum_is_valid(EnumType t) noexcept __attribute__((unused)); \
+    constexpr bool enum_is_valid(EnumType t) noexcept { \
+        return int(t) >= int(first_value) && int(t) < int(EnumType::prion_enum_sentinel); \
+    } \
     inline std::vector<EnumType> prion_enum_values(EnumType) __attribute__((unused)); \
     inline std::vector<EnumType> prion_enum_values(EnumType) { \
-        int n = int(EnumType::prion_enum_sentinel) - first_value; \
+        int n = int(EnumType::prion_enum_sentinel) - int(first_value); \
         std::vector<EnumType> v(n); \
         for (int i = 0; i < n; ++i) \
             v[i] = EnumType(first_value + i); \

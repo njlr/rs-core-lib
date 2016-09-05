@@ -174,10 +174,18 @@ types that can be used in strings (<code>char</code>, <code>char16_t</code>, <co
 </ul>
 <p>These define an enumeration, given the name of the enumeration type, the
 integer value of the first entry, and a list of value names. They will also
-define an output operator that prints the name of an enumeration constant (or
-the integer value if the argument is not a named value), and an implementation
-of the function <code>enum_values&lt;EnumType&gt;()</code>, which will return a <code>vector</code>
-containing a list of the enumeration's values.</p>
+define the following functions:</p>
+<ul>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, EnumType t)</code></li>
+<li><code>constexpr bool</code> <strong><code>enum_is_valid</code></strong><code>(EnumType t) noexcept</code></li>
+<li><code>std::vector&lt;EnumType&gt;</code> <strong><code>enum_values&lt;EnumType&gt;</code></strong><code>()</code></li>
+</ul>
+<p>The output operator prints the name of an enumeration constant (qualified with
+the class name if this is an <code>enum class</code>), or the integer value if the
+argument is not a named value. The <code>enum_is_valid()</code> function reports whether
+or not the argument is a named value of the enumeration. The
+<code>enum_values&lt;T&gt;()</code> function returns a <code>vector</code> containing a list of the
+enumeration's values.</p>
 <p>Example:</p>
 <pre><code>PRI_ENUM(Foo, 1, alpha, bravo, charlie)
 PRI_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)

@@ -76,10 +76,18 @@ types that can be used in strings (`char`, `char16_t`, `char32_t`, or
 
 These define an enumeration, given the name of the enumeration type, the
 integer value of the first entry, and a list of value names. They will also
-define an output operator that prints the name of an enumeration constant (or
-the integer value if the argument is not a named value), and an implementation
-of the function `enum_values<EnumType>()`, which will return a `vector`
-containing a list of the enumeration's values.
+define the following functions:
+
+* `std::ostream&` **`operator<<`**`(std::ostream& out, EnumType t)`
+* `constexpr bool` **`enum_is_valid`**`(EnumType t) noexcept`
+* `std::vector<EnumType>` **`enum_values<EnumType>`**`()`
+
+The output operator prints the name of an enumeration constant (qualified with
+the class name if this is an `enum class`), or the integer value if the
+argument is not a named value. The `enum_is_valid()` function reports whether
+or not the argument is a named value of the enumeration. The
+`enum_values<T>()` function returns a `vector` containing a list of the
+enumeration's values.
 
 Example:
 

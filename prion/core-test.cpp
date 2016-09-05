@@ -114,6 +114,12 @@ namespace {
         TEST_EQUAL(to_str(Foo(4)), "4");
         TEST_EQUAL(to_str(Foo(99)), "99");
 
+        TEST(! enum_is_valid(Foo(0)));
+        TEST(enum_is_valid(Foo(1)));
+        TEST(enum_is_valid(Foo(2)));
+        TEST(enum_is_valid(Foo(3)));
+        TEST(! enum_is_valid(Foo(4)));
+
         TRY(vf = enum_values<Foo>());
         TEST_EQUAL(vf.size(), 3);
         TEST_EQUAL(to_str(vf), "[alpha,bravo,charlie]");
@@ -128,6 +134,12 @@ namespace {
         TEST_EQUAL(to_str(Bar(0)), "0");
         TEST_EQUAL(to_str(Bar(4)), "4");
         TEST_EQUAL(to_str(Bar(99)), "99");
+
+        TEST(! enum_is_valid(Bar(0)));
+        TEST(enum_is_valid(Bar(1)));
+        TEST(enum_is_valid(Bar(2)));
+        TEST(enum_is_valid(Bar(3)));
+        TEST(! enum_is_valid(Bar(4)));
 
         TRY(vb = enum_values<Bar>());
         TEST_EQUAL(vb.size(), 3);
