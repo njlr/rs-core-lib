@@ -1640,6 +1640,7 @@ Mutex and exclusive lock. (A version of `make_lock()` that returns a
     * `void ConditionVariable::`**`wait`**`(MutexLock& lock)`
     * `template <typename Pred> void ConditionVariable::`**`wait`**`(MutexLock& lock, Pred p)`
     * `template <typename R, typename P, typename Pred> bool ConditionVariable::`**`wait_for`**`(MutexLock& lock, std::chrono::duration<R, P> t, Pred p)`
+    * `template <typename C, typename D, typename Pred> bool ConditionVariable::`**`wait_until`**`(MutexLock& lock, std::chrono::time_point<C, D> t, Pred p)`
 
 Condition variable.
 

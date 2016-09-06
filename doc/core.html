@@ -1994,6 +1994,7 @@ slice.</p>
 <li><code>void ConditionVariable::</code><strong><code>wait</code></strong><code>(MutexLock&amp; lock)</code></li>
 <li><code>template &lt;typename Pred&gt; void ConditionVariable::</code><strong><code>wait</code></strong><code>(MutexLock&amp; lock, Pred p)</code></li>
 <li><code>template &lt;typename R, typename P, typename Pred&gt; bool ConditionVariable::</code><strong><code>wait_for</code></strong><code>(MutexLock&amp; lock, std::chrono::duration&lt;R, P&gt; t, Pred p)</code></li>
+<li><code>template &lt;typename C, typename D, typename Pred&gt; bool ConditionVariable::</code><strong><code>wait_until</code></strong><code>(MutexLock&amp; lock, std::chrono::time_point&lt;C, D&gt; t, Pred p)</code></li>
 </ul>
 </li>
 </ul>

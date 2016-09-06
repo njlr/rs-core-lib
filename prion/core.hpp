@@ -2846,6 +2846,14 @@ namespace Prion {
                 using namespace std::chrono;
                 return wait_impl(lock, duration_cast<nanoseconds>(t), predicate(p));
             }
+            template <typename C, typename D, typename Pred> bool wait_until(MutexLock& lock, std::chrono::time_point<C, D> t, Pred p) {
+                using namespace std::chrono;
+                nanoseconds ns;
+                auto now = C::now();
+                if (now < t)
+                    ns = duration_cast<nanoseconds>(t - now);
+                return wait_impl(lock, ns, predicate(p));
+            }
         private:
             using predicate = function<bool()>;
             pthread_cond_t pcond;
@@ -2903,6 +2911,14 @@ namespace Prion {
             template <typename R, typename P, typename Pred> bool wait_for(MutexLock& lock, std::chrono::duration<R, P> t, Pred p) {
                 using namespace std::chrono;
                 return wait_impl(lock, duration_cast<nanoseconds>(t), predicate(p));
+            }
+            template <typename C, typename D, typename Pred> bool wait_until(MutexLock& lock, std::chrono::time_point<C, D> t, Pred p) {
+                using namespace std::chrono;
+                nanoseconds ns;
+                auto now = C::now();
+                if (now < t)
+                    ns = duration_cast<nanoseconds>(t - now);
+                return wait_impl(lock, ns, predicate(p));
             }
         private:
             using predicate = function<bool()>;
