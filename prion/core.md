@@ -1334,15 +1334,23 @@ of 1-24.
 
 ### Simple random generators ###
 
-* `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p = 0.5)` _- True with probability p (clamped to 0-1)_
-* `template <typename T, typename RNG> T` **`random_int`**`(RNG& rng, T n)` _- Random integer from 0 to n-1 (always 0 if n<2)_
-* `template <typename T, typename RNG> T` **`random_int`**`(RNG& rng, T n1, T n2)` _- Random integer from n1 to n2 inclusive (limits may be in either order)_
-* `template <typename T, typename RNG> T` **`random_real`**`(RNG& rng, T x = 1, T y = 0)` _- Random number between x and y (limits may be in either order)_
-* `template <typename RNG, typename Range> [value type]` **`random_choice`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
-* `template <typename RNG, typename T> T` **`random_choice`**`(RNG& rng, initializer_list<T> list)` _- Random element from list_
+* `template <typename RNG> bool` **`random_bool`**`(RNG& rng)` _- True with probability 1/2_
+* `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p)` _- True with probability p (clamped to 0-1)_
+* `template <typename RNG, typename T> bool` **`random_bool`**`(RNG& rng, T num, T den)` _- True with probability num/den (clamped to 0-1)_
+* `template <typename T, typename RNG> T` **`random_integer`**`(RNG& rng, T t)` _- Random integer from 0 to t-1 (always 0 if t<2)_
+* `template <typename T, typename RNG> T` **`random_integer`**`(RNG& rng, T a, T b)` _- Random integer from a to b inclusive (limits may be in either order)_
+* `template <typename T, typename RNG> T` **`random_dice`**`(RNG& rng, T n = 1, T faces = 6)` _- Roll n dice numbered from 1 to faces (0 if either argument is <1)_
+* `template <typename T, typename RNG> T` **`random_float`**`(RNG& rng, T a = 1, T b = 0)` _- Random number between a and b (limits may be in either order)_
+* `template <typename T, typename RNG> T` **`random_normal`**`(RNG& rng)` _- Normal distribution with mean 0, sd 1_
+* `template <typename T, typename RNG> T` **`random_normal`**`(RNG& rng, T m, T s)` _- Normal distribution with given mean and sd_
+* `template <typename Range, typename RNG> [value type]` **`random_choice`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
+* `template <typename T, typename RNG> T` **`random_choice`**`(RNG& rng, initializer_list<T> list)` _- Random element from explicit list_
 
-Quick random number functions that call the standard library functions, for
-convenience when nothing more complicated is needed.
+Simple random number functions. These do not call the standard distribution
+classes; given the same underlying random number engine (the `RNG` type),
+these can be relied on to return the same values on different systems and
+compilers (apart from small differences due to rounding errors in the floating
+point functions).
 
 ## Strings and related functions ##
 
