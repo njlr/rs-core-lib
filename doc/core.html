@@ -1541,7 +1541,9 @@ newly constructed <code>ScopedTransaction</code>.</p>
 <h3 id="file-io-operations">File I/O operations</h3>
 <p>Functions that take a file name have overloads that take a UTF-16 string in
 native Windows builds (not on Cygwin, where the <code>_wfopen()</code> function is not
-available).</p>
+available). In all of these functions, passing an empty string or <code>"-"</code> as the
+file name will cause the function to read from standard input or write to
+standard output.</p>
 <div class="defns">
 <ul>
 <li><code>bool</code> <strong><code>load_file</code></strong><code>(const string&amp; file, string&amp; dst, size_t limit = npos)</code></li>
@@ -1560,9 +1562,10 @@ false, the destination string will be cleared.</p>
 <li><code>bool</code> <strong><code>save_file</code></strong><code>(const wstring&amp; file, const string&amp; src, bool append = false)</code> <em>(Native Windows only)</em></li>
 </ul>
 <p>Write a string's contents into a file, optionally appending it to the file
-instead of overwriting it if it already exists (if the file does not exist,
-the <code>append</code> flag has no effect). The return value is true if everything went
-well, false if there was an error while opening or writing the file.</p>
+instead of overwriting it if it already exists (if the file does not exist, or
+is standard output, the <code>append</code> flag has no effect). The return value is true
+if everything went well, false if there was an error while opening or writing
+the file.</p>
 </div>
 <h3 id="logging">Logging</h3>
 <div class="defns">
