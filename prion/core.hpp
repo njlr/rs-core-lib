@@ -2045,7 +2045,7 @@ namespace Prion {
 
         inline bool load_file(const wstring& file, string& dst, size_t limit = npos) {
             dst.clear();
-            if (file.empty() || file == "-") {
+            if (file.empty() || file == L"-") {
                 return PrionDetail::load_stdin_helper(dst, limit);
             } else {
                 FILE* fp = _wfopen(file.data(), L"rb");
@@ -2057,7 +2057,7 @@ namespace Prion {
         }
 
         inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
-            if (file.empty() || file == "-") {
+            if (file.empty() || file == L"-") {
                 return PrionDetail::save_file_helper(stdout, ptr, n);
             } else {
                 auto fp = _wfopen(file.data(), append ? L"ab" : L"wb");
