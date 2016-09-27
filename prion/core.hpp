@@ -1986,22 +1986,14 @@ namespace Prion {
     namespace PrionDetail {
 
         inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
-            fseeko(fp, 0, SEEK_END);
-            dst.resize(std::min(size_t(ftello(fp)), limit));
-            fseeko(fp, 0, SEEK_SET);
-            fread(&dst[0], 1, dst.size(), fp);
-            return ! ferror(fp);
-        }
-
-        inline bool load_stdin_helper(string& dst, size_t limit) {
-            static constexpr size_t bufsize = 16_KB;
+            static constexpr size_t bufsize = 65536;
             size_t offset = 0;
-            while (! (feof(stdin) || ferror(stdin)) && dst.size() < limit) {
+            while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
                 dst.resize(std::min(offset + bufsize, limit), 0);
-                offset += fread(&dst[0] + offset, 1, dst.size() - offset, stdin);
+                offset += fread(&dst[0] + offset, 1, dst.size() - offset, fp);
             }
             dst.resize(offset);
-            return ! ferror(stdin);
+            return ! ferror(fp);
         }
 
         inline bool save_file_helper(FILE* fp, const void* ptr, size_t n) {
@@ -2017,54 +2009,58 @@ namespace Prion {
     #if defined(PRI_TARGET_UNIX)
 
         inline bool load_file(const string& file, string& dst, size_t limit = npos) {
+            using namespace PrionDetail;
             dst.clear();
             if (file.empty() || file == "-") {
-                return PrionDetail::load_stdin_helper(dst, limit);
+                return load_file_helper(stdin, dst, limit);
             } else {
                 FILE* fp = fopen(file.data(), "rb");
                 if (! fp)
                     return false;
                 ScopeExit guard([fp] { fclose(fp); });
-                return PrionDetail::load_file_helper(fp, dst, limit);
+                return load_file_helper(fp, dst, limit);
             }
         }
 
         inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
+            using namespace PrionDetail;
             if (file.empty() || file == "-") {
-                return PrionDetail::save_file_helper(stdout, ptr, n);
+                return save_file_helper(stdout, ptr, n);
             } else {
                 auto fp = fopen(file.data(), append ? "ab" : "wb");
                 if (! fp)
                     return false;
                 ScopeExit guard([fp] { fclose(fp); });
-                return PrionDetail::save_file_helper(fp, ptr, n);
+                return save_file_helper(fp, ptr, n);
             }
         }
 
     #else
 
         inline bool load_file(const wstring& file, string& dst, size_t limit = npos) {
+            using namespace PrionDetail;
             dst.clear();
             if (file.empty() || file == L"-") {
-                return PrionDetail::load_stdin_helper(dst, limit);
+                return load_stdin_helper(dst, limit);
             } else {
                 FILE* fp = _wfopen(file.data(), L"rb");
                 if (! fp)
                     return false;
                 ScopeExit guard([fp] { fclose(fp); });
-                return PrionDetail::load_file_helper(fp, dst, limit);
+                return load_file_helper(fp, dst, limit);
             }
         }
 
         inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
+            using namespace PrionDetail;
             if (file.empty() || file == L"-") {
-                return PrionDetail::save_file_helper(stdout, ptr, n);
+                return save_file_helper(stdout, ptr, n);
             } else {
                 auto fp = _wfopen(file.data(), append ? L"ab" : L"wb");
                 if (! fp)
                     return false;
                 ScopeExit guard([fp] { fclose(fp); });
-                return PrionDetail::save_file_helper(fp, ptr, n);
+                return save_file_helper(fp, ptr, n);
             }
         }
 
