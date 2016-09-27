@@ -484,7 +484,7 @@ struct Test {
                 std::cout << x_fail << "*** Test failures: " << test_failures() << x_reset << std::endl;
             else
                 std::cout << x_good << "OK: all tests passed" << x_reset << std::endl;
-            std::cout << x_info << "Time: " << seconds << " s" << x_reset << std::endl;
+            std::cout << x_info << "Time: " << Prion::fp_format(seconds, 'f', 3) << " s" << x_reset << std::endl;
         }
         catch (const std::exception& ex) {
             std::cout << x_fail << "*** " << ex.what() << x_reset << std::endl;
