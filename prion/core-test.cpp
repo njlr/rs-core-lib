@@ -3241,15 +3241,15 @@ namespace {
         TEST_EQUAL(fp_format(-42, 'g', 3), "-42");
         TEST_EQUAL(fp_format(1.23456e8, 'g', 3), "1.23e8");
         TEST_EQUAL(fp_format(1.23456e-6, 'g', 3), "1.23e-6");
-        TEST_EQUAL(fp_format(0, 'h', 3), "0.00");
-        TEST_EQUAL(fp_format(42, 'h', 3), "42.0");
-        TEST_EQUAL(fp_format(-42, 'h', 3), "-42.0");
-        TEST_EQUAL(fp_format(1.23456e8, 'h', 3), "1.23e8");
-        TEST_EQUAL(fp_format(1.23456e-6, 'h', 3), "1.23e-6");
-        TEST_EQUAL(fp_format(0.123, 'h', 3), "0.123");
-        TEST_EQUAL(fp_format(1.23, 'h', 3), "1.23");
-        TEST_EQUAL(fp_format(12.3, 'h', 3), "12.3");
-        TEST_EQUAL(fp_format(123, 'h', 3), "123");
+        TEST_EQUAL(fp_format(0, 'z', 3), "0.00");
+        TEST_EQUAL(fp_format(42, 'z', 3), "42.0");
+        TEST_EQUAL(fp_format(-42, 'z', 3), "-42.0");
+        TEST_EQUAL(fp_format(1.23456e8, 'z', 3), "1.23e8");
+        TEST_EQUAL(fp_format(1.23456e-6, 'z', 3), "1.23e-6");
+        TEST_EQUAL(fp_format(0.123, 'z', 3), "0.123");
+        TEST_EQUAL(fp_format(1.23, 'z', 3), "1.23");
+        TEST_EQUAL(fp_format(12.3, 'z', 3), "12.3");
+        TEST_EQUAL(fp_format(123, 'z', 3), "123");
 
         TEST_EQUAL(si_to_int("0"), 0);
         TEST_EQUAL(si_to_int("42"), 42);

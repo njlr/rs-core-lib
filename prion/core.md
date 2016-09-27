@@ -1500,8 +1500,8 @@ range will be clamped to the nearest end of the return type's range (for
 
 Simple floating point formatting, by calling `snprintf()`. `T` must be an
 arithmetic type; it will be converted to `double` internally. The additional
-format `'h'` is the same as `'g'` except that trailing zeros are not stripped.
-This will throw `std::invalid_argument` if the mode is not one of
+format `'Z/z'` is the same as `'G/g'` except that trailing zeros are not
+stripped. This will throw `std::invalid_argument` if the mode is not one of
 `[EFGHefgh]`; it may throw `std::system_error` under implementation defined
 circumstances.
 

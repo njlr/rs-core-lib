@@ -2461,13 +2461,13 @@ namespace Prion {
 
     template <typename T>
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
-        static const u8string modes = "EFGHefgh";
+        static const u8string modes = "EFGZefgz";
         if (modes.find(mode) == npos)
             throw std::invalid_argument("Invalid floating point mode: " + uquote(u8string{mode}));
         u8string buf(20, '\0'), fmt;
         switch (mode) {
-            case 'H':  fmt = "%#.*G"; break;
-            case 'h':  fmt = "%#.*g"; break;
+            case 'Z':  fmt = "%#.*G"; break;
+            case 'z':  fmt = "%#.*g"; break;
             default:   fmt = u8string("%.*") + mode; break;
         }
         auto x = double(t);

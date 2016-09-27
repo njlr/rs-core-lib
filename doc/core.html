@@ -1845,8 +1845,8 @@ range will be clamped to the nearest end of the return type's range (for
 </ul>
 <p>Simple floating point formatting, by calling <code>snprintf()</code>. <code>T</code> must be an
 arithmetic type; it will be converted to <code>double</code> internally. The additional
-format <code>'h'</code> is the same as <code>'g'</code> except that trailing zeros are not stripped.
-This will throw <code>std::invalid_argument</code> if the mode is not one of
+format <code>'Z/z'</code> is the same as <code>'G/g'</code> except that trailing zeros are not
+stripped. This will throw <code>std::invalid_argument</code> if the mode is not one of
 <code>[EFGHefgh]</code>; it may throw <code>std::system_error</code> under implementation defined
 circumstances.</p>
 </div>
