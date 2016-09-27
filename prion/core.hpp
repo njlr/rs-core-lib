@@ -2041,7 +2041,7 @@ namespace Prion {
             using namespace PrionDetail;
             dst.clear();
             if (file.empty() || file == L"-") {
-                return load_stdin_helper(dst, limit);
+                return load_file_helper(stdin, dst, limit);
             } else {
                 FILE* fp = _wfopen(file.data(), L"rb");
                 if (! fp)
