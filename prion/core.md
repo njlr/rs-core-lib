@@ -1502,7 +1502,7 @@ Simple floating point formatting, by calling `snprintf()`. `T` must be an
 arithmetic type; it will be converted to `double` internally. The additional
 format `'Z/z'` is the same as `'G/g'` except that trailing zeros are not
 stripped. This will throw `std::invalid_argument` if the mode is not one of
-`[EFGHefgh]`; it may throw `std::system_error` under implementation defined
+`[EFGZefgz]`; it may throw `std::system_error` under implementation defined
 circumstances.
 
 * `int64_t` **`si_to_int`**`(const u8string& s)`
