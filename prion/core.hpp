@@ -2167,7 +2167,6 @@ namespace Prion {
             do result = U(rng() - rmin);
                 while (result > crit);
             result /= ratio;
-
         } else if (out_range == rng_range) {
             // The trivial case where the two ranges are equal.
             result = U(rng() - rmin);
