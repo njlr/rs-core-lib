@@ -2162,9 +2162,12 @@ namespace Prion {
             // output of the RNG by the rounded down quotient of the ranges.
             // If one range is not an exact multiple of the other, this may
             // yield a value too large; try again.
-            U ratio = (rng_range - out_range) / (out_range + U(1)) + U(1);
-            do result = U(rng() - rmin) / ratio;
-                while (result > out_range);
+            U ratio = (rng_range - out_range) / (out_range + U(1)) + U(1),
+                crit = ratio * out_range + (ratio - U(1));
+            do result = U(rng() - rmin);
+                while (result > crit);
+            result /= ratio;
+
         } else if (out_range == rng_range) {
             // The trivial case where the two ranges are equal.
             result = U(rng() - rmin);
