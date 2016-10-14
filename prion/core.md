@@ -692,14 +692,13 @@ These are all in `namespace Prion::Literals`.
 * `constexpr uint64_t` **`operator""_u64`**`(unsigned long long n) noexcept`
 * `template <char... CS> constexpr int128_t` **`operator""_s128`**`() noexcept`
 * `template <char... CS> constexpr uint128_t` **`operator""_u128`**`() noexcept`
-
-Integer literals.
-
+* `constexpr wchar_t` **`operator""_wc`**`(unsigned long long n) noexcept`
+* `constexpr char16_t` **`operator""_c16`**`(unsigned long long n) noexcept`
+* `constexpr char32_t` **`operator""_c32`**`(unsigned long long n) noexcept`
 * `template <char... CS> constexpr ptrdiff_t` **`operator""_t`**`() noexcept`
 * `template <char... CS> constexpr size_t` **`operator""_z`**`() noexcept`
 
-Literals for `ptrdiff_t` and `size_t`, anticipating similar features in C++17
-(see ISO N4254).
+Integer literals.
 
 * `constexpr unsigned long long` **`operator""_KB`**`(unsigned long long n) noexcept` _(&times; 2<sup>10</sup> = 1024)_
 * `constexpr unsigned long long` **`operator""_MB`**`(unsigned long long n) noexcept` _(&times; 2<sup>20</sup> = 1 048 576)_

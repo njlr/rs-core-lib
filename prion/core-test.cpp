@@ -754,6 +754,9 @@ namespace {
         auto f = 123_u32;
         auto g = 123_s64;
         auto h = 123_u64;
+        auto i = 123_wc;
+        auto j = 123_c16;
+        auto k = 123_c32;
 
         TEST_TYPE_OF(a, int8_t);
         TEST_TYPE_OF(b, uint8_t);
@@ -763,6 +766,9 @@ namespace {
         TEST_TYPE_OF(f, uint32_t);
         TEST_TYPE_OF(g, int64_t);
         TEST_TYPE_OF(h, uint64_t);
+        TEST_TYPE_OF(i, wchar_t);
+        TEST_TYPE_OF(j, char16_t);
+        TEST_TYPE_OF(k, char32_t);
 
         TEST_EQUAL(a, int8_t(123));
         TEST_EQUAL(b, uint8_t(123));
@@ -772,36 +778,39 @@ namespace {
         TEST_EQUAL(f, uint32_t(123));
         TEST_EQUAL(g, int64_t(123));
         TEST_EQUAL(h, uint64_t(123));
+        TEST_EQUAL(i, wchar_t(123));
+        TEST_EQUAL(j, char16_t(123));
+        TEST_EQUAL(k, char32_t(123));
 
-        int128_t i = 0;
+        int128_t s = 0;
         uint128_t u = 0;
 
-        TRY(i = 0_s128);
-        TEST_EQUAL(i, 0_s128);
-        TEST_EQUAL(dec(i), "0");
-        TEST_EQUAL(hex(i, 1), "0");
-        TEST_EQUAL(hex(i), "00000000000000000000000000000000");
-        TRY(i = 12345_s128);
-        TEST_EQUAL(i, 12345_s128);
-        TEST_EQUAL(dec(i), "12345");
-        TRY(i = 170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // 2^127-1
-        TEST_EQUAL(i, 170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
-        TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
-        TRY(i = -170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // -(2^127-1)
-        TEST_EQUAL(i, -170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
-        TEST_EQUAL(dec(i), "-170141183460469231731687303715884105727");
-        TRY(i = -170'141'183'460'469'231'731'687'303'715'884'105'728_s128); // -2^127
-        TEST_EQUAL(i, -170'141'183'460'469'231'731'687'303'715'884'105'728_s128);
-        TEST_EQUAL(dec(i), "-170141183460469231731687303715884105728");
+        TRY(s = 0_s128);
+        TEST_EQUAL(s, 0_s128);
+        TEST_EQUAL(dec(s), "0");
+        TEST_EQUAL(hex(s, 1), "0");
+        TEST_EQUAL(hex(s), "00000000000000000000000000000000");
+        TRY(s = 12345_s128);
+        TEST_EQUAL(s, 12345_s128);
+        TEST_EQUAL(dec(s), "12345");
+        TRY(s = 170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // 2^127-1
+        TEST_EQUAL(s, 170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
+        TEST_EQUAL(dec(s), "170141183460469231731687303715884105727");
+        TRY(s = -170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // -(2^127-1)
+        TEST_EQUAL(s, -170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
+        TEST_EQUAL(dec(s), "-170141183460469231731687303715884105727");
+        TRY(s = -170'141'183'460'469'231'731'687'303'715'884'105'728_s128); // -2^127
+        TEST_EQUAL(s, -170'141'183'460'469'231'731'687'303'715'884'105'728_s128);
+        TEST_EQUAL(dec(s), "-170141183460469231731687303715884105728");
 
-        TRY(i = 0x0_s128);
-        TEST_EQUAL(dec(i), "0");
-        TRY(i = 0x12345_s128);
-        TEST_EQUAL(hex(i, 1), "12345");
-        TEST_EQUAL(dec(i), "74565");
-        TRY(i = 0x7fffffffffffffffffffffffffffffff_s128);
-        TEST_EQUAL(hex(i), "7fffffffffffffffffffffffffffffff");
-        TEST_EQUAL(dec(i), "170141183460469231731687303715884105727");
+        TRY(s = 0x0_s128);
+        TEST_EQUAL(dec(s), "0");
+        TRY(s = 0x12345_s128);
+        TEST_EQUAL(hex(s, 1), "12345");
+        TEST_EQUAL(dec(s), "74565");
+        TRY(s = 0x7fffffffffffffffffffffffffffffff_s128);
+        TEST_EQUAL(hex(s), "7fffffffffffffffffffffffffffffff");
+        TEST_EQUAL(dec(s), "170141183460469231731687303715884105727");
 
         TRY(u = 0_u128);
         TEST_EQUAL(u, 0_u128);

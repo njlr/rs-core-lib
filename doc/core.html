@@ -909,16 +909,13 @@ constants.</p>
 <li><code>constexpr uint64_t</code> <strong><code>operator""_u64</code></strong><code>(unsigned long long n) noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr int128_t</code> <strong><code>operator""_s128</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr uint128_t</code> <strong><code>operator""_u128</code></strong><code>() noexcept</code></li>
-</ul>
-<p>Integer literals.</p>
-</div>
-<div class="defns">
-<ul>
+<li><code>constexpr wchar_t</code> <strong><code>operator""_wc</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr char16_t</code> <strong><code>operator""_c16</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr char32_t</code> <strong><code>operator""_c32</code></strong><code>(unsigned long long n) noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr ptrdiff_t</code> <strong><code>operator""_t</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;char... CS&gt; constexpr size_t</code> <strong><code>operator""_z</code></strong><code>() noexcept</code></li>
 </ul>
-<p>Literals for <code>ptrdiff_t</code> and <code>size_t</code>, anticipating similar features in C++17
-(see ISO N4254).</p>
+<p>Integer literals.</p>
 </div>
 <div class="defns">
 <ul>

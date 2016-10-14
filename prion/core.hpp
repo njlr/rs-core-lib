@@ -993,6 +993,9 @@ namespace Prion {
         constexpr uint32_t operator""_u32(unsigned long long n) noexcept { return uint32_t(n); }
         constexpr int64_t operator""_s64(unsigned long long n) noexcept { return int64_t(n); }
         constexpr uint64_t operator""_u64(unsigned long long n) noexcept { return uint64_t(n); }
+        constexpr wchar_t operator""_wc(unsigned long long n) noexcept { return wchar_t(n); }
+        constexpr char16_t operator""_c16(unsigned long long n) noexcept { return char16_t(n); }
+        constexpr char32_t operator""_c32(unsigned long long n) noexcept { return char32_t(n); }
 
         template <char... CS> constexpr int128_t operator""_s128() noexcept
             { return int128_t(PrionDetail::MakeInteger<uint128_t, CS...>::value); }
