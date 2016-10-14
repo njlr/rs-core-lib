@@ -193,16 +193,6 @@ any ASCII string is also valid UTF-8), while plain `string` is used where the
 string is expected to be in some non-Unicode encoding, or where the string is
 being used simply as an array of bytes rather than encoded text.
 
-* `using` **`int128_t`** `= [signed 128 bit integer]`
-* `using` **`uint128_t`** `= [unsigned 128 bit integer]`
-* `constexpr uint128_t` **`make_uint128`**`(uint64_t hi, uint64_t lo) noexcept`
-* `constexpr int128_t` **`make_int128`**`(uint64_t hi, uint64_t lo) noexcept`
-
-Aliases for the compiler's 128 bit integer types (e.g. `__int128`). (The
-function to make a signed `int128_t` only accepts unsigned arguments because
-it is not clear how signed arguments should naturally be interpreted.
-Behaviour is undefined if the high bit of `hi` is set.)
-
 ### Containers ###
 
 * `class` **`Blob`**
@@ -366,7 +356,7 @@ const string>` yields `string`, while `CopyConst<const int, string>` yields
 
 Signed and unsigned integer types with the specified number of bits (the same
 types as `int8_t`, `int16_t`, etc). These will fail to compile if `Bits` is
-not a power of 2 in the supported range (8-128).
+not a power of 2 in the supported range (8-64).
 
 ### Mixins ###
 
@@ -489,7 +479,6 @@ is to be named (e.g. `type_name(42)`).
     * `Uuid::`**`Uuid`**`() noexcept`
     * `Uuid::`**`Uuid`**`(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f, uint8_t g, uint8_t h, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept`
     * `Uuid::`**`Uuid`**`(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept`
-    * `explicit Uuid::`**`Uuid`**`(uint128_t u) noexcept`
     * `explicit Uuid::`**`Uuid`**`(const uint8_t* ptr) noexcept`
     * `explicit Uuid::`**`Uuid`**`(const string& s)`
     * `Uuid::`**`Uuid`**`(const Uuid& u) noexcept`
@@ -503,7 +492,6 @@ is to be named (e.g. `type_name(42)`).
     * `const uint8_t* Uuid::`**`begin`**`() const noexcept`
     * `uint8_t* Uuid::`**`end`**`() noexcept`
     * `const uint8_t* Uuid::`**`end`**`() const noexcept`
-    * `uint128_t Uuid::`**`as_integer`**`() const noexcept`
     * `size_t Uuid::`**`hash`**`() const noexcept`
     * `u8string Uuid::`**`str`**`() const`
 * `bool` **`operator==`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
@@ -519,11 +507,10 @@ This class holds a standard 16 byte universally unique identifier (UUID).
 
 The default constructor sets all bytes to zero. The second and third
 constructors accept explicit byte values, either as a list of 16 bytes, or in
-the standard breakdown format. The fourth constructor copies a UUID from a 128
-bit integer, in big endian order. The fifth constructor copies the next 16
-bytes from the location pointed to; a null pointer will set all bytes to zero.
+the standard breakdown format. The fourth constructor copies the next 16 bytes
+from the location pointed to; a null pointer will set all bytes to zero.
 
-The sixth constructor parses the string representation of a UUID. It expects
+The fifth constructor parses the string representation of a UUID. It expects
 the string to hold exactly 32 hex digits, in groups each containing an even
 number of digits (optionally prefixed with `"0x"`), and will treat any
 characters that are not ASCII alphanumerics as delimiters. It will throw
@@ -532,9 +519,6 @@ characters that are not ASCII alphanumerics as delimiters. It will throw
 The `begin()`, `end()`, and `operator[]` functions grant access to the byte
 representation. Behaviour is undefined if the index to `operator[]` is greater
 than 15.
-
-The `as_integer()` function returns the UUID as a 128 bit integer, in big
-endian order.
 
 A specialization of `std::hash` is provided to allow `Uuid` to be used as the
 key in an unordered container.
@@ -690,13 +674,11 @@ These are all in `namespace Prion::Literals`.
 * `constexpr uint32_t` **`operator""_u32`**`(unsigned long long n) noexcept`
 * `constexpr int64_t` **`operator""_s64`**`(unsigned long long n) noexcept`
 * `constexpr uint64_t` **`operator""_u64`**`(unsigned long long n) noexcept`
-* `template <char... CS> constexpr int128_t` **`operator""_s128`**`() noexcept`
-* `template <char... CS> constexpr uint128_t` **`operator""_u128`**`() noexcept`
 * `constexpr wchar_t` **`operator""_wc`**`(unsigned long long n) noexcept`
 * `constexpr char16_t` **`operator""_c16`**`(unsigned long long n) noexcept`
 * `constexpr char32_t` **`operator""_c32`**`(unsigned long long n) noexcept`
-* `template <char... CS> constexpr ptrdiff_t` **`operator""_t`**`() noexcept`
-* `template <char... CS> constexpr size_t` **`operator""_z`**`() noexcept`
+* `constexpr ptrdiff_t` **`operator""_t`**`(unsigned long long n) noexcept`
+* `constexpr size_t` **`operator""_z`**`(unsigned long long n) noexcept`
 
 Integer literals.
 
@@ -883,21 +865,12 @@ Returns `irange(ptr,ptr+len)`.
 
 ## Arithmetic functions ##
 
-Some of these duplicate functionality already in the standard library; this is
-to ensure that the functions are available for 128 bit integers even if the
-standard library implementation doesn't support them.
-
 ### Generic arithmetic functions ###
 
 * `template <typename T, typename... Args> constexpr T` **`static_min`**`(T t, Args... args) noexcept`
 * `template <typename T, typename... Args> constexpr T` **`static_max`**`(T t, Args... args) noexcept`
 
 Compile time maximum and minimum functions.
-
-* `template <typename T> T` **`abs`**`(T t) noexcept`
-
-Absolute value function. This is the same as `std::abs()` apart from
-guaranteeing 128 bit integer support.
 
 * `template <typename T, typename T2, typename T3> constexpr T` **`clamp`**`(const T& x, const T2& min, const T3& max) noexcept`
 

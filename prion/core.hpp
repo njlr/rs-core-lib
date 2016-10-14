@@ -278,11 +278,6 @@ namespace Prion {
     using std::vector;
 
     using u8string = std::string;
-    using int128_t = __int128;
-    using uint128_t = unsigned __int128;
-
-    constexpr uint128_t make_uint128(uint64_t hi, uint64_t lo) noexcept { return (uint128_t(hi) << 64) + uint128_t(lo); }
-    constexpr int128_t make_int128(uint64_t hi, uint64_t lo) noexcept { return int128_t(make_uint128(hi, lo)); }
 
     // Things needed early
 
@@ -305,11 +300,7 @@ namespace Prion {
     template <typename T> vector<T> enum_values() { return prion_enum_values(T()); }
 
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
-    constexpr auto as_signed(int128_t t) noexcept { return int128_t(t); }
-    constexpr auto as_signed(uint128_t t) noexcept { return int128_t(t); }
     template <typename T> constexpr auto as_unsigned(T t) noexcept { return static_cast<std::make_unsigned_t<T>>(t); }
-    constexpr auto as_unsigned(int128_t t) noexcept { return uint128_t(t); }
-    constexpr auto as_unsigned(uint128_t t) noexcept { return uint128_t(t); }
 
     template <typename C>
     basic_string<C> cstr(const C* ptr) {
@@ -616,8 +607,6 @@ namespace Prion {
     template <typename T> using LittleEndian = Endian<T, little_endian>;
 
     template <typename T, ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<T, B> t) { return out << t.get(); }
-    template <ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<int128_t, B> t) { return out << dec(t.get()); }
-    template <ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<uint128_t, B> t) { return out << dec(t.get()); }
 
     // Exceptions
 
@@ -658,7 +647,6 @@ namespace Prion {
         template <> struct IntegerType<16> { using signed_type = int16_t; using unsigned_type = uint16_t; };
         template <> struct IntegerType<32> { using signed_type = int32_t; using unsigned_type = uint32_t; };
         template <> struct IntegerType<64> { using signed_type = int64_t; using unsigned_type = uint64_t; };
-        template <> struct IntegerType<128> { using signed_type = int128_t; using unsigned_type = uint128_t; };
 
     }
 
@@ -996,15 +984,8 @@ namespace Prion {
         constexpr wchar_t operator""_wc(unsigned long long n) noexcept { return wchar_t(n); }
         constexpr char16_t operator""_c16(unsigned long long n) noexcept { return char16_t(n); }
         constexpr char32_t operator""_c32(unsigned long long n) noexcept { return char32_t(n); }
-
-        template <char... CS> constexpr int128_t operator""_s128() noexcept
-            { return int128_t(PrionDetail::MakeInteger<uint128_t, CS...>::value); }
-        template <char... CS> constexpr uint128_t operator""_u128() noexcept
-            { return PrionDetail::MakeInteger<uint128_t, CS...>::value; }
-        template <char... CS> constexpr ptrdiff_t operator""_t() noexcept
-            { return ptrdiff_t(PrionDetail::MakeInteger<size_t, CS...>::value); }
-        template <char... CS> constexpr size_t operator""_z() noexcept
-            { return PrionDetail::MakeInteger<size_t, CS...>::value; }
+        constexpr ptrdiff_t operator""_t(unsigned long long n) noexcept { return ptrdiff_t(n); }
+        constexpr size_t operator""_z(unsigned long long n) noexcept { return size_t(n); }
 
         constexpr unsigned long long operator""_KB(unsigned long long n) noexcept { return 1024ull * n; }
         constexpr unsigned long long operator""_MB(unsigned long long n) noexcept { return 1'048'576ull * n; }
@@ -1342,10 +1323,6 @@ namespace Prion {
 
     // Generic arithmetic functions
 
-    template <typename T> inline T abs(T t) noexcept { using std::abs; return abs(t); }
-    inline int128_t abs(int128_t t) noexcept { return t < 0 ? - t : t; }
-    inline uint128_t abs(uint128_t t) noexcept { return t; }
-
     namespace PrionDetail {
 
         enum class NumMode {
@@ -1363,9 +1340,6 @@ namespace Prion {
                 std::is_unsigned<T>::value ? NumMode::unsigned_integer : NumMode::not_numeric;
         };
 
-        template <> struct NumType<int128_t> { static constexpr NumMode value = NumMode::signed_integer; };
-        template <> struct NumType<uint128_t> { static constexpr NumMode value = NumMode::unsigned_integer; };
-
         template <typename T, NumMode Mode = NumType<T>::value> struct Divide;
 
         template <typename T>
@@ -1374,7 +1348,7 @@ namespace Prion {
                 auto q = lhs / rhs, r = lhs % rhs;
                 if (r < T(0)) {
                     q += rhs < T(0) ? T(1) : T(-1);
-                    r += Prion::abs(rhs);
+                    r += std::abs(rhs);
                 }
                 return {q, r};
             }
@@ -2530,7 +2504,7 @@ namespace Prion {
             auto pp = strchr(prefixes, ascii_toupper(*endp));
             if (pp) {
                 int64_t steps = pp - prefixes + 1;
-                double limit = log10(double(limits::max()) / double(abs(n))) / 3;
+                double limit = log10(double(limits::max()) / double(std::abs(n))) / 3;
                 if (steps > limit)
                     throw std::range_error("Out of range: " + uquote(s));
                 n *= int_power(int64_t(1000), steps);
@@ -2659,8 +2633,6 @@ namespace Prion {
         };
 
         template <typename T> struct ObjectToString<T, true, false> { string operator()(T t) const { return dec(t); } };
-        template <> struct ObjectToString<int128_t> { string operator()(int128_t t) const { return dec(t); } };
-        template <> struct ObjectToString<uint128_t> { string operator()(uint128_t t) const { return dec(t); } };
         template <typename T> struct ObjectToString<T, false, true>: RangeToString<T> {};
         template <> struct ObjectToString<string> { string operator()(const string& t) const { return t; } };
         template <> struct ObjectToString<char*> { string operator()(char* t) const { return t ? string(t) : string(); } };
@@ -3518,7 +3490,6 @@ namespace Prion {
             bytes{uint8_t((abcd >> 24) & 0xff), uint8_t((abcd >> 16) & 0xff), uint8_t((abcd >> 8) & 0xff), uint8_t(abcd & 0xff),
                 uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff),
                 i, j, k, l, m, n, o, p} {}
-        explicit Uuid(uint128_t u) noexcept { whole = u; }
         explicit Uuid(const uint8_t* ptr) noexcept { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
         explicit Uuid(const string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
@@ -3527,7 +3498,6 @@ namespace Prion {
         const uint8_t* begin() const noexcept { return bytes; }
         uint8_t* end() noexcept { return bytes + 16; }
         const uint8_t* end() const noexcept { return bytes + 16; }
-        uint128_t as_integer() const noexcept { return whole; }
         size_t hash() const noexcept { return djb2a(bytes, 16); }
         u8string str() const;
         friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
@@ -3537,7 +3507,6 @@ namespace Prion {
         union {
             uint8_t bytes[16];
             uint32_t words[4];
-            BigEndian<uint128_t> whole;
         };
     };
 

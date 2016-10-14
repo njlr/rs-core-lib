@@ -403,8 +403,6 @@ struct Test {
     template <typename T> static const void* preformat(T* t) noexcept { return t; }
     static unsigned preformat(unsigned char t) noexcept { return t; }
     static int preformat(signed char t) noexcept { return t; }
-    static std::string preformat(Prion::int128_t t) noexcept { return Prion::dec(t); }
-    static std::string preformat(Prion::uint128_t t) noexcept { return Prion::dec(t); }
     static std::string preformat(char16_t t) noexcept { return "U+" + Prion::hex(t, 4); }
     static std::string preformat(char32_t t) noexcept { return "U+" + Prion::hex(t, 4); }
     static std::string preformat(wchar_t t) noexcept { return "U+" + Prion::hex(std::make_unsigned_t<wchar_t>(t), 4); }

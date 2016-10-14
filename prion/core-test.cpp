@@ -265,74 +265,61 @@ namespace {
         uint16_t a16;
         uint32_t a32;
         uint64_t a64;
-        uint128_t a128;
 
         constexpr uint8_t c8 = 0x12u;
         constexpr uint16_t c16 = 0x1234u;
         constexpr uint32_t c32 = 0x12345678ul;
         constexpr uint64_t c64 = 0x123456789abcdef0ull;
-        constexpr uint128_t c128 = 0x123456789abcdef013579bdf2468ace0_u128;
 
-        a8 = PrionDetail::swap_ends(c8);      TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::swap_ends(c16);    TEST_EQUAL(a16, 0x3412u);
-        a32 = PrionDetail::swap_ends(c32);    TEST_EQUAL(a32, 0x78563412ul);
-        a64 = PrionDetail::swap_ends(c64);    TEST_EQUAL(a64, 0xf0debc9a78563412ull);
-        a128 = PrionDetail::swap_ends(c128);  TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
+        a8 = PrionDetail::swap_ends(c8);    TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::swap_ends(c16);  TEST_EQUAL(a16, 0x3412u);
+        a32 = PrionDetail::swap_ends(c32);  TEST_EQUAL(a32, 0x78563412ul);
+        a64 = PrionDetail::swap_ends(c64);  TEST_EQUAL(a64, 0xf0debc9a78563412ull);
 
-        a8 = PrionDetail::order_bytes<big_endian>(c8);         TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::order_bytes<big_endian>(c16);       TEST_EQUAL(a16, 0x3412u);
-        a32 = PrionDetail::order_bytes<big_endian>(c32);       TEST_EQUAL(a32, 0x78563412ul);
-        a64 = PrionDetail::order_bytes<big_endian>(c64);       TEST_EQUAL(a64, 0xf0debc9a78563412ull);
-        a128 = PrionDetail::order_bytes<big_endian>(c128);     TEST_EQUAL(a128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
-        a8 = PrionDetail::order_bytes<little_endian>(c8);      TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::order_bytes<little_endian>(c16);    TEST_EQUAL(a16, 0x1234u);
-        a32 = PrionDetail::order_bytes<little_endian>(c32);    TEST_EQUAL(a32, 0x12345678ul);
-        a64 = PrionDetail::order_bytes<little_endian>(c64);    TEST_EQUAL(a64, 0x123456789abcdef0ull);
-        a128 = PrionDetail::order_bytes<little_endian>(c128);  TEST_EQUAL(a128, 0x123456789abcdef013579bdf2468ace0_u128);
+        a8 = PrionDetail::order_bytes<big_endian>(c8);       TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::order_bytes<big_endian>(c16);     TEST_EQUAL(a16, 0x3412u);
+        a32 = PrionDetail::order_bytes<big_endian>(c32);     TEST_EQUAL(a32, 0x78563412ul);
+        a64 = PrionDetail::order_bytes<big_endian>(c64);     TEST_EQUAL(a64, 0xf0debc9a78563412ull);
+        a8 = PrionDetail::order_bytes<little_endian>(c8);    TEST_EQUAL(a8, 0x12u);
+        a16 = PrionDetail::order_bytes<little_endian>(c16);  TEST_EQUAL(a16, 0x1234u);
+        a32 = PrionDetail::order_bytes<little_endian>(c32);  TEST_EQUAL(a32, 0x12345678ul);
+        a64 = PrionDetail::order_bytes<little_endian>(c64);  TEST_EQUAL(a64, 0x123456789abcdef0ull);
 
         constexpr BigEndian<uint8_t> cbe8 = c8;
         constexpr BigEndian<uint16_t> cbe16 = c16;
         constexpr BigEndian<uint32_t> cbe32 = c32;
         constexpr BigEndian<uint64_t> cbe64 = c64;
-        constexpr BigEndian<uint128_t> cbe128 = c128;
         constexpr LittleEndian<uint8_t> cle8 = c8;
         constexpr LittleEndian<uint16_t> cle16 = c16;
         constexpr LittleEndian<uint32_t> cle32 = c32;
         constexpr LittleEndian<uint64_t> cle64 = c64;
-        constexpr LittleEndian<uint128_t> cle128 = c128;
 
-        TEST_EQUAL(cbe8, 0x12u);                                      TEST_EQUAL(cbe8.rep(), 0x12u);
-        TEST_EQUAL(cbe16, 0x1234u);                                   TEST_EQUAL(cbe16.rep(), 0x3412u);
-        TEST_EQUAL(cbe32, 0x12345678ul);                              TEST_EQUAL(cbe32.rep(), 0x78563412ul);
-        TEST_EQUAL(cbe64, 0x123456789abcdef0ull);                     TEST_EQUAL(cbe64.rep(), 0xf0debc9a78563412ull);
-        TEST_EQUAL(cbe128, 0x123456789abcdef013579bdf2468ace0_u128);  TEST_EQUAL(cbe128.rep(), 0xe0ac6824df9b5713f0debc9a78563412_u128);
-        TEST_EQUAL(cle8, 0x12u);                                      TEST_EQUAL(cle8.rep(), 0x12u);
-        TEST_EQUAL(cle16, 0x1234u);                                   TEST_EQUAL(cle16.rep(), 0x1234u);
-        TEST_EQUAL(cle32, 0x12345678ul);                              TEST_EQUAL(cle32.rep(), 0x12345678ul);
-        TEST_EQUAL(cle64, 0x123456789abcdef0ull);                     TEST_EQUAL(cle64.rep(), 0x123456789abcdef0ull);
-        TEST_EQUAL(cle128, 0x123456789abcdef013579bdf2468ace0_u128);  TEST_EQUAL(cle128.rep(), 0x123456789abcdef013579bdf2468ace0_u128);
+        TEST_EQUAL(cbe8, 0x12u);                   TEST_EQUAL(cbe8.rep(), 0x12u);
+        TEST_EQUAL(cbe16, 0x1234u);                TEST_EQUAL(cbe16.rep(), 0x3412u);
+        TEST_EQUAL(cbe32, 0x12345678ul);           TEST_EQUAL(cbe32.rep(), 0x78563412ul);
+        TEST_EQUAL(cbe64, 0x123456789abcdef0ull);  TEST_EQUAL(cbe64.rep(), 0xf0debc9a78563412ull);
+        TEST_EQUAL(cle8, 0x12u);                   TEST_EQUAL(cle8.rep(), 0x12u);
+        TEST_EQUAL(cle16, 0x1234u);                TEST_EQUAL(cle16.rep(), 0x1234u);
+        TEST_EQUAL(cle32, 0x12345678ul);           TEST_EQUAL(cle32.rep(), 0x12345678ul);
+        TEST_EQUAL(cle64, 0x123456789abcdef0ull);  TEST_EQUAL(cle64.rep(), 0x123456789abcdef0ull);
 
         BigEndian<uint8_t> be8;
         BigEndian<uint16_t> be16;
         BigEndian<uint32_t> be32;
         BigEndian<uint64_t> be64;
-        BigEndian<uint128_t> be128;
         LittleEndian<uint8_t> le8;
         LittleEndian<uint16_t> le16;
         LittleEndian<uint32_t> le32;
         LittleEndian<uint64_t> le64;
-        LittleEndian<uint128_t> le128;
 
-        be8.rep() = c8;      TEST_EQUAL(be8, 0x12u);
-        be16.rep() = c16;    TEST_EQUAL(be16, 0x3412u);
-        be32.rep() = c32;    TEST_EQUAL(be32, 0x78563412ul);
-        be64.rep() = c64;    TEST_EQUAL(be64, 0xf0debc9a78563412ull);
-        be128.rep() = c128;  TEST_EQUAL(be128, 0xe0ac6824df9b5713f0debc9a78563412_u128);
-        le8.rep() = c8;      TEST_EQUAL(le8, 0x12u);
-        le16.rep() = c16;    TEST_EQUAL(le16, 0x1234u);
-        le32.rep() = c32;    TEST_EQUAL(le32, 0x12345678ul);
-        le64.rep() = c64;    TEST_EQUAL(le64, 0x123456789abcdef0ull);
-        le128.rep() = c128;  TEST_EQUAL(le128, 0x123456789abcdef013579bdf2468ace0_u128);
+        be8.rep() = c8;    TEST_EQUAL(be8, 0x12u);
+        be16.rep() = c16;  TEST_EQUAL(be16, 0x3412u);
+        be32.rep() = c32;  TEST_EQUAL(be32, 0x78563412ul);
+        be64.rep() = c64;  TEST_EQUAL(be64, 0xf0debc9a78563412ull);
+        le8.rep() = c8;    TEST_EQUAL(le8, 0x12u);
+        le16.rep() = c16;  TEST_EQUAL(le16, 0x1234u);
+        le32.rep() = c32;  TEST_EQUAL(le32, 0x12345678ul);
+        le64.rep() = c64;  TEST_EQUAL(le64, 0x123456789abcdef0ull);
 
     }
 
@@ -370,12 +357,10 @@ namespace {
         TEST_TYPE(SignedInteger<16>, int16_t);
         TEST_TYPE(SignedInteger<32>, int32_t);
         TEST_TYPE(SignedInteger<64>, int64_t);
-        TEST_TYPE(SignedInteger<128>, int128_t);
         TEST_TYPE(UnsignedInteger<8>, uint8_t);
         TEST_TYPE(UnsignedInteger<16>, uint16_t);
         TEST_TYPE(UnsignedInteger<32>, uint32_t);
         TEST_TYPE(UnsignedInteger<64>, uint64_t);
-        TEST_TYPE(UnsignedInteger<128>, uint128_t);
 
     }
 
@@ -532,21 +517,14 @@ namespace {
         TEST_EQUAL(u.str(), "00000000-0000-0000-0000-000000000000");
         TEST_EQUAL(to_str(u), "00000000-0000-0000-0000-000000000000");
         TEST_EQUAL(u.str(), to_str(u));
-        TEST_EQUAL(u.as_integer(), 0_u128);
 
         TRY(u = Uuid(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16));
         TEST_EQUAL(u.str(), "01020304-0506-0708-090a-0b0c0d0e0f10");
         TEST_EQUAL(to_str(u), "01020304-0506-0708-090a-0b0c0d0e0f10");
         TEST_EQUAL(u.str(), to_str(u));
-        TEST_EQUAL(u.as_integer(), 0x0102030405060708090a0b0c0d0e0f10_u128);
         for (unsigned i = 0; i < 16; ++i)
             TEST_EQUAL(u[i], i + 1);
         TRY(u = Uuid(0x12345678, 0x9abc, 0xdef0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0));
-        TEST_EQUAL(u.str(), "12345678-9abc-def0-1234-56789abcdef0");
-
-        TRY(u = Uuid(0_u128));
-        TEST_EQUAL(u.str(), "00000000-0000-0000-0000-000000000000");
-        TRY(u = Uuid(0x123456789abcdef0123456789abcdef0_u128));
         TEST_EQUAL(u.str(), "12345678-9abc-def0-1234-56789abcdef0");
 
         const uint8_t* bytes = nullptr;
@@ -574,15 +552,6 @@ namespace {
         TEST_THROW(u = Uuid("123456789abcdef123456789abcdef123"), std::invalid_argument);
         TEST_THROW(u = Uuid("123456789abcdef123456789abcdef1234"), std::invalid_argument);
         TEST_THROW(u = Uuid("123456789-abc-def1-2345-6789abcdef12"), std::invalid_argument);
-
-        std::unordered_set<Uuid> us;
-
-        for (uint128_t i = 0; i < 1000; ++i)
-            TRY(us.insert(Uuid(i)));
-        TEST_EQUAL(us.size(), 1000);
-        for (uint128_t i = 0; i < 1000; ++i)
-            TRY(us.insert(Uuid(i)));
-        TEST_EQUAL(us.size(), 1000);
 
         std::mt19937 rng(42);
 
@@ -781,57 +750,6 @@ namespace {
         TEST_EQUAL(i, wchar_t(123));
         TEST_EQUAL(j, char16_t(123));
         TEST_EQUAL(k, char32_t(123));
-
-        int128_t s = 0;
-        uint128_t u = 0;
-
-        TRY(s = 0_s128);
-        TEST_EQUAL(s, 0_s128);
-        TEST_EQUAL(dec(s), "0");
-        TEST_EQUAL(hex(s, 1), "0");
-        TEST_EQUAL(hex(s), "00000000000000000000000000000000");
-        TRY(s = 12345_s128);
-        TEST_EQUAL(s, 12345_s128);
-        TEST_EQUAL(dec(s), "12345");
-        TRY(s = 170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // 2^127-1
-        TEST_EQUAL(s, 170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
-        TEST_EQUAL(dec(s), "170141183460469231731687303715884105727");
-        TRY(s = -170'141'183'460'469'231'731'687'303'715'884'105'727_s128); // -(2^127-1)
-        TEST_EQUAL(s, -170'141'183'460'469'231'731'687'303'715'884'105'727_s128);
-        TEST_EQUAL(dec(s), "-170141183460469231731687303715884105727");
-        TRY(s = -170'141'183'460'469'231'731'687'303'715'884'105'728_s128); // -2^127
-        TEST_EQUAL(s, -170'141'183'460'469'231'731'687'303'715'884'105'728_s128);
-        TEST_EQUAL(dec(s), "-170141183460469231731687303715884105728");
-
-        TRY(s = 0x0_s128);
-        TEST_EQUAL(dec(s), "0");
-        TRY(s = 0x12345_s128);
-        TEST_EQUAL(hex(s, 1), "12345");
-        TEST_EQUAL(dec(s), "74565");
-        TRY(s = 0x7fffffffffffffffffffffffffffffff_s128);
-        TEST_EQUAL(hex(s), "7fffffffffffffffffffffffffffffff");
-        TEST_EQUAL(dec(s), "170141183460469231731687303715884105727");
-
-        TRY(u = 0_u128);
-        TEST_EQUAL(u, 0_u128);
-        TEST_EQUAL(dec(u), "0");
-        TEST_EQUAL(hex(u, 1), "0");
-        TEST_EQUAL(hex(u), "00000000000000000000000000000000");
-        TRY(u = 12345_u128);
-        TEST_EQUAL(u, 12345_u128);
-        TEST_EQUAL(dec(u), "12345");
-        TRY(u = 340'282'366'920'938'463'463'374'607'431'768'211'455_u128); // 2^128-1
-        TEST_EQUAL(u, 340'282'366'920'938'463'463'374'607'431'768'211'455_u128);
-        TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
-
-        TRY(u = 0x0_u128);
-        TEST_EQUAL(dec(u), "0");
-        TRY(u = 0x12345_u128);
-        TEST_EQUAL(hex(u, 1), "12345");
-        TEST_EQUAL(dec(u), "74565");
-        TRY(u = 0xffffffffffffffffffffffffffffffff_u128);
-        TEST_EQUAL(hex(u), "ffffffffffffffffffffffffffffffff");
-        TEST_EQUAL(dec(u), "340282366920938463463374607431768211455");
 
         ptrdiff_t t = 0;
         size_t z = 0;
@@ -1283,45 +1201,6 @@ namespace {
         u1 = 5;  u2 = 3;  TRY(u3 = quo(u1, u2));  TRY(u4 = rem(u1, u2));  TEST_EQUAL(u3, 1);  TEST_EQUAL(u4, 2);  TEST_EQUAL(u2 * u3 + u4, u1);
         u1 = 6;  u2 = 3;  TRY(u3 = quo(u1, u2));  TRY(u4 = rem(u1, u2));  TEST_EQUAL(u3, 2);  TEST_EQUAL(u4, 0);  TEST_EQUAL(u2 * u3 + u4, u1);
 
-        int128_t x1, x2, x3, x4;
-
-        x1 = -6;  x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -2);  TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -5;  x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -2);  TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -4;  x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -2);  TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -3;  x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -1);  TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -2;  x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -1);  TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -1;  x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -1);  TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 0;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 0);   TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 1;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 0);   TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 2;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 0);   TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 3;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 1);   TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 4;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 1);   TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 5;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 1);   TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 6;   x2 = 3;   TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 2);   TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -6;  x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 2);   TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -5;  x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 2);   TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -4;  x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 2);   TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -3;  x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 1);   TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -2;  x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 1);   TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = -1;  x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 1);   TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 0;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 0);   TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 1;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 0);   TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 2;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, 0);   TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 3;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -1);  TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 4;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -1);  TEST_EQUAL(x4, 1);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 5;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -1);  TEST_EQUAL(x4, 2);  TEST_EQUAL(x2 * x3 + x4, x1);
-        x1 = 6;   x2 = -3;  TRY(x3 = quo(x1, x2));  TRY(x4 = rem(x1, x2));  TEST_EQUAL(x3, -2);  TEST_EQUAL(x4, 0);  TEST_EQUAL(x2 * x3 + x4, x1);
-
-        uint128_t y1, y2, y3, y4;
-
-        y1 = 0;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 0);  TEST_EQUAL(y4, 0);  TEST_EQUAL(y2 * y3 + y4, y1);
-        y1 = 1;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 0);  TEST_EQUAL(y4, 1);  TEST_EQUAL(y2 * y3 + y4, y1);
-        y1 = 2;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 0);  TEST_EQUAL(y4, 2);  TEST_EQUAL(y2 * y3 + y4, y1);
-        y1 = 3;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 1);  TEST_EQUAL(y4, 0);  TEST_EQUAL(y2 * y3 + y4, y1);
-        y1 = 4;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 1);  TEST_EQUAL(y4, 1);  TEST_EQUAL(y2 * y3 + y4, y1);
-        y1 = 5;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 1);  TEST_EQUAL(y4, 2);  TEST_EQUAL(y2 * y3 + y4, y1);
-        y1 = 6;  y2 = 3;  TRY(y3 = quo(y1, y2));  TRY(y4 = rem(y1, y2));  TEST_EQUAL(y3, 2);  TEST_EQUAL(y4, 0);  TEST_EQUAL(y2 * y3 + y4, y1);
-
         double d1, d2, d3, d4;
 
         d1 = -6;  d2 = 3;   TRY(d3 = quo(d1, d2));  TRY(d4 = rem(d1, d2));  TEST_EQUAL(d3, -2);  TEST_EQUAL(d4, 0);  TEST_EQUAL(d2 * d3 + d4, d1);
@@ -1405,11 +1284,6 @@ namespace {
         TEST_EQUAL(sign_of(0.0), 0);
         TEST_EQUAL(sign_of(42.0), 1);
         TEST_EQUAL(sign_of(-42.0), -1);
-        TEST_EQUAL(sign_of(0_s128), 0);
-        TEST_EQUAL(sign_of(42_s128), 1);
-        TEST_EQUAL(sign_of(-42_s128), -1);
-        TEST_EQUAL(sign_of(0_u128), 0);
-        TEST_EQUAL(sign_of(42_u128), 1);
 
     }
 
@@ -1423,8 +1297,6 @@ namespace {
         uint32_t u32 = 42;
         int64_t s64 = -42;
         uint64_t u64 = 42;
-        int128_t s128 = -42;
-        uint128_t u128 = 42;
 
         TEST_EQUAL(sizeof(as_signed(s8)), 1);
         TEST_EQUAL(sizeof(as_signed(u8)), 1);
@@ -1442,10 +1314,6 @@ namespace {
         TEST_EQUAL(sizeof(as_signed(u64)), 8);
         TEST_EQUAL(sizeof(as_unsigned(s64)), 8);
         TEST_EQUAL(sizeof(as_unsigned(u64)), 8);
-        TEST_EQUAL(sizeof(as_signed(s128)), 16);
-        TEST_EQUAL(sizeof(as_signed(u128)), 16);
-        TEST_EQUAL(sizeof(as_unsigned(s128)), 16);
-        TEST_EQUAL(sizeof(as_unsigned(u128)), 16);
 
         TEST(std::is_signed<decltype(as_signed(s8))>::value);
         TEST(std::is_signed<decltype(as_signed(u8))>::value);
@@ -1480,10 +1348,6 @@ namespace {
         TEST_EQUAL(as_signed(u64), 42);
         TEST_EQUAL(as_unsigned(s64), 18'446'744'073'709'551'574ull);
         TEST_EQUAL(as_unsigned(u64), 42);
-        TEST_EQUAL(to_str(as_signed(s128)), "-42");
-        TEST_EQUAL(to_str(as_signed(u128)), "42");
-        TEST_EQUAL(to_str(as_unsigned(s128)), "340282366920938463463374607431768211414");
-        TEST_EQUAL(to_str(as_unsigned(u128)), "42");
 
         TEST_EQUAL(binomial(-1, -1), 0);
         TEST_EQUAL(binomial(-1, 0), 0);
@@ -1574,7 +1438,7 @@ namespace {
                     TEST_EQUAL(cm, 0);
                 } else  {
                     TEST_COMPARE(cm, >, 0);
-                    TEST_COMPARE(cd, <=, std::min(abs(a), abs(b)));
+                    TEST_COMPARE(cd, <=, std::min(std::abs(a), std::abs(b)));
                     if (a % b == 0) {
                         TEST_EQUAL(cd, std::abs(b));
                         TEST_EQUAL(cm, std::abs(a));
@@ -1586,12 +1450,12 @@ namespace {
                         TEST_EQUAL(b % cd, 0);
                         for (int x = cd + 1, xmax = std::min(a, b) / 2; x <= xmax; ++x)
                             TEST(a % x != 0 || b % x != 0);
-                        TEST_COMPARE(cm, >=, std::max(abs(a), abs(b)));
+                        TEST_COMPARE(cm, >=, std::max(std::abs(a), std::abs(b)));
                         TEST_EQUAL(cm % a, 0);
                         TEST_EQUAL(cm % b, 0);
                     }
                 }
-                TEST_EQUAL(abs(a * b), cd * cm);
+                TEST_EQUAL(std::abs(a * b), cd * cm);
             }
         }
 
@@ -1669,30 +1533,6 @@ namespace {
         TEST_EQUAL(int_power(10ull, 9ull), 1000000000ull);
         TEST_EQUAL(int_power(10ull, 10ull), 10000000000ull);
 
-        TEST_EQUAL(int_power(-10_s128, 0_s128), 1_s128);
-        TEST_EQUAL(int_power(-10_s128, 1_s128), -10_s128);
-        TEST_EQUAL(int_power(-10_s128, 2_s128), 100_s128);
-        TEST_EQUAL(int_power(-10_s128, 3_s128), -1000_s128);
-        TEST_EQUAL(int_power(-10_s128, 4_s128), 10000_s128);
-        TEST_EQUAL(int_power(-10_s128, 5_s128), -100000_s128);
-        TEST_EQUAL(int_power(-10_s128, 6_s128), 1000000_s128);
-        TEST_EQUAL(int_power(-10_s128, 7_s128), -10000000_s128);
-        TEST_EQUAL(int_power(-10_s128, 8_s128), 100000000_s128);
-        TEST_EQUAL(int_power(-10_s128, 9_s128), -1000000000_s128);
-        TEST_EQUAL(int_power(-10_s128, 10_s128), 10000000000_s128);
-
-        TEST_EQUAL(int_power(10_u128, 0_u128), 1_u128);
-        TEST_EQUAL(int_power(10_u128, 1_u128), 10_u128);
-        TEST_EQUAL(int_power(10_u128, 2_u128), 100_u128);
-        TEST_EQUAL(int_power(10_u128, 3_u128), 1000_u128);
-        TEST_EQUAL(int_power(10_u128, 4_u128), 10000_u128);
-        TEST_EQUAL(int_power(10_u128, 5_u128), 100000_u128);
-        TEST_EQUAL(int_power(10_u128, 6_u128), 1000000_u128);
-        TEST_EQUAL(int_power(10_u128, 7_u128), 10000000_u128);
-        TEST_EQUAL(int_power(10_u128, 8_u128), 100000000_u128);
-        TEST_EQUAL(int_power(10_u128, 9_u128), 1000000000_u128);
-        TEST_EQUAL(int_power(10_u128, 10_u128), 10000000000_u128);
-
         TEST_EQUAL(int_sqrt(0), 0);
         TEST_EQUAL(int_sqrt(1), 1);
         TEST_EQUAL(int_sqrt(2), 1);
@@ -1755,27 +1595,6 @@ namespace {
         TEST_EQUAL(int_sqrt(1234567890123456789ull), 1111111106ull);
         TEST_EQUAL(int_sqrt(1234567890123456789ll), 1111111106ll);
         TEST_EQUAL(int_sqrt(12345678901234567890ull), 3513641828ull);
-        TEST_EQUAL(int_sqrt(12345678901234567890_s128), 3513641828_s128);
-        TEST_EQUAL(int_sqrt(123456789012345678901_u128), 11111111061_u128);
-        TEST_EQUAL(int_sqrt(123456789012345678901_s128), 11111111061_s128);
-        TEST_EQUAL(int_sqrt(1234567890123456789012_u128), 35136418288_u128);
-        TEST_EQUAL(int_sqrt(1234567890123456789012_s128), 35136418288_s128);
-        TEST_EQUAL(int_sqrt(12345678901234567890123_u128), 111111110611_u128);
-        TEST_EQUAL(int_sqrt(12345678901234567890123_s128), 111111110611_s128);
-        TEST_EQUAL(int_sqrt(123456789012345678901234_u128), 351364182882_u128);
-        TEST_EQUAL(int_sqrt(123456789012345678901234_s128), 351364182882_s128);
-        TEST_EQUAL(int_sqrt(1234567890123456789012345_u128), 1111111106111_u128);
-        TEST_EQUAL(int_sqrt(1234567890123456789012345_s128), 1111111106111_s128);
-        TEST_EQUAL(int_sqrt(12345678901234567890123456_u128), 3513641828820_u128);
-        TEST_EQUAL(int_sqrt(12345678901234567890123456_s128), 3513641828820_s128);
-        TEST_EQUAL(int_sqrt(123456789012345678901234567_u128), 11111111061111_u128);
-        TEST_EQUAL(int_sqrt(123456789012345678901234567_s128), 11111111061111_s128);
-        TEST_EQUAL(int_sqrt(1234567890123456789012345678_u128), 35136418288201_u128);
-        TEST_EQUAL(int_sqrt(1234567890123456789012345678_s128), 35136418288201_s128);
-        TEST_EQUAL(int_sqrt(12345678901234567890123456789_u128), 111111110611111_u128);
-        TEST_EQUAL(int_sqrt(12345678901234567890123456789_s128), 111111110611111_s128);
-        TEST_EQUAL(int_sqrt(123456789012345678901234567890_u128), 351364182882014_u128);
-        TEST_EQUAL(int_sqrt(123456789012345678901234567890_s128), 351364182882014_s128);
 
     }
 
@@ -1926,15 +1745,6 @@ namespace {
         TEST_EQUAL(iceil<double>(-0.5), 0.0);    TEST_EQUAL(ifloor<double>(-0.5), -1.0);   TEST_EQUAL(round<double>(-0.5), 0.0);
         TEST_EQUAL(iceil<double>(-0.75), 0.0);   TEST_EQUAL(ifloor<double>(-0.75), -1.0);  TEST_EQUAL(round<double>(-0.75), -1.0);
         TEST_EQUAL(iceil<double>(-1), -1.0);     TEST_EQUAL(ifloor<double>(-1), -1.0);     TEST_EQUAL(round<double>(-1), -1.0);
-        TEST_EQUAL(iceil<int128_t>(0.0), 0);     TEST_EQUAL(ifloor<int128_t>(0.0), 0);     TEST_EQUAL(round<int128_t>(0.0), 0);
-        TEST_EQUAL(iceil<int128_t>(0.25), 1);    TEST_EQUAL(ifloor<int128_t>(0.25), 0);    TEST_EQUAL(round<int128_t>(0.25), 0);
-        TEST_EQUAL(iceil<int128_t>(0.5), 1);     TEST_EQUAL(ifloor<int128_t>(0.5), 0);     TEST_EQUAL(round<int128_t>(0.5), 1);
-        TEST_EQUAL(iceil<int128_t>(0.75), 1);    TEST_EQUAL(ifloor<int128_t>(0.75), 0);    TEST_EQUAL(round<int128_t>(0.75), 1);
-        TEST_EQUAL(iceil<int128_t>(1), 1);       TEST_EQUAL(ifloor<int128_t>(1), 1);       TEST_EQUAL(round<int128_t>(1), 1);
-        TEST_EQUAL(iceil<int128_t>(-0.25), 0);   TEST_EQUAL(ifloor<int128_t>(-0.25), -1);  TEST_EQUAL(round<int128_t>(-0.25), 0);
-        TEST_EQUAL(iceil<int128_t>(-0.5), 0);    TEST_EQUAL(ifloor<int128_t>(-0.5), -1);   TEST_EQUAL(round<int128_t>(-0.5), 0);
-        TEST_EQUAL(iceil<int128_t>(-0.75), 0);   TEST_EQUAL(ifloor<int128_t>(-0.75), -1);  TEST_EQUAL(round<int128_t>(-0.75), -1);
-        TEST_EQUAL(iceil<int128_t>(-1), -1);     TEST_EQUAL(ifloor<int128_t>(-1), -1);     TEST_EQUAL(round<int128_t>(-1), -1);
 
     }
 
@@ -3587,7 +3397,7 @@ namespace {
         TEST_EQUAL(t1, 946'782'245);
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5, Zone::local));
         TRY(t2 = int64_t(system_clock::to_time_t(tp)));
-        TEST_COMPARE(abs(t2 - t1), <=, 86400);
+        TEST_COMPARE(std::abs(t2 - t1), <=, 86400);
 
     }
 
