@@ -1882,15 +1882,12 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        extern "C" char* __cxa_get_globals();
-        inline unsigned uncaught_exception_count() noexcept { return *reinterpret_cast<unsigned*>(__cxa_get_globals() + sizeof(void*)); }
-
-        // MSVC implementation (for reference in case we ever support it):
-        // extern "C" char* _getptd();
-        // inline unsigned uncaught_exception_count() noexcept {
-        //     static const size_t offset = sizeof(void*) == 8 ? 0x100 : 0x90;
-        //     return *reinterpret_cast<unsigned*>(_getptd() + offset);
-        // }
+        #if defined(PRI_COMPILER_GCC) || defined(PRI_COMPILER_CLANG)
+            extern "C" char* __cxa_get_globals();
+            inline unsigned uncaught_exceptions() noexcept { return *reinterpret_cast<unsigned*>(__cxa_get_globals() + sizeof(void*)); }
+        #else
+            using std::uncaught_exceptions;
+        #endif
 
         template <int Mode, bool Conditional = Mode >= 0>
         struct ScopeExitBase {
@@ -1900,8 +1897,8 @@ namespace Prion {
         template <int Mode>
         struct ScopeExitBase<Mode, true> {
             unsigned exceptions;
-            ScopeExitBase(): exceptions(uncaught_exception_count()) {}
-            bool should_run() const noexcept { return (exceptions == uncaught_exception_count()) == (Mode > 0); }
+            ScopeExitBase(): exceptions(uncaught_exceptions()) {}
+            bool should_run() const noexcept { return (exceptions == uncaught_exceptions()) == (Mode > 0); }
         };
 
         template <int Mode>
