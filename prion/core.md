@@ -303,7 +303,7 @@ standard container, but is often useful for RAII).
     * **`big_endian`**
     * **`little_endian`**
 * `template <typename T, ByteOrder B> class` **`Endian`**
-    * `using Endian::`**`value_type`**` = T`
+    * `using Endian::`**`value_type`** `= T`
     * `static constexpr ByteOrder Endian::`**`byte_order`** `= B`
     * `constexpr Endian::`**`Endian`**`() noexcept`
     * `constexpr Endian::`**`Endian`**`(T t) noexcept`
@@ -314,8 +314,8 @@ standard container, but is often useful for RAII).
     * `T* Endian::`**`ptr`**`() noexcept`
     * `constexpr T Endian::`**`rep`**`() const noexcept`
     * `T& Endian::`**`rep`**`() noexcept`
-* `template <typename T> using` **`BigEndian`**` = Endian<T, big_endian>`
-* `template <typename T> using` **`LittleEndian`**` = Endian<T, little_endian>`
+* `template <typename T> using` **`BigEndian`** `= Endian<T, big_endian>`
+* `template <typename T> using` **`LittleEndian`** `= Endian<T, little_endian>`
 * `template <typename T, ByteOrder B> std::ostream&` **`operator<<`**`(std::ostream& out, Endian<T, B> t)`
 
 An `Endian` object holds an integer in a defined byte order. Assignment to or

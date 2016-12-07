@@ -451,7 +451,7 @@ standard container, but is often useful for RAII).</p>
 </ul>
 </li>
 <li><code>template &lt;typename T, ByteOrder B&gt; class</code> <strong><code>Endian</code></strong><ul>
-<li><code>using Endian::</code><strong><code>value_type</code></strong><code>= T</code></li>
+<li><code>using Endian::</code><strong><code>value_type</code></strong> <code>= T</code></li>
 <li><code>static constexpr ByteOrder Endian::</code><strong><code>byte_order</code></strong> <code>= B</code></li>
 <li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>() noexcept</code></li>
 <li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(T t) noexcept</code></li>
@@ -464,8 +464,8 @@ standard container, but is often useful for RAII).</p>
 <li><code>T&amp; Endian::</code><strong><code>rep</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong><code>= Endian&lt;T, big_endian&gt;</code></li>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong><code>= Endian&lt;T, little_endian&gt;</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong> <code>= Endian&lt;T, big_endian&gt;</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong> <code>= Endian&lt;T, little_endian&gt;</code></li>
 <li><code>template &lt;typename T, ByteOrder B&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, B&gt; t)</code></li>
 </ul>
 <p>An <code>Endian</code> object holds an integer in a defined byte order. Assignment to or
