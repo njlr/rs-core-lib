@@ -1017,6 +1017,11 @@ namespace Prion {
 
     // Generic algorithms
 
+    template <typename Container, typename T>
+    void append_to(Container& con, const T& t) {
+        con.insert(con.end(), t);
+    }
+
     template <typename Container>
     class AppendIterator:
     public OutputIterator<AppendIterator<Container>> {
@@ -1024,7 +1029,7 @@ namespace Prion {
         using value_type = typename Container::value_type;
         AppendIterator() = default;
         explicit AppendIterator(Container& c): con(&c) {}
-        AppendIterator& operator=(const value_type& v) { con->insert(con->end(), v); return *this; }
+        AppendIterator& operator=(const value_type& v) { append_to(*con, v); return *this; }
     private:
         Container* con;
     };

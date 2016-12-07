@@ -726,9 +726,17 @@ byte order.
 * `template <typename Container> [output iterator]` **`overwrite`**`(Container& con)`
 
 These create output iterators that will append elements to a standard
-container. The `append()` function is similar to `std::back_inserter()` (but
-supports containers without `push_back()`), while `overwrite()` will first
-clear the container and then return the append iterator.
+container (see `append_to()` below). The `append()` function is similar to
+`std::back_inserter()` (but supports containers without `push_back()`), while
+`overwrite()` will first clear the container and then return the append
+iterator.
+
+* `template <typename Container, typename T> void` **`append_to`**`(Container& con, const T& t)`
+
+Appends an item to a container; used by `append()` and `overwrite()`. The
+generic version calls `con.insert(con.end(), t)`; overloads (found by argument
+dependent lookup) can be used for container-like types that do not have a
+suitable `insert()` method.
 
 * `template <typename Range1, typename Range2> int` **`compare_3way`**`(const Range1& r1, const Range2& r2)`
 * `template <typename Range1, typename Range2, typename Compare> int` **`compare_3way`**`(const Range1& r1, const Range2& r2, Compare cmp)`

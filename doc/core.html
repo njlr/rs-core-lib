@@ -950,9 +950,19 @@ byte order.</p>
 <li><code>template &lt;typename Container&gt; [output iterator]</code> <strong><code>overwrite</code></strong><code>(Container&amp; con)</code></li>
 </ul>
 <p>These create output iterators that will append elements to a standard
-container. The <code>append()</code> function is similar to <code>std::back_inserter()</code> (but
-supports containers without <code>push_back()</code>), while <code>overwrite()</code> will first
-clear the container and then return the append iterator.</p>
+container (see <code>append_to()</code> below). The <code>append()</code> function is similar to
+<code>std::back_inserter()</code> (but supports containers without <code>push_back()</code>), while
+<code>overwrite()</code> will first clear the container and then return the append
+iterator.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>append_to</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
+</ul>
+<p>Appends an item to a container; used by <code>append()</code> and <code>overwrite()</code>. The
+generic version calls <code>con.insert(con.end(), t)</code>; overloads (found by argument
+dependent lookup) can be used for container-like types that do not have a
+suitable <code>insert()</code> method.</p>
 </div>
 <div class="defns">
 <ul>
