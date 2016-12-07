@@ -2839,6 +2839,10 @@ namespace {
         sv = {"Hello"};                  TEST_EQUAL(join(sv, "<*>"s), "Hello");
         sv = {"Hello","world"};          TEST_EQUAL(join(sv, "<*>"s), "Hello<*>world");
         sv = {"Hello","world","again"};  TEST_EQUAL(join(sv, "<*>"s), "Hello<*>world<*>again");
+        sv.clear();                      TEST_EQUAL(join(sv, "\n", true), "");
+        sv = {"Hello"};                  TEST_EQUAL(join(sv, "\n", true), "Hello\n");
+        sv = {"Hello","world"};          TEST_EQUAL(join(sv, "\n", true), "Hello\nworld\n");
+        sv = {"Hello","world","again"};  TEST_EQUAL(join(sv, "\n", true), "Hello\nworld\nagain\n");
 
         s = ""s;                TRY(null_term(s));   TEST_EQUAL(s, "");
         s = "Hello world"s;     TRY(null_term(s));   TEST_EQUAL(s, "Hello world");

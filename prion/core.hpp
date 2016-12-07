@@ -2369,13 +2369,13 @@ namespace Prion {
     inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
 
     template <typename InputRange>
-    string join(const InputRange& range, const string& delim = {}) {
+    string join(const InputRange& range, const string& delim = {}, bool term = false) {
         string result;
         for (auto& s: range) {
             result += s;
             result += delim;
         }
-        if (! result.empty() && ! delim.empty())
+        if (! term && ! result.empty() && ! delim.empty())
             result.resize(result.size() - delim.size());
         return result;
     }
