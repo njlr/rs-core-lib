@@ -987,11 +987,6 @@ namespace Prion {
         constexpr ptrdiff_t operator""_t(unsigned long long n) noexcept { return ptrdiff_t(n); }
         constexpr size_t operator""_z(unsigned long long n) noexcept { return size_t(n); }
 
-        constexpr unsigned long long operator""_KB(unsigned long long n) noexcept { return 1024ull * n; }
-        constexpr unsigned long long operator""_MB(unsigned long long n) noexcept { return 1'048'576ull * n; }
-        constexpr unsigned long long operator""_GB(unsigned long long n) noexcept { return 1'073'741'824ull * n; }
-        constexpr unsigned long long operator""_TB(unsigned long long n) noexcept { return 1'099'511'627'776ull * n; }
-
         constexpr float operator""_degf(long double x) noexcept
             { return float(x * (pi_ld / 180.0L)); }
         constexpr float operator""_degf(unsigned long long x) noexcept
@@ -1012,6 +1007,13 @@ namespace Prion {
         using namespace Prion::Literals;
 
     }
+
+    // Other constants
+
+    constexpr unsigned KB = 1024u;
+    constexpr unsigned long MB = 1'048'576ul;
+    constexpr unsigned long GB = 1'073'741'824ul;
+    constexpr unsigned long long TB = 1'099'511'627'776ull;
 
     // [Algorithms and ranges]
 

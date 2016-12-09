@@ -834,11 +834,6 @@ namespace {
 
         }
 
-        TEST_EQUAL(42_KB, 43'008ull);
-        TEST_EQUAL(42_MB, 44'040'192ull);
-        TEST_EQUAL(42_GB, 45'097'156'608ull);
-        TEST_EQUAL(42_TB, 46'179'488'366'592ull);
-
         TEST_EQUAL(0_deg, 0.0);
         TEST_NEAR(45_deg, 0.785398);
         TEST_NEAR(90_deg, 1.570796);

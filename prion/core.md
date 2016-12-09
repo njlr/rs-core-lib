@@ -682,13 +682,6 @@ These are all in `namespace Prion::Literals`.
 
 Integer literals.
 
-* `constexpr unsigned long long` **`operator""_KB`**`(unsigned long long n) noexcept` _(&times; 2<sup>10</sup> = 1024)_
-* `constexpr unsigned long long` **`operator""_MB`**`(unsigned long long n) noexcept` _(&times; 2<sup>20</sup> = 1 048 576)_
-* `constexpr unsigned long long` **`operator""_GB`**`(unsigned long long n) noexcept` _(&times; 2<sup>30</sup> = 1 073 741 824)_
-* `constexpr unsigned long long` **`operator""_TB`**`(unsigned long long n) noexcept` _(&times; 2<sup>40</sup> = 1 099 511 627 776)_
-
-Integer literals for abbreviating large constants.
-
 * `constexpr float` **`operator""_degf`**`(long double x) noexcept`
 * `constexpr float` **`operator""_degf`**`(unsigned long long x) noexcept`
 * `constexpr double` **`operator""_deg(`**`long double x) noexcept`
@@ -717,6 +710,13 @@ possible" or "no limit", or as a return value to mean "not found".
 
 One of these will be true and the other false, reflecting the target system's
 byte order.
+
+* `constexpr unsigned` **`KB`** `= 1024`
+* `constexpr unsigned long` **`MB`** `= 1 048 576`
+* `constexpr unsigned long` **`GB`** `= 1 073 741 824`
+* `constexpr unsigned long long` **`TB`** `= 1 099 511 627 776`
+
+Powers of 2<sup>10</sup>.
 
 ## Algorithms and ranges ##
 

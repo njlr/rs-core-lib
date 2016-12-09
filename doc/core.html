@@ -900,15 +900,6 @@ constants.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_KB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>10</sup> = 1024)</em></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_MB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>20</sup> = 1 048 576)</em></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_GB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>30</sup> = 1 073 741 824)</em></li>
-<li><code>constexpr unsigned long long</code> <strong><code>operator""_TB</code></strong><code>(unsigned long long n) noexcept</code> <em>(&times; 2<sup>40</sup> = 1 099 511 627 776)</em></li>
-</ul>
-<p>Integer literals for abbreviating large constants.</p>
-</div>
-<div class="defns">
-<ul>
 <li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(long double x) noexcept</code></li>
 <li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(unsigned long long x) noexcept</code></li>
 <li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>long double x) noexcept</code></li>
@@ -941,6 +932,15 @@ possible" or "no limit", or as a return value to mean "not found".</p>
 </ul>
 <p>One of these will be true and the other false, reflecting the target system's
 byte order.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr unsigned</code> <strong><code>KB</code></strong> <code>= 1024</code></li>
+<li><code>constexpr unsigned long</code> <strong><code>MB</code></strong> <code>= 1 048 576</code></li>
+<li><code>constexpr unsigned long</code> <strong><code>GB</code></strong> <code>= 1 073 741 824</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>TB</code></strong> <code>= 1 099 511 627 776</code></li>
+</ul>
+<p>Powers of 2<sup>10</sup>.</p>
 </div>
 <h2 id="algorithms-and-ranges">Algorithms and ranges</h2>
 <h3 id="generic-algorithms">Generic algorithms</h3>
