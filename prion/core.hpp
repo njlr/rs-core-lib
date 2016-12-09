@@ -161,7 +161,7 @@
 
 #define PRI_MERGE_(a, b) a ## b
 #define PRI_LDLIB_LABEL_(a) PRI_MERGE_(PRI_LDLIB_, a)
-#define PRI_LDLIB(lib) static constexpr const char* PRI_LDLIB_LABEL_(__COUNTER__) __attribute__((unused)) = # lib;
+#define PRI_LDLIB(lib) static constexpr __attribute__((unused)) const char* PRI_LDLIB_LABEL_(__COUNTER__) = # lib;
 
 #define PRI_BITMASK_OPERATORS(EC) \
     inline constexpr bool operator!(EC x) noexcept { return std::underlying_type_t<EC>(x) == 0; } \
@@ -203,12 +203,10 @@ namespace Prion {
         ::Prion::PrionDetail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
         return out; \
     } \
-    constexpr bool enum_is_valid(EnumType t) noexcept __attribute__((unused)); \
-    constexpr bool enum_is_valid(EnumType t) noexcept { \
+    constexpr __attribute__((unused)) bool enum_is_valid(EnumType t) noexcept { \
         return IntType(t) >= IntType(first_value) && IntType(t) < IntType(EnumType::prion_enum_sentinel); \
     } \
-    inline std::vector<EnumType> prion_enum_values(EnumType) __attribute__((unused)); \
-    inline std::vector<EnumType> prion_enum_values(EnumType) { \
+    inline __attribute__((unused)) std::vector<EnumType> prion_enum_values(EnumType) { \
         IntType n = IntType(EnumType::prion_enum_sentinel) - IntType(first_value); \
         std::vector<EnumType> v(n); \
         for (IntType i = 0; i < n; ++i) \
