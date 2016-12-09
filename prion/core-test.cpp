@@ -53,16 +53,16 @@ namespace {
     u8string f2(u8string s) { return '[' + s + ']'; }
     u8string f2(int x, int y) { return dec(x * y); }
 
-    PRI_ENUM(Foo, 1, alpha, bravo, charlie)
-    PRI_ENUM_CLASS(Bar, 1, alpha, bravo, charlie)
+    PRI_ENUM(FooEnum, int16_t, 1, alpha, bravo, charlie)
+    PRI_ENUM_CLASS(BarEnum, int32_t, 1, alpha, bravo, charlie)
 
-    enum class Zap: uint32_t {
+    enum class ZapEnum: uint32_t {
         alpha = 1,
         bravo = 2,
         charlie = 4,
     };
 
-    PRI_BITMASK_OPERATORS(Zap)
+    PRI_BITMASK_OPERATORS(ZapEnum)
 
     void check_preprocessor_macros() {
 
@@ -101,8 +101,16 @@ namespace {
         auto cp3 = PRI_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
         auto cp4 = PRI_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
 
-        vector<Foo> vf;
-        vector<Bar> vb;
+        vector<FooEnum> vf;
+        vector<BarEnum> vb;
+
+        TEST_TYPE(std::underlying_type_t<FooEnum>, int16_t);
+        TEST_TYPE(std::underlying_type_t<BarEnum>, int32_t);
+        TEST_TYPE(std::underlying_type_t<ZapEnum>, uint32_t);
+
+        TEST_EQUAL(sizeof(FooEnum), 2);
+        TEST_EQUAL(sizeof(BarEnum), 4);
+        TEST_EQUAL(sizeof(ZapEnum), 4);
 
         TEST_EQUAL(int(alpha), 1);
         TEST_EQUAL(int(bravo), 2);
@@ -111,42 +119,42 @@ namespace {
         TEST_EQUAL(to_str(alpha), "alpha");
         TEST_EQUAL(to_str(bravo), "bravo");
         TEST_EQUAL(to_str(charlie), "charlie");
-        TEST_EQUAL(to_str(Foo(0)), "0");
-        TEST_EQUAL(to_str(Foo(4)), "4");
-        TEST_EQUAL(to_str(Foo(99)), "99");
+        TEST_EQUAL(to_str(FooEnum(0)), "0");
+        TEST_EQUAL(to_str(FooEnum(4)), "4");
+        TEST_EQUAL(to_str(FooEnum(99)), "99");
 
-        TEST(! enum_is_valid(Foo(0)));
-        TEST(enum_is_valid(Foo(1)));
-        TEST(enum_is_valid(Foo(2)));
-        TEST(enum_is_valid(Foo(3)));
-        TEST(! enum_is_valid(Foo(4)));
+        TEST(! enum_is_valid(FooEnum(0)));
+        TEST(enum_is_valid(FooEnum(1)));
+        TEST(enum_is_valid(FooEnum(2)));
+        TEST(enum_is_valid(FooEnum(3)));
+        TEST(! enum_is_valid(FooEnum(4)));
 
-        TRY(vf = enum_values<Foo>());
+        TRY(vf = enum_values<FooEnum>());
         TEST_EQUAL(vf.size(), 3);
         TEST_EQUAL(to_str(vf), "[alpha,bravo,charlie]");
 
-        TEST_EQUAL(int(Bar::alpha), 1);
-        TEST_EQUAL(int(Bar::bravo), 2);
-        TEST_EQUAL(int(Bar::charlie), 3);
+        TEST_EQUAL(int(BarEnum::alpha), 1);
+        TEST_EQUAL(int(BarEnum::bravo), 2);
+        TEST_EQUAL(int(BarEnum::charlie), 3);
 
-        TEST_EQUAL(to_str(Bar::alpha), "Bar::alpha");
-        TEST_EQUAL(to_str(Bar::bravo), "Bar::bravo");
-        TEST_EQUAL(to_str(Bar::charlie), "Bar::charlie");
-        TEST_EQUAL(to_str(Bar(0)), "0");
-        TEST_EQUAL(to_str(Bar(4)), "4");
-        TEST_EQUAL(to_str(Bar(99)), "99");
+        TEST_EQUAL(to_str(BarEnum::alpha), "BarEnum::alpha");
+        TEST_EQUAL(to_str(BarEnum::bravo), "BarEnum::bravo");
+        TEST_EQUAL(to_str(BarEnum::charlie), "BarEnum::charlie");
+        TEST_EQUAL(to_str(BarEnum(0)), "0");
+        TEST_EQUAL(to_str(BarEnum(4)), "4");
+        TEST_EQUAL(to_str(BarEnum(99)), "99");
 
-        TEST(! enum_is_valid(Bar(0)));
-        TEST(enum_is_valid(Bar(1)));
-        TEST(enum_is_valid(Bar(2)));
-        TEST(enum_is_valid(Bar(3)));
-        TEST(! enum_is_valid(Bar(4)));
+        TEST(! enum_is_valid(BarEnum(0)));
+        TEST(enum_is_valid(BarEnum(1)));
+        TEST(enum_is_valid(BarEnum(2)));
+        TEST(enum_is_valid(BarEnum(3)));
+        TEST(! enum_is_valid(BarEnum(4)));
 
-        TRY(vb = enum_values<Bar>());
+        TRY(vb = enum_values<BarEnum>());
         TEST_EQUAL(vb.size(), 3);
-        TEST_EQUAL(to_str(vb), "[Bar::alpha,Bar::bravo,Bar::charlie]");
+        TEST_EQUAL(to_str(vb), "[BarEnum::alpha,BarEnum::bravo,BarEnum::charlie]");
 
-        Zap x = Zap::alpha, y = Zap::bravo, z = Zap(0);
+        ZapEnum x = ZapEnum::alpha, y = ZapEnum::bravo, z = ZapEnum(0);
 
         TEST(x);    TEST(bool(x));
         TEST(y);    TEST(bool(y));
@@ -154,7 +162,7 @@ namespace {
 
         TRY(z = ~ x);             TEST_EQUAL(uint32_t(z), 0xfffffffe);
         TRY(z = ~ y);             TEST_EQUAL(uint32_t(z), 0xfffffffd);
-        TRY(z = ~ Zap(0));        TEST_EQUAL(uint32_t(z), 0xffffffff);
+        TRY(z = ~ ZapEnum(0));        TEST_EQUAL(uint32_t(z), 0xffffffff);
         TRY(z = x & y);           TEST_EQUAL(uint32_t(z), 0);
         TRY(z = x | y);           TEST_EQUAL(uint32_t(z), 3);
         TRY(z = x ^ y);           TEST_EQUAL(uint32_t(z), 3);
@@ -162,9 +170,9 @@ namespace {
         TRY(z = x); TRY(z |= y);  TEST_EQUAL(uint32_t(z), 3);
         TRY(z = x); TRY(z ^= y);  TEST_EQUAL(uint32_t(z), 3);
 
-        TEST(Zap::alpha == Zap::alpha);   TEST(Zap::alpha < Zap::bravo);    TEST(Zap::alpha < Zap::charlie);
-        TEST(Zap::bravo > Zap::alpha);    TEST(Zap::bravo == Zap::bravo);   TEST(Zap::bravo < Zap::charlie);
-        TEST(Zap::charlie > Zap::alpha);  TEST(Zap::charlie > Zap::bravo);  TEST(Zap::charlie == Zap::charlie);
+        TEST(ZapEnum::alpha == ZapEnum::alpha);   TEST(ZapEnum::alpha < ZapEnum::bravo);    TEST(ZapEnum::alpha < ZapEnum::charlie);
+        TEST(ZapEnum::bravo > ZapEnum::alpha);    TEST(ZapEnum::bravo == ZapEnum::bravo);   TEST(ZapEnum::bravo < ZapEnum::charlie);
+        TEST(ZapEnum::charlie > ZapEnum::alpha);  TEST(ZapEnum::charlie > ZapEnum::bravo);  TEST(ZapEnum::charlie == ZapEnum::charlie);
 
     }
 

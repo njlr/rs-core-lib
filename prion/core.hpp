@@ -179,11 +179,12 @@ namespace Prion {
 
         template <typename EnumType>
         void write_enum(std::ostream& out, EnumType t, long first_value, const char* prefix, const char* names) {
-            size_t index = long(t) - first_value;
+            using U = std::underlying_type_t<EnumType>;
+            size_t index = U(t) - first_value;
             for (size_t i = 0; i < index; ++i) {
                 names = strchr(names, ',');
                 if (names == nullptr) {
-                    out << long(t);
+                    out << U(t);
                     return;
                 }
                 names += strspn(names, " ,");
@@ -196,29 +197,29 @@ namespace Prion {
 
 }
 
-#define PRI_ENUM_IMPLEMENTATION(EnumType, class_tag, name_prefix, first_value, first_name, ...) \
-    enum class_tag EnumType { first_name = first_value, __VA_ARGS__, prion_enum_sentinel }; \
+#define PRI_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
+    enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, prion_enum_sentinel }; \
     inline std::ostream& operator<<(std::ostream& out, EnumType t) { \
         ::Prion::PrionDetail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
         return out; \
     } \
     constexpr bool enum_is_valid(EnumType t) noexcept __attribute__((unused)); \
     constexpr bool enum_is_valid(EnumType t) noexcept { \
-        return int(t) >= int(first_value) && int(t) < int(EnumType::prion_enum_sentinel); \
+        return IntType(t) >= IntType(first_value) && IntType(t) < IntType(EnumType::prion_enum_sentinel); \
     } \
     inline std::vector<EnumType> prion_enum_values(EnumType) __attribute__((unused)); \
     inline std::vector<EnumType> prion_enum_values(EnumType) { \
-        int n = int(EnumType::prion_enum_sentinel) - int(first_value); \
+        IntType n = IntType(EnumType::prion_enum_sentinel) - IntType(first_value); \
         std::vector<EnumType> v(n); \
-        for (int i = 0; i < n; ++i) \
+        for (IntType i = 0; i < n; ++i) \
             v[i] = EnumType(first_value + i); \
         return v; \
     }
 
-#define PRI_ENUM(EnumType, first_value, first_name, ...) \
-    PRI_ENUM_IMPLEMENTATION(EnumType,, "", first_value, first_name, __VA_ARGS__)
-#define PRI_ENUM_CLASS(EnumType, first_value, first_name, ...) \
-    PRI_ENUM_IMPLEMENTATION(EnumType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
+#define PRI_ENUM(EnumType, IntType, first_value, first_name, ...) \
+    PRI_ENUM_IMPLEMENTATION(EnumType, IntType,, "", first_value, first_name, __VA_ARGS__)
+#define PRI_ENUM_CLASS(EnumType, IntType, first_value, first_name, ...) \
+    PRI_ENUM_IMPLEMENTATION(EnumType, IntType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
 
 #define PRI_MOVE_ONLY(T) \
     T(const T&) = delete; \
@@ -3053,7 +3054,7 @@ namespace Prion {
 
     // General time and date operations
 
-    PRI_ENUM_CLASS(Zone, 1, utc, local)
+    PRI_ENUM_CLASS(Zone, int, 1, utc, local)
 
     namespace PrionDetail {
 
