@@ -467,13 +467,15 @@ standard container, but is often useful for RAII).</p>
 <li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong> <code>= Endian&lt;T, big_endian&gt;</code></li>
 <li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong> <code>= Endian&lt;T, little_endian&gt;</code></li>
 <li><code>template &lt;typename T, ByteOrder B&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, B&gt; t)</code></li>
+<li><code>template &lt;typename T, ByteOrder B&gt; class std::</code><strong><code>hash</code></strong><code>&lt;Endian&lt;T, B&gt;&gt;</code></li>
 </ul>
-<p>An <code>Endian</code> object holds an integer in a defined byte order. Assignment to or
-from an endian integer performs any necessary reordering transparently. The
-default constructor sets the value to zero. The constructor from a pointer
-copies <code>sizeof(T)</code> bytes into the object. The <code>ptr()</code> and <code>rep()</code> functions
-give access to the internal, byte ordered form. The <code>Endian</code> class is a
-literal type and can be used in <code>constexpr</code> expressions.</p>
+<p>An <code>Endian</code> object holds an integer in a defined byte order. This is a literal
+type and can be used in <code>constexpr</code> expressions.</p>
+<p>Assignment to or from an endian integer performs any necessary reordering
+transparently. The default constructor sets the value to zero; the constructor
+from a pointer copies <code>sizeof(T)</code> bytes into the object. The <code>ptr()</code> and
+<code>rep()</code> functions give access to the internal, byte ordered form. The hash
+function gives the same result as the underlying integer type's hash.</p>
 </div>
 <h3 id="exceptions">Exceptions</h3>
 <div class="defns">

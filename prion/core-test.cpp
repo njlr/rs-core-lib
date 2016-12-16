@@ -329,6 +329,51 @@ namespace {
         le32.rep() = c32;  TEST_EQUAL(le32, 0x12345678ul);
         le64.rep() = c64;  TEST_EQUAL(le64, 0x123456789abcdef0ull);
 
+        size_t h1 = 0, h2 = 0, h3 = 0;
+
+        for (unsigned i = 0; i <= 1000000; i += 100) {
+            TRY(h1 = std::hash<uint8_t>()(uint8_t(i)));
+            TRY(h2 = std::hash<BigEndian<uint8_t>>()(BigEndian<uint8_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<uint8_t>>()(LittleEndian<uint8_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<uint16_t>()(uint16_t(i)));
+            TRY(h2 = std::hash<BigEndian<uint16_t>>()(BigEndian<uint16_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<uint16_t>>()(LittleEndian<uint16_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<uint32_t>()(uint32_t(i)));
+            TRY(h2 = std::hash<BigEndian<uint32_t>>()(BigEndian<uint32_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<uint32_t>>()(LittleEndian<uint32_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<uint64_t>()(uint64_t(i)));
+            TRY(h2 = std::hash<BigEndian<uint64_t>>()(BigEndian<uint64_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<uint64_t>>()(LittleEndian<uint64_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<int8_t>()(int8_t(i)));
+            TRY(h2 = std::hash<BigEndian<int8_t>>()(BigEndian<int8_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<int8_t>>()(LittleEndian<int8_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<int16_t>()(int16_t(i)));
+            TRY(h2 = std::hash<BigEndian<int16_t>>()(BigEndian<int16_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<int16_t>>()(LittleEndian<int16_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<int32_t>()(int32_t(i)));
+            TRY(h2 = std::hash<BigEndian<int32_t>>()(BigEndian<int32_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<int32_t>>()(LittleEndian<int32_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+            TRY(h1 = std::hash<int64_t>()(int64_t(i)));
+            TRY(h2 = std::hash<BigEndian<int64_t>>()(BigEndian<int64_t>(i)));
+            TRY(h3 = std::hash<LittleEndian<int64_t>>()(LittleEndian<int64_t>(i)));
+            TEST_EQUAL(h1, h2);
+            TEST_EQUAL(h1, h3);
+        }
+
     }
 
     void check_exceptions() {

@@ -3654,3 +3654,11 @@ namespace Prion {
 
 PRI_DEFINE_STD_HASH(Prion::Blob)
 PRI_DEFINE_STD_HASH(Prion::Uuid)
+
+namespace std {
+    template <typename T, Prion::ByteOrder B> struct hash<Prion::Endian<T, B>> {
+        using argument_type = Prion::Endian<T, B>;
+        using result_type = size_t;
+        size_t operator()(Prion::Endian<T, B> t) const noexcept { return std::hash<T>()(t.get()); }
+    };
+}
