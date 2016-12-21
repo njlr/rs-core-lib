@@ -1550,12 +1550,12 @@ the file.</p>
 <h3 id="logging">Logging</h3>
 <div class="defns">
 <ul>
-<li><code>void</code> <strong><code>logx</code></strong><code>(const u8string&amp; msg)</code></li>
-<li><code>void</code> <strong><code>logx</code></strong><code>(const char* msg)</code></li>
-<li><code>template &lt;typename... Args&gt; void</code> <strong><code>logx</code></strong><code>(Args... args)</code></li>
-<li><code>void</code> <strong><code>logt</code></strong><code>(const u8string&amp; msg)</code></li>
-<li><code>void</code> <strong><code>logt</code></strong><code>(const char* msg)</code></li>
-<li><code>template &lt;typename... Args&gt; void</code> <strong><code>logt</code></strong><code>(Args... args)</code></li>
+<li><code>void</code> <strong><code>logx</code></strong><code>(const u8string&amp; msg) noexcept</code></li>
+<li><code>void</code> <strong><code>logx</code></strong><code>(const char* msg) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; void</code> <strong><code>logx</code></strong><code>(Args... args) noexcept</code></li>
+<li><code>void</code> <strong><code>logt</code></strong><code>(const u8string&amp; msg) noexcept</code></li>
+<li><code>void</code> <strong><code>logt</code></strong><code>(const char* msg) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; void</code> <strong><code>logt</code></strong><code>(Args... args) noexcept</code></li>
 </ul>
 <p>These write a message to standard output, followed by a line feed and an
 output flush. If multiple arguments are supplied, they are delimited with a
@@ -1563,7 +1563,22 @@ space. The <code>logt()</code> functions prefix each message with the time (in U
 <p>These functions are intended mainly for use in multithreaded code. A private
 mutex is used to ensure that messages from different threads are not
 interleaved. Output from different threads will be given different colours,
-chosen at random based on a hash of the thread ID.</p>
+chosen at random based on a hash of the thread ID. Because these are intended
+only for debugging the code around them, any exceptions thrown by their
+internal workings are silently ignored.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Stopwatch</code></strong><ul>
+<li><code>explicit Stopwatch::</code><strong><code>Stopwatch</code></strong><code>(const u8string&amp; name, int precision = 3) noexcept</code></li>
+<li><code>explicit Stopwatch::</code><strong><code>Stopwatch</code></strong><code>(const char* name, int precision = 3) noexcept</code></li>
+<li><code>Stopwatch::</code><strong><code>~Stopwatch</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>Simple timer for debugging. The destructor will write (using <code>logx()</code>) the
+name and the elapsed time since construction. The note on exceptions for
+<code>logx()</code> above applies here too.</p>
 </div>
 <h3 id="terminal-io-operations">Terminal I/O operations</h3>
 <div class="defns">

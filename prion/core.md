@@ -1241,12 +1241,12 @@ the file.
 
 ### Logging ###
 
-* `void` **`logx`**`(const u8string& msg)`
-* `void` **`logx`**`(const char* msg)`
-* `template <typename... Args> void` **`logx`**`(Args... args)`
-* `void` **`logt`**`(const u8string& msg)`
-* `void` **`logt`**`(const char* msg)`
-* `template <typename... Args> void` **`logt`**`(Args... args)`
+* `void` **`logx`**`(const u8string& msg) noexcept`
+* `void` **`logx`**`(const char* msg) noexcept`
+* `template <typename... Args> void` **`logx`**`(Args... args) noexcept`
+* `void` **`logt`**`(const u8string& msg) noexcept`
+* `void` **`logt`**`(const char* msg) noexcept`
+* `template <typename... Args> void` **`logt`**`(Args... args) noexcept`
 
 These write a message to standard output, followed by a line feed and an
 output flush. If multiple arguments are supplied, they are delimited with a
@@ -1255,7 +1255,18 @@ space. The `logt()` functions prefix each message with the time (in UTC).
 These functions are intended mainly for use in multithreaded code. A private
 mutex is used to ensure that messages from different threads are not
 interleaved. Output from different threads will be given different colours,
-chosen at random based on a hash of the thread ID.
+chosen at random based on a hash of the thread ID. Because these are intended
+only for debugging the code around them, any exceptions thrown by their
+internal workings are silently ignored.
+
+* `class` **`Stopwatch`**
+    * `explicit Stopwatch::`**`Stopwatch`**`(const u8string& name, int precision = 3) noexcept`
+    * `explicit Stopwatch::`**`Stopwatch`**`(const char* name, int precision = 3) noexcept`
+    * `Stopwatch::`**`~Stopwatch`**`() noexcept`
+
+Simple timer for debugging. The destructor will write (using `logx()`) the
+name and the elapsed time since construction. The note on exceptions for
+`logx()` above applies here too.
 
 ### Terminal I/O operations ###
 

@@ -3437,20 +3437,69 @@ namespace Prion {
                 text += "[" + format_date(system_clock::now(), 3) + "] ";
             else
                 text += "# ";
-            text += msg + xt_reset;
-            cout << text << endl;
+            text += msg + xt_reset + '\n';
+            fputs(text.data(), stdout);
+            fflush(stdout);
         }
 
     }
 
-    inline void logx(const u8string& msg) { PrionDetail::log_message(msg, false); }
-    inline void logx(const char* msg) { PrionDetail::log_message(cstr(msg), false); }
-    template <typename... Args> inline void logx(Args... args)
-        { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), false); }
-    inline void logt(const u8string& msg) { PrionDetail::log_message(msg, true); }
-    inline void logt(const char* msg) { PrionDetail::log_message(cstr(msg), true); }
-    template <typename... Args> inline void logt(Args... args)
-        { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), true); }
+    inline void logx(const u8string& msg) noexcept {
+        try { PrionDetail::log_message(msg, false); }
+        catch (...) {}
+    }
+
+    inline void logx(const char* msg) noexcept {
+        try { PrionDetail::log_message(cstr(msg), false); }
+        catch (...) {}
+    }
+
+    template <typename... Args> inline void logx(Args... args) noexcept {
+        try { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), false); }
+        catch (...) {}
+    }
+
+    inline void logt(const u8string& msg) noexcept {
+        try { PrionDetail::log_message(msg, true); }
+        catch (...) {}
+    }
+
+    inline void logt(const char* msg) noexcept {
+        try { PrionDetail::log_message(cstr(msg), true); }
+        catch (...) {}
+    }
+
+    template <typename... Args> inline void logt(Args... args) noexcept {
+        try { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), true); }
+        catch (...) {}
+    }
+
+    class Stopwatch {
+    public:
+        PRI_NO_COPY_MOVE(Stopwatch)
+        explicit Stopwatch(const u8string& name, int precision = 3) noexcept:
+            Stopwatch(name.data(), precision) {}
+        explicit Stopwatch(const char* name, int precision = 3) noexcept {
+            try {
+                prefix = name;
+                prefix += " : ";
+                prec = precision;
+                start = ReliableClock::now();
+            }
+            catch (...) {}
+        }
+        ~Stopwatch() noexcept {
+            try {
+                auto t = ReliableClock::now() - start;
+                logx(prefix + format_time(t, prec));
+            }
+            catch (...) {}
+        }
+    private:
+        u8string prefix;
+        int prec;
+        ReliableClock::time_point start;
+    };
 
     // UUID
 
