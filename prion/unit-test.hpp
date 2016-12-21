@@ -410,10 +410,11 @@ struct Test {
     static std::string preformat(const std::u16string& t) { return preformat_string(t); }
     static std::string preformat(const std::u32string& t) { return preformat_string(t); }
     static std::string preformat(const std::wstring& t) { return preformat_string(t); }
-    static std::string preformat(const char* t) { return t ? preformat(std::string(t)) : "<null>"; }
-    static std::string preformat(const char16_t* t) { return t ? preformat(std::u16string(t)) : "<null>"; }
-    static std::string preformat(const char32_t* t) { return t ? preformat(std::u32string(t)) : "<null>"; }
-    static std::string preformat(const wchar_t* t) { return t ? preformat(std::wstring(t)) : "<null>"; }
+    static std::string preformat(const char* t) { return t ? preformat(std::string(t)) : "null"; }
+    static std::string preformat(const char16_t* t) { return t ? preformat(std::u16string(t)) : "null"; }
+    static std::string preformat(const char32_t* t) { return t ? preformat(std::u32string(t)) : "null"; }
+    static std::string preformat(const wchar_t* t) { return t ? preformat(std::wstring(t)) : "null"; }
+    static std::string preformat(std::nullptr_t) { return "null"; }
     template <typename T> static T preformat(const std::atomic<T>& t) { return t; }
 
     template <typename R, typename I = decltype(std::begin(std::declval<R>())),

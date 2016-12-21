@@ -2570,7 +2570,7 @@ namespace Prion {
     inline u8string tf(bool b) { return b ? "true" : "false"; }
     inline u8string yn(bool b) { return b ? "yes" : "no"; }
 
-    template <typename T> string to_str(const T& t);
+    template <typename T> u8string to_str(const T& t);
 
     namespace PrionDetail {
 
@@ -2586,8 +2586,8 @@ namespace Prion {
         template <typename R, typename I = decltype(std::begin(std::declval<R>())),
             typename V = typename std::iterator_traits<I>::value_type>
         struct RangeToString {
-            string operator()(const R& r) const {
-                string s = "[";
+            u8string operator()(const R& r) const {
+                u8string s = "[";
                 for (const V& v: r) {
                     s += to_str(v);
                     s += ',';
@@ -2601,8 +2601,8 @@ namespace Prion {
 
         template <typename R, typename I, typename K, typename V>
         struct RangeToString<R, I, pair<K, V>> {
-            string operator()(const R& r) const {
-                string s = "{";
+            u8string operator()(const R& r) const {
+                u8string s = "{";
                 for (const auto& kv: r) {
                     s += to_str(kv.first);
                     s += ':';
@@ -2618,40 +2618,41 @@ namespace Prion {
 
         template <typename R, typename I>
         struct RangeToString<R, I, char> {
-            string operator()(const R& r) const {
+            u8string operator()(const R& r) const {
                 using std::begin;
                 using std::end;
-                return string(begin(r), end(r));
+                return u8string(begin(r), end(r));
             }
         };
 
         template <typename T, bool I = std::is_integral<T>::value,
             bool R = IsRangeType<T>::value>
         struct ObjectToString {
-            string operator()(const T& t) const {
+            u8string operator()(const T& t) const {
                 std::ostringstream out;
                 out << t;
                 return out.str();
             }
         };
 
-        template <typename T> struct ObjectToString<T, true, false> { string operator()(T t) const { return dec(t); } };
+        template <typename T> struct ObjectToString<T, true, false> { u8string operator()(T t) const { return dec(t); } };
         template <typename T> struct ObjectToString<T, false, true>: RangeToString<T> {};
-        template <> struct ObjectToString<string> { string operator()(const string& t) const { return t; } };
-        template <> struct ObjectToString<char*> { string operator()(char* t) const { return t ? string(t) : string(); } };
-        template <> struct ObjectToString<const char*> { string operator()(const char* t) const { return t ? string(t) : string(); } };
-        template <> struct ObjectToString<char> { string operator()(char t) const { return {t}; } };
-        template <> struct ObjectToString<bool> { string operator()(bool t) const { return t ? "true" : "false"; } };
+        template <> struct ObjectToString<u8string> { u8string operator()(const u8string& t) const { return t; } };
+        template <> struct ObjectToString<char*> { u8string operator()(char* t) const { return t ? u8string(t) : u8string(); } };
+        template <> struct ObjectToString<const char*> { u8string operator()(const char* t) const { return t ? u8string(t) : u8string(); } };
+        template <> struct ObjectToString<char> { u8string operator()(char t) const { return {t}; } };
+        template <> struct ObjectToString<bool> { u8string operator()(bool t) const { return t ? "true" : "false"; } };
+        template <> struct ObjectToString<std::nullptr_t> { u8string operator()(std::nullptr_t) const { return "null"; } };
 
         template <typename T1, typename T2> struct ObjectToString<pair<T1, T2>, false, false> {
-            string operator()(const pair<T1, T2>& t) const {
+            u8string operator()(const pair<T1, T2>& t) const {
                 return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}';
             }
         };
 
     }
 
-    template <typename T> inline string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+    template <typename T> inline u8string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
 
     // HTML/XML tags
 

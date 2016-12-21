@@ -1518,7 +1518,7 @@ line feed is inserted after each block.
 
 Convert a boolean to `"true"/"false"` or `"yes"/"no"`.
 
-* `template <typename T> string` **`to_str`**`(const T& t)`
+* `template <typename T> u8string` **`to_str`**`(const T& t)`
 
 Formats an object as a string. For most types this uses the type's output
 stream operator. For strings, including character arrays and pointers, the

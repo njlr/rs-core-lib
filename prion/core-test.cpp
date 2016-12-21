@@ -122,6 +122,7 @@ namespace {
         TEST_EQUAL(to_str(FooEnum(0)), "0");
         TEST_EQUAL(to_str(FooEnum(4)), "4");
         TEST_EQUAL(to_str(FooEnum(99)), "99");
+        TEST_EQUAL(to_str(nullptr), "null");
 
         TEST(! enum_is_valid(FooEnum(0)));
         TEST(enum_is_valid(FooEnum(1)));
