@@ -31,7 +31,6 @@ are not guaranteed by the standard but are reliably true on all the system I
 care about. These include:
 
 * `char` is always 8 bits.
-* 128-bit integers are available as `__int128`.
 * `float` and `double` are IEEE 32 and 64 bit types.
 * Symbols from the C library are always in the global namespace.
 
