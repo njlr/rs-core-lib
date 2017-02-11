@@ -618,7 +618,7 @@ namespace Prion {
                 static constexpr uint32_t flags =
                     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
                 wchar_t* wptr = nullptr;
-                auto units = FormatMessageW(flags, nullptr, ev, 0, (wchar_t*)&wptr, 0, nullptr);
+                auto units = FormatMessageW(flags, nullptr, ev, 0, reinterpret_cast<wchar_t*>(&wptr), 0, nullptr);
                 shared_ptr<wchar_t> wshare(wptr, LocalFree);
                 int bytes = WideCharToMultiByte(CP_UTF8, 0, wptr, units, nullptr, 0, nullptr, nullptr);
                 string text(bytes, '\0');
@@ -2408,6 +2408,12 @@ namespace Prion {
             *dst = src.substr(i, j - i);
             ++dst;
         }
+    }
+
+    inline vector<string> splitv(const string& src, const string& delim = ascii_whitespace) {
+        vector<string> v;
+        split(src, append(v), delim);
+        return v;
     }
 
     inline string trim(const string& str, const string& chars = ascii_whitespace) {

@@ -1436,13 +1436,16 @@ Returns a string containing `4*depth` spaces, for indentation.
 
 * `template <typename InputRange> string` **`join`**`(const InputRange& range, const string& delim = "", bool term = false)`
 * `template <typename OutputIterator> void` **`split`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
+* `vector<string>` **`splitv`**`(const string& src, const string& delim = ascii_whitespace)`
 
 Join strings into a single string, using the given delimiter, or split a
 string into substrings, discarding any sequence of delimiter characters. The
-dereferenced iterators must be assignment compatible with `string`. If the
-`term` argument to `join()` is set, an extra delimiter will be added after the
-last element (useful when joining lines to form a text that would be expected
-to end with a line break).
+`splitv()` version returns a vector of strings instead of writing to an
+existing container. The value type of the `InputRange` or `OutputIterator`
+must be assignment compatible with `string`. If the `term` argument to
+`join()` is set, an extra delimiter will be added after the last element
+(useful when joining lines to form a text that would be expected to end with a
+line break).
 
 * `template <typename C> void` **`null_term`**`(basic_string<C>& str)`
 
