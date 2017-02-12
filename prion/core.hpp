@@ -83,10 +83,14 @@
 #endif
 
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    #include <io.h>
+    #ifdef __CYGWIN__
+        #include <windows.h>
+    #else
+        #include <winsock2.h>
+        #include <ws2tcpip.h>
+        #include <windows.h>
+        #include <io.h>
+    #endif
 #endif
 
 #ifdef _XOPEN_SOURCE
