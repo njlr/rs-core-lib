@@ -1,73 +1,36 @@
 #pragma once
 
-// Compilation environment identification
+// Compilation environment control macros
 
-// MSVC is not actually supported yet; the macro is supplied for future development.
-// http://stackoverflow.com/questions/70013/how-to-detect-if-im-compiling-code-with-visual-studio-2008
-
-#if defined(_MSC_VER)
-    #define PRI_COMPILER_MSVC (_MSC_VER >= 1900 ? _MSC_VER - 500 : _MSC_VER - 600)
-#elif defined(__GNUC__)
-    #if defined(__clang__)
-        #define PRI_COMPILER_CLANG 1
-    #else
-        #define PRI_COMPILER_GCC (100 * __GNUC__ + 10 * __GNUC_MINOR__ + __GNUC_PATCHLEVEL__)
+#ifdef __APPLE__
+    #ifndef _DARWIN_C_SOURCE
+        #define _DARWIN_C_SOURCE 1
     #endif
 #endif
 
-#if defined(__CYGWIN__)
-    #define PRI_TARGET_ANYWINDOWS 1
-    #define PRI_TARGET_CYGWIN 1
-    #define PRI_TARGET_UNIX 1
-    #if defined(_WIN32)
-        #define PRI_TARGET_WIN32 1
-    #endif
-#elif defined(_WIN32)
-    #define PRI_TARGET_ANYWINDOWS 1
-    #define PRI_TARGET_WINDOWS 1
-    #define PRI_TARGET_WIN32 1
-    #if defined(PRI_COMPILER_GCC)
-        #define PRI_TARGET_MINGW 1
-    #endif
-#else
-    #define PRI_TARGET_UNIX 1
-    #if defined(__APPLE__)
-        // Target condition on Apple must be #if, not #ifdef
-        #define PRI_TARGET_APPLE 1
-        #include <TargetConditionals.h>
-        #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-            #define PRI_TARGET_IOS 1
-        #elif TARGET_OS_MAC
-            #define PRI_TARGET_MACOS 1
-        #endif
-    #elif defined(__linux__)
-        #define PRI_TARGET_LINUX 1
-    #endif
-#endif
-
-#if defined(PRI_TARGET_UNIX)
-    #if ! defined(_XOPEN_SOURCE)
+#if defined(__CYGWIN__) || ! defined(_WIN32)
+    #ifndef _XOPEN_SOURCE
         #define _XOPEN_SOURCE 700 // Posix 2008
     #endif
-    #if ! defined(_REENTRANT)
+    #ifndef _REENTRANT
         #define _REENTRANT 1
     #endif
 #endif
 
-#if defined(PRI_TARGET_WIN32)
-    #if ! defined(NOMINMAX)
+#ifdef _WIN32
+    #ifndef NOMINMAX
         #define NOMINMAX 1
     #endif
-    #if ! defined(UNICODE)
+    #ifndef UNICODE
         #define UNICODE 1
     #endif
-    #if ! defined(_UNICODE)
+    #ifndef _UNICODE
         #define _UNICODE 1
     #endif
-    #if ! defined(WINVER)
+    #ifndef WINVER
         #define WINVER 0x601 // Windows 7
     #endif
-    #if ! defined(_WIN32_WINNT)
+    #ifndef _WIN32_WINNT
         #define _WIN32_WINNT 0x601
     #endif
 #endif
@@ -111,40 +74,38 @@
 #include <vector>
 #include <cxxabi.h>
 
-#if ! defined(PRI_TARGET_MINGW)
+#ifdef __APPLE__
+    #include <mach/mach.h>
+#endif
+
+#ifndef __MINGW32__
     #include <mutex>
 #endif
 
-#if defined(PRI_TARGET_UNIX)
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <windows.h>
+    #include <io.h>
+#endif
+
+#ifdef _XOPEN_SOURCE
     #include <pthread.h>
     #include <sched.h>
     #include <sys/select.h>
     #include <sys/time.h>
     #include <unistd.h>
-    #if defined(PRI_TARGET_APPLE)
-        #include <mach/mach.h>
-    #endif
-#endif
-
-#if defined(PRI_TARGET_WINDOWS)
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    #include <io.h>
-#elif defined(PRI_TARGET_WIN32)
-    #include <windows.h>
 #endif
 
 // Fix GNU brain damage
 
-#if defined(major)
-    #undef major
-#endif
-#if defined(minor)
-    #undef minor
-#endif
-#if defined(_P)
-    #undef _P
+#ifdef __GNUC__
+    #ifdef major
+        #undef major
+    #endif
+    #ifdef minor
+        #undef minor
+    #endif
 #endif
 
 // Other preprocessor macros
@@ -609,7 +570,7 @@ namespace Prion {
 
     // Exceptions
 
-    #if defined(PRI_TARGET_WIN32)
+    #ifdef _WIN32
 
         class WindowsCategory:
         public std::error_category {
@@ -1888,7 +1849,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        #if defined(PRI_COMPILER_GCC) || defined(PRI_COMPILER_CLANG)
+        #ifdef __GNUC__
             extern "C" char* __cxa_get_globals();
             inline unsigned uncaught_exceptions() noexcept { return *reinterpret_cast<unsigned*>(__cxa_get_globals() + sizeof(void*)); }
         #else
@@ -1986,7 +1947,7 @@ namespace Prion {
 
     }
 
-    #if defined(PRI_TARGET_UNIX)
+    #ifdef _XOPEN_SOURCE
 
         inline bool load_file(const string& file, string& dst, size_t limit = npos) {
             using namespace PrionDetail;
@@ -2704,7 +2665,7 @@ namespace Prion {
 
     // Thread class
 
-    #if defined(PRI_TARGET_UNIX)
+    #ifdef _XOPEN_SOURCE
 
         class Thread {
         public:
@@ -2738,7 +2699,7 @@ namespace Prion {
             }
             static size_t cpu_threads() noexcept {
                 size_t n = 0;
-                #if defined(PRI_TARGET_APPLE)
+                #ifdef __APPLE__
                     mach_msg_type_number_t count = HOST_BASIC_INFO_COUNT;
                     host_basic_info_data_t info;
                     if (host_info(mach_host_self(), HOST_BASIC_INFO,
@@ -2861,7 +2822,7 @@ namespace Prion {
 
     // Synchronisation objects
 
-    #if defined(PRI_TARGET_UNIX)
+    #ifdef _XOPEN_SOURCE
 
         class Mutex {
         public:
@@ -2907,11 +2868,11 @@ namespace Prion {
 
     inline auto make_lock(Mutex& m) noexcept { return MutexLock(m); }
 
-    #if ! defined(PRI_TARGET_MINGW)
+    #ifndef __MINGW32__
         template <typename T> inline auto make_lock(T& t) { return std::unique_lock<T>(t); }
     #endif
 
-    #if defined(PRI_TARGET_UNIX)
+    #ifdef _XOPEN_SOURCE
 
         // The Posix standard recommends using clock_gettime() with
         // CLOCK_REALTIME to find the current time for a CV wait. Darwin
@@ -2961,7 +2922,7 @@ namespace Prion {
                 if (nsc <= 0)
                     return false;
                 timespec ts;
-                #if defined(PRI_TARGET_APPLE)
+                #ifdef __APPLE__
                     timeval tv;
                     gettimeofday(&tv, nullptr);
                     ts = {tv.tv_sec, 1000 * tv.tv_usec};
@@ -3063,15 +3024,11 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        using SleepUnit =
-            #if defined(PRI_TARGET_UNIX)
-                std::chrono::microseconds;
-            #else
-                std::chrono::milliseconds;
-            #endif
+        #ifdef _XOPEN_SOURCE
 
-        inline void sleep_for(SleepUnit t) noexcept {
-            #if defined(PRI_TARGET_UNIX)
+            using SleepUnit = std::chrono::microseconds;
+
+            inline void sleep_for(SleepUnit t) noexcept {
                 static constexpr unsigned long M = 1'000'000;
                 auto usec = t.count();
                 if (usec > 0) {
@@ -3082,14 +3039,22 @@ namespace Prion {
                 } else {
                     sched_yield();
                 }
-            #else
+            }
+
+        #else
+
+            using SleepUnit = std::chrono::milliseconds;
+
+            inline void sleep_for(SleepUnit t) noexcept {
                 auto msec = t.count();
                 if (msec > 0)
                     Sleep(uint32_t(msec));
                 else
                     Sleep(0);
-            #endif
-        }
+            }
+
+        #endif
+
 
     }
 
@@ -3126,7 +3091,7 @@ namespace Prion {
         if (z == Zone::local)
             t = mktime(&stm);
         else
-            #if defined(PRI_TARGET_UNIX)
+            #ifdef _XOPEN_SOURCE
                 t = timegm(&stm);
             #else
                 t = _mkgmtime(&stm);
@@ -3259,7 +3224,7 @@ namespace Prion {
     timeval duration_to_timeval(const std::chrono::duration<R, P>& d) noexcept {
         using namespace Prion::Literals;
         using namespace std::chrono;
-        #if defined(PRI_TARGET_UNIX)
+        #ifdef _XOPEN_SOURCE
             using sec_type = time_t;
             using usec_type = suseconds_t;
         #else
@@ -3309,7 +3274,7 @@ namespace Prion {
         return system_clock::time_point() + d;
     }
 
-    #if defined(PRI_TARGET_WIN32)
+    #ifdef _WIN32
 
         inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
             using namespace Prion::Literals;

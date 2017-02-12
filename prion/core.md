@@ -10,44 +10,6 @@ By Ross Smith
 
 ## Preprocessor macros ##
 
-* _Compilers_
-    * `#define` **`PRI_COMPILER_CLANG`** `1`
-    * `#define` **`PRI_COMPILER_GCC`** `[version]`
-* _Unix targets_
-    * `#define` **`PRI_TARGET_UNIX`** `1` _-- defined on all Unix/Posix builds_
-    * `#define` **`PRI_TARGET_APPLE`** `1` _-- defined on all Apple (Darwin) builds_
-    * `#define` **`PRI_TARGET_IOS`** `1` _-- defined on iOS builds_
-    * `#define` **`PRI_TARGET_MACOS`** `1` _-- defined on macOS builds_
-    * `#define` **`PRI_TARGET_LINUX`** `1` _-- defined on Linux builds_
-* _Windows targets_
-    * `#define` **`PRI_TARGET_WINDOWS`** `1` _-- defined on non-Cygwin native Windows builds_
-    * `#define` **`PRI_TARGET_ANYWINDOWS`** `1` _-- defined on all Windows builds, including Cygwin_
-    * `#define` **`PRI_TARGET_WIN32`** `1` _-- defined if the Win32 API is available_
-    * `#define` **`PRI_TARGET_CYGWIN`** `1` _-- defined on Cygwin builds_
-    * `#define` **`PRI_TARGET_MINGW`** `1` _-- defined on native Win32 builds using Mingw_
-
-Some of these will be defined to provide a consistent way to identify the
-compiler and target operating system for conditional compilation.
-
-`PRI_COMPILER_GCC` will be defined as the GCC version number in three digit
-form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
-its version numbers are not consistent across builds for different systems.
-
-Exactly one of `PRI_TARGET_UNIX` or `PRI_TARGET_WINDOWS` will always be
-defined, indicating whether a build is intended to use the Posix or Win32
-operating system API. `PRI_TARGET_WIN32` is defined if the Win32 API is
-available; normally it will be the same as `PRI_TARGET_WINDOWS`, except that
-it will also be defined in Cygwin `-mwin32` builds, where both APIs are
-available. `PRI_TARGET_ANYWINDOWS` is always defined on builds intended to run
-on the Windows OS, i.e. both native Win32 and Cygwin builds.
-
-Currently only Mingw builds are supported for native Windows targets, so
-`PRI_TARGET_MINGW` will always be defined if `PRI_TARGET_WINDOWS` is defined.
-I may add MSVC support in a future version.
-
-On Apple platforms, `PRI_TARGET_APPLE` will always be defined; one of
-`PRI_TARGET_IOS` or `PRI_TARGET_MACOS` will also be defined.
-
 * `#define` **`PRI_ASSERT`**`(expr)`
 
 A simple assertion macro for quick and dirty debugging. If the expression
@@ -110,12 +72,10 @@ Libraries that are needed only on specific targets can be prefixed with one of
 the target identifiers listed below (e.g. `PRI_LDLIB(apple:foo)` will link
 with `-lfoo` for Apple targets only).
 
-Tag        | Build target  | Corresponding macro
----        | ------------  | -------------------
-`apple:`   | macOS or iOS  | `PRI_TARGET_APPLE`
-`linux:`   | Linux         | `PRI_TARGET_LINUX`
-`mingw:`   | Mingw         | `PRI_TARGET_MINGW`
-`cygwin:`  | Cygwin        | `PRI_TARGET_CYGWIN`
+* `apple:`
+* `linux:`
+* `mingw:`
+* `cygwin:`
 
 Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate
@@ -336,9 +296,9 @@ function gives the same result as the underlying integer type's hash.
 * `const std::error_category&` **`windows_category`**`() noexcept`
 
 An error category instance for translating Win32 API error codes; naturally
-this is only defined on Windows builds `(PRI_TARGET_WIN32`). (MSVC
-provides this through the standard `system_category()` instance, but GCC does
-not supply any equivalent.)
+this is only defined on builds that use the Win32 API. (MSVC provides this
+through `std::system_category()`, but GCC does not supply any equivalent on
+Cygwin or Mingw.)
 
 ### Metaprogramming and type traits ###
 

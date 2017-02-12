@@ -24,11 +24,11 @@
 #include <utility>
 #include <vector>
 
-#if defined(PRI_TARGET_UNIX)
+#ifdef _XOPEN_SOURCE
     #include <sys/time.h>
 #endif
 
-#if defined(PRI_TARGET_WIN32)
+#ifdef _WIN32
     #include <windows.h>
 #endif
 
@@ -379,7 +379,7 @@ namespace {
 
     void check_exceptions() {
 
-        #if defined(PRI_TARGET_WIN32)
+        #ifdef _WIN32
 
             u8string s;
 
@@ -2256,7 +2256,7 @@ namespace {
         TEST_EQUAL(s, "Hello world\nGoodbye\n");
         TEST(! load_file(nofile, s));
 
-        #if defined(PRI_TARGET_WINDOWS)
+        #ifndef _XOPEN_SOURCE
 
             wstring wreadme = L"README.md", wtestfile = L"__test__", wnofile = L"__no_such_file__";
 
@@ -3610,7 +3610,7 @@ namespace {
         fs = Dseconds(86'400.125);  TRY(tv = duration_to_timeval(fs));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
         ims = IntMsec(86'400'125);  TRY(tv = duration_to_timeval(ims));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
 
-        #if defined(PRI_TARGET_WIN32)
+        #ifdef _WIN32
 
             static constexpr int64_t epoch = 11'644'473'600ll;
             static constexpr int64_t freq = 10'000'000ll;

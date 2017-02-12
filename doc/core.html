@@ -98,48 +98,6 @@
 <h2 id="preprocessor-macros">Preprocessor macros</h2>
 <div class="defns">
 <ul>
-<li><em>Compilers</em><ul>
-<li><code>#define</code> <strong><code>PRI_COMPILER_CLANG</code></strong> <code>1</code></li>
-<li><code>#define</code> <strong><code>PRI_COMPILER_GCC</code></strong> <code>[version]</code></li>
-</ul>
-</li>
-<li><em>Unix targets</em><ul>
-<li><code>#define</code> <strong><code>PRI_TARGET_UNIX</code></strong> <code>1</code> <em>-- defined on all Unix/Posix builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_APPLE</code></strong> <code>1</code> <em>-- defined on all Apple (Darwin) builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_IOS</code></strong> <code>1</code> <em>-- defined on iOS builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_MACOS</code></strong> <code>1</code> <em>-- defined on macOS builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_LINUX</code></strong> <code>1</code> <em>-- defined on Linux builds</em></li>
-</ul>
-</li>
-<li><em>Windows targets</em><ul>
-<li><code>#define</code> <strong><code>PRI_TARGET_WINDOWS</code></strong> <code>1</code> <em>-- defined on non-Cygwin native Windows builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_ANYWINDOWS</code></strong> <code>1</code> <em>-- defined on all Windows builds, including Cygwin</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_WIN32</code></strong> <code>1</code> <em>-- defined if the Win32 API is available</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_CYGWIN</code></strong> <code>1</code> <em>-- defined on Cygwin builds</em></li>
-<li><code>#define</code> <strong><code>PRI_TARGET_MINGW</code></strong> <code>1</code> <em>-- defined on native Win32 builds using Mingw</em></li>
-</ul>
-</li>
-</ul>
-<p>Some of these will be defined to provide a consistent way to identify the
-compiler and target operating system for conditional compilation.</p>
-<p><code>PRI_COMPILER_GCC</code> will be defined as the GCC version number in three digit
-form (e.g. 520 for GCC 5.2.0). No version number is supplied for Clang because
-its version numbers are not consistent across builds for different systems.</p>
-<p>Exactly one of <code>PRI_TARGET_UNIX</code> or <code>PRI_TARGET_WINDOWS</code> will always be
-defined, indicating whether a build is intended to use the Posix or Win32
-operating system API. <code>PRI_TARGET_WIN32</code> is defined if the Win32 API is
-available; normally it will be the same as <code>PRI_TARGET_WINDOWS</code>, except that
-it will also be defined in Cygwin <code>-mwin32</code> builds, where both APIs are
-available. <code>PRI_TARGET_ANYWINDOWS</code> is always defined on builds intended to run
-on the Windows OS, i.e. both native Win32 and Cygwin builds.</p>
-<p>Currently only Mingw builds are supported for native Windows targets, so
-<code>PRI_TARGET_MINGW</code> will always be defined if <code>PRI_TARGET_WINDOWS</code> is defined.
-I may add MSVC support in a future version.</p>
-<p>On Apple platforms, <code>PRI_TARGET_APPLE</code> will always be defined; one of
-<code>PRI_TARGET_IOS</code> or <code>PRI_TARGET_MACOS</code> will also be defined.</p>
-</div>
-<div class="defns">
-<ul>
 <li><code>#define</code> <strong><code>PRI_ASSERT</code></strong><code>(expr)</code></li>
 </ul>
 <p>A simple assertion macro for quick and dirty debugging. If the expression
@@ -207,37 +165,14 @@ library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo)</cod
 Libraries that are needed only on specific targets can be prefixed with one of
 the target identifiers listed below (e.g. <code>PRI_LDLIB(apple:foo)</code> will link
 with <code>-lfoo</code> for Apple targets only).</p>
-<table>
-<thead>
-<tr>
-<th>Tag</th>
-<th>Build target</th>
-<th>Corresponding macro</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>apple:</code></td>
-<td>macOS or iOS</td>
-<td><code>PRI_TARGET_APPLE</code></td>
-</tr>
-<tr>
-<td><code>linux:</code></td>
-<td>Linux</td>
-<td><code>PRI_TARGET_LINUX</code></td>
-</tr>
-<tr>
-<td><code>mingw:</code></td>
-<td>Mingw</td>
-<td><code>PRI_TARGET_MINGW</code></td>
-</tr>
-<tr>
-<td><code>cygwin:</code></td>
-<td>Cygwin</td>
-<td><code>PRI_TARGET_CYGWIN</code></td>
-</tr>
-</tbody>
-</table>
+</div>
+<div class="defns">
+<ul>
+<li><code>apple:</code></li>
+<li><code>linux:</code></li>
+<li><code>mingw:</code></li>
+<li><code>cygwin:</code></li>
+</ul>
 <p>Only one target can be specified per invocation; if the same libraries are
 needed on multiple targets, but not on all targets, you will need a separate
 <code>PRI_LDLIB()</code> line for each target.</p>
@@ -488,9 +423,9 @@ function gives the same result as the underlying integer type's hash.</p>
 <li><code>const std::error_category&amp;</code> <strong><code>windows_category</code></strong><code>() noexcept</code></li>
 </ul>
 <p>An error category instance for translating Win32 API error codes; naturally
-this is only defined on Windows builds <code>(PRI_TARGET_WIN32</code>). (MSVC
-provides this through the standard <code>system_category()</code> instance, but GCC does
-not supply any equivalent.)</p>
+this is only defined on builds that use the Win32 API. (MSVC provides this
+through <code>std::system_category()</code>, but GCC does not supply any equivalent on
+Cygwin or Mingw.)</p>
 </div>
 <h3 id="metaprogramming-and-type-traits">Metaprogramming and type traits</h3>
 <div class="defns">
