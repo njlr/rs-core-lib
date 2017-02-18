@@ -501,14 +501,14 @@ namespace Prion {
     // Containers
 
     template <typename T>
-    class Stacklike {
+    class Stack {
     public:
         using iterator = typename vector<T>::iterator;
         using const_iterator = typename vector<T>::const_iterator;
-        Stacklike() = default;
-        Stacklike(Stacklike&& s) = default;
-        ~Stacklike() noexcept { clear(); }
-        Stacklike& operator=(Stacklike&& s) { if (&s != this) { clear(); stack = move(s.stack); } return *this; }
+        Stack() = default;
+        Stack(Stack&& s) = default;
+        ~Stack() noexcept { clear(); }
+        Stack& operator=(Stack&& s) { if (&s != this) { clear(); stack = move(s.stack); } return *this; }
         iterator begin() noexcept { return stack.begin(); }
         const_iterator begin() const noexcept { return stack.cbegin(); }
         const_iterator cbegin() const noexcept { return stack.cbegin(); }
@@ -523,8 +523,8 @@ namespace Prion {
         size_t size() const noexcept { return stack.size(); }
     private:
         vector<T> stack;
-        Stacklike(const Stacklike&) = delete;
-        Stacklike& operator=(const Stacklike&) = delete;
+        Stack(const Stack&) = delete;
+        Stack& operator=(const Stack&) = delete;
     };
 
     // Endian integers

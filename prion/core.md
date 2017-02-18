@@ -233,25 +233,25 @@ The `str()` function copies the entire blob into a string.
 
 The comparison operators perform bytewise comparison by calling `memcmp()`.
 
-* `template <typename T> class` **`Stacklike`**
-    * `using Stacklike<T>::`**`iterator`** `= [random access iterator]`
-    * `using Stacklike<T>::`**`const_iterator`** `= [random access iterator]`
-    * `Stacklike<T>::`**`Stacklike`**`()`
-    * `Stacklike<T>::`**`Stacklike`**`(Stacklike&& s)`
-    * `Stacklike<T>::`**`~Stacklike`**`()`
-    * `Stacklike& Stacklike<T>::`**`operator=`**`(Stacklike&& s)`
-    * `iterator Stacklike<T>::`**`begin`**`() noexcept`
-    * `const_iterator Stacklike<T>::`**`begin`**`() const noexcept`
-    * `const_iterator Stacklike<T>::`**`cbegin`**`() const noexcept`
-    * `void Stacklike<T>::`**`clear`**`() noexcept`
-    * `bool Stacklike<T>::`**`empty`**`() const noexcept`
-    * `iterator Stacklike<T>::`**`end`**`() noexcept`
-    * `const_iterator Stacklike<T>::`**`end`**`() const noexcept`
-    * `const_iterator Stacklike<T>::`**`cend`**`() const noexcept`
-    * `void Stacklike<T>::`**`pop`**`() noexcept`
-    * `void Stacklike<T>::`**`push`**`(const T& t)`
-    * `void Stacklike<T>::`**`push`**`(T&& t)`
-    * `size_t Stacklike<T>::`**`size`**`() const noexcept`
+* `template <typename T> class` **`Stack`**
+    * `using Stack<T>::`**`iterator`** `= [random access iterator]`
+    * `using Stack<T>::`**`const_iterator`** `= [random access iterator]`
+    * `Stack<T>::`**`Stack`**`()`
+    * `Stack<T>::`**`Stack`**`(Stack&& s)`
+    * `Stack<T>::`**`~Stack`**`()`
+    * `Stack& Stack<T>::`**`operator=`**`(Stack&& s)`
+    * `iterator Stack<T>::`**`begin`**`() noexcept`
+    * `const_iterator Stack<T>::`**`begin`**`() const noexcept`
+    * `const_iterator Stack<T>::`**`cbegin`**`() const noexcept`
+    * `void Stack<T>::`**`clear`**`() noexcept`
+    * `bool Stack<T>::`**`empty`**`() const noexcept`
+    * `iterator Stack<T>::`**`end`**`() noexcept`
+    * `const_iterator Stack<T>::`**`end`**`() const noexcept`
+    * `const_iterator Stack<T>::`**`cend`**`() const noexcept`
+    * `void Stack<T>::`**`pop`**`() noexcept`
+    * `void Stack<T>::`**`push`**`(const T& t)`
+    * `void Stack<T>::`**`push`**`(T&& t)`
+    * `size_t Stack<T>::`**`size`**`() const noexcept`
 
 A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any

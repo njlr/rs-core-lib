@@ -249,7 +249,7 @@ namespace {
         TRY(b.clear());
         TEST_EQUAL(s, "ab");
 
-        Stacklike<TopTail> st;
+        Stack<TopTail> st;
 
         s.clear();
         TEST(st.empty());

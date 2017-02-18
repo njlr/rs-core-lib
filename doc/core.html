@@ -351,25 +351,25 @@ size is supplied, a line feed will be inserted after each block.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; class</code> <strong><code>Stacklike</code></strong><ul>
-<li><code>using Stacklike&lt;T&gt;::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
-<li><code>using Stacklike&lt;T&gt;::</code><strong><code>const_iterator</code></strong> <code>= [random access iterator]</code></li>
-<li><code>Stacklike&lt;T&gt;::</code><strong><code>Stacklike</code></strong><code>()</code></li>
-<li><code>Stacklike&lt;T&gt;::</code><strong><code>Stacklike</code></strong><code>(Stacklike&amp;&amp; s)</code></li>
-<li><code>Stacklike&lt;T&gt;::</code><strong><code>~Stacklike</code></strong><code>()</code></li>
-<li><code>Stacklike&amp; Stacklike&lt;T&gt;::</code><strong><code>operator=</code></strong><code>(Stacklike&amp;&amp; s)</code></li>
-<li><code>iterator Stacklike&lt;T&gt;::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
-<li><code>const_iterator Stacklike&lt;T&gt;::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
-<li><code>const_iterator Stacklike&lt;T&gt;::</code><strong><code>cbegin</code></strong><code>() const noexcept</code></li>
-<li><code>void Stacklike&lt;T&gt;::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
-<li><code>bool Stacklike&lt;T&gt;::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
-<li><code>iterator Stacklike&lt;T&gt;::</code><strong><code>end</code></strong><code>() noexcept</code></li>
-<li><code>const_iterator Stacklike&lt;T&gt;::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
-<li><code>const_iterator Stacklike&lt;T&gt;::</code><strong><code>cend</code></strong><code>() const noexcept</code></li>
-<li><code>void Stacklike&lt;T&gt;::</code><strong><code>pop</code></strong><code>() noexcept</code></li>
-<li><code>void Stacklike&lt;T&gt;::</code><strong><code>push</code></strong><code>(const T&amp; t)</code></li>
-<li><code>void Stacklike&lt;T&gt;::</code><strong><code>push</code></strong><code>(T&amp;&amp; t)</code></li>
-<li><code>size_t Stacklike&lt;T&gt;::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Stack</code></strong><ul>
+<li><code>using Stack&lt;T&gt;::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using Stack&lt;T&gt;::</code><strong><code>const_iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>Stack&lt;T&gt;::</code><strong><code>Stack</code></strong><code>()</code></li>
+<li><code>Stack&lt;T&gt;::</code><strong><code>Stack</code></strong><code>(Stack&amp;&amp; s)</code></li>
+<li><code>Stack&lt;T&gt;::</code><strong><code>~Stack</code></strong><code>()</code></li>
+<li><code>Stack&amp; Stack&lt;T&gt;::</code><strong><code>operator=</code></strong><code>(Stack&amp;&amp; s)</code></li>
+<li><code>iterator Stack&lt;T&gt;::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>cbegin</code></strong><code>() const noexcept</code></li>
+<li><code>void Stack&lt;T&gt;::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool Stack&lt;T&gt;::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>iterator Stack&lt;T&gt;::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>cend</code></strong><code>() const noexcept</code></li>
+<li><code>void Stack&lt;T&gt;::</code><strong><code>pop</code></strong><code>() noexcept</code></li>
+<li><code>void Stack&lt;T&gt;::</code><strong><code>push</code></strong><code>(const T&amp; t)</code></li>
+<li><code>void Stack&lt;T&gt;::</code><strong><code>push</code></strong><code>(T&amp;&amp; t)</code></li>
+<li><code>size_t Stack&lt;T&gt;::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
 </ul>
 </li>
 </ul>
