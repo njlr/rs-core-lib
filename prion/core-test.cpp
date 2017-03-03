@@ -2220,6 +2220,21 @@ namespace {
         }
         TEST_EQUAL(s, "abc");
 
+        s = "hello";
+        {
+            ScopedValue sv(s, "world");
+            TEST_EQUAL(s, "world");
+        }
+        TEST_EQUAL(s, "hello");
+
+        s = "hello";
+        {
+            ScopedValue sv(s, "world");
+            TEST_EQUAL(s, "world");
+            TRY(sv.release());
+        }
+        TEST_EQUAL(s, "world");
+
     }
 
     class TempFile {
