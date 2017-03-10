@@ -177,97 +177,6 @@ namespace {
 
     }
 
-    class TopTail {
-    public:
-        TopTail(): sp(nullptr), ch() {}
-        TopTail(u8string& s, char c): sp(&s), ch(c) { s += '+'; s += c; }
-        ~TopTail() { term(); }
-        TopTail(TopTail&& t): sp(t.sp), ch(t.ch) { t.sp = nullptr; }
-        TopTail& operator=(TopTail&& t) { if (&t != this) { term(); sp = t.sp; ch = t.ch; t.sp = nullptr; } return *this; }
-    private:
-        u8string* sp;
-        char ch;
-        TopTail(const TopTail&) = delete;
-        TopTail& operator=(const TopTail&) = delete;
-        void term() { if (sp) { *sp += '-'; *sp += ch; sp = nullptr; } }
-    };
-
-    void check_containers() {
-
-        Blob b;
-
-        TEST(b.empty());
-        TEST_EQUAL(b.size(), 0);
-        TEST_EQUAL(b.hex(), "");
-        TEST_EQUAL(b.str(), "");
-        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "");
-
-        TRY(b = Blob(nullptr, 1));
-        TEST(b.empty());
-        TEST_EQUAL(b.size(), 0);
-
-        TRY(b = Blob(5, 'a'));
-        TEST(! b.empty());
-        TEST_EQUAL(b.size(), 5);
-        TEST_EQUAL(b.hex(), "61 61 61 61 61");
-        TEST_EQUAL(b.str(), "aaaaa");
-        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "aaaaa");
-
-        TRY(b.fill('z'));
-        TEST_EQUAL(b.size(), 5);
-        TEST_EQUAL(b.hex(), "7a 7a 7a 7a 7a");
-        TEST_EQUAL(b.str(), "zzzzz");
-
-        TRY(b.clear());
-        TEST(b.empty());
-        TEST_EQUAL(b.size(), 0);
-        TEST_EQUAL(b.hex(), "");
-        TEST_EQUAL(b.str(), "");
-
-        TRY(b.reset(10, 'a'));
-        TEST(! b.empty());
-        TEST_EQUAL(b.size(), 10);
-        TEST_EQUAL(b.hex(), "61 61 61 61 61 61 61 61 61 61");
-        TEST_EQUAL(b.str(), "aaaaaaaaaa");
-
-        TRY(b.copy("hello", 5));
-        TEST_EQUAL(b.size(), 5);
-        TEST_EQUAL(b.hex(), "68 65 6c 6c 6f");
-        TEST_EQUAL(b.str(), "hello");
-
-        u8string s, h = "hello", w = "world";
-
-        TRY(b.clear());
-        TRY(b.reset(&h[0], 5, [&] (void*) { s += "a"; }));
-        TEST_EQUAL(b.size(), 5);
-        TEST_EQUAL(b.str(), "hello");
-        TEST_EQUAL(s, "");
-        TRY(b = Blob(&w[0], 5, [&] (void*) { s += "b"; }));
-        TEST_EQUAL(b.size(), 5);
-        TEST_EQUAL(b.str(), "world");
-        TEST_EQUAL(s, "a");
-        TRY(b.clear());
-        TEST_EQUAL(s, "ab");
-
-        Stack<TopTail> st;
-
-        s.clear();
-        TEST(st.empty());
-        TRY(st.push(TopTail(s, 'a')));
-        TEST_EQUAL(st.size(), 1);
-        TEST_EQUAL(s, "+a");
-        TRY(st.push(TopTail(s, 'b')));
-        TEST_EQUAL(st.size(), 2);
-        TEST_EQUAL(s, "+a+b");
-        TRY(st.push(TopTail(s, 'c')));
-        TEST_EQUAL(st.size(), 3);
-        TEST_EQUAL(s, "+a+b+c");
-        TRY(st.clear());
-        TEST(st.empty());
-        TEST_EQUAL(s, "+a+b+c-c-b-a");
-
-    }
-
     void check_endian_integers() {
 
         uint8_t a8;
@@ -374,6 +283,153 @@ namespace {
             TEST_EQUAL(h1, h2);
             TEST_EQUAL(h1, h3);
         }
+
+        BigEndian<long> be = 20, be1 = 10, be2 = 20, be3 = 30;
+        LittleEndian<long> le = 20, le1 = 10, le2 = 20, le3 = 30;
+
+        TEST_COMPARE(be, !=, be1);  TEST_COMPARE(be, >, be1);   TEST_COMPARE(be, >=, be1);
+        TEST_COMPARE(be, ==, be2);  TEST_COMPARE(be, <=, be2);  TEST_COMPARE(be, >=, be2);
+        TEST_COMPARE(be, !=, be3);  TEST_COMPARE(be, <, be3);   TEST_COMPARE(be, <=, be3);
+        TEST_COMPARE(be, !=, 10);  TEST_COMPARE(be, >, 10);   TEST_COMPARE(be, >=, 10);
+        TEST_COMPARE(be, ==, 20);  TEST_COMPARE(be, <=, 20);  TEST_COMPARE(be, >=, 20);
+        TEST_COMPARE(be, !=, 30);  TEST_COMPARE(be, <, 30);   TEST_COMPARE(be, <=, 30);
+        TEST_COMPARE(10, !=, be);  TEST_COMPARE(10, <, be);   TEST_COMPARE(10, <=, be);
+        TEST_COMPARE(20, ==, be);  TEST_COMPARE(20, >=, be);  TEST_COMPARE(20, <=, be);
+        TEST_COMPARE(30, !=, be);  TEST_COMPARE(30, >, be);   TEST_COMPARE(30, >=, be);
+
+        TEST_COMPARE(le, !=, le1);  TEST_COMPARE(le, >, le1);   TEST_COMPARE(le, >=, le1);
+        TEST_COMPARE(le, ==, le2);  TEST_COMPARE(le, <=, le2);  TEST_COMPARE(le, >=, le2);
+        TEST_COMPARE(le, !=, le3);  TEST_COMPARE(le, <, le3);   TEST_COMPARE(le, <=, le3);
+        TEST_COMPARE(le, !=, 10);  TEST_COMPARE(le, >, 10);   TEST_COMPARE(le, >=, 10);
+        TEST_COMPARE(le, ==, 20);  TEST_COMPARE(le, <=, 20);  TEST_COMPARE(le, >=, 20);
+        TEST_COMPARE(le, !=, 30);  TEST_COMPARE(le, <, 30);   TEST_COMPARE(le, <=, 30);
+        TEST_COMPARE(10, !=, le);  TEST_COMPARE(10, <, le);   TEST_COMPARE(10, <=, le);
+        TEST_COMPARE(20, ==, le);  TEST_COMPARE(20, >=, le);  TEST_COMPARE(20, <=, le);
+        TEST_COMPARE(30, !=, le);  TEST_COMPARE(30, >, le);   TEST_COMPARE(30, >=, le);
+
+        TEST_COMPARE(be, !=, le1);  TEST_COMPARE(be, >, le1);   TEST_COMPARE(be, >=, le1);
+        TEST_COMPARE(be, ==, le2);  TEST_COMPARE(be, <=, le2);  TEST_COMPARE(be, >=, le2);
+        TEST_COMPARE(be, !=, le3);  TEST_COMPARE(be, <, le3);   TEST_COMPARE(be, <=, le3);
+        TEST_COMPARE(le, !=, be1);  TEST_COMPARE(le, >, be1);   TEST_COMPARE(le, >=, be1);
+        TEST_COMPARE(le, ==, be2);  TEST_COMPARE(le, <=, be2);  TEST_COMPARE(le, >=, be2);
+        TEST_COMPARE(le, !=, be3);  TEST_COMPARE(le, <, be3);   TEST_COMPARE(le, <=, be3);
+
+    }
+
+    void check_sign_type() {
+
+        Sign s, t;
+
+        TEST(! s);
+        TEST_EQUAL(s.get(), 0);
+        TEST_EQUAL(s, 0);
+        TEST_EQUAL(to_str(s), "0");
+        TRY(s = Sign(42));
+        TEST(s);
+        TEST_EQUAL(s.get(), 1);
+        TEST_EQUAL(s, 1);
+        TEST_EQUAL(to_str(s), "+1");
+        TRY(s = Sign(-42));
+        TEST(s);
+        TEST_EQUAL(s.get(), -1);
+        TEST_EQUAL(s, -1);
+        TEST_EQUAL(to_str(s), "-1");
+
+        TRY(s = Sign(10));   TRY(t = Sign(20));   TEST_COMPARE(s, ==, t);
+        TRY(s = Sign(10));   TRY(t = Sign(-20));  TEST_COMPARE(s, >, t);
+        TRY(s = Sign(-10));  TRY(t = Sign(20));   TEST_COMPARE(s, <, t);
+        TRY(s = Sign(-10));  TRY(t = Sign(-20));  TEST_COMPARE(s, ==, t);
+
+    }
+
+    class TopTail {
+    public:
+        TopTail(): sp(nullptr), ch() {}
+        TopTail(u8string& s, char c): sp(&s), ch(c) { s += '+'; s += c; }
+        ~TopTail() { term(); }
+        TopTail(TopTail&& t): sp(t.sp), ch(t.ch) { t.sp = nullptr; }
+        TopTail& operator=(TopTail&& t) { if (&t != this) { term(); sp = t.sp; ch = t.ch; t.sp = nullptr; } return *this; }
+    private:
+        u8string* sp;
+        char ch;
+        TopTail(const TopTail&) = delete;
+        TopTail& operator=(const TopTail&) = delete;
+        void term() { if (sp) { *sp += '-'; *sp += ch; sp = nullptr; } }
+    };
+
+    void check_containers() {
+
+        Blob b;
+
+        TEST(b.empty());
+        TEST_EQUAL(b.size(), 0);
+        TEST_EQUAL(b.hex(), "");
+        TEST_EQUAL(b.str(), "");
+        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "");
+
+        TRY(b = Blob(nullptr, 1));
+        TEST(b.empty());
+        TEST_EQUAL(b.size(), 0);
+
+        TRY(b = Blob(5, 'a'));
+        TEST(! b.empty());
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.hex(), "61 61 61 61 61");
+        TEST_EQUAL(b.str(), "aaaaa");
+        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "aaaaa");
+
+        TRY(b.fill('z'));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.hex(), "7a 7a 7a 7a 7a");
+        TEST_EQUAL(b.str(), "zzzzz");
+
+        TRY(b.clear());
+        TEST(b.empty());
+        TEST_EQUAL(b.size(), 0);
+        TEST_EQUAL(b.hex(), "");
+        TEST_EQUAL(b.str(), "");
+
+        TRY(b.reset(10, 'a'));
+        TEST(! b.empty());
+        TEST_EQUAL(b.size(), 10);
+        TEST_EQUAL(b.hex(), "61 61 61 61 61 61 61 61 61 61");
+        TEST_EQUAL(b.str(), "aaaaaaaaaa");
+
+        TRY(b.copy("hello", 5));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.hex(), "68 65 6c 6c 6f");
+        TEST_EQUAL(b.str(), "hello");
+
+        u8string s, h = "hello", w = "world";
+
+        TRY(b.clear());
+        TRY(b.reset(&h[0], 5, [&] (void*) { s += "a"; }));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.str(), "hello");
+        TEST_EQUAL(s, "");
+        TRY(b = Blob(&w[0], 5, [&] (void*) { s += "b"; }));
+        TEST_EQUAL(b.size(), 5);
+        TEST_EQUAL(b.str(), "world");
+        TEST_EQUAL(s, "a");
+        TRY(b.clear());
+        TEST_EQUAL(s, "ab");
+
+        Stack<TopTail> st;
+
+        s.clear();
+        TEST(st.empty());
+        TRY(st.push(TopTail(s, 'a')));
+        TEST_EQUAL(st.size(), 1);
+        TEST_EQUAL(s, "+a");
+        TRY(st.push(TopTail(s, 'b')));
+        TEST_EQUAL(st.size(), 2);
+        TEST_EQUAL(s, "+a+b");
+        TRY(st.push(TopTail(s, 'c')));
+        TEST_EQUAL(st.size(), 3);
+        TEST_EQUAL(s, "+a+b+c");
+        TRY(st.clear());
+        TEST(st.empty());
+        TEST_EQUAL(s, "+a+b+c-c-b-a");
 
     }
 
@@ -1324,15 +1380,6 @@ namespace {
         TEST_EQUAL(shift_left(42.0, -5), 1.3125);    TEST_EQUAL(shift_right(42.0, -5), 1344.0);
         TEST_EQUAL(shift_left(42.0, -6), 0.65625);   TEST_EQUAL(shift_right(42.0, -6), 2688.0);
         TEST_EQUAL(shift_left(42.0, -7), 0.328125);  TEST_EQUAL(shift_right(42.0, -7), 5376.0);
-
-        TEST_EQUAL(sign_of(0), 0);
-        TEST_EQUAL(sign_of(42), 1);
-        TEST_EQUAL(sign_of(-42), -1);
-        TEST_EQUAL(sign_of(0u), 0);
-        TEST_EQUAL(sign_of(42u), 1);
-        TEST_EQUAL(sign_of(0.0), 0);
-        TEST_EQUAL(sign_of(42.0), 1);
-        TEST_EQUAL(sign_of(-42.0), -1);
 
     }
 
@@ -3666,8 +3713,9 @@ namespace {
 TEST_MODULE(prion, core) {
 
     check_preprocessor_macros();
-    check_containers();
     check_endian_integers();
+    check_sign_type();
+    check_containers();
     check_exceptions();
     check_metaprogramming_and_type_traits();
     check_smart_pointers();

@@ -498,128 +498,6 @@ namespace Prion {
 
     // [Types]
 
-    // Containers
-
-    template <typename T>
-    class Stack {
-    public:
-        using iterator = typename vector<T>::iterator;
-        using const_iterator = typename vector<T>::const_iterator;
-        Stack() = default;
-        Stack(Stack&& s) = default;
-        ~Stack() noexcept { clear(); }
-        Stack& operator=(Stack&& s) { if (&s != this) { clear(); stack = move(s.stack); } return *this; }
-        iterator begin() noexcept { return stack.begin(); }
-        const_iterator begin() const noexcept { return stack.cbegin(); }
-        const_iterator cbegin() const noexcept { return stack.cbegin(); }
-        void clear() noexcept { while (! stack.empty()) stack.pop_back(); }
-        bool empty() const noexcept { return stack.empty(); }
-        iterator end() noexcept { return stack.end(); }
-        const_iterator end() const noexcept { return stack.cend(); }
-        const_iterator cend() const noexcept { return stack.cend(); }
-        void pop() noexcept { if (! stack.empty()) stack.pop(); }
-        void push(const T& t) { stack.push_back(t); }
-        void push(T&& t) { stack.push_back(move(t)); }
-        size_t size() const noexcept { return stack.size(); }
-    private:
-        vector<T> stack;
-        Stack(const Stack&) = delete;
-        Stack& operator=(const Stack&) = delete;
-    };
-
-    // Endian integers
-
-    enum ByteOrder {
-        big_endian = 1,
-        little_endian = 2,
-    };
-
-    namespace PrionDetail {
-
-        template <typename T>
-        constexpr T swap_ends(T t, size_t N = sizeof(T)) noexcept {
-            using U = std::make_unsigned_t<T>;
-            return N == 1 ? t : T((swap_ends(U(t) & ((U(1) << (4 * N)) - 1), N / 2) << (4 * N)) | swap_ends(U(t) >> (4 * N), N / 2));
-        }
-
-        template <ByteOrder B, typename T>
-        constexpr T order_bytes(T t) noexcept {
-            return (B == big_endian) == big_endian_target ? t : swap_ends(t);
-        }
-
-    }
-
-    template <typename T, ByteOrder B>
-    class Endian {
-    public:
-        using value_type = T;
-        static constexpr auto byte_order = B;
-        constexpr Endian() noexcept: value(0) {}
-        constexpr Endian(T t) noexcept: value(PrionDetail::order_bytes<B>(t)) {}
-        explicit Endian(const void* p) noexcept { memcpy(&value, p, sizeof(T)); }
-        constexpr operator T() const noexcept { return get(); }
-        constexpr T get() const noexcept { return PrionDetail::order_bytes<B>(value); }
-        constexpr const T* ptr() const noexcept { return &value; }
-        T* ptr() noexcept { return &value; }
-        constexpr T rep() const noexcept { return value; }
-        T& rep() noexcept { return value; }
-    private:
-        T value;
-    };
-
-    template <typename T> using BigEndian = Endian<T, big_endian>;
-    template <typename T> using LittleEndian = Endian<T, little_endian>;
-
-    template <typename T, ByteOrder B> std::ostream& operator<<(std::ostream& out, Endian<T, B> t) { return out << t.get(); }
-
-    // Exceptions
-
-    #ifdef _WIN32
-
-        class WindowsCategory:
-        public std::error_category {
-        public:
-            virtual u8string message(int ev) const {
-                static constexpr uint32_t flags =
-                    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
-                wchar_t* wptr = nullptr;
-                auto units = FormatMessageW(flags, nullptr, ev, 0, reinterpret_cast<wchar_t*>(&wptr), 0, nullptr);
-                shared_ptr<wchar_t> wshare(wptr, LocalFree);
-                int bytes = WideCharToMultiByte(CP_UTF8, 0, wptr, units, nullptr, 0, nullptr, nullptr);
-                string text(bytes, '\0');
-                WideCharToMultiByte(CP_UTF8, 0, wptr, units, &text[0], bytes, nullptr, nullptr);
-                text.resize(text.find_last_not_of(ascii_whitespace) + 1);
-                text.shrink_to_fit();
-                return text;
-            }
-            virtual const char* name() const noexcept { return "Win32"; }
-        };
-
-        inline const std::error_category& windows_category() noexcept {
-            static const WindowsCategory cat;
-            return cat;
-        }
-
-    #endif
-
-    // Metaprogramming and type traits
-
-    namespace PrionDetail {
-
-        template <size_t Bits> struct IntegerType;
-        template <> struct IntegerType<8> { using signed_type = int8_t; using unsigned_type = uint8_t; };
-        template <> struct IntegerType<16> { using signed_type = int16_t; using unsigned_type = uint16_t; };
-        template <> struct IntegerType<32> { using signed_type = int32_t; using unsigned_type = uint32_t; };
-        template <> struct IntegerType<64> { using signed_type = int64_t; using unsigned_type = uint64_t; };
-
-    }
-
-    template <typename T> using BinaryType = typename PrionDetail::IntegerType<8 * sizeof(T)>::unsigned_type;
-    template <typename T1, typename T2> using CopyConst =
-        std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
-    template <size_t Bits> using SignedInteger = typename PrionDetail::IntegerType<Bits>::signed_type;
-    template <size_t Bits> using UnsignedInteger = typename PrionDetail::IntegerType<Bits>::unsigned_type;
-
     // Mixins
 
     template <typename T>
@@ -700,6 +578,144 @@ namespace Prion {
         friend T operator-(const T& lhs, ptrdiff_t rhs) { T t = lhs; t -= rhs; return t; }
         friend bool operator<(const T& lhs, const T& rhs) noexcept { return lhs - rhs < 0; }
     };
+
+    // Endian integers
+
+    enum ByteOrder {
+        big_endian = 1,
+        little_endian = 2,
+    };
+
+    namespace PrionDetail {
+
+        template <typename T>
+        constexpr T swap_ends(T t, size_t N = sizeof(T)) noexcept {
+            using U = std::make_unsigned_t<T>;
+            return N == 1 ? t : T((swap_ends(U(t) & ((U(1) << (4 * N)) - 1), N / 2) << (4 * N)) | swap_ends(U(t) >> (4 * N), N / 2));
+        }
+
+        template <ByteOrder B, typename T>
+        constexpr T order_bytes(T t) noexcept {
+            return (B == big_endian) == big_endian_target ? t : swap_ends(t);
+        }
+
+    }
+
+    template <typename T, ByteOrder B>
+    class Endian {
+    public:
+        using value_type = T;
+        static constexpr auto byte_order = B;
+        constexpr Endian() noexcept: value(0) {}
+        constexpr Endian(T t) noexcept: value(PrionDetail::order_bytes<B>(t)) {}
+        explicit Endian(const void* p) noexcept { memcpy(&value, p, sizeof(T)); }
+        constexpr operator T() const noexcept { return get(); }
+        constexpr T get() const noexcept { return PrionDetail::order_bytes<B>(value); }
+        constexpr const T* ptr() const noexcept { return &value; }
+        T* ptr() noexcept { return &value; }
+        constexpr T rep() const noexcept { return value; }
+        T& rep() noexcept { return value; }
+    private:
+        T value;
+    };
+
+    template <typename T> using BigEndian = Endian<T, big_endian>;
+    template <typename T> using LittleEndian = Endian<T, little_endian>;
+
+    template <typename T, ByteOrder B> inline std::ostream& operator<<(std::ostream& out, Endian<T, B> t) { return out << t.get(); }
+
+    // Sign type
+
+    class Sign {
+    public:
+        Sign() = default;
+        template <typename T> explicit Sign(T t) noexcept: value(t > T() ? 1 : t == T() ? 0 : -1) {}
+        operator int() const noexcept { return value; }
+        Sign operator+() const noexcept { return *this; }
+        Sign operator-() const noexcept { return Sign(- value); }
+        int get() const noexcept { return value; }
+    private:
+        int8_t value = 0;
+    };
+
+    inline std::ostream& operator<<(std::ostream& out, Sign s) { return out << (s == 1 ? "+1" : s == -1 ? "-1" : "0"); }
+
+    // Containers
+
+    template <typename T>
+    class Stack {
+    public:
+        using iterator = typename vector<T>::iterator;
+        using const_iterator = typename vector<T>::const_iterator;
+        Stack() = default;
+        Stack(Stack&& s) = default;
+        ~Stack() noexcept { clear(); }
+        Stack& operator=(Stack&& s) { if (&s != this) { clear(); stack = move(s.stack); } return *this; }
+        iterator begin() noexcept { return stack.begin(); }
+        const_iterator begin() const noexcept { return stack.cbegin(); }
+        const_iterator cbegin() const noexcept { return stack.cbegin(); }
+        void clear() noexcept { while (! stack.empty()) stack.pop_back(); }
+        bool empty() const noexcept { return stack.empty(); }
+        iterator end() noexcept { return stack.end(); }
+        const_iterator end() const noexcept { return stack.cend(); }
+        const_iterator cend() const noexcept { return stack.cend(); }
+        void pop() noexcept { if (! stack.empty()) stack.pop(); }
+        void push(const T& t) { stack.push_back(t); }
+        void push(T&& t) { stack.push_back(move(t)); }
+        size_t size() const noexcept { return stack.size(); }
+    private:
+        vector<T> stack;
+        Stack(const Stack&) = delete;
+        Stack& operator=(const Stack&) = delete;
+    };
+
+    // Exceptions
+
+    #ifdef _WIN32
+
+        class WindowsCategory:
+        public std::error_category {
+        public:
+            virtual u8string message(int ev) const {
+                static constexpr uint32_t flags =
+                    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+                wchar_t* wptr = nullptr;
+                auto units = FormatMessageW(flags, nullptr, ev, 0, reinterpret_cast<wchar_t*>(&wptr), 0, nullptr);
+                shared_ptr<wchar_t> wshare(wptr, LocalFree);
+                int bytes = WideCharToMultiByte(CP_UTF8, 0, wptr, units, nullptr, 0, nullptr, nullptr);
+                string text(bytes, '\0');
+                WideCharToMultiByte(CP_UTF8, 0, wptr, units, &text[0], bytes, nullptr, nullptr);
+                text.resize(text.find_last_not_of(ascii_whitespace) + 1);
+                text.shrink_to_fit();
+                return text;
+            }
+            virtual const char* name() const noexcept { return "Win32"; }
+        };
+
+        inline const std::error_category& windows_category() noexcept {
+            static const WindowsCategory cat;
+            return cat;
+        }
+
+    #endif
+
+    // Metaprogramming and type traits
+
+    namespace PrionDetail {
+
+        template <size_t Bits> struct IntegerType;
+        template <> struct IntegerType<8> { using signed_type = int8_t; using unsigned_type = uint8_t; };
+        template <> struct IntegerType<16> { using signed_type = int16_t; using unsigned_type = uint16_t; };
+        template <> struct IntegerType<32> { using signed_type = int32_t; using unsigned_type = uint32_t; };
+        template <> struct IntegerType<64> { using signed_type = int64_t; using unsigned_type = uint64_t; };
+
+    }
+
+    template <typename T> using BinaryType = typename PrionDetail::IntegerType<8 * sizeof(T)>::unsigned_type;
+    template <typename T1, typename T2> using CopyConst =
+        std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
+    template <size_t Bits> using SignedInteger = typename PrionDetail::IntegerType<Bits>::signed_type;
+    template <size_t Bits> using UnsignedInteger = typename PrionDetail::IntegerType<Bits>::unsigned_type;
 
     // Smart pointers
 
@@ -1423,7 +1439,6 @@ namespace Prion {
     template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
     template <typename T> T shift_left(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, n); }
     template <typename T> T shift_right(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, - n); }
-    template <typename T> constexpr int sign_of(T t) noexcept { return PrionDetail::SignOf<T>()(t); }
 
     // Integer arithmetic functions
 

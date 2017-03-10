@@ -153,6 +153,63 @@ any ASCII string is also valid UTF-8), while plain `string` is used where the
 string is expected to be in some non-Unicode encoding, or where the string is
 being used simply as an array of bytes rather than encoded text.
 
+### Arithmetic types ###
+
+#### Endian integers ####
+
+* `enum` **`ByteOrder`**
+    * **`big_endian`**
+    * **`little_endian`**
+* `template <typename T, ByteOrder B> class` **`Endian`**
+    * `using Endian::`**`value_type`** `= T`
+    * `static constexpr ByteOrder Endian::`**`byte_order`** `= B`
+    * `constexpr Endian::`**`Endian`**`() noexcept`
+    * `constexpr Endian::`**`~Endian`**`() noexcept`
+    * `constexpr Endian::`**`Endian`**`(const Endian& e) noexcept`
+    * `constexpr Endian::`**`Endian`**`(Endian&& e) noexcept`
+    * `constexpr Endian& Endian::`**`operator=`**`(const Endian& e) noexcept`
+    * `constexpr Endian& Endian::`**`operator=`**`(Endian&& e) noexcept`
+    * `constexpr Endian::`**`Endian`**`(T t) noexcept`
+    * `explicit Endian::`**`Endian`**`(const void* p) noexcept`
+    * `constexpr Endian::`**`operator T`**`() const noexcept`
+    * `constexpr T Endian::`**`get`**`() const noexcept`
+    * `constexpr const T* Endian::`**`ptr`**`() const noexcept`
+    * `T* Endian::`**`ptr`**`() noexcept`
+    * `constexpr T Endian::`**`rep`**`() const noexcept`
+    * `T& Endian::`**`rep`**`() noexcept`
+* `template <typename T> using` **`BigEndian`** `= Endian<T, big_endian>`
+* `template <typename T> using` **`LittleEndian`** `= Endian<T, little_endian>`
+* `template <typename T, ByteOrder B> std::ostream&` **`operator<<`**`(std::ostream& out, Endian<T, B> t)`
+* `template <typename T, ByteOrder B> class std::`**`hash`**`<Endian<T, B>>`
+* _comparison operators between all combinations of `Endian` and `T`_
+
+An `Endian` object holds an integer in a defined byte order. This is a literal
+type and can be used in `constexpr` expressions.
+
+Assignment to or from an endian integer performs any necessary reordering
+transparently. The default constructor sets the value to zero; the constructor
+from a pointer copies `sizeof(T)` bytes into the object. The `ptr()` and
+`rep()` functions give access to the internal, byte ordered form. The hash
+function gives the same result as the underlying integer type's hash.
+
+#### Sign type ####
+
+* `class` **`Sign`**
+    * `Sign::`**`Sign`**`() noexcept`
+    * `Sign::`**`~Sign`**`() noexcept`
+    * `Sign::`**`Sign`**`(const Sign& e) noexcept`
+    * `Sign::`**`Sign`**`(Sign&& e) noexcept`
+    * `Sign& Sign::`**`operator=`**`(const Sign& e) noexcept`
+    * `Sign& Sign::`**`operator=`**`(Sign&& e) noexcept`
+    * `template <typename T> explicit Sign::`**`Sign`**`(T t) noexcept`
+    * `Sign::`**`operator int`**`() const noexcept`
+    * `Sign Sign::`**`operator+`**`() const noexcept`
+    * `Sign Sign::`**`operator-`**`() const noexcept`
+    * `int Sign::`**`get`**`() const noexcept`
+* `std::ostream&` **`operator<<`**`(std::ostream& out, Sign s)`
+
+An integer constrained to the range `{-1,0,+1}`.
+
 ### Containers ###
 
 * `class` **`Blob`**
@@ -256,37 +313,6 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
 standard container, but is often useful for RAII).
-
-### Endian integers ###
-
-* `enum` **`ByteOrder`**
-    * **`big_endian`**
-    * **`little_endian`**
-* `template <typename T, ByteOrder B> class` **`Endian`**
-    * `using Endian::`**`value_type`** `= T`
-    * `static constexpr ByteOrder Endian::`**`byte_order`** `= B`
-    * `constexpr Endian::`**`Endian`**`() noexcept`
-    * `constexpr Endian::`**`Endian`**`(T t) noexcept`
-    * `explicit Endian::`**`Endian`**`(const void* p) noexcept`
-    * `constexpr Endian::`**`operator T`**`() const noexcept`
-    * `constexpr T Endian::`**`get`**`() const noexcept`
-    * `constexpr const T* Endian::`**`ptr`**`() const noexcept`
-    * `T* Endian::`**`ptr`**`() noexcept`
-    * `constexpr T Endian::`**`rep`**`() const noexcept`
-    * `T& Endian::`**`rep`**`() noexcept`
-* `template <typename T> using` **`BigEndian`** `= Endian<T, big_endian>`
-* `template <typename T> using` **`LittleEndian`** `= Endian<T, little_endian>`
-* `template <typename T, ByteOrder B> std::ostream&` **`operator<<`**`(std::ostream& out, Endian<T, B> t)`
-* `template <typename T, ByteOrder B> class std::`**`hash`**`<Endian<T, B>>`
-
-An `Endian` object holds an integer in a defined byte order. This is a literal
-type and can be used in `constexpr` expressions.
-
-Assignment to or from an endian integer performs any necessary reordering
-transparently. The default constructor sets the value to zero; the constructor
-from a pointer copies `sizeof(T)` bytes into the object. The `ptr()` and
-`rep()` functions give access to the internal, byte ordered form. The hash
-function gives the same result as the underlying integer type's hash.
 
 ### Exceptions ###
 
@@ -874,10 +900,6 @@ quotient is out of `T`'s representable range.
 Multiply or divide `t` by <code>2<sup>n</sup></code>. `T` may be an integer or
 floating point type. Results are unspecified if the correct result would be
 out of `T`'s representable range.
-
-* `template <typename T> constexpr int` **`sign_of`**`(T t) noexcept`
-
-Returns the sign of its argument (-1 if `t<0`, 0 if `t=0`, 1 if `t>0`).
 
 ### Integer arithmetic functions ###
 

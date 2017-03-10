@@ -19,8 +19,12 @@
 <li><a href="#preprocessor-macros">Preprocessor macros</a></li>
 <li><a href="#types">Types</a><ul>
 <li><a href="#basic-types">Basic types</a></li>
-<li><a href="#containers">Containers</a></li>
+<li><a href="#arithmetic-types">Arithmetic types</a><ul>
 <li><a href="#endian-integers">Endian integers</a></li>
+<li><a href="#sign-type">Sign type</a></li>
+</ul>
+</li>
+<li><a href="#containers">Containers</a></li>
 <li><a href="#exceptions">Exceptions</a></li>
 <li><a href="#metaprogramming-and-type-traits">Metaprogramming and type traits</a></li>
 <li><a href="#mixins">Mixins</a></li>
@@ -274,6 +278,69 @@ any ASCII string is also valid UTF-8), while plain <code>string</code> is used w
 string is expected to be in some non-Unicode encoding, or where the string is
 being used simply as an array of bytes rather than encoded text.</p>
 </div>
+<h3 id="arithmetic-types">Arithmetic types</h3>
+<h4 id="endian-integers">Endian integers</h4>
+<div class="defns">
+<ul>
+<li><code>enum</code> <strong><code>ByteOrder</code></strong><ul>
+<li><strong><code>big_endian</code></strong></li>
+<li><strong><code>little_endian</code></strong></li>
+</ul>
+</li>
+<li><code>template &lt;typename T, ByteOrder B&gt; class</code> <strong><code>Endian</code></strong><ul>
+<li><code>using Endian::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>static constexpr ByteOrder Endian::</code><strong><code>byte_order</code></strong> <code>= B</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>() noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>~Endian</code></strong><code>() noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(const Endian&amp; e) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(Endian&amp;&amp; e) noexcept</code></li>
+<li><code>constexpr Endian&amp; Endian::</code><strong><code>operator=</code></strong><code>(const Endian&amp; e) noexcept</code></li>
+<li><code>constexpr Endian&amp; Endian::</code><strong><code>operator=</code></strong><code>(Endian&amp;&amp; e) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(T t) noexcept</code></li>
+<li><code>explicit Endian::</code><strong><code>Endian</code></strong><code>(const void* p) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
+<li><code>constexpr T Endian::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>constexpr const T* Endian::</code><strong><code>ptr</code></strong><code>() const noexcept</code></li>
+<li><code>T* Endian::</code><strong><code>ptr</code></strong><code>() noexcept</code></li>
+<li><code>constexpr T Endian::</code><strong><code>rep</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Endian::</code><strong><code>rep</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong> <code>= Endian&lt;T, big_endian&gt;</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong> <code>= Endian&lt;T, little_endian&gt;</code></li>
+<li><code>template &lt;typename T, ByteOrder B&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, B&gt; t)</code></li>
+<li><code>template &lt;typename T, ByteOrder B&gt; class std::</code><strong><code>hash</code></strong><code>&lt;Endian&lt;T, B&gt;&gt;</code></li>
+<li><em>comparison operators between all combinations of <code>Endian</code> and <code>T</code></em></li>
+</ul>
+<p>An <code>Endian</code> object holds an integer in a defined byte order. This is a literal
+type and can be used in <code>constexpr</code> expressions.</p>
+<p>Assignment to or from an endian integer performs any necessary reordering
+transparently. The default constructor sets the value to zero; the constructor
+from a pointer copies <code>sizeof(T)</code> bytes into the object. The <code>ptr()</code> and
+<code>rep()</code> functions give access to the internal, byte ordered form. The hash
+function gives the same result as the underlying integer type's hash.</p>
+</div>
+<h4 id="sign-type">Sign type</h4>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Sign</code></strong><ul>
+<li><code>Sign::</code><strong><code>Sign</code></strong><code>() noexcept</code></li>
+<li><code>Sign::</code><strong><code>~Sign</code></strong><code>() noexcept</code></li>
+<li><code>Sign::</code><strong><code>Sign</code></strong><code>(const Sign&amp; e) noexcept</code></li>
+<li><code>Sign::</code><strong><code>Sign</code></strong><code>(Sign&amp;&amp; e) noexcept</code></li>
+<li><code>Sign&amp; Sign::</code><strong><code>operator=</code></strong><code>(const Sign&amp; e) noexcept</code></li>
+<li><code>Sign&amp; Sign::</code><strong><code>operator=</code></strong><code>(Sign&amp;&amp; e) noexcept</code></li>
+<li><code>template &lt;typename T&gt; explicit Sign::</code><strong><code>Sign</code></strong><code>(T t) noexcept</code></li>
+<li><code>Sign::</code><strong><code>operator int</code></strong><code>() const noexcept</code></li>
+<li><code>Sign Sign::</code><strong><code>operator+</code></strong><code>() const noexcept</code></li>
+<li><code>Sign Sign::</code><strong><code>operator-</code></strong><code>() const noexcept</code></li>
+<li><code>int Sign::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Sign s)</code></li>
+</ul>
+<p>An integer constrained to the range <code>{-1,0,+1}</code>.</p>
+</div>
 <h3 id="containers">Containers</h3>
 <div class="defns">
 <ul>
@@ -376,41 +443,6 @@ size is supplied, a line feed will be inserted after each block.</p>
 <p>A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
 standard container, but is often useful for RAII).</p>
-</div>
-<h3 id="endian-integers">Endian integers</h3>
-<div class="defns">
-<ul>
-<li><code>enum</code> <strong><code>ByteOrder</code></strong><ul>
-<li><strong><code>big_endian</code></strong></li>
-<li><strong><code>little_endian</code></strong></li>
-</ul>
-</li>
-<li><code>template &lt;typename T, ByteOrder B&gt; class</code> <strong><code>Endian</code></strong><ul>
-<li><code>using Endian::</code><strong><code>value_type</code></strong> <code>= T</code></li>
-<li><code>static constexpr ByteOrder Endian::</code><strong><code>byte_order</code></strong> <code>= B</code></li>
-<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>() noexcept</code></li>
-<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(T t) noexcept</code></li>
-<li><code>explicit Endian::</code><strong><code>Endian</code></strong><code>(const void* p) noexcept</code></li>
-<li><code>constexpr Endian::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
-<li><code>constexpr T Endian::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
-<li><code>constexpr const T* Endian::</code><strong><code>ptr</code></strong><code>() const noexcept</code></li>
-<li><code>T* Endian::</code><strong><code>ptr</code></strong><code>() noexcept</code></li>
-<li><code>constexpr T Endian::</code><strong><code>rep</code></strong><code>() const noexcept</code></li>
-<li><code>T&amp; Endian::</code><strong><code>rep</code></strong><code>() noexcept</code></li>
-</ul>
-</li>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong> <code>= Endian&lt;T, big_endian&gt;</code></li>
-<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong> <code>= Endian&lt;T, little_endian&gt;</code></li>
-<li><code>template &lt;typename T, ByteOrder B&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, B&gt; t)</code></li>
-<li><code>template &lt;typename T, ByteOrder B&gt; class std::</code><strong><code>hash</code></strong><code>&lt;Endian&lt;T, B&gt;&gt;</code></li>
-</ul>
-<p>An <code>Endian</code> object holds an integer in a defined byte order. This is a literal
-type and can be used in <code>constexpr</code> expressions.</p>
-<p>Assignment to or from an endian integer performs any necessary reordering
-transparently. The default constructor sets the value to zero; the constructor
-from a pointer copies <code>sizeof(T)</code> bytes into the object. The <code>ptr()</code> and
-<code>rep()</code> functions give access to the internal, byte ordered form. The hash
-function gives the same result as the underlying integer type's hash.</p>
 </div>
 <h3 id="exceptions">Exceptions</h3>
 <div class="defns">
@@ -1106,12 +1138,6 @@ quotient is out of <code>T</code>'s representable range.</p>
 <p>Multiply or divide <code>t</code> by <code>2<sup>n</sup></code>. <code>T</code> may be an integer or
 floating point type. Results are unspecified if the correct result would be
 out of <code>T</code>'s representable range.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>sign_of</code></strong><code>(T t) noexcept</code></li>
-</ul>
-<p>Returns the sign of its argument (-1 if <code>t&lt;0</code>, 0 if <code>t=0</code>, 1 if <code>t&gt;0</code>).</p>
 </div>
 <h3 id="integer-arithmetic-functions">Integer arithmetic functions</h3>
 <div class="defns">
