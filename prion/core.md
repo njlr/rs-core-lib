@@ -331,20 +331,29 @@ below shows which operations the user is required to define, and which ones
 the mixin will automatically define. (Here, `t` and `u` are objects of type
 `T`, `v` is an object of `T`'s value type, and `n` is an integer.)
 
-Mixin                                | Requires              | Defines
------                                | --------              | -------
-**`EqualityComparable`**`<T>`        | `t==u`                | `t!=u`
-**`LessThanComparable`**`<T>`        | `t==u, t<u`           | `t!=u, t>u, t<=u, t>=u`
-**`InputIterator`**`<T,CV>`          | `*t, ++t, t==u`       | `t->, t++, t!=u`
-**`OutputIterator`**`<T>`            | `t=v`                 | `*t, ++t, t++`
-**`ForwardIterator`**`<T,CV>`        | `*t, ++t, t==u`       | `t->, t++, t!=u`
-**`BidirectionalIterator`**`<T,CV>`  | `*t, ++t, --t, t==u`  | `t->, t++, t--, t!=u`
-**`RandomAccessIterator`**`<T,CV>`   | `*t, t+=n, t-u`       | `t->, t[n], ++t, t++, --t, t--, t-=n, t+n, n+t, t-n,`<br>`t==u, t!=u, t<u, t>u, t<=u, t>=u`
+Mixin                                       | Requires                         | Defines
+-----                                       | --------                         | -------
+**`EqualityComparable`**`<T>`               | `t==u`                           | `t!=u`
+**`LessThanComparable`**`<T>`               | `t==u, t<u`                      | `t!=u, t>u, t<=u, t>=u`
+**`InputIterator`**`<T,CV>`                 | `*t, ++t, t==u`                  | `t->, t++, t!=u`
+**`OutputIterator`**`<T>`                   | `t=v`                            | `*t, ++t, t++`
+**`ForwardIterator`**`<T,CV>`               | `*t, ++t, t==u`                  | `t->, t++, t!=u`
+**`BidirectionalIterator`**`<T,CV>`         | `*t, ++t, --t, t==u`             | `t->, t++, t--, t!=u`
+**`RandomAccessIterator`**`<T,CV>`          | `*t, t+=n, t-u`                  | `t->, t[n], ++t, t++, --t, t--, t-=n, t+n, n+t, t-n,`<br>`t==u, t!=u, t<u, t>u, t<=u, t>=u`
+**`FlexibleRandomAccessIterator`**`<T,CV>`  | `*t, ++t, --t, t+=n, t-u, t==u`  | `t->, t[n], t++, t--, t-=n, t+n, n+t, t-n,`<br>`t!=u, t<u, t>u, t<=u, t>=u`
 
 In the iterator mixins, `CV` is either `V` or `const V`, where `V` is the
 iterator's value type, depending on whether a mutable or const iterator is
-required. In addition to the operators listed in the table above, all iterator
-mixins supply the standard member types:
+required.
+
+The first version of `RandomAccessIterator` uses the minimal set of user
+supplied operations to generate all of those required;
+`FlexibleRandomAccessIterator` requires more user supplied operations, but
+will decay safely to one of the simpler iterator types if an underlying type
+does not supply all of the corresponding operations.
+
+In addition to the operators listed in the table above, all iterator mixins
+supply the standard member types:
 
 * `using` **`difference_type`** `= ptrdiff_t`
 * `using` **`iterator_category`** `= [standard iterator tag type]`

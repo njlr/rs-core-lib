@@ -688,6 +688,19 @@ namespace Prion {
         friend bool operator<(const T& lhs, const T& rhs) noexcept { return lhs - rhs < 0; }
     };
 
+    template <typename T, typename CV>
+    struct FlexibleRandomAccessIterator:
+    BidirectionalIterator<T, CV>,
+    LessThanComparable<T> {
+        using iterator_category = std::random_access_iterator_tag;
+        CV& operator[](ptrdiff_t i) const noexcept { T t = static_cast<const T&>(*this); t += i; return *t; }
+        friend T& operator-=(T& lhs, ptrdiff_t rhs) { return lhs += - rhs; }
+        friend T operator+(const T& lhs, ptrdiff_t rhs) { T t = lhs; t += rhs; return t; }
+        friend T operator+(ptrdiff_t lhs, const T& rhs) { T t = rhs; t += lhs; return t; }
+        friend T operator-(const T& lhs, ptrdiff_t rhs) { T t = lhs; t -= rhs; return t; }
+        friend bool operator<(const T& lhs, const T& rhs) noexcept { return lhs - rhs < 0; }
+    };
+
     // Smart pointers
 
     class NullPointer:

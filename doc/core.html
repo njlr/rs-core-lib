@@ -508,12 +508,23 @@ the mixin will automatically define. (Here, <code>t</code> and <code>u</code> ar
 <td><code>*t, t+=n, t-u</code></td>
 <td><code>t-&gt;, t[n], ++t, t++, --t, t--, t-=n, t+n, n+t, t-n,</code><br><code>t==u, t!=u, t&lt;u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
 </tr>
+<tr>
+<td><strong><code>FlexibleRandomAccessIterator</code></strong><code>&lt;T,CV&gt;</code></td>
+<td><code>*t, ++t, --t, t+=n, t-u, t==u</code></td>
+<td><code>t-&gt;, t[n], t++, t--, t-=n, t+n, n+t, t-n,</code><br><code>t!=u, t&lt;u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
+</tr>
 </tbody>
 </table>
 <p>In the iterator mixins, <code>CV</code> is either <code>V</code> or <code>const V</code>, where <code>V</code> is the
 iterator's value type, depending on whether a mutable or const iterator is
-required. In addition to the operators listed in the table above, all iterator
-mixins supply the standard member types:</p>
+required.</p>
+<p>The first version of <code>RandomAccessIterator</code> uses the minimal set of user
+supplied operations to generate all of those required;
+<code>FlexibleRandomAccessIterator</code> requires more user supplied operations, but
+will decay safely to one of the simpler iterator types if an underlying type
+does not supply all of the corresponding operations.</p>
+<p>In addition to the operators listed in the table above, all iterator mixins
+supply the standard member types:</p>
 <ul>
 <li><code>using</code> <strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
 <li><code>using</code> <strong><code>iterator_category</code></strong> <code>= [standard iterator tag type]</code></li>
