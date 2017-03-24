@@ -588,31 +588,44 @@ string element.
 ### Arithmetic constants ###
 
 * `#define` **`PRI_DEFINE_CONSTANT`**`(name, value)`
-    * `static constexpr double` **`name`** `= value`
-    * `static constexpr float` **`name ## _f`** `= value ## f`
-    * `static constexpr long double` **`name ## _ld`** `= value ## l`
-    * `template <typename T> static constexpr T` **`name ## _v`** `= T(value ## l)`
+    * `static constexpr float` **`name##_f`** `= value##f`
+    * `static constexpr double` **`name##_d`** `= value`
+    * `static constexpr long double` **`name##_ld`** `= value##l`
+    * `template <typename T> static constexpr T` **`name##_c`** `= T(name##_ld)`
 
 Defines a floating point constant, in several forms. This generates a set of
 three named constants (for the three standard floating point types) and a
 variable template. The `value` argument must be a floating point literal with
 no type suffix.
 
+(This intentionally uses a different naming convention to
+[P0631](https://wg21.link/p0631), to avoid collisions if P0631 becomes part of
+the standard library.)
+
 The values quoted for the following constants are approximate; the values
 actually supplied are accurate to at least `long double` precision where an
 exact value is defined, or to the best known accuracy for the empirical
 constants.
 
-* _Mathematical constants_
+* _Mathematical constants from Posix/P0631_
     * **`e`** _= 2.7183_
-    * **`ln_2`** _= log<sub>e</sub> 2 = 0.6931_
-    * **`ln_10`** _= log<sub>e</sub> 10 = 2.3026_
+    * **`log2e`** _= log<sub>2</sub> e = 1.4427_
+    * **`log10e`** _= log<sub>10</sub> e = 0.4343_
+    * **`ln2`** _= log<sub>e</sub> 2 = 0.6931_
+    * **`ln10`** _= log<sub>e</sub> 10 = 2.3026_
     * **`pi`** _= &pi; = 3.1416_
-    * **`sqrt_2`** _= &radic;2 = 1.4142_
-    * **`sqrt_3`** _= &radic;3 = 1.7321_
-    * **`sqrt_5`** _= &radic;5 = 2.2361_
-    * **`sqrt_pi`** _= &radic;&pi; = 1.7725_
-    * **`sqrt_2pi`** _= &radic;2&pi; = 2.5066_
+    * **`pi_2`** _= &pi;/2 = 1.5708_
+    * **`pi_4`** _= &pi;/4 = 0.7854_
+    * **`one_pi`** _= 1/&pi; = 0.3183_
+    * **`two_pi`** _= 2/&pi; = 0.6366_
+    * **`two_sqrtpi`** _= 2/&radic;&pi; = 1.1284_
+    * **`sqrt2`** _= &radic;2 = 1.4142_
+    * **`one_sqrt2`** _= 1/&radic;2 = 0.7071_
+* _Other mathematical constants_
+    * **`sqrt3`** _= &radic;3 = 1.7321_
+    * **`sqrt5`** _= &radic;5 = 2.2361_
+    * **`sqrtpi`** _= &radic;&pi; = 1.7725_
+    * **`sqrt2pi`** _= &radic;(2&pi;) = 2.5066_
 * _Conversion factors_
     * **`inch`** _= 0.0254 m_
     * **`foot`** _= 0.3048 m_

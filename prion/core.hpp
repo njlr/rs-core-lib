@@ -865,22 +865,30 @@ namespace Prion {
     // Arithmetic constants
 
     #define PRI_DEFINE_CONSTANT(name, value) \
-        constexpr double name = value; \
-        constexpr float name ## _f = value ## f; \
-        constexpr long double name ## _ld = value ## l; \
-        template <typename T> constexpr T name ## _v = T(value ## l);
+        constexpr float name##_f = value##f; \
+        constexpr double name##_d = value; \
+        constexpr long double name##_ld = value##l; \
+        template <typename T> constexpr T name##_c = T(name##_ld);
 
     // Mathematical constants
 
-    PRI_DEFINE_CONSTANT(e,         2.71828'18284'59045'23536'02874'71352'66249'77572'47093'69996);
-    PRI_DEFINE_CONSTANT(ln_2,      0.69314'71805'59945'30941'72321'21458'17656'80755'00134'36026);
-    PRI_DEFINE_CONSTANT(ln_10,     2.30258'50929'94045'68401'79914'54684'36420'76011'01488'62877);
-    PRI_DEFINE_CONSTANT(pi,        3.14159'26535'89793'23846'26433'83279'50288'41971'69399'37511);
-    PRI_DEFINE_CONSTANT(sqrt_2,    1.41421'35623'73095'04880'16887'24209'69807'85696'71875'37695);
-    PRI_DEFINE_CONSTANT(sqrt_3,    1.73205'08075'68877'29352'74463'41505'87236'69428'05253'81038);
-    PRI_DEFINE_CONSTANT(sqrt_5,    2.23606'79774'99789'69640'91736'68731'27623'54406'18359'61153);
-    PRI_DEFINE_CONSTANT(sqrt_pi,   1.77245'38509'05516'02729'81674'83341'14518'27975'49456'12239);
-    PRI_DEFINE_CONSTANT(sqrt_2pi,  2.50662'82746'31000'50241'57652'84811'04525'30069'86740'60994);
+    PRI_DEFINE_CONSTANT(e,           2.71828'18284'59045'23536'02874'71352'66249'77572'47093'69996);
+    PRI_DEFINE_CONSTANT(ln2,         0.69314'71805'59945'30941'72321'21458'17656'80755'00134'36026);
+    PRI_DEFINE_CONSTANT(ln10,        2.30258'50929'94045'68401'79914'54684'36420'76011'01488'62877);
+    PRI_DEFINE_CONSTANT(log2e,       1.44269'50408'88963'40735'99246'81001'89213'74266'45954'15299);
+    PRI_DEFINE_CONSTANT(log10e,      0.43429'44819'03251'82765'11289'18916'60508'22943'97005'80367);
+    PRI_DEFINE_CONSTANT(pi,          3.14159'26535'89793'23846'26433'83279'50288'41971'69399'37511);
+    PRI_DEFINE_CONSTANT(pi_2,        1.57079'63267'94896'61923'13216'91639'75144'20985'84699'68755);
+    PRI_DEFINE_CONSTANT(pi_4,        0.78539'81633'97448'30961'56608'45819'87572'10492'92349'84378);
+    PRI_DEFINE_CONSTANT(one_pi,      0.31830'98861'83790'67153'77675'26745'02872'40689'19291'48091);
+    PRI_DEFINE_CONSTANT(two_pi,      0.63661'97723'67581'34307'55350'53490'05744'81378'38582'96183);
+    PRI_DEFINE_CONSTANT(two_sqrtpi,  1.12837'91670'95512'57389'61589'03121'54517'16881'01258'65800);
+    PRI_DEFINE_CONSTANT(sqrtpi,      1.77245'38509'05516'02729'81674'83341'14518'27975'49456'12239);
+    PRI_DEFINE_CONSTANT(sqrt2pi,     2.50662'82746'31000'50241'57652'84811'04525'30069'86740'60994);
+    PRI_DEFINE_CONSTANT(sqrt2,       1.41421'35623'73095'04880'16887'24209'69807'85696'71875'37695);
+    PRI_DEFINE_CONSTANT(sqrt3,       1.73205'08075'68877'29352'74463'41505'87236'69428'05253'81038);
+    PRI_DEFINE_CONSTANT(sqrt5,       2.23606'79774'99789'69640'91736'68731'27623'54406'18359'61153);
+    PRI_DEFINE_CONSTANT(one_sqrt2,   0.70710'67811'86547'52440'08443'62104'84903'92848'35937'68847);
 
     // Conversion factors
 
@@ -1606,8 +1614,8 @@ namespace Prion {
 
     }
 
-    template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / pi_v<T>); }
-    template <typename T> constexpr T radians(T deg) noexcept { return deg * (pi_v<T> / T(180)); }
+    template <typename T> constexpr T degrees(T rad) noexcept { return rad * (T(180) / pi_c<T>); }
+    template <typename T> constexpr T radians(T deg) noexcept { return deg * (pi_c<T> / T(180)); }
     template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept
         { return x1 == x2 ? (y1 + y2) * (T1(1) / T1(2)) : y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
     template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return PrionDetail::Round<T2, T1, '>'>()(value); }
@@ -2256,7 +2264,7 @@ namespace Prion {
             "Random normal type is not floating point");
         T u1 = random_float<T>(rng);
         T u2 = random_float<T>(rng);
-        return std::sqrt(T(-2) * std::log(u1)) * std::cos(T(2) * pi_v<T> * u2);
+        return std::sqrt(T(-2) * std::log(u1)) * std::cos(T(2) * pi_c<T> * u2);
     }
 
     template <typename T, typename RNG>
