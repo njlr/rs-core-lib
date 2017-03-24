@@ -291,28 +291,22 @@ The `str()` function copies the entire blob into a string.
 The comparison operators perform bytewise comparison by calling `memcmp()`.
 
 * `template <typename T> class` **`Stack`**
-    * `using Stack<T>::`**`iterator`** `= [random access iterator]`
-    * `using Stack<T>::`**`const_iterator`** `= [random access iterator]`
     * `Stack<T>::`**`Stack`**`()`
     * `Stack<T>::`**`Stack`**`(Stack&& s)`
     * `Stack<T>::`**`~Stack`**`()`
     * `Stack& Stack<T>::`**`operator=`**`(Stack&& s)`
-    * `iterator Stack<T>::`**`begin`**`() noexcept`
-    * `const_iterator Stack<T>::`**`begin`**`() const noexcept`
-    * `const_iterator Stack<T>::`**`cbegin`**`() const noexcept`
     * `void Stack<T>::`**`clear`**`() noexcept`
     * `bool Stack<T>::`**`empty`**`() const noexcept`
-    * `iterator Stack<T>::`**`end`**`() noexcept`
-    * `const_iterator Stack<T>::`**`end`**`() const noexcept`
-    * `const_iterator Stack<T>::`**`cend`**`() const noexcept`
     * `void Stack<T>::`**`pop`**`() noexcept`
     * `void Stack<T>::`**`push`**`(const T& t)`
     * `void Stack<T>::`**`push`**`(T&& t)`
     * `size_t Stack<T>::`**`size`**`() const noexcept`
+    * `const T& Stack<T>::`**`top`**`() const noexcept`
 
 A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
-standard container, but is often useful for RAII).
+standard container, but is often useful for RAII). Behaviour is undefined if
+`pop()` or `top()` is called on an empty stack.
 
 ### Exceptions ###
 

@@ -419,30 +419,24 @@ size is supplied, a line feed will be inserted after each block.</p>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>Stack</code></strong><ul>
-<li><code>using Stack&lt;T&gt;::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
-<li><code>using Stack&lt;T&gt;::</code><strong><code>const_iterator</code></strong> <code>= [random access iterator]</code></li>
 <li><code>Stack&lt;T&gt;::</code><strong><code>Stack</code></strong><code>()</code></li>
 <li><code>Stack&lt;T&gt;::</code><strong><code>Stack</code></strong><code>(Stack&amp;&amp; s)</code></li>
 <li><code>Stack&lt;T&gt;::</code><strong><code>~Stack</code></strong><code>()</code></li>
 <li><code>Stack&amp; Stack&lt;T&gt;::</code><strong><code>operator=</code></strong><code>(Stack&amp;&amp; s)</code></li>
-<li><code>iterator Stack&lt;T&gt;::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
-<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
-<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>cbegin</code></strong><code>() const noexcept</code></li>
 <li><code>void Stack&lt;T&gt;::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
 <li><code>bool Stack&lt;T&gt;::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
-<li><code>iterator Stack&lt;T&gt;::</code><strong><code>end</code></strong><code>() noexcept</code></li>
-<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
-<li><code>const_iterator Stack&lt;T&gt;::</code><strong><code>cend</code></strong><code>() const noexcept</code></li>
 <li><code>void Stack&lt;T&gt;::</code><strong><code>pop</code></strong><code>() noexcept</code></li>
 <li><code>void Stack&lt;T&gt;::</code><strong><code>push</code></strong><code>(const T&amp; t)</code></li>
 <li><code>void Stack&lt;T&gt;::</code><strong><code>push</code></strong><code>(T&amp;&amp; t)</code></li>
 <li><code>size_t Stack&lt;T&gt;::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+<li><code>const T&amp; Stack&lt;T&gt;::</code><strong><code>top</code></strong><code>() const noexcept</code></li>
 </ul>
 </li>
 </ul>
 <p>A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
-standard container, but is often useful for RAII).</p>
+standard container, but is often useful for RAII). Behaviour is undefined if
+<code>pop()</code> or <code>top()</code> is called on an empty stack.</p>
 </div>
 <h3 id="exceptions">Exceptions</h3>
 <div class="defns">

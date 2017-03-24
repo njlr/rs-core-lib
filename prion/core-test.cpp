@@ -349,6 +349,7 @@ namespace {
         ~TopTail() { term(); }
         TopTail(TopTail&& t): sp(t.sp), ch(t.ch) { t.sp = nullptr; }
         TopTail& operator=(TopTail&& t) { if (&t != this) { term(); sp = t.sp; ch = t.ch; t.sp = nullptr; } return *this; }
+        char get() const noexcept { return ch; }
     private:
         u8string* sp;
         char ch;
@@ -420,12 +421,15 @@ namespace {
         TEST(st.empty());
         TRY(st.push(TopTail(s, 'a')));
         TEST_EQUAL(st.size(), 1);
+        TEST_EQUAL(st.top().get(), 'a');
         TEST_EQUAL(s, "+a");
         TRY(st.push(TopTail(s, 'b')));
         TEST_EQUAL(st.size(), 2);
+        TEST_EQUAL(st.top().get(), 'b');
         TEST_EQUAL(s, "+a+b");
         TRY(st.push(TopTail(s, 'c')));
         TEST_EQUAL(st.size(), 3);
+        TEST_EQUAL(st.top().get(), 'c');
         TEST_EQUAL(s, "+a+b+c");
         TRY(st.clear());
         TEST(st.empty());

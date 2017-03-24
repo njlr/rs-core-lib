@@ -51,6 +51,7 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
+#include <deque>
 #include <exception>
 #include <functional>
 #include <initializer_list>
@@ -645,26 +646,19 @@ namespace Prion {
     template <typename T>
     class Stack {
     public:
-        using iterator = typename vector<T>::iterator;
-        using const_iterator = typename vector<T>::const_iterator;
         Stack() = default;
         Stack(Stack&& s) = default;
         ~Stack() noexcept { clear(); }
-        Stack& operator=(Stack&& s) { if (&s != this) { clear(); stack = move(s.stack); } return *this; }
-        iterator begin() noexcept { return stack.begin(); }
-        const_iterator begin() const noexcept { return stack.cbegin(); }
-        const_iterator cbegin() const noexcept { return stack.cbegin(); }
-        void clear() noexcept { while (! stack.empty()) stack.pop_back(); }
-        bool empty() const noexcept { return stack.empty(); }
-        iterator end() noexcept { return stack.end(); }
-        const_iterator end() const noexcept { return stack.cend(); }
-        const_iterator cend() const noexcept { return stack.cend(); }
-        void pop() noexcept { if (! stack.empty()) stack.pop(); }
-        void push(const T& t) { stack.push_back(t); }
-        void push(T&& t) { stack.push_back(move(t)); }
-        size_t size() const noexcept { return stack.size(); }
+        Stack& operator=(Stack&& s) { if (&s != this) { clear(); con = move(s.con); } return *this; }
+        void clear() noexcept { while (! empty()) pop(); }
+        bool empty() const noexcept { return con.empty(); }
+        void pop() noexcept { con.pop_back(); }
+        void push(const T& t) { con.push_back(t); }
+        void push(T&& t) { con.push_back(move(t)); }
+        size_t size() const noexcept { return con.size(); }
+        const T& top() const noexcept { return con.back(); }
     private:
-        vector<T> stack;
+        std::deque<T> con;
         Stack(const Stack&) = delete;
         Stack& operator=(const Stack&) = delete;
     };
