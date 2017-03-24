@@ -941,19 +941,33 @@ truncated to an integer). Behaviour is undefined if the argument is negative.
 
 ### Bitwise operations ###
 
-* `constexpr size_t` **`binary_size`**`(uint64_t x) noexcept`
+For all functions in this section that are templated on the argument type,
+results are unspecified if the argument is negative, and the function will
+fail to compile if the argument is not an integer.
 
-Returns the size of the argument in bits (i.e. the index of the highest 1 bit
-plus 1, or zero if the argument is zero).
+* `template <typename T> constexpr int` **`ibits`**`(T t) noexcept`
 
-* `constexpr size_t` **`bits_set`**`(uint64_t x) noexcept`
+Returns the umber of 1 bits in the argument.
 
-Returns the number of 1 bits in `x`.
+* `template <typename T> constexpr T` **`ifloor2`**`(T t) noexcept`
+* `template <typename T> constexpr T` **`iceil2`**`(T t) noexcept`
+
+Return the argument rounded down or up to a power of 2. The result of
+`iceil2()` is unspecified if the correct answer is not representable.
+
+* `template <typename T> constexpr int` **`ilog2p1`**`(T t) noexcept`
+
+Returns `floor(log2(t))+1`, equal to the number of significant bits in `t`,
+or zero if `t` is zero.
+
+* `template <typename T> constexpr bool` **`ispow2`**`(T t) noexcept`
+
+True if the argument is an exact power of 2.
 
 * `constexpr uint64_t` **`letter_to_mask`**`(char c) noexcept`
 
-Converts a letter to a mask with bit 0-51 set. The result is unspecified if
-the argument is not an ASCII letter.
+Converts a letter to a mask with bit 0-51 set (corresponding to `[A-Za-z]`.
+Returns zero if the argument is not an ASCII letter.
 
 * `template <typename T> constexpr T` **`rotl`**`(T t, int n) noexcept`
 * `template <typename T> constexpr T` **`rotr`**`(T t, int n) noexcept`

@@ -1696,21 +1696,95 @@ namespace {
 
     void check_bitwise_operations() {
 
-        TEST_EQUAL(binary_size(0), 0);
-        TEST_EQUAL(binary_size(1), 1);
-        TEST_EQUAL(binary_size(0x8000), 16);
-        TEST_EQUAL(binary_size(0x8888), 16);
-        TEST_EQUAL(binary_size(0xffff), 16);
-        TEST_EQUAL(binary_size(0x8000000000000000ull), 64);
-        TEST_EQUAL(binary_size(0xffffffffffffffffull), 64);
+        TEST_EQUAL(ibits(0), 0);
+        TEST_EQUAL(ibits(1), 1);
+        TEST_EQUAL(ibits(2), 1);
+        TEST_EQUAL(ibits(3), 2);
+        TEST_EQUAL(ibits(4), 1);
+        TEST_EQUAL(ibits(5), 2);
+        TEST_EQUAL(ibits(6), 2);
+        TEST_EQUAL(ibits(7), 3);
+        TEST_EQUAL(ibits(8), 1);
+        TEST_EQUAL(ibits(9), 2);
+        TEST_EQUAL(ibits(10), 2);
+        TEST_EQUAL(ibits(0x7fff), 15);
+        TEST_EQUAL(ibits(0x8000), 1);
+        TEST_EQUAL(ibits(0x8888), 4);
+        TEST_EQUAL(ibits(0xffff), 16);
+        TEST_EQUAL(ibits(0x7fffffffffffffffull), 63);
+        TEST_EQUAL(ibits(0x8000000000000000ull), 1);
+        TEST_EQUAL(ibits(0xffffffffffffffffull), 64);
 
-        TEST_EQUAL(bits_set(0), 0);
-        TEST_EQUAL(bits_set(1), 1);
-        TEST_EQUAL(bits_set(0x8000), 1);
-        TEST_EQUAL(bits_set(0x8888), 4);
-        TEST_EQUAL(bits_set(0xffff), 16);
-        TEST_EQUAL(bits_set(0x8000000000000000ull), 1);
-        TEST_EQUAL(bits_set(0xffffffffffffffffull), 64);
+        TEST_EQUAL(ifloor2(0), 0);
+        TEST_EQUAL(ifloor2(1), 1);
+        TEST_EQUAL(ifloor2(2), 2);
+        TEST_EQUAL(ifloor2(3), 2);
+        TEST_EQUAL(ifloor2(4), 4);
+        TEST_EQUAL(ifloor2(5), 4);
+        TEST_EQUAL(ifloor2(6), 4);
+        TEST_EQUAL(ifloor2(7), 4);
+        TEST_EQUAL(ifloor2(8), 8);
+        TEST_EQUAL(ifloor2(9), 8);
+        TEST_EQUAL(ifloor2(10), 8);
+        TEST_EQUAL(ifloor2(0x7ffful), 0x4000ul);
+        TEST_EQUAL(ifloor2(0x8000ul), 0x8000ul);
+        TEST_EQUAL(ifloor2(0x8001ul), 0x8000ul);
+        TEST_EQUAL(ifloor2(0xfffful), 0x8000ul);
+
+        TEST_EQUAL(iceil2(0), 0);
+        TEST_EQUAL(iceil2(1), 1);
+        TEST_EQUAL(iceil2(2), 2);
+        TEST_EQUAL(iceil2(3), 4);
+        TEST_EQUAL(iceil2(4), 4);
+        TEST_EQUAL(iceil2(5), 8);
+        TEST_EQUAL(iceil2(6), 8);
+        TEST_EQUAL(iceil2(7), 8);
+        TEST_EQUAL(iceil2(8), 8);
+        TEST_EQUAL(iceil2(9), 16);
+        TEST_EQUAL(iceil2(10), 16);
+        TEST_EQUAL(iceil2(0x7ffful), 0x8000ul);
+        TEST_EQUAL(iceil2(0x8000ul), 0x8000ul);
+        TEST_EQUAL(iceil2(0x8001ul), 0x10000ul);
+        TEST_EQUAL(iceil2(0xfffful), 0x10000ul);
+
+        TEST(! ispow2(0));
+        TEST(ispow2(1));
+        TEST(ispow2(2));
+        TEST(! ispow2(3));
+        TEST(ispow2(4));
+        TEST(! ispow2(5));
+        TEST(! ispow2(6));
+        TEST(! ispow2(7));
+        TEST(ispow2(8));
+        TEST(! ispow2(9));
+        TEST(! ispow2(10));
+        TEST(! ispow2(0x7fff));
+        TEST(ispow2(0x8000));
+        TEST(! ispow2(0x8001));
+        TEST(! ispow2(0xffff));
+        TEST(! ispow2(0x7fffffffffffffffull));
+        TEST(ispow2(0x8000000000000000ull));
+        TEST(! ispow2(0x8000000000000001ull));
+        TEST(! ispow2(0xffffffffffffffffull));
+
+        TEST_EQUAL(ilog2p1(0), 0);
+        TEST_EQUAL(ilog2p1(1), 1);
+        TEST_EQUAL(ilog2p1(2), 2);
+        TEST_EQUAL(ilog2p1(3), 2);
+        TEST_EQUAL(ilog2p1(4), 3);
+        TEST_EQUAL(ilog2p1(5), 3);
+        TEST_EQUAL(ilog2p1(6), 3);
+        TEST_EQUAL(ilog2p1(7), 3);
+        TEST_EQUAL(ilog2p1(8), 4);
+        TEST_EQUAL(ilog2p1(9), 4);
+        TEST_EQUAL(ilog2p1(10), 4);
+        TEST_EQUAL(ilog2p1(0x7fff), 15);
+        TEST_EQUAL(ilog2p1(0x8000), 16);
+        TEST_EQUAL(ilog2p1(0x8888), 16);
+        TEST_EQUAL(ilog2p1(0xffff), 16);
+        TEST_EQUAL(ilog2p1(0x7fffffffffffffffull), 63);
+        TEST_EQUAL(ilog2p1(0x8000000000000000ull), 64);
+        TEST_EQUAL(ilog2p1(0xffffffffffffffffull), 64);
 
         TEST_EQUAL(letter_to_mask('A'), 1);
         TEST_EQUAL(letter_to_mask('B'), 2);
@@ -1720,6 +1794,7 @@ namespace {
         TEST_EQUAL(letter_to_mask('b'), 0x8000000ull);
         TEST_EQUAL(letter_to_mask('c'), 0x10000000ull);
         TEST_EQUAL(letter_to_mask('z'), 0x8000000000000ull);
+        TEST_EQUAL(letter_to_mask('~'), 0);
 
         uint16_t u = 0x1234;
 

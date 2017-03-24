@@ -1521,21 +1521,63 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        template <typename T> constexpr T rotl_helper(T t, int n) noexcept
-            { return (t << (n % (8 * sizeof(T)))) | (t >> (8 * sizeof(T) - (n % (8 * sizeof(T))))); }
-        template <typename T> constexpr T rotr_helper(T t, int n) noexcept
-            { return (t >> (n % (8 * sizeof(T)))) | (t << (8 * sizeof(T) - (n % (8 * sizeof(T))))); }
+        template <typename T>
+        constexpr T rotl_helper(T t, int n) noexcept {
+            return (t << (n % (8 * sizeof(T)))) | (t >> (8 * sizeof(T) - (n % (8 * sizeof(T)))));
+        }
+
+        template <typename T>
+        constexpr T rotr_helper(T t, int n) noexcept {
+            return (t >> (n % (8 * sizeof(T)))) | (t << (8 * sizeof(T) - (n % (8 * sizeof(T)))));
+        }
 
     }
 
-    constexpr size_t binary_size(uint64_t x) noexcept { return x == 0 ? 0 : 8 * sizeof(x) - __builtin_clzll(x); }
-    constexpr size_t bits_set(uint64_t x) noexcept { return __builtin_popcountll(x); }
-    constexpr uint64_t letter_to_mask(char c) noexcept
-        { return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0; }
-    template <typename T> constexpr T rotl(T t, int n) noexcept
-        { return n == 0 ? t : n < 0 ? PrionDetail::rotr_helper(t, - n) : PrionDetail::rotl_helper(t, n); }
-    template <typename T> constexpr T rotr(T t, int n) noexcept
-        { return n == 0 ? t : n < 0 ? PrionDetail::rotl_helper(t, - n) : PrionDetail::rotr_helper(t, n); }
+    template <typename T>
+    constexpr size_t ibits(T t) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return __builtin_popcountll(uint64_t(t));
+    }
+
+    template <typename T>
+    constexpr size_t ilog2p1(T t) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return t ? 64 - __builtin_clzll(uint64_t(t)) : 0;
+    }
+
+    template <typename T>
+    constexpr T ifloor2(T t) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return t ? T(1) << (ilog2p1(t) - 1) : 0;
+    }
+
+    template <typename T>
+    constexpr T iceil2(T t) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return t > 1 ? T(1) << (ilog2p1(t - 1) - 1) << 1 : t;
+    }
+
+    template <typename T>
+    constexpr bool ispow2(T t) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return ibits(t) == 1;
+    }
+
+    constexpr uint64_t letter_to_mask(char c) noexcept {
+        return c >= 'A' && c <= 'Z' ? 1ull << (c - 'A') : c >= 'a' && c <= 'z' ? 1ull << (c - 'a' + 26) : 0;
+    }
+
+    template <typename T>
+    constexpr T rotl(T t, int n) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return n == 0 ? t : n < 0 ? PrionDetail::rotr_helper(t, - n) : PrionDetail::rotl_helper(t, n);
+    }
+
+    template <typename T>
+    constexpr T rotr(T t, int n) noexcept {
+        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        return n == 0 ? t : n < 0 ? PrionDetail::rotl_helper(t, - n) : PrionDetail::rotr_helper(t, n);
+    }
 
     // Floating point arithmetic functions
 

@@ -1187,25 +1187,42 @@ negative, or if <code>T</code> is signed and the true result would be out of ran
 truncated to an integer). Behaviour is undefined if the argument is negative.</p>
 </div>
 <h3 id="bitwise-operations">Bitwise operations</h3>
+<p>For all functions in this section that are templated on the argument type,
+results are unspecified if the argument is negative, and the function will
+fail to compile if the argument is not an integer.</p>
 <div class="defns">
 <ul>
-<li><code>constexpr size_t</code> <strong><code>binary_size</code></strong><code>(uint64_t x) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>ibits</code></strong><code>(T t) noexcept</code></li>
 </ul>
-<p>Returns the size of the argument in bits (i.e. the index of the highest 1 bit
-plus 1, or zero if the argument is zero).</p>
+<p>Returns the umber of 1 bits in the argument.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>constexpr size_t</code> <strong><code>bits_set</code></strong><code>(uint64_t x) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>ifloor2</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>iceil2</code></strong><code>(T t) noexcept</code></li>
 </ul>
-<p>Returns the number of 1 bits in <code>x</code>.</p>
+<p>Return the argument rounded down or up to a power of 2. The result of
+<code>iceil2()</code> is unspecified if the correct answer is not representable.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>ilog2p1</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>Returns <code>floor(log2(t))+1</code>, equal to the number of significant bits in <code>t</code>,
+or zero if <code>t</code> is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr bool</code> <strong><code>ispow2</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>True if the argument is an exact power of 2.</p>
 </div>
 <div class="defns">
 <ul>
 <li><code>constexpr uint64_t</code> <strong><code>letter_to_mask</code></strong><code>(char c) noexcept</code></li>
 </ul>
-<p>Converts a letter to a mask with bit 0-51 set. The result is unspecified if
-the argument is not an ASCII letter.</p>
+<p>Converts a letter to a mask with bit 0-51 set (corresponding to <code>[A-Za-z]</code>.
+Returns zero if the argument is not an ASCII letter.</p>
 </div>
 <div class="defns">
 <ul>
