@@ -72,6 +72,7 @@ Libraries that are needed only on specific targets can be prefixed with one of
 the target identifiers listed below (e.g. `PRI_LDLIB(apple:foo)` will link
 with `-lfoo` for Apple targets only).
 
+<!-- TEXT -->
 * `apple:`
 * `linux:`
 * `mingw:`
