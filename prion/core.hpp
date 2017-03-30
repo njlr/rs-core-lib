@@ -1288,7 +1288,7 @@ namespace Prion {
         return rc < 0 ? -1 : rc > 0 ? 1 : n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
     }
 
-    size_t mem_match(const void* lhs, const void* rhs, size_t n) noexcept {
+    inline size_t mem_match(const void* lhs, const void* rhs, size_t n) noexcept {
         if (! (lhs && rhs))
             return 0;
         auto cp1 = static_cast<const char*>(lhs);
