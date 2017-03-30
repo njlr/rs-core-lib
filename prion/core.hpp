@@ -490,7 +490,7 @@ namespace Prion {
             }
         };
 
-        size_t utf8_check_ahead(const uint8_t* ptr, size_t len, size_t pos, size_t n, uint8_t a1, uint8_t b1) {
+        inline size_t utf8_check_ahead(const uint8_t* ptr, size_t len, size_t pos, size_t n, uint8_t a1, uint8_t b1) {
             if (pos + n > len)
                 return 0;
             if (ptr[pos + 1] < a1 || ptr[pos + 1] > b1)
