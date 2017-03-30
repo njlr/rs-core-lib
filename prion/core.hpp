@@ -490,11 +490,104 @@ namespace Prion {
             }
         };
 
+        size_t utf8_check_ahead(const uint8_t* ptr, size_t len, size_t pos, size_t n, uint8_t a1, uint8_t b1) {
+            if (pos + n > len)
+                return 0;
+            if (ptr[pos + 1] < a1 || ptr[pos + 1] > b1)
+                return 0;
+            for (size_t i = 2; i < n; ++i)
+                if (ptr[pos + i] < 0x80 || ptr[pos + i] > 0xbf)
+                    return 0;
+            return n;
+        }
+
+        template <typename C, size_t N = sizeof(C)>
+        struct UtfValidate;
+
+        template <typename C>
+        struct UtfValidate<C, 1> {
+            size_t operator()(const basic_string<C>& s) const noexcept {
+                auto ptr = reinterpret_cast<const uint8_t*>(s.data());
+                size_t units = s.size(), i = 0;
+                while (i < units) {
+                    size_t n = 0;
+                    if (ptr[i] <= 0x7f)
+                        n = 1;
+                    else if (ptr[i] <= 0xc1)
+                        break;
+                    else if (ptr[i] <= 0xdf)
+                        n = utf8_check_ahead(ptr, units, i, 2, 0x80, 0xbf);
+                    else if (ptr[i] <= 0xe0)
+                        n = utf8_check_ahead(ptr, units, i, 3, 0xa0, 0xbf);
+                    else if (ptr[i] <= 0xec)
+                        n = utf8_check_ahead(ptr, units, i, 3, 0x80, 0xbf);
+                    else if (ptr[i] <= 0xed)
+                        n = utf8_check_ahead(ptr, units, i, 3, 0x80, 0x9f);
+                    else if (ptr[i] <= 0xef)
+                        n = utf8_check_ahead(ptr, units, i, 3, 0x80, 0xbf);
+                    else if (ptr[i] <= 0xf0)
+                        n = utf8_check_ahead(ptr, units, i, 4, 0x90, 0xbf);
+                    else if (ptr[i] <= 0xf3)
+                        n = utf8_check_ahead(ptr, units, i, 4, 0x80, 0xbf);
+                    else if (ptr[i] <= 0xf4)
+                        n = utf8_check_ahead(ptr, units, i, 4, 0x80, 0x8f);
+                    if (n == 0)
+                        break;
+                    i += n;
+                }
+                return i;
+            }
+        };
+
+        template <typename C>
+        struct UtfValidate<C, 2> {
+            size_t operator()(const basic_string<C>& s) const noexcept {
+                auto ptr = reinterpret_cast<const uint16_t*>(s.data());
+                size_t units = s.size(), i = 0;
+                while (i < units) {
+                    if (ptr[i] <= 0xd7ff || ptr[i] >= 0xe000) {
+                        ++i;
+                    } else if (ptr[i] <= 0xdbff) {
+                        if (units - i < 2 || ptr[i + 1] <= 0xdbff || ptr[i + 1] >= 0xe000)
+                            break;
+                        i += 2;
+                    } else {
+                        break;
+                    }
+                }
+                return i;
+            }
+        };
+
+        template <typename C>
+        struct UtfValidate<C, 4> {
+            size_t operator()(const basic_string<C>& s) const noexcept {
+                auto ptr = reinterpret_cast<const uint32_t*>(s.data());
+                size_t units = s.size(), i = 0;
+                for (; i < units; ++i)
+                    if ((ptr[i] >= 0xd800 && ptr[i] <= 0xdfff) || ptr[i] >= 0x110000)
+                        break;
+                return i;
+            }
+        };
+
     }
 
     template <typename Dst, typename Src>
     Dst uconv(const Src& s) {
         return PrionDetail::UtfConvert<Src, Dst>()(s);
+    }
+
+    template <typename C>
+    bool uvalid(const basic_string<C>& s, size_t& n) noexcept {
+        n = PrionDetail::UtfValidate<C>()(s);
+        return n == s.size();
+    }
+
+    template <typename C>
+    bool uvalid(const basic_string<C>& s) noexcept {
+        size_t n = 0;
+        return uvalid(s, n);
     }
 
     // [Types]

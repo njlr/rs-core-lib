@@ -1510,6 +1510,15 @@ the output without any validity checking; otherwise, invalid UTF in the input
 is replaced with the standard Unicode replacement character (`U+FFFD`) in the
 output.
 
+* `template <typename C> bool` **`uvalid`**`(const basic_string<C>& s) noexcept`
+* `template <typename C> bool` **`uvalid`**`(const basic_string<C>& s, size_t& n) noexcept`
+
+Check a string for a valid UTF encoding; the encoding is deduced from the size
+of the character type. The second version reports the number of code units
+before an invalid code sequence was encountered (i.e. the size of a valid UTF
+prefix; this will be equal to `s.size()` if the function returns true). These
+will always succeed for an empty string.
+
 ### String formatting and parsing functions ###
 
 * `template <typename T> u8string` **`bin`**`(T x, size_t digits = 8 * sizeof(T))`

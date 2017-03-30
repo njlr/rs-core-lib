@@ -3137,6 +3137,7 @@ namespace {
             #else
                 {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
             #endif
+        size_t n = 0;
 
         TRY(s8 = uconv<u8string>(""s));     TEST_EQUAL(s8, ""s);
         TRY(s8 = uconv<u8string>(u""s));    TEST_EQUAL(s8, ""s);
@@ -3170,6 +3171,19 @@ namespace {
         TRY(sw = uconv<wstring>(t16));      TEST_EQUAL(sw, tw);
         TRY(sw = uconv<wstring>(t32));      TEST_EQUAL(sw, tw);
         TRY(sw = uconv<wstring>(tw));       TEST_EQUAL(sw, tw);
+
+        TEST(uvalid(""s, n));                       TEST_EQUAL(n, 0);
+        TEST(uvalid(u""s, n));                      TEST_EQUAL(n, 0);
+        TEST(uvalid(U""s, n));                      TEST_EQUAL(n, 0);
+        TEST(uvalid(L""s, n));                      TEST_EQUAL(n, 0);
+        TEST(uvalid(t8, n));                        TEST_EQUAL(n, t8.size());
+        TEST(uvalid(t16, n));                       TEST_EQUAL(n, t16.size());
+        TEST(uvalid(t32, n));                       TEST_EQUAL(n, t32.size());
+        TEST(uvalid(tw, n));                        TEST_EQUAL(n, tw.size());
+        TEST(! uvalid(t8 + '\xff', n));             TEST_EQUAL(n, t8.size());
+        TEST(! uvalid(t16 + char16_t(0xd800), n));  TEST_EQUAL(n, t16.size());
+        TEST(! uvalid(t32 + char32_t(0xd800), n));  TEST_EQUAL(n, t32.size());
+        TEST(! uvalid(tw + wchar_t(0xd800), n));    TEST_EQUAL(n, tw.size());
 
     }
 

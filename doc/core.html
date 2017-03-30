@@ -1845,6 +1845,17 @@ the output without any validity checking; otherwise, invalid UTF in the input
 is replaced with the standard Unicode replacement character (<code>U+FFFD</code>) in the
 output.</p>
 </div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename C&gt; bool</code> <strong><code>uvalid</code></strong><code>(const basic_string&lt;C&gt;&amp; s) noexcept</code></li>
+<li><code>template &lt;typename C&gt; bool</code> <strong><code>uvalid</code></strong><code>(const basic_string&lt;C&gt;&amp; s, size_t&amp; n) noexcept</code></li>
+</ul>
+<p>Check a string for a valid UTF encoding; the encoding is deduced from the size
+of the character type. The second version reports the number of code units
+before an invalid code sequence was encountered (i.e. the size of a valid UTF
+prefix; this will be equal to <code>s.size()</code> if the function returns true). These
+will always succeed for an empty string.</p>
+</div>
 <h3 id="string-formatting-and-parsing-functions">String formatting and parsing functions</h3>
 <div class="defns">
 <ul>
