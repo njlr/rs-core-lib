@@ -1195,6 +1195,17 @@ namespace Prion {
         return rc < 0 ? -1 : rc > 0 ? 1 : n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
     }
 
+    size_t mem_match(const void* lhs, const void* rhs, size_t n) noexcept {
+        if (! (lhs && rhs))
+            return 0;
+        auto cp1 = static_cast<const char*>(lhs);
+        auto cp2 = static_cast<const char*>(rhs);
+        size_t i = 0;
+        while (i < n && cp1[i] == cp2[i])
+            ++i;
+        return i;
+    }
+
     inline void mem_swap(void* ptr1, void* ptr2, size_t n) noexcept {
         if (ptr1 == ptr2)
             return;
@@ -2433,7 +2444,7 @@ namespace Prion {
     }
 
     template <typename C>
-    void null_term(basic_string<C>& str) {
+    void null_term(basic_string<C>& str) noexcept {
         auto p = str.find(C(0));
         if (p != npos)
             str.resize(p);
@@ -2465,6 +2476,16 @@ namespace Prion {
         vector<string> v;
         split(src, append(v), delim);
         return v;
+    }
+
+    inline bool starts_with(const string& str, const string& prefix) noexcept {
+        return str.size() >= prefix.size()
+            && memcmp(str.data(), prefix.data(), prefix.size()) == 0;
+    }
+
+    inline bool ends_with(const string& str, const string& suffix) noexcept {
+        return str.size() >= suffix.size()
+            && memcmp(str.data() + str.size() - suffix.size(), suffix.data(), suffix.size()) == 0;
     }
 
     inline string trim(const string& str, const string& chars = ascii_whitespace) {

@@ -1060,6 +1060,13 @@ length accompanying a null pointer is ignored.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>size_t</code> <strong><code>mem_match</code></strong><code>(const void* lhs, const void* rhs, size_t n) noexcept</code></li>
+</ul>
+<p>Returns the number of leading bytes the two blocks have in common. This will
+return zero if either pointer is null.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>void</code> <strong><code>mem_swap</code></strong><code>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
 </ul>
 <p>Swap two blocks of memory. This will work if the two ranges overlap or are the
@@ -1797,10 +1804,17 @@ line break).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename C&gt; void</code> <strong><code>null_term</code></strong><code>(basic_string&lt;C&gt;&amp; str)</code></li>
+<li><code>template &lt;typename C&gt; void</code> <strong><code>null_term</code></strong><code>(basic_string&lt;C&gt;&amp; str) noexcept</code></li>
 </ul>
 <p>Cuts off a string at the first null character (useful after the string has
 been used as an output buffer by some C APIs).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>starts_with</code></strong><code>(const string&amp; str, const string&amp; prefix) noexcept</code></li>
+<li><code>bool</code> <strong><code>ends_with</code></strong><code>(const string&amp; str, const string&amp; suffix) noexcept</code></li>
+</ul>
+<p>True if the string starts or ends with the specified substring.</p>
 </div>
 <div class="defns">
 <ul>

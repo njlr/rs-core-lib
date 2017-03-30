@@ -1168,6 +1168,7 @@ namespace {
 
         string s1, s2;
         int x = 0;
+        size_t z = 0;
 
         s1 = "";             s2 = "";             TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, 0);
         s1 = "hello";        s2 = "";             TRY(x = mem_compare(s1.data(), s1.size(), s2.data(), s2.size()));  TEST_EQUAL(x, 1);
@@ -1179,6 +1180,13 @@ namespace {
         TRY(x = mem_compare(nullptr, 42, s2.data(), s2.size()));  TEST_EQUAL(x, -1);
         TRY(x = mem_compare(s1.data(), s1.size(), nullptr, 42));  TEST_EQUAL(x, 1);
         TRY(x = mem_compare(nullptr, 42, nullptr, 42));           TEST_EQUAL(x, 0);
+
+        s1 = "";             s2 = "";               TRY(z = mem_match(s1.data(), s2.data(), 0));   TEST_EQUAL(z, 0);
+        s1 = "hello";        s2 = "hello";          TRY(z = mem_match(s1.data(), s2.data(), 0));   TEST_EQUAL(z, 0);
+        s1 = "hello";        s2 = "hello";          TRY(z = mem_match(s1.data(), s2.data(), 5));   TEST_EQUAL(z, 5);
+        s1 = "hello world";  s2 = "hello world";    TRY(z = mem_match(s1.data(), s2.data(), 11));  TEST_EQUAL(z, 11);
+        s1 = "hello world";  s2 = "hello goodbye";  TRY(z = mem_match(s1.data(), s2.data(), 11));  TEST_EQUAL(z, 6);
+        s1 = "hello world";  s2 = "jello world";    TRY(z = mem_match(s1.data(), s2.data(), 11));  TEST_EQUAL(z, 0);
 
         s1 = "hello";
         s2 = "world";
@@ -3058,6 +3066,20 @@ namespace {
         TRY(sv = splitv("**Hello**world**"s, "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
         TRY(sv = splitv("*****"s, "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
         TRY(sv = splitv("*****"s, "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
+
+        TEST(starts_with("", ""));
+        TEST(starts_with("Hello world", ""));
+        TEST(starts_with("Hello world", "Hello"));
+        TEST(! starts_with("Hello world", "hello"));
+        TEST(! starts_with("Hello world", "world"));
+        TEST(! starts_with("Hello", "Hello world"));
+
+        TEST(ends_with("", ""));
+        TEST(ends_with("Hello world", ""));
+        TEST(ends_with("Hello world", "world"));
+        TEST(! ends_with("Hello world", "World"));
+        TEST(! ends_with("Hello world", "Hello"));
+        TEST(! ends_with("world", "Hello world"));
 
         TEST_EQUAL(trim(""), "");
         TEST_EQUAL(trim("Hello"), "Hello");

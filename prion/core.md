@@ -836,6 +836,11 @@ to `memcmp()`, except that the memory blocks being compared may have different
 lengths. A null pointer is treated as less than any non-null pointer; the
 length accompanying a null pointer is ignored.
 
+* `size_t` **`mem_match`**`(const void* lhs, const void* rhs, size_t n) noexcept`
+
+Returns the number of leading bytes the two blocks have in common. This will
+return zero if either pointer is null.
+
 * `void` **`mem_swap`**`(void* ptr1, void* ptr2, size_t n) noexcept`
 
 Swap two blocks of memory. This will work if the two ranges overlap or are the
@@ -1471,10 +1476,15 @@ must be assignment compatible with `string`. If the `term` argument to
 (useful when joining lines to form a text that would be expected to end with a
 line break).
 
-* `template <typename C> void` **`null_term`**`(basic_string<C>& str)`
+* `template <typename C> void` **`null_term`**`(basic_string<C>& str) noexcept`
 
 Cuts off a string at the first null character (useful after the string has
 been used as an output buffer by some C APIs).
+
+* `bool` **`starts_with`**`(const string& str, const string& prefix) noexcept`
+* `bool` **`ends_with`**`(const string& str, const string& suffix) noexcept`
+
+True if the string starts or ends with the specified substring.
 
 * `string` **`trim`**`(const string& str, const string& chars = ascii_whitespace)`
 * `string` **`trim_left`**`(const string& str, const string& chars = ascii_whitespace)`
