@@ -322,35 +322,11 @@ namespace Prion {
             return s;
         }
 
-        inline u8string quote_string(const string& str, bool allow_8bit) {
-            u8string result = "\"";
-            for (auto c: str) {
-                auto b = uint8_t(c);
-                if (c == 0)                        result += "\\0";
-                else if (c == '\t')                result += "\\t";
-                else if (c == '\n')                result += "\\n";
-                else if (c == '\f')                result += "\\f";
-                else if (c == '\r')                result += "\\r";
-                else if (c == '\"')                result += "\\\"";
-                else if (c == '\\')                result += "\\\\";
-                else if (c >= 0x20 && c <= 0x7e)   result += c;
-                else if (allow_8bit && b >= 0x80)  result += c;
-                else {
-                    result += "\\x";
-                    PrionDetail::append_hex_byte(b, result);
-                }
-            }
-            result += '\"';
-            return result;
-        }
-
     }
 
     template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
     template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
     template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
-    inline u8string bquote(const string& str) { return PrionDetail::quote_string(str, false); }
-    inline u8string uquote(const u8string& str) { return PrionDetail::quote_string(str, true); }
 
     // Unicode functions
 
@@ -589,6 +565,41 @@ namespace Prion {
         size_t n = 0;
         return uvalid(s, n);
     }
+
+    namespace PrionDetail {
+
+        inline u8string quote_string(const string& str, bool check_utf8) {
+            bool allow_8bit = check_utf8 && uvalid(str);
+            u8string result = "\"";
+            for (auto c: str) {
+                switch (c) {
+                    case 0:     result += "\\0"; break;
+                    case '\t':  result += "\\t"; break;
+                    case '\n':  result += "\\n"; break;
+                    case '\f':  result += "\\f"; break;
+                    case '\r':  result += "\\r"; break;
+                    case '\"':  result += "\\\""; break;
+                    case '\\':  result += "\\\\"; break;
+                    default: {
+                        auto b = uint8_t(c);
+                        if ((b >= 0x20 && b <= 0x7e) || (allow_8bit && b >= 0x80)) {
+                            result += c;
+                        } else {
+                            result += "\\x";
+                            PrionDetail::append_hex_byte(b, result);
+                        }
+                        break;
+                    }
+                }
+            }
+            result += '\"';
+            return result;
+        }
+
+    }
+
+    inline u8string quote(const string& str) { return PrionDetail::quote_string(str, true); }
+    inline u8string bquote(const string& str) { return PrionDetail::quote_string(str, false); }
 
     // [Types]
 
@@ -2581,6 +2592,10 @@ namespace Prion {
             && memcmp(str.data() + str.size() - suffix.size(), suffix.data(), suffix.size()) == 0;
     }
 
+    inline bool string_is_ascii(const string& str) noexcept {
+        return std::find_if(str.begin(), str.end(), [] (char c) { return c & 0x80; }) == str.end();
+    }
+
     inline string trim(const string& str, const string& chars = ascii_whitespace) {
         size_t pos = str.find_first_not_of(chars);
         if (pos == npos)
@@ -2622,7 +2637,7 @@ namespace Prion {
     u8string fp_format(T t, char mode = 'g', int prec = 6) {
         static const u8string modes = "EFGZefgz";
         if (modes.find(mode) == npos)
-            throw std::invalid_argument("Invalid floating point mode: " + uquote(u8string{mode}));
+            throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
         u8string buf(20, '\0'), fmt;
         switch (mode) {
             case 'Z':  fmt = "%#.*G"; break;
@@ -2669,9 +2684,9 @@ namespace Prion {
         errno = 0;
         int64_t n = strtoll(s.data(), &endp, 10);
         if (errno == ERANGE)
-            throw std::range_error("Out of range: " + uquote(s));
+            throw std::range_error("Out of range: " + quote(s));
         if (errno || endp == s.data())
-            throw std::invalid_argument("Invalid number: " + uquote(s));
+            throw std::invalid_argument("Invalid number: " + quote(s));
         if (ascii_isspace(*endp))
             ++endp;
         if (n && ascii_isalpha(*endp)) {
@@ -2680,7 +2695,7 @@ namespace Prion {
                 int64_t steps = pp - prefixes + 1;
                 double limit = log10(double(limits::max()) / double(std::abs(n))) / 3;
                 if (steps > limit)
-                    throw std::range_error("Out of range: " + uquote(s));
+                    throw std::range_error("Out of range: " + quote(s));
                 n *= int_power(int64_t(1000), steps);
             }
         }
@@ -2694,9 +2709,9 @@ namespace Prion {
         errno = 0;
         double x = strtod(s.data(), &endp);
         if (errno == ERANGE)
-            throw std::range_error("Out of range: " + uquote(s));
+            throw std::range_error("Out of range: " + quote(s));
         if (errno || endp == s.data())
-            throw std::invalid_argument("Invalid number: " + uquote(s));
+            throw std::invalid_argument("Invalid number: " + quote(s));
         if (ascii_isspace(*endp))
             ++endp;
         char c = *endp;
@@ -2708,7 +2723,7 @@ namespace Prion {
                 int steps = pp - prefixes - 8;
                 double limit = log10(limits::max() / fabs(x)) / 3;
                 if (steps > limit)
-                    throw std::range_error("Out of range: " + uquote(s));
+                    throw std::range_error("Out of range: " + quote(s));
                 x *= pow(1000.0, steps);
             }
         }
@@ -2833,7 +2848,7 @@ namespace Prion {
         Tag(const u8string& text, std::ostream& out) {
             u8string start = trim_right(text, "\n");
             if (start.empty() || start[0] != '<' || ! ascii_isalnum_w(start[1]) || start.back() != '>')
-                throw std::invalid_argument("Invalid HTML tag: " + uquote(text));
+                throw std::invalid_argument("Invalid HTML tag: " + quote(text));
             if (start.end()[-2] == '/') {
                 out << text;
                 return;

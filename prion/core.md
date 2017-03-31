@@ -1439,13 +1439,6 @@ unchanged. The sentence case function capitalizes the first letter of every
 sentence (delimited by a full stop or two consecutive line breaks), leaving
 everything else alone.
 
-* `u8string` **`bquote`**`(const string& str)`
-* `u8string` **`uquote`**`(const u8string& str)`
-
-Return a quoted string; internal quotes, backslashes, and control characters
-are escaped. The `bquote()` function also escapes all non-ASCII bytes, while
-`uquote()` passes them through unchanged.
-
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr)`
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr, size_t n)`
 
@@ -1481,10 +1474,22 @@ line break).
 Cuts off a string at the first null character (useful after the string has
 been used as an output buffer by some C APIs).
 
+* `u8string` **`quote`**`(const string& str)`
+* `u8string` **`bquote`**`(const string& str)`
+
+Return a quoted string; internal quotes, backslashes, and control characters
+are escaped. The `bquote()` function always escapes all non-ASCII bytes;
+`quote()` passes valid UTF-8 unchanged, but will switch to `bquote()` mode if
+the string is not valid UTF-8.
+
 * `bool` **`starts_with`**`(const string& str, const string& prefix) noexcept`
 * `bool` **`ends_with`**`(const string& str, const string& suffix) noexcept`
 
 True if the string starts or ends with the specified substring.
+
+* `bool` **`string_is_ascii`**`(const string& str) noexcept`
+
+True if the string contains no 8-bit bytes.
 
 * `string` **`trim`**`(const string& str, const string& chars = ascii_whitespace)`
 * `string` **`trim_left`**`(const string& str, const string& chars = ascii_whitespace)`
@@ -1498,26 +1503,6 @@ Strips off any prefix ending in one of the delimiter characters (e.g.
 `unqualify("Prion::unqualify()")` returns `"unqualify()"`). This will return
 the original string unchanged if the delimiter string is empty or none of its
 characters are found.
-
-### Unicode functions ###
-
-* `template <typename S2, typename S1> S2` **`uconv`**`(const S1& s)`
-
-Converts between UTF representations. The input and output types (`S1` and
-`S2`) must be instantiations of `basic_string` with 8, 16, or 32 bit character
-types. If the character types are the same size, the input string is copied to
-the output without any validity checking; otherwise, invalid UTF in the input
-is replaced with the standard Unicode replacement character (`U+FFFD`) in the
-output.
-
-* `template <typename C> bool` **`uvalid`**`(const basic_string<C>& s) noexcept`
-* `template <typename C> bool` **`uvalid`**`(const basic_string<C>& s, size_t& n) noexcept`
-
-Check a string for a valid UTF encoding; the encoding is deduced from the size
-of the character type. The second version reports the number of code units
-before an invalid code sequence was encountered (i.e. the size of a valid UTF
-prefix; this will be equal to `s.size()` if the function returns true). These
-will always succeed for an empty string.
 
 ### String formatting and parsing functions ###
 
@@ -1606,6 +1591,26 @@ slash; the class is not aware of HTML's list of automatic self closing tags).
 
 The constructor will throw `std::invalid_argument` if the string does not
 appear to be a valid tag (this check is not very sophisticated).
+
+### Unicode functions ###
+
+* `template <typename S2, typename S1> S2` **`uconv`**`(const S1& s)`
+
+Converts between UTF representations. The input and output types (`S1` and
+`S2`) must be instantiations of `basic_string` with 8, 16, or 32 bit character
+types. If the character types are the same size, the input string is copied to
+the output without any validity checking; otherwise, invalid UTF in the input
+is replaced with the standard Unicode replacement character (`U+FFFD`) in the
+output.
+
+* `template <typename C> bool` **`uvalid`**`(const basic_string<C>& s) noexcept`
+* `template <typename C> bool` **`uvalid`**`(const basic_string<C>& s, size_t& n) noexcept`
+
+Check a string for a valid UTF encoding; the encoding is deduced from the size
+of the character type. The second version reports the number of code units
+before an invalid code sequence was encountered (i.e. the size of a valid UTF
+prefix; this will be equal to `s.size()` if the function returns true). These
+will always succeed for an empty string.
 
 ## Threads ##
 

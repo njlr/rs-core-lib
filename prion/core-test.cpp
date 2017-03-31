@@ -2974,21 +2974,23 @@ namespace {
         TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"),
             "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
 
+        TRY(s = quote(""s));                      TEST_EQUAL(s, "\"\""s);
+        TRY(s = quote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
+        TRY(s = quote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
+        TRY(s = quote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
+        TRY(s = quote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
+        TRY(s = quote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
+        TRY(s = quote(u8"åß∂ƒ"s));                TEST_EQUAL(s, u8"\"åß∂ƒ\""s);
+        TRY(s = quote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
+
         TRY(s = bquote(""s));                      TEST_EQUAL(s, "\"\""s);
         TRY(s = bquote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
         TRY(s = bquote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
         TRY(s = bquote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
         TRY(s = bquote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
         TRY(s = bquote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
+        TRY(s = bquote(u8"åß∂ƒ"s));                TEST_EQUAL(s, "\"\\xc3\\xa5\\xc3\\x9f\\xe2\\x88\\x82\\xc6\\x92\""s);
         TRY(s = bquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
-
-        TRY(s = uquote(""s));                      TEST_EQUAL(s, "\"\""s);
-        TRY(s = uquote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
-        TRY(s = uquote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
-        TRY(s = uquote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
-        TRY(s = uquote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
-        TRY(s = uquote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
-        TRY(s = uquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\x80\xff\""s);
 
         TEST_EQUAL(cstr(p0), ""s);
         TEST_EQUAL(cstr(p1), ""s);
@@ -3081,6 +3083,11 @@ namespace {
         TEST(! ends_with("Hello world", "Hello"));
         TEST(! ends_with("world", "Hello world"));
 
+        TEST(string_is_ascii(""));
+        TEST(string_is_ascii("Hello world"));
+        TEST(! string_is_ascii("Hello world\xff"));
+        TEST(! string_is_ascii(u8"åß∂"));
+
         TEST_EQUAL(trim(""), "");
         TEST_EQUAL(trim("Hello"), "Hello");
         TEST_EQUAL(trim("Hello world"), "Hello world");
@@ -3116,74 +3123,6 @@ namespace {
         TEST_EQUAL(unqualify("alpha::bravo::charlie"), "charlie");
         TEST_EQUAL(unqualify("alpha-bravo"), "alpha-bravo");
         TEST_EQUAL(unqualify("alpha-bravo-charlie"), "alpha-bravo-charlie");
-
-    }
-
-    void check_unicode_functions() {
-
-        // UTF-32    UTF-16     UTF-8
-        // 0000004d  004d       4d
-        // 00000430  0430       d0 b0
-        // 00004e8c  4e8c       e4 ba 8c
-        // 00010302  d800 df02  f0 90 8c 82
-        // 0010fffd  dbff dffd  f4 8f bf bd
-
-        u8string s8, t8 = "\x4d\xd0\xb0\xe4\xba\x8c\xf0\x90\x8c\x82\xf4\x8f\xbf\xbd";
-        u16string s16, t16 = {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
-        u32string s32, t32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
-        wstring sw, tw =
-            #if WCHAR_MAX > 0xffff
-                {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
-            #else
-                {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
-            #endif
-        size_t n = 0;
-
-        TRY(s8 = uconv<u8string>(""s));     TEST_EQUAL(s8, ""s);
-        TRY(s8 = uconv<u8string>(u""s));    TEST_EQUAL(s8, ""s);
-        TRY(s8 = uconv<u8string>(U""s));    TEST_EQUAL(s8, ""s);
-        TRY(s8 = uconv<u8string>(L""s));    TEST_EQUAL(s8, ""s);
-        TRY(s16 = uconv<u16string>(""s));   TEST_EQUAL(s16, u""s);
-        TRY(s16 = uconv<u16string>(u""s));  TEST_EQUAL(s16, u""s);
-        TRY(s16 = uconv<u16string>(U""s));  TEST_EQUAL(s16, u""s);
-        TRY(s16 = uconv<u16string>(L""s));  TEST_EQUAL(s16, u""s);
-        TRY(s32 = uconv<u32string>(""s));   TEST_EQUAL(s32, U""s);
-        TRY(s32 = uconv<u32string>(u""s));  TEST_EQUAL(s32, U""s);
-        TRY(s32 = uconv<u32string>(U""s));  TEST_EQUAL(s32, U""s);
-        TRY(s32 = uconv<u32string>(L""s));  TEST_EQUAL(s32, U""s);
-        TRY(sw = uconv<wstring>(""s));      TEST_EQUAL(sw, L""s);
-        TRY(sw = uconv<wstring>(u""s));     TEST_EQUAL(sw, L""s);
-        TRY(sw = uconv<wstring>(U""s));     TEST_EQUAL(sw, L""s);
-        TRY(sw = uconv<wstring>(L""s));     TEST_EQUAL(sw, L""s);
-        TRY(s8 = uconv<u8string>(t8));      TEST_EQUAL(s8, t8);
-        TRY(s8 = uconv<u8string>(t16));     TEST_EQUAL(s8, t8);
-        TRY(s8 = uconv<u8string>(t32));     TEST_EQUAL(s8, t8);
-        TRY(s8 = uconv<u8string>(tw));      TEST_EQUAL(s8, t8);
-        TRY(s16 = uconv<u16string>(t8));    TEST_EQUAL(s16, t16);
-        TRY(s16 = uconv<u16string>(t16));   TEST_EQUAL(s16, t16);
-        TRY(s16 = uconv<u16string>(t32));   TEST_EQUAL(s16, t16);
-        TRY(s16 = uconv<u16string>(tw));    TEST_EQUAL(s16, t16);
-        TRY(s32 = uconv<u32string>(t8));    TEST_EQUAL(s32, t32);
-        TRY(s32 = uconv<u32string>(t16));   TEST_EQUAL(s32, t32);
-        TRY(s32 = uconv<u32string>(t32));   TEST_EQUAL(s32, t32);
-        TRY(s32 = uconv<u32string>(tw));    TEST_EQUAL(s32, t32);
-        TRY(sw = uconv<wstring>(t8));       TEST_EQUAL(sw, tw);
-        TRY(sw = uconv<wstring>(t16));      TEST_EQUAL(sw, tw);
-        TRY(sw = uconv<wstring>(t32));      TEST_EQUAL(sw, tw);
-        TRY(sw = uconv<wstring>(tw));       TEST_EQUAL(sw, tw);
-
-        TEST(uvalid(""s, n));                       TEST_EQUAL(n, 0);
-        TEST(uvalid(u""s, n));                      TEST_EQUAL(n, 0);
-        TEST(uvalid(U""s, n));                      TEST_EQUAL(n, 0);
-        TEST(uvalid(L""s, n));                      TEST_EQUAL(n, 0);
-        TEST(uvalid(t8, n));                        TEST_EQUAL(n, t8.size());
-        TEST(uvalid(t16, n));                       TEST_EQUAL(n, t16.size());
-        TEST(uvalid(t32, n));                       TEST_EQUAL(n, t32.size());
-        TEST(uvalid(tw, n));                        TEST_EQUAL(n, tw.size());
-        TEST(! uvalid(t8 + '\xff', n));             TEST_EQUAL(n, t8.size());
-        TEST(! uvalid(t16 + char16_t(0xd800), n));  TEST_EQUAL(n, t16.size());
-        TEST(! uvalid(t32 + char32_t(0xd800), n));  TEST_EQUAL(n, t32.size());
-        TEST(! uvalid(tw + wchar_t(0xd800), n));    TEST_EQUAL(n, tw.size());
 
     }
 
@@ -3465,6 +3404,74 @@ namespace {
             u8string s = out.str();
             TEST_EQUAL(s, expected);
         }
+
+    }
+
+    void check_unicode_functions() {
+
+        // UTF-32    UTF-16     UTF-8
+        // 0000004d  004d       4d
+        // 00000430  0430       d0 b0
+        // 00004e8c  4e8c       e4 ba 8c
+        // 00010302  d800 df02  f0 90 8c 82
+        // 0010fffd  dbff dffd  f4 8f bf bd
+
+        u8string s8, t8 = "\x4d\xd0\xb0\xe4\xba\x8c\xf0\x90\x8c\x82\xf4\x8f\xbf\xbd";
+        u16string s16, t16 = {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
+        u32string s32, t32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
+        wstring sw, tw =
+            #if WCHAR_MAX > 0xffff
+                {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
+            #else
+                {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
+            #endif
+        size_t n = 0;
+
+        TRY(s8 = uconv<u8string>(""s));     TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<u8string>(u""s));    TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<u8string>(U""s));    TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<u8string>(L""s));    TEST_EQUAL(s8, ""s);
+        TRY(s16 = uconv<u16string>(""s));   TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<u16string>(u""s));  TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<u16string>(U""s));  TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<u16string>(L""s));  TEST_EQUAL(s16, u""s);
+        TRY(s32 = uconv<u32string>(""s));   TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<u32string>(u""s));  TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<u32string>(U""s));  TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<u32string>(L""s));  TEST_EQUAL(s32, U""s);
+        TRY(sw = uconv<wstring>(""s));      TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<wstring>(u""s));     TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<wstring>(U""s));     TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<wstring>(L""s));     TEST_EQUAL(sw, L""s);
+        TRY(s8 = uconv<u8string>(t8));      TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<u8string>(t16));     TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<u8string>(t32));     TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<u8string>(tw));      TEST_EQUAL(s8, t8);
+        TRY(s16 = uconv<u16string>(t8));    TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<u16string>(t16));   TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<u16string>(t32));   TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<u16string>(tw));    TEST_EQUAL(s16, t16);
+        TRY(s32 = uconv<u32string>(t8));    TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<u32string>(t16));   TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<u32string>(t32));   TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<u32string>(tw));    TEST_EQUAL(s32, t32);
+        TRY(sw = uconv<wstring>(t8));       TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<wstring>(t16));      TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<wstring>(t32));      TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<wstring>(tw));       TEST_EQUAL(sw, tw);
+
+        TEST(uvalid(""s, n));                       TEST_EQUAL(n, 0);
+        TEST(uvalid(u""s, n));                      TEST_EQUAL(n, 0);
+        TEST(uvalid(U""s, n));                      TEST_EQUAL(n, 0);
+        TEST(uvalid(L""s, n));                      TEST_EQUAL(n, 0);
+        TEST(uvalid(t8, n));                        TEST_EQUAL(n, t8.size());
+        TEST(uvalid(t16, n));                       TEST_EQUAL(n, t16.size());
+        TEST(uvalid(t32, n));                       TEST_EQUAL(n, t32.size());
+        TEST(uvalid(tw, n));                        TEST_EQUAL(n, tw.size());
+        TEST(! uvalid(t8 + '\xff', n));             TEST_EQUAL(n, t8.size());
+        TEST(! uvalid(t16 + char16_t(0xd800), n));  TEST_EQUAL(n, t16.size());
+        TEST(! uvalid(t32 + char32_t(0xd800), n));  TEST_EQUAL(n, t32.size());
+        TEST(! uvalid(tw + wchar_t(0xd800), n));    TEST_EQUAL(n, tw.size());
 
     }
 
@@ -3859,9 +3866,9 @@ TEST_MODULE(prion, core) {
     check_simple_random_generators();
     check_character_functions();
     check_general_string_functions();
-    check_unicode_functions();
     check_string_formatting_and_parsing_functions();
     check_html_xml_tags();
+    check_unicode_functions();
     check_thread_class();
     check_synchronisation_objects();
     check_time_and_date_types();
