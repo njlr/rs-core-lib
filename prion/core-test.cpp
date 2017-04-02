@@ -47,11 +47,11 @@ TEST_MAIN;
 
 namespace {
 
-    u8string f1(int n) { return u8string(n, '*'); }
-    u8string f1(u8string s) { return '[' + s + ']'; }
-    u8string f2() { return "Hello"; }
-    u8string f2(u8string s) { return '[' + s + ']'; }
-    u8string f2(int x, int y) { return dec(x * y); }
+    U8string f1(int n) { return U8string(n, '*'); }
+    U8string f1(U8string s) { return '[' + s + ']'; }
+    U8string f2() { return "Hello"; }
+    U8string f2(U8string s) { return '[' + s + ']'; }
+    U8string f2(int x, int y) { return dec(x * y); }
 
     PRI_ENUM(FooEnum, int16_t, 1, alpha, bravo, charlie)
     PRI_ENUM_CLASS(BarEnum, int32_t, 1, alpha, bravo, charlie)
@@ -73,23 +73,23 @@ namespace {
         TRY(assert1());
         TEST_THROW_MATCH(assert2(), std::logic_error, "\\bcore-test\\.cpp:\\d+\\b.+\\bn == 6 \\* 9\\b");
 
-        vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
-        vector<u8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
+        std::vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
+        std::vector<U8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
 
         TRY(std::transform(iv.begin(), iv.end(), overwrite(result), PRI_OVERLOAD(f1)));
-        TEST_EQUAL_RANGE(result, (vector<u8string>{"*", "**", "***", "****", "*****"}));
+        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"*", "**", "***", "****", "*****"}));
         TRY(std::transform(sv.begin(), sv.end(), overwrite(result), PRI_OVERLOAD(f1)));
-        TEST_EQUAL_RANGE(result, (vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
 
         TRY(std::generate_n(overwrite(result), 3, PRI_OVERLOAD(f2)));
-        TEST_EQUAL_RANGE(result, (vector<u8string>{"Hello", "Hello", "Hello"}));
+        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"Hello", "Hello", "Hello"}));
         TRY(std::transform(sv.begin(), sv.end(), overwrite(result), PRI_OVERLOAD(f2)));
-        TEST_EQUAL_RANGE(result, (vector<u8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
         auto of2 = PRI_OVERLOAD(f2);
         auto out = overwrite(result);
         for (size_t i = 0; i < iv.size() && i < iv2.size(); ++i)
             TRY(*out++ = of2(iv[i], iv2[i]));
-        TEST_EQUAL_RANGE(result, (vector<u8string>{"2", "6", "15", "28", "55"}));
+        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"2", "6", "15", "28", "55"}));
 
         auto c1 = PRI_CHAR('A', char);      TEST_TYPE_OF(c1, char);      TEST_EQUAL(c1, 'A');
         auto c2 = PRI_CHAR('A', char16_t);  TEST_TYPE_OF(c2, char16_t);  TEST_EQUAL(c2, u'A');
@@ -101,8 +101,8 @@ namespace {
         auto cp3 = PRI_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
         auto cp4 = PRI_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
 
-        vector<FooEnum> vf;
-        vector<BarEnum> vb;
+        std::vector<FooEnum> vf;
+        std::vector<BarEnum> vb;
 
         TEST_TYPE(std::underlying_type_t<FooEnum>, int16_t);
         TEST_TYPE(std::underlying_type_t<BarEnum>, int32_t);
@@ -345,13 +345,13 @@ namespace {
     class TopTail {
     public:
         TopTail(): sp(nullptr), ch() {}
-        TopTail(u8string& s, char c): sp(&s), ch(c) { s += '+'; s += c; }
+        TopTail(U8string& s, char c): sp(&s), ch(c) { s += '+'; s += c; }
         ~TopTail() { term(); }
         TopTail(TopTail&& t): sp(t.sp), ch(t.ch) { t.sp = nullptr; }
         TopTail& operator=(TopTail&& t) { if (&t != this) { term(); sp = t.sp; ch = t.ch; t.sp = nullptr; } return *this; }
         char get() const noexcept { return ch; }
     private:
-        u8string* sp;
+        U8string* sp;
         char ch;
         TopTail(const TopTail&) = delete;
         TopTail& operator=(const TopTail&) = delete;
@@ -366,7 +366,7 @@ namespace {
         TEST_EQUAL(b.size(), 0);
         TEST_EQUAL(b.hex(), "");
         TEST_EQUAL(b.str(), "");
-        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "");
+        TEST_EQUAL(std::string(b.chars().begin(), b.chars().end()), "");
 
         TRY(b = Blob(nullptr, 1));
         TEST(b.empty());
@@ -377,7 +377,7 @@ namespace {
         TEST_EQUAL(b.size(), 5);
         TEST_EQUAL(b.hex(), "61 61 61 61 61");
         TEST_EQUAL(b.str(), "aaaaa");
-        TEST_EQUAL(string(b.chars().begin(), b.chars().end()), "aaaaa");
+        TEST_EQUAL(std::string(b.chars().begin(), b.chars().end()), "aaaaa");
 
         TRY(b.fill('z'));
         TEST_EQUAL(b.size(), 5);
@@ -401,7 +401,7 @@ namespace {
         TEST_EQUAL(b.hex(), "68 65 6c 6c 6f");
         TEST_EQUAL(b.str(), "hello");
 
-        u8string s, h = "hello", w = "world";
+        U8string s, h = "hello", w = "world";
 
         TRY(b.clear());
         TRY(b.reset(&h[0], 5, [&] (void*) { s += "a"; }));
@@ -441,7 +441,7 @@ namespace {
 
         #ifdef _WIN32
 
-            u8string s;
+            U8string s;
 
             TRY(s = windows_category().message(ERROR_INVALID_FUNCTION));
             TEST_EQUAL(s, "Incorrect function.");
@@ -449,7 +449,7 @@ namespace {
                 throw std::system_error(ERROR_INVALID_FUNCTION, windows_category(), "SomeFunction()");
             }
             catch (const std::exception& ex) {
-                TEST_MATCH(string(ex.what()), "^SomeFunction\\(\\).+Incorrect function\\.$");
+                TEST_MATCH(std::string(ex.what()), "^SomeFunction\\(\\).+Incorrect function\\.$");
             }
 
         #endif
@@ -462,10 +462,10 @@ namespace {
         TEST_TYPE(BinaryType<float>, uint32_t);
         TEST_TYPE(BinaryType<double>, uint64_t);
 
-        {  using type = CopyConst<int, string>;              TEST_TYPE(type, string);        }
-        {  using type = CopyConst<int, const string>;        TEST_TYPE(type, string);        }
-        {  using type = CopyConst<const int, string>;        TEST_TYPE(type, const string);  }
-        {  using type = CopyConst<const int, const string>;  TEST_TYPE(type, const string);  }
+        {  using type = CopyConst<int, std::string>;              TEST_TYPE(type, std::string);        }
+        {  using type = CopyConst<int, const std::string>;        TEST_TYPE(type, std::string);        }
+        {  using type = CopyConst<const int, std::string>;        TEST_TYPE(type, const std::string);  }
+        {  using type = CopyConst<const int, const std::string>;  TEST_TYPE(type, const std::string);  }
 
         TEST_TYPE(SignedInteger<8>, int8_t);
         TEST_TYPE(SignedInteger<16>, int16_t);
@@ -481,7 +481,7 @@ namespace {
     struct Nnptest {
         int num;
         static int count;
-        static u8string log;
+        static U8string log;
         Nnptest(): num(0) { ++count; log += "+nil;"; }
         explicit Nnptest(int n): num(n) { ++count; log += "+" + dec(num) + ";"; }
         ~Nnptest() { --count; log += "-" + dec(num) + ";"; }
@@ -492,7 +492,7 @@ namespace {
     };
 
     int Nnptest::count = 0;
-    u8string Nnptest::log;
+    U8string Nnptest::log;
 
     void check_smart_pointers() {
 
@@ -536,11 +536,11 @@ namespace {
             TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;");
             TEST(p != q);
 
-            auto u = make_unique<Nnptest>(3);
+            auto u = std::make_unique<Nnptest>(3);
             TEST_EQUAL(Nnptest::count, 3);
             TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;+3;");
 
-            TRY(p = move(u));
+            TRY(p = std::move(u));
             TEST_EQUAL(p->num, 3);
             TEST_EQUAL(q->num, 2);
             TEST(! u);
@@ -572,8 +572,8 @@ namespace {
 
     void check_type_related_functions() {
 
-        shared_ptr<Base> b1 = make_shared<Derived1>();
-        shared_ptr<Base> b2 = make_shared<Derived2>();
+        std::shared_ptr<Base> b1 = std::make_shared<Derived1>();
+        std::shared_ptr<Base> b2 = std::make_shared<Derived2>();
 
         TEST(is<Derived1>(b1));
         TEST(! is<Derived1>(b2));
@@ -601,11 +601,11 @@ namespace {
         i = 42;      TRY(u = binary_cast<uint16_t>(i));  TEST_EQUAL(u, 42);
         i = -32767;  TRY(u = binary_cast<uint16_t>(i));  TEST_EQUAL(u, 32769);
 
-        u8string s;
+        U8string s;
 
         const std::type_info& v_info = typeid(void);
         const std::type_info& i_info = typeid(int);
-        const std::type_info& s_info = typeid(string);
+        const std::type_info& s_info = typeid(std::string);
         auto v_index = std::type_index(v_info);
         auto i_index = std::type_index(i_info);
         auto s_index = std::type_index(s_info);
@@ -618,7 +618,7 @@ namespace {
         TEST_MATCH(type_name(s_index), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
         TEST_EQUAL(type_name<void>(), "void");
         TEST_MATCH(type_name<int>(), "^(signed )?int$");
-        TEST_MATCH(type_name<string>(), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
+        TEST_MATCH(type_name<std::string>(), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
         TEST_MATCH(type_name(42), "^(signed )?int$");
         TEST_MATCH(type_name(s), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
 
@@ -644,7 +644,7 @@ namespace {
         const uint8_t* bytes = nullptr;
         TRY(u = Uuid(bytes));
         TEST_EQUAL(u.str(), "00000000-0000-0000-0000-000000000000");
-        string chars = "abcdefghijklmnop";
+        std::string chars = "abcdefghijklmnop";
         bytes = reinterpret_cast<const uint8_t*>(chars.data());
         TRY(u = Uuid(bytes));
         TEST_EQUAL(u.str(), "61626364-6566-6768-696a-6b6c6d6e6f70");
@@ -974,7 +974,7 @@ namespace {
 
     void check_generic_algorithms() {
 
-        u8string s1, s2;
+        U8string s1, s2;
         int n;
 
         s1 = "Hello";
@@ -1044,12 +1044,12 @@ namespace {
         s1.clear();  TRY(for_n(2, f2));  TEST_EQUAL(s1, "0;1;");
         s1.clear();  TRY(for_n(3, f2));  TEST_EQUAL(s1, "0;1;2;");
 
-        std::map<int, u8string> m = {
+        std::map<int, U8string> m = {
             {1, "alpha"},
             {2, "bravo"},
             {3, "charlie"},
         };
-        u8string s;
+        U8string s;
 
         TRY(s = find_in_map(m, 1));          TEST_EQUAL(s, "alpha");
         TRY(s = find_in_map(m, 2));          TEST_EQUAL(s, "bravo");
@@ -1069,8 +1069,8 @@ namespace {
         is2 = {10,20};
         TEST(! sets_intersect(is1, is2));
 
-        vector<int> iv0, iv5 = {1,2,3,4,5};
-        const vector<int>& civ5(iv5);
+        std::vector<int> iv0, iv5 = {1,2,3,4,5};
+        const std::vector<int>& civ5(iv5);
         double d, da5[] = {10,20,30,40,50};
 
         TRY(n = sum_of(iv0));       TEST_EQUAL(n, 0);
@@ -1086,8 +1086,8 @@ namespace {
 
     void check_integer_sequences() {
 
-        vector<int> v;
-        u8string s;
+        std::vector<int> v;
+        U8string s;
 
         TRY(con_overwrite(iseq(5), v));            TRY(s = to_str(v));  TEST_EQUAL(s, "[0,1,2,3,4,5]");
         TRY(con_overwrite(iseq(-5), v));           TRY(s = to_str(v));  TEST_EQUAL(s, "[0,-1,-2,-3,-4,-5]");
@@ -1166,7 +1166,7 @@ namespace {
 
     void check_memory_algorithms() {
 
-        string s1, s2;
+        std::string s1, s2;
         int x = 0;
         size_t z = 0;
 
@@ -1200,15 +1200,15 @@ namespace {
 
         char array[] {'H','e','l','l','o'};
 
-        TEST_TYPE(RangeIterator<string>, string::iterator);
-        TEST_TYPE(RangeIterator<const string>, string::const_iterator);
-        TEST_TYPE(RangeIterator<vector<int>>, vector<int>::iterator);
-        TEST_TYPE(RangeIterator<const vector<int>>, vector<int>::const_iterator);
+        TEST_TYPE(RangeIterator<std::string>, std::string::iterator);
+        TEST_TYPE(RangeIterator<const std::string>, std::string::const_iterator);
+        TEST_TYPE(RangeIterator<std::vector<int>>, std::vector<int>::iterator);
+        TEST_TYPE(RangeIterator<const std::vector<int>>, std::vector<int>::const_iterator);
         TEST_TYPE(RangeIterator<Irange<int*>>, int*);
         TEST_TYPE(RangeIterator<Irange<const int*>>, const int*);
 
-        TEST_TYPE(RangeValue<string>, char);
-        TEST_TYPE(RangeValue<vector<int>>, int);
+        TEST_TYPE(RangeValue<std::string>, char);
+        TEST_TYPE(RangeValue<std::vector<int>>, int);
         TEST_TYPE(RangeValue<Irange<int*>>, int);
         TEST_TYPE(RangeValue<Irange<const int*>>, int);
 
@@ -1228,7 +1228,7 @@ namespace {
 
         char array[] {'H','e','l','l','o'};
         const char* cp = array;
-        string s1, s2;
+        std::string s1, s2;
 
         auto ar = array_range(array, sizeof(array));
         TEST_EQUAL(ar.size(), 5);
@@ -1931,21 +1931,21 @@ namespace {
 
     }
 
-    u8string fa0() { return "hello"; }
-    u8string fa1(char c) { return {c}; }
-    u8string fa2(size_t n, char c) { return u8string(n, c); }
+    U8string fa0() { return "hello"; }
+    U8string fa1(char c) { return {c}; }
+    U8string fa2(size_t n, char c) { return U8string(n, c); }
 
-    u8string (*fb0)() = &fa0;
-    u8string (*fb1)(char c) = &fa1;
-    u8string (*fb2)(size_t n, char c) = &fa2;
+    U8string (*fb0)() = &fa0;
+    U8string (*fb1)(char c) = &fa1;
+    U8string (*fb2)(size_t n, char c) = &fa2;
 
-    struct FC0 { u8string operator()() { return "hello"; } };
-    struct FC1 { u8string operator()(char c) { return {c}; } };
-    struct FC2 { u8string operator()(size_t n, char c) { return u8string(n, c); } };
+    struct FC0 { U8string operator()() { return "hello"; } };
+    struct FC1 { U8string operator()(char c) { return {c}; } };
+    struct FC2 { U8string operator()(size_t n, char c) { return U8string(n, c); } };
 
-    struct FD0 { u8string operator()() const { return "hello"; } };
-    struct FD1 { u8string operator()(char c) const { return {c}; } };
-    struct FD2 { u8string operator()(size_t n, char c) const { return u8string(n, c); } };
+    struct FD0 { U8string operator()() const { return "hello"; } };
+    struct FD1 { U8string operator()(char c) const { return {c}; } };
+    struct FD2 { U8string operator()(size_t n, char c) const { return U8string(n, c); } };
 
     FC0 fc0;
     FC1 fc1;
@@ -1955,13 +1955,13 @@ namespace {
     const FD1 fd1 = {};
     const FD2 fd2 = {};
 
-    auto fe0 = [] () -> u8string { return "hello"; };
-    auto fe1 = [] (char c) -> u8string { return {c}; };
-    auto fe2 = [] (size_t n, char c) -> u8string { return u8string(n, c); };
+    auto fe0 = [] () -> U8string { return "hello"; };
+    auto fe1 = [] (char c) -> U8string { return {c}; };
+    auto fe2 = [] (size_t n, char c) -> U8string { return U8string(n, c); };
 
-    using tuple0 = tuple<>;
-    using tuple1 = tuple<char>;
-    using tuple2 = tuple<size_t, char>;
+    using tuple0 = std::tuple<>;
+    using tuple1 = std::tuple<char>;
+    using tuple2 = std::tuple<size_t, char>;
 
     void check_function_traits() {
 
@@ -2005,11 +2005,11 @@ namespace {
         { using T = ArgumentType<FTE2, 0>; TEST_TYPE(T, size_t); }
         { using T = ArgumentType<FTE2, 1>; TEST_TYPE(T, char); }
 
-        TEST_TYPE(ReturnType<FTA0>, u8string);  TEST_TYPE(ReturnType<FTA1>, u8string);  TEST_TYPE(ReturnType<FTA2>, u8string);
-        TEST_TYPE(ReturnType<FTB0>, u8string);  TEST_TYPE(ReturnType<FTB1>, u8string);  TEST_TYPE(ReturnType<FTB2>, u8string);
-        TEST_TYPE(ReturnType<FTC0>, u8string);  TEST_TYPE(ReturnType<FTC1>, u8string);  TEST_TYPE(ReturnType<FTC2>, u8string);
-        TEST_TYPE(ReturnType<FTD0>, u8string);  TEST_TYPE(ReturnType<FTD1>, u8string);  TEST_TYPE(ReturnType<FTD2>, u8string);
-        TEST_TYPE(ReturnType<FTE0>, u8string);  TEST_TYPE(ReturnType<FTE1>, u8string);  TEST_TYPE(ReturnType<FTE2>, u8string);
+        TEST_TYPE(ReturnType<FTA0>, U8string);  TEST_TYPE(ReturnType<FTA1>, U8string);  TEST_TYPE(ReturnType<FTA2>, U8string);
+        TEST_TYPE(ReturnType<FTB0>, U8string);  TEST_TYPE(ReturnType<FTB1>, U8string);  TEST_TYPE(ReturnType<FTB2>, U8string);
+        TEST_TYPE(ReturnType<FTC0>, U8string);  TEST_TYPE(ReturnType<FTC1>, U8string);  TEST_TYPE(ReturnType<FTC2>, U8string);
+        TEST_TYPE(ReturnType<FTD0>, U8string);  TEST_TYPE(ReturnType<FTD1>, U8string);  TEST_TYPE(ReturnType<FTD2>, U8string);
+        TEST_TYPE(ReturnType<FTE0>, U8string);  TEST_TYPE(ReturnType<FTE1>, U8string);  TEST_TYPE(ReturnType<FTE2>, U8string);
 
     }
 
@@ -2027,13 +2027,13 @@ namespace {
 
         auto lf1 = [] (int x) { return x * x; };
         auto sf1 = stdfun(lf1);
-        TEST_TYPE_OF(sf1, function<int(int)>);
+        TEST_TYPE_OF(sf1, std::function<int(int)>);
         TEST_EQUAL(sf1(5), 25);
 
         int z = 0;
         auto lf2 = [&] (int x, int y) { z = x * y; };
         auto sf2 = stdfun(lf2);
-        TEST_TYPE_OF(sf2, function<void(int, int)>);
+        TEST_TYPE_OF(sf2, std::function<void(int, int)>);
         TRY(sf2(6, 7));
         TEST_EQUAL(z, 42);
 
@@ -2061,7 +2061,7 @@ namespace {
         TEST_EQUAL(Counted::count(), 0);
 
         Counted* cp = nullptr;
-        shared_ptr<Counted> csp;
+        std::shared_ptr<Counted> csp;
         TRY(csp.reset(new Counted));
         TEST_EQUAL(Counted::count(), 1);
         TRY(csp.reset());
@@ -2075,9 +2075,9 @@ namespace {
         TEST_EQUAL(Counted::count(), 0);
 
         int n1 = 42, n2 = 0;
-        u8string s1 = "Hello world", s2;
-        u8string& sr(s1);
-        const u8string& csr(s1);
+        U8string s1 = "Hello world", s2;
+        U8string& sr(s1);
+        const U8string& csr(s1);
 
         TRY(n2 = identity(n1));              TEST_EQUAL(n2, 42);
         TRY(n2 = identity(100));             TEST_EQUAL(n2, 100);
@@ -2093,7 +2093,7 @@ namespace {
 
         uint32_t u = 0;
         size_t h1 = 0, h2 = 0, h3 = 0, h4 = 0, h5 = 0;
-        string s0, s1 = "Hello world";
+        std::string s0, s1 = "Hello world";
 
         TRY(u = Djb2a());                      TEST_EQUAL(u, 0x00001505);
         TRY(u = Djb2a()(s0));                  TEST_EQUAL(u, 0x00001505);
@@ -2111,7 +2111,7 @@ namespace {
         TEST_COMPARE(h1, !=, h3);
         TEST_COMPARE(h2, !=, h3);
 
-        vector<string> sv {"hello", "world", "goodbye"};
+        std::vector<std::string> sv {"hello", "world", "goodbye"};
 
         for (auto& s: sv)
             TRY(hash_combine(h4, s));
@@ -2122,12 +2122,12 @@ namespace {
 
     constexpr Kwarg<int> kw_alpha;
     constexpr Kwarg<bool> kw_bravo;
-    constexpr Kwarg<string> kw_charlie;
+    constexpr Kwarg<std::string> kw_charlie;
 
     struct Kwtest {
         int a = 0;
         bool b = false;
-        string c;
+        std::string c;
         template <typename... Args> int fun(const Args&... args) {
             auto i = int(kwget(kw_alpha, a, args...));
             auto j = int(kwget(kw_bravo, b, args...));
@@ -2191,7 +2191,7 @@ namespace {
     void check_scope_guards() {
 
         int n;
-        string s;
+        std::string s;
 
         {
             n = 1;
@@ -2373,10 +2373,10 @@ namespace {
 
     class TempFile {
     public:
-        explicit TempFile(const u8string& file): f(file) {}
+        explicit TempFile(const U8string& file): f(file) {}
         ~TempFile() { remove(f.data()); }
     private:
-        u8string f;
+        U8string f;
         TempFile(const TempFile&) = delete;
         TempFile(TempFile&&) = delete;
         TempFile& operator=(const TempFile&) = delete;
@@ -2385,7 +2385,7 @@ namespace {
 
     void check_file_io_operations() {
 
-        string s, readme = "README.md", testfile = "__test__", nofile = "__no_such_file__";
+        std::string s, readme = "README.md", testfile = "__test__", nofile = "__no_such_file__";
         TempFile tempfile(testfile);
 
         TEST(load_file(readme, s));
@@ -2407,7 +2407,7 @@ namespace {
 
         #ifndef _XOPEN_SOURCE
 
-            wstring wreadme = L"README.md", wtestfile = L"__test__", wnofile = L"__no_such_file__";
+            std::wstring wreadme = L"README.md", wtestfile = L"__test__", wnofile = L"__no_such_file__";
 
             TEST(load_file(wreadme, s));
             TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
@@ -2432,7 +2432,7 @@ namespace {
 
     void check_terminal_io_operations() {
 
-        u8string s;
+        U8string s;
 
         TRY(s = xt_up);              TEST_EQUAL(s, "\x1b[A");
         TRY(s = xt_down);            TEST_EQUAL(s, "\x1b[B");
@@ -2557,7 +2557,7 @@ namespace {
         auto rn2 = [&] { return random_normal(rng, 10.0, 5.0); };
         CHECK_RANDOM_GENERATOR(rn2, - inf, inf, 10, 5);
 
-        vector<int> v = {1,2,3,4,5,6,7,8,9,10};
+        std::vector<int> v = {1,2,3,4,5,6,7,8,9,10};
         auto rc1 = [&] { return random_choice(rng, v); };
         CHECK_RANDOM_GENERATOR(rc1, 1, 10, 5.5, 2.88661);
         auto rc2 = [&] { return random_choice(rng, {1,2,3,4,5,6,7,8,9,10}); };
@@ -2925,9 +2925,9 @@ namespace {
 
     void check_general_string_functions() {
 
-        string s;
-        wstring ws;
-        vector<string> sv;
+        std::string s;
+        std::wstring ws;
+        std::vector<std::string> sv;
 
         const char* p0 = nullptr;
         const char* p1 = "";
@@ -3128,11 +3128,11 @@ namespace {
 
     void check_string_formatting_and_parsing_functions() {
 
-        string s;
-        vector<bool> bv;
-        vector<int> iv;
-        vector<string> sv;
-        std::map<int, string> ism;
+        std::string s;
+        std::vector<bool> bv;
+        std::vector<int> iv;
+        std::vector<std::string> sv;
+        std::map<int, std::string> ism;
 
         TEST_EQUAL(bin(0, 1), "0");
         TEST_EQUAL(bin(0, 10), "0000000000");
@@ -3329,8 +3329,8 @@ namespace {
         TEST_EQUAL(to_str('X'), "X");
         TEST_EQUAL(to_str(true), "true");
         TEST_EQUAL(to_str(false), "false");
-        TEST_EQUAL(to_str(make_pair(10,20)), "{10,20}");
-        TEST_EQUAL(to_str(make_pair("hello"s,"world"s)), "{hello,world}");
+        TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
+        TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
 
         bv.clear();
         iv.clear();
@@ -3356,7 +3356,7 @@ namespace {
 
     void check_html_xml_tags() {
 
-        const u8string expected =
+        const U8string expected =
             "<h1>Header</h1>\n"
             "<br/>\n"
             "<ul>\n"
@@ -3383,7 +3383,7 @@ namespace {
                     out << item;
                 }
             }
-            u8string s = out.str();
+            U8string s = out.str();
             TEST_EQUAL(s, expected);
         }
 
@@ -3401,7 +3401,7 @@ namespace {
                     out << item;
                 }
             }
-            u8string s = out.str();
+            U8string s = out.str();
             TEST_EQUAL(s, expected);
         }
 
@@ -3416,10 +3416,10 @@ namespace {
         // 00010302  d800 df02  f0 90 8c 82
         // 0010fffd  dbff dffd  f4 8f bf bd
 
-        u8string s8, t8 = "\x4d\xd0\xb0\xe4\xba\x8c\xf0\x90\x8c\x82\xf4\x8f\xbf\xbd";
-        u16string s16, t16 = {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
-        u32string s32, t32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
-        wstring sw, tw =
+        U8string s8, t8 = "\x4d\xd0\xb0\xe4\xba\x8c\xf0\x90\x8c\x82\xf4\x8f\xbf\xbd";
+        std::u16string s16, t16 = {0x4d,0x430,0x4e8c,0xd800,0xdf02,0xdbff,0xdffd};
+        std::u32string s32, t32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
+        std::wstring sw, tw =
             #if WCHAR_MAX > 0xffff
                 {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
             #else
@@ -3427,38 +3427,38 @@ namespace {
             #endif
         size_t n = 0;
 
-        TRY(s8 = uconv<u8string>(""s));     TEST_EQUAL(s8, ""s);
-        TRY(s8 = uconv<u8string>(u""s));    TEST_EQUAL(s8, ""s);
-        TRY(s8 = uconv<u8string>(U""s));    TEST_EQUAL(s8, ""s);
-        TRY(s8 = uconv<u8string>(L""s));    TEST_EQUAL(s8, ""s);
-        TRY(s16 = uconv<u16string>(""s));   TEST_EQUAL(s16, u""s);
-        TRY(s16 = uconv<u16string>(u""s));  TEST_EQUAL(s16, u""s);
-        TRY(s16 = uconv<u16string>(U""s));  TEST_EQUAL(s16, u""s);
-        TRY(s16 = uconv<u16string>(L""s));  TEST_EQUAL(s16, u""s);
-        TRY(s32 = uconv<u32string>(""s));   TEST_EQUAL(s32, U""s);
-        TRY(s32 = uconv<u32string>(u""s));  TEST_EQUAL(s32, U""s);
-        TRY(s32 = uconv<u32string>(U""s));  TEST_EQUAL(s32, U""s);
-        TRY(s32 = uconv<u32string>(L""s));  TEST_EQUAL(s32, U""s);
-        TRY(sw = uconv<wstring>(""s));      TEST_EQUAL(sw, L""s);
-        TRY(sw = uconv<wstring>(u""s));     TEST_EQUAL(sw, L""s);
-        TRY(sw = uconv<wstring>(U""s));     TEST_EQUAL(sw, L""s);
-        TRY(sw = uconv<wstring>(L""s));     TEST_EQUAL(sw, L""s);
-        TRY(s8 = uconv<u8string>(t8));      TEST_EQUAL(s8, t8);
-        TRY(s8 = uconv<u8string>(t16));     TEST_EQUAL(s8, t8);
-        TRY(s8 = uconv<u8string>(t32));     TEST_EQUAL(s8, t8);
-        TRY(s8 = uconv<u8string>(tw));      TEST_EQUAL(s8, t8);
-        TRY(s16 = uconv<u16string>(t8));    TEST_EQUAL(s16, t16);
-        TRY(s16 = uconv<u16string>(t16));   TEST_EQUAL(s16, t16);
-        TRY(s16 = uconv<u16string>(t32));   TEST_EQUAL(s16, t16);
-        TRY(s16 = uconv<u16string>(tw));    TEST_EQUAL(s16, t16);
-        TRY(s32 = uconv<u32string>(t8));    TEST_EQUAL(s32, t32);
-        TRY(s32 = uconv<u32string>(t16));   TEST_EQUAL(s32, t32);
-        TRY(s32 = uconv<u32string>(t32));   TEST_EQUAL(s32, t32);
-        TRY(s32 = uconv<u32string>(tw));    TEST_EQUAL(s32, t32);
-        TRY(sw = uconv<wstring>(t8));       TEST_EQUAL(sw, tw);
-        TRY(sw = uconv<wstring>(t16));      TEST_EQUAL(sw, tw);
-        TRY(sw = uconv<wstring>(t32));      TEST_EQUAL(sw, tw);
-        TRY(sw = uconv<wstring>(tw));       TEST_EQUAL(sw, tw);
+        TRY(s8 = uconv<U8string>(""s));          TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<U8string>(u""s));         TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<U8string>(U""s));         TEST_EQUAL(s8, ""s);
+        TRY(s8 = uconv<U8string>(L""s));         TEST_EQUAL(s8, ""s);
+        TRY(s16 = uconv<std::u16string>(""s));   TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<std::u16string>(u""s));  TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<std::u16string>(U""s));  TEST_EQUAL(s16, u""s);
+        TRY(s16 = uconv<std::u16string>(L""s));  TEST_EQUAL(s16, u""s);
+        TRY(s32 = uconv<std::u32string>(""s));   TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<std::u32string>(u""s));  TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<std::u32string>(U""s));  TEST_EQUAL(s32, U""s);
+        TRY(s32 = uconv<std::u32string>(L""s));  TEST_EQUAL(s32, U""s);
+        TRY(sw = uconv<std::wstring>(""s));      TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<std::wstring>(u""s));     TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<std::wstring>(U""s));     TEST_EQUAL(sw, L""s);
+        TRY(sw = uconv<std::wstring>(L""s));     TEST_EQUAL(sw, L""s);
+        TRY(s8 = uconv<U8string>(t8));           TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<U8string>(t16));          TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<U8string>(t32));          TEST_EQUAL(s8, t8);
+        TRY(s8 = uconv<U8string>(tw));           TEST_EQUAL(s8, t8);
+        TRY(s16 = uconv<std::u16string>(t8));    TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<std::u16string>(t16));   TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<std::u16string>(t32));   TEST_EQUAL(s16, t16);
+        TRY(s16 = uconv<std::u16string>(tw));    TEST_EQUAL(s16, t16);
+        TRY(s32 = uconv<std::u32string>(t8));    TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<std::u32string>(t16));   TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<std::u32string>(t32));   TEST_EQUAL(s32, t32);
+        TRY(s32 = uconv<std::u32string>(tw));    TEST_EQUAL(s32, t32);
+        TRY(sw = uconv<std::wstring>(t8));       TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<std::wstring>(t16));      TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<std::wstring>(t32));      TEST_EQUAL(sw, tw);
+        TRY(sw = uconv<std::wstring>(tw));       TEST_EQUAL(sw, tw);
 
         TEST(uvalid(""s, n));                       TEST_EQUAL(n, 0);
         TEST(uvalid(u""s, n));                      TEST_EQUAL(n, 0);
@@ -3493,7 +3493,7 @@ namespace {
         }
 
         {
-            string s;
+            std::string s;
             Thread t;
             TRY(t = Thread([&] { s = "Neddie"; }));
             TEST_COMPARE(t.get_id(), !=, Thread::current());
@@ -3527,7 +3527,7 @@ namespace {
         {
             Mutex m;
             ConditionVariable cv;
-            string s;
+            std::string s;
             auto f = [&] {
                 MutexLock lock;
                 TRY(lock = make_lock(m));
@@ -3546,7 +3546,7 @@ namespace {
         {
             Mutex m;
             ConditionVariable cv;
-            string s;
+            std::string s;
             auto f1 = [&] {
                 MutexLock lock;
                 TRY(lock = make_lock(m));
@@ -3570,7 +3570,7 @@ namespace {
         {
             Mutex m;
             ConditionVariable cv;
-            string s;
+            std::string s;
             auto f1 = [&] {
                 MutexLock lock;
                 TRY(lock = make_lock(m));
@@ -3651,7 +3651,7 @@ namespace {
 
         system_clock::time_point tp;
         system_clock::duration d;
-        u8string str;
+        U8string str;
 
         TRY(tp = make_date(2000, 1, 2, 3, 4, 5));
         TRY(str = format_date(tp));

@@ -209,42 +209,9 @@ namespace Prion {
 
 namespace Prion {
 
-    // Basic types
-
-    // From <functional>
-    using std::function;
-    // From <iostream>
-    using std::cerr;
-    using std::cin;
-    using std::clog;
-    using std::cout;
-    using std::endl;
-    using std::flush;
-    // From <memory>
-    using std::make_shared;
-    using std::make_unique;
-    using std::shared_ptr;
-    using std::unique_ptr;
-    // From <string>
-    using std::basic_string;
-    using std::string;
-    using std::u16string;
-    using std::u32string;
-    using std::wstring;
-    // From <tuple>
-    using std::make_tuple;
-    using std::tie;
-    using std::tuple;
-    // From <utility>
-    using std::make_pair;
-    using std::move;
-    using std::pair;
-    // From <vector>
-    using std::vector;
-
-    using u8string = std::string;
-
     // Things needed early
+
+    using U8string = std::string;
 
     #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
         constexpr bool big_endian_target = false;
@@ -257,31 +224,31 @@ namespace Prion {
     #endif
 
     constexpr const char* ascii_whitespace = "\t\n\v\f\r ";
-    constexpr size_t npos = string::npos;
+    constexpr size_t npos = std::string::npos;
 
     template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
     template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
 
-    template <typename T> vector<T> enum_values() { return prion_enum_values(T()); }
+    template <typename T> std::vector<T> enum_values() { return prion_enum_values(T()); }
 
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
     template <typename T> constexpr auto as_unsigned(T t) noexcept { return static_cast<std::make_unsigned_t<T>>(t); }
 
     template <typename C>
-    basic_string<C> cstr(const C* ptr) {
-        using string_type = basic_string<C>;
+    std::basic_string<C> cstr(const C* ptr) {
+        using string_type = std::basic_string<C>;
         return ptr ? string_type(ptr) : string_type();
     }
 
     template <typename C>
-    basic_string<C> cstr(const C* ptr, size_t n) {
-        using string_type = basic_string<C>;
+    std::basic_string<C> cstr(const C* ptr, size_t n) {
+        using string_type = std::basic_string<C>;
         return ptr ? string_type(ptr, n) : string_type();
     }
 
     namespace PrionDetail {
 
-        inline void append_hex_byte(uint8_t b, string& s) {
+        inline void append_hex_byte(uint8_t b, std::string& s) {
             static constexpr const char* digits = "0123456789abcdef";
             s += digits[b / 16];
             s += digits[b % 16];
@@ -306,11 +273,11 @@ namespace Prion {
         }
 
         template <typename T>
-        u8string int_to_string(T x, int base, size_t digits) {
+        U8string int_to_string(T x, int base, size_t digits) {
             bool neg = x < T(0);
             auto b = as_unsigned(base);
             auto y = neg ? as_unsigned(- x) : as_unsigned(x);
-            u8string s;
+            U8string s;
             do {
                 auto d = int(y % b);
                 s += char((d < 10 ? '0' : 'a' - 10) + d);
@@ -324,9 +291,9 @@ namespace Prion {
 
     }
 
-    template <typename T> u8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
-    template <typename T> u8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
-    template <typename T> u8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
+    template <typename T> U8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
+    template <typename T> U8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
+    template <typename T> U8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
 
     // Unicode functions
 
@@ -337,7 +304,7 @@ namespace Prion {
             size_t N2 = sizeof(typename Dst::value_type)>
         struct UtfConvert {
             Dst operator()(const Src& s) const {
-                return UtfConvert<u32string, Dst>()(UtfConvert<Src, u32string>()(s));
+                return UtfConvert<std::u32string, Dst>()(UtfConvert<Src, std::u32string>()(s));
             }
         };
 
@@ -482,7 +449,7 @@ namespace Prion {
 
         template <typename C>
         struct UtfValidate<C, 1> {
-            size_t operator()(const basic_string<C>& s) const noexcept {
+            size_t operator()(const std::basic_string<C>& s) const noexcept {
                 auto ptr = reinterpret_cast<const uint8_t*>(s.data());
                 size_t units = s.size(), i = 0;
                 while (i < units) {
@@ -517,7 +484,7 @@ namespace Prion {
 
         template <typename C>
         struct UtfValidate<C, 2> {
-            size_t operator()(const basic_string<C>& s) const noexcept {
+            size_t operator()(const std::basic_string<C>& s) const noexcept {
                 auto ptr = reinterpret_cast<const uint16_t*>(s.data());
                 size_t units = s.size(), i = 0;
                 while (i < units) {
@@ -537,7 +504,7 @@ namespace Prion {
 
         template <typename C>
         struct UtfValidate<C, 4> {
-            size_t operator()(const basic_string<C>& s) const noexcept {
+            size_t operator()(const std::basic_string<C>& s) const noexcept {
                 auto ptr = reinterpret_cast<const uint32_t*>(s.data());
                 size_t units = s.size(), i = 0;
                 for (; i < units; ++i)
@@ -555,22 +522,22 @@ namespace Prion {
     }
 
     template <typename C>
-    bool uvalid(const basic_string<C>& s, size_t& n) noexcept {
+    bool uvalid(const std::basic_string<C>& s, size_t& n) noexcept {
         n = PrionDetail::UtfValidate<C>()(s);
         return n == s.size();
     }
 
     template <typename C>
-    bool uvalid(const basic_string<C>& s) noexcept {
+    bool uvalid(const std::basic_string<C>& s) noexcept {
         size_t n = 0;
         return uvalid(s, n);
     }
 
     namespace PrionDetail {
 
-        inline u8string quote_string(const string& str, bool check_utf8) {
+        inline U8string quote_string(const std::string& str, bool check_utf8) {
             bool allow_8bit = check_utf8 && uvalid(str);
-            u8string result = "\"";
+            U8string result = "\"";
             for (auto c: str) {
                 switch (c) {
                     case 0:     result += "\\0"; break;
@@ -598,8 +565,8 @@ namespace Prion {
 
     }
 
-    inline u8string quote(const string& str) { return PrionDetail::quote_string(str, true); }
-    inline u8string bquote(const string& str) { return PrionDetail::quote_string(str, false); }
+    inline U8string quote(const std::string& str) { return PrionDetail::quote_string(str, true); }
+    inline U8string bquote(const std::string& str) { return PrionDetail::quote_string(str, false); }
 
     // [Types]
 
@@ -753,12 +720,12 @@ namespace Prion {
         Stack() = default;
         Stack(Stack&& s) = default;
         ~Stack() noexcept { clear(); }
-        Stack& operator=(Stack&& s) { if (&s != this) { clear(); con = move(s.con); } return *this; }
+        Stack& operator=(Stack&& s) { if (&s != this) { clear(); con = std::move(s.con); } return *this; }
         void clear() noexcept { while (! empty()) pop(); }
         bool empty() const noexcept { return con.empty(); }
         void pop() noexcept { con.pop_back(); }
         void push(const T& t) { con.push_back(t); }
-        void push(T&& t) { con.push_back(move(t)); }
+        void push(T&& t) { con.push_back(std::move(t)); }
         size_t size() const noexcept { return con.size(); }
         const T& top() const noexcept { return con.back(); }
     private:
@@ -774,14 +741,14 @@ namespace Prion {
         class WindowsCategory:
         public std::error_category {
         public:
-            virtual u8string message(int ev) const {
+            virtual U8string message(int ev) const {
                 static constexpr uint32_t flags =
                     FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
                 wchar_t* wptr = nullptr;
                 auto units = FormatMessageW(flags, nullptr, ev, 0, reinterpret_cast<wchar_t*>(&wptr), 0, nullptr);
-                shared_ptr<wchar_t> wshare(wptr, LocalFree);
+                std::shared_ptr<wchar_t> wshare(wptr, LocalFree);
                 int bytes = WideCharToMultiByte(CP_UTF8, 0, wptr, units, nullptr, 0, nullptr, nullptr);
-                string text(bytes, '\0');
+                std::string text(bytes, '\0');
                 WideCharToMultiByte(CP_UTF8, 0, wptr, units, &text[0], bytes, nullptr, nullptr);
                 text.resize(text.find_last_not_of(ascii_whitespace) + 1);
                 text.shrink_to_fit();
@@ -838,12 +805,12 @@ namespace Prion {
         template <typename T2> Nnptr(const Nnptr<T2>& p) noexcept: ptr(p.ptr) {}
         template <typename T2> explicit Nnptr(T2* p): ptr(p) { check(p); }
         template <typename T2, typename D> Nnptr(T2* p, D d): ptr(p, d) { check(p); }
-        template <typename T2, typename D> Nnptr(unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); }
+        template <typename T2, typename D> Nnptr(std::unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); }
         ~Nnptr() = default;
         Nnptr& operator=(const Nnptr& p) = default;
         Nnptr& operator=(Nnptr&& p) noexcept { ptr = p.ptr; return *this; }
         template <typename T2> Nnptr& operator=(const Nnptr<T2>& p) noexcept { ptr = p.ptr; return *this; }
-        template <typename T2, typename D> Nnptr& operator=(unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); return *this; }
+        template <typename T2, typename D> Nnptr& operator=(std::unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); return *this; }
         explicit operator bool() const noexcept { return bool(ptr); }
         bool operator!() const noexcept { return ! ptr; }
         T& operator*() const noexcept { return *ptr; }
@@ -853,7 +820,7 @@ namespace Prion {
         template <typename T2, typename D> void reset(T2* p, D d) { check(p); ptr.reset(p, d); }
         bool unique() const noexcept { return ptr.unique(); }
         template <typename T2, typename... Args> Nnptr<T2> friend make_nnptr(Args&&... args)
-            { return Nnptr<T2>(make_shared<T2>(args...)); }
+            { return Nnptr<T2>(std::make_shared<T2>(args...)); }
         template <typename T1, typename T2> Nnptr<T1> friend const_pointer_cast(const Nnptr<T2>& p) noexcept
             { return Nnptr<T1>(const_pointer_cast<T1>(p.ptr)); }
         template <typename T1, typename T2> Nnptr<T1> friend dynamic_pointer_cast(const Nnptr<T2>& p) noexcept
@@ -861,10 +828,10 @@ namespace Prion {
         template <typename T1, typename T2> Nnptr<T1> friend static_pointer_cast(const Nnptr<T2>& p) noexcept
             { return Nnptr<T1>(static_pointer_cast<T1>(p.ptr)); }
     private:
-        shared_ptr<T> ptr;
+        std::shared_ptr<T> ptr;
         static void check(const void* p) { if (! p) throw NullPointer(); }
         Nnptr() = delete;
-        explicit Nnptr(const shared_ptr<T>& p) noexcept: ptr(p) {}
+        explicit Nnptr(const std::shared_ptr<T>& p) noexcept: ptr(p) {}
     };
 
     template <typename T1, typename T2> bool operator==(const Nnptr<T1>& lhs, const Nnptr<T2>& rhs) noexcept { return lhs.get() == rhs.get(); }
@@ -904,9 +871,9 @@ namespace Prion {
         { return dynamic_cast<const T2*>(&ref) != nullptr; }
     template <typename T2, typename T1> bool is(const T1* ptr) noexcept
         { return dynamic_cast<const T2*>(ptr) != nullptr; }
-    template <typename T2, typename T1> bool is(const unique_ptr<T1>& ptr) noexcept
+    template <typename T2, typename T1> bool is(const std::unique_ptr<T1>& ptr) noexcept
         { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
-    template <typename T2, typename T1> bool is(const shared_ptr<T1>& ptr) noexcept
+    template <typename T2, typename T1> bool is(const std::shared_ptr<T1>& ptr) noexcept
         { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
 
     template <typename T2, typename T1> T2& as(T1& ref)
@@ -917,13 +884,13 @@ namespace Prion {
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
     template <typename T2, typename T1> const T2& as(const T1* ptr)
         { if (ptr) return dynamic_cast<const T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(unique_ptr<T1>& ptr)
+    template <typename T2, typename T1> T2& as(std::unique_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(const unique_ptr<T1>& ptr)
+    template <typename T2, typename T1> T2& as(const std::unique_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(shared_ptr<T1>& ptr)
+    template <typename T2, typename T1> T2& as(std::shared_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(const shared_ptr<T1>& ptr)
+    template <typename T2, typename T1> T2& as(const std::shared_ptr<T1>& ptr)
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
 
     template <typename T2, typename T1> inline T2 binary_cast(const T1& t) noexcept {
@@ -935,9 +902,9 @@ namespace Prion {
 
     template <typename T2, typename T1> inline T2 implicit_cast(const T1& t) { return t; }
 
-    inline string demangle(const string& name) {
+    inline std::string demangle(const std::string& name) {
         auto mangled = name;
-        shared_ptr<char> demangled;
+        std::shared_ptr<char> demangled;
         int status = 0;
         for (;;) {
             if (mangled.empty())
@@ -953,10 +920,10 @@ namespace Prion {
         }
     }
 
-    inline string type_name(const std::type_info& t) { return demangle(t.name()); }
-    inline string type_name(const std::type_index& t) { return demangle(t.name()); }
-    template <typename T> string type_name() { return type_name(typeid(T)); }
-    template <typename T> string type_name(const T&) { return type_name(typeid(T)); }
+    inline std::string type_name(const std::type_info& t) { return demangle(t.name()); }
+    inline std::string type_name(const std::type_index& t) { return demangle(t.name()); }
+    template <typename T> std::string type_name() { return type_name(typeid(T)); }
+    template <typename T> std::string type_name(const T&) { return type_name(typeid(T)); }
 
     // [Constants and literals]
 
@@ -1361,7 +1328,7 @@ namespace Prion {
     };
 
     template <typename Iterator> constexpr Irange<Iterator> irange(const Iterator& i, const Iterator& j) { return {i, j}; }
-    template <typename Iterator> constexpr Irange<Iterator> irange(const pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
+    template <typename Iterator> constexpr Irange<Iterator> irange(const std::pair<Iterator, Iterator>& p) { return {p.first, p.second}; }
     template <typename T> constexpr Irange<T*> array_range(T* ptr, size_t len) { return {ptr, ptr + len}; }
 
     // Integer sequences
@@ -1461,7 +1428,7 @@ namespace Prion {
 
         template <typename T>
         struct Divide<T, NumMode::signed_integer> {
-            pair<T, T> operator()(T lhs, T rhs) const noexcept {
+            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
                 auto q = lhs / rhs, r = lhs % rhs;
                 if (r < T(0)) {
                     q += rhs < T(0) ? T(1) : T(-1);
@@ -1473,14 +1440,14 @@ namespace Prion {
 
         template <typename T>
         struct Divide<T, NumMode::unsigned_integer> {
-            pair<T, T> operator()(T lhs, T rhs) const noexcept {
+            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
                 return {lhs / rhs, lhs % rhs};
             }
         };
 
         template <typename T>
         struct Divide<T, NumMode::floating_point> {
-            pair<T, T> operator()(T lhs, T rhs) const noexcept {
+            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
                 using std::fabs;
                 using std::floor;
                 using std::fmod;
@@ -1551,7 +1518,7 @@ namespace Prion {
         { return static_max(args...) < t ? t : static_max(args...); }
     template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
         { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
-    template <typename T> pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
+    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
     template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
     template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
     template <typename T> T shift_left(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, n); }
@@ -1748,10 +1715,10 @@ namespace Prion {
         template <typename ReturnType, typename... Args>
         struct FunctionTraits<ReturnType (Args...)> {
             static constexpr size_t arity = sizeof...(Args);
-            using argument_tuple = tuple<Args...>;
+            using argument_tuple = std::tuple<Args...>;
             using return_type = ReturnType;
             using signature = return_type(Args...);
-            using std_function = function<signature>;
+            using std_function = std::function<signature>;
         };
 
         template <typename ReturnType, typename... Args>
@@ -1826,7 +1793,7 @@ namespace Prion {
                     hash = ((hash << 5) + hash) ^ p[i];
             return *this;
         }
-        Djb2a& operator()(const string& s) noexcept { return (*this)(s.data(), s.size()); }
+        Djb2a& operator()(const std::string& s) noexcept { return (*this)(s.data(), s.size()); }
         operator uint32_t() const noexcept { return hash; }
     private:
         uint32_t hash = 5381;
@@ -1873,8 +1840,8 @@ namespace Prion {
     }
 
     template <typename... Args> struct TupleHash
-        { size_t operator()(const tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
-    template <typename... Args> struct TupleHash<tuple<Args...>>: TupleHash<Args...> {};
+        { size_t operator()(const std::tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
+    template <typename... Args> struct TupleHash<std::tuple<Args...>>: TupleHash<Args...> {};
 
     // Keyword arguments
 
@@ -1931,7 +1898,7 @@ namespace Prion {
             }
         }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(move(r));
+            Resource temp(std::move(r));
             std::swap(res, temp.res);
             std::swap(del, temp.del);
             return *this;
@@ -1944,7 +1911,7 @@ namespace Prion {
         T get() const noexcept { return res; }
         T release() noexcept { del = {}; return res; }
     private:
-        using deleter = function<void(T&)>;
+        using deleter = std::function<void(T&)>;
         T res = T();
         deleter del = {};
         Resource(const Resource&) = delete;
@@ -1970,7 +1937,7 @@ namespace Prion {
             }
         }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(move(r));
+            Resource temp(std::move(r));
             std::swap(res, temp.res);
             std::swap(del, temp.del);
             return *this;
@@ -1986,7 +1953,7 @@ namespace Prion {
         T* get() const noexcept { return res; }
         T* release() noexcept { del = {}; return res; }
     private:
-        using deleter = function<void(T*)>;
+        using deleter = std::function<void(T*)>;
         T* res = nullptr;
         deleter del = {};
         Resource(const Resource&) = delete;
@@ -2012,7 +1979,7 @@ namespace Prion {
             }
         }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(move(r));
+            Resource temp(std::move(r));
             std::swap(res, temp.res);
             std::swap(del, temp.del);
             return *this;
@@ -2023,7 +1990,7 @@ namespace Prion {
         void* get() const noexcept { return res; }
         void* release() noexcept { del = {}; return res; }
     private:
-        using deleter = function<void(void*)>;
+        using deleter = std::function<void(void*)>;
         void* res = nullptr;
         deleter del = {};
         Resource(const Resource&) = delete;
@@ -2064,7 +2031,7 @@ namespace Prion {
         private ScopeExitBase<Mode> {
         public:
             PRI_NO_COPY_MOVE(ConditionalScopeExit)
-            using callback = function<void()>;
+            using callback = std::function<void()>;
             explicit ConditionalScopeExit(callback f) {
                 if (Mode > 0) {
                     func = f;
@@ -2079,7 +2046,7 @@ namespace Prion {
             }
             void release() noexcept { func = nullptr; }
         private:
-            function<void()> func;
+            std::function<void()> func;
             static void silent_call(callback& f) noexcept { if (f) { try { f(); } catch (...) {} } }
         };
 
@@ -2092,7 +2059,7 @@ namespace Prion {
     class ScopedTransaction {
     public:
         PRI_NO_COPY_MOVE(ScopedTransaction)
-        using callback = function<void()>;
+        using callback = std::function<void()>;
         ScopedTransaction() noexcept {}
         ~ScopedTransaction() noexcept { rollback(); }
         void call(callback func, callback undo) {
@@ -2108,7 +2075,7 @@ namespace Prion {
             stack.clear();
         }
     private:
-        vector<callback> stack;
+        std::vector<callback> stack;
     };
 
     class ScopedValue:
@@ -2131,7 +2098,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        inline bool load_file_helper(FILE* fp, string& dst, size_t limit) {
+        inline bool load_file_helper(FILE* fp, std::string& dst, size_t limit) {
             static constexpr size_t bufsize = 65536;
             size_t offset = 0;
             while (! (feof(fp) || ferror(fp)) && dst.size() < limit) {
@@ -2154,7 +2121,7 @@ namespace Prion {
 
     #ifdef _XOPEN_SOURCE
 
-        inline bool load_file(const string& file, string& dst, size_t limit = npos) {
+        inline bool load_file(const std::string& file, std::string& dst, size_t limit = npos) {
             using namespace PrionDetail;
             dst.clear();
             if (file.empty() || file == "-") {
@@ -2168,7 +2135,7 @@ namespace Prion {
             }
         }
 
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append = false) {
+        inline bool save_file(const std::string& file, const void* ptr, size_t n, bool append = false) {
             using namespace PrionDetail;
             if (file.empty() || file == "-") {
                 return save_file_helper(stdout, ptr, n);
@@ -2183,7 +2150,7 @@ namespace Prion {
 
     #else
 
-        inline bool load_file(const wstring& file, string& dst, size_t limit = npos) {
+        inline bool load_file(const std::wstring& file, std::string& dst, size_t limit = npos) {
             using namespace PrionDetail;
             dst.clear();
             if (file.empty() || file == L"-") {
@@ -2197,7 +2164,7 @@ namespace Prion {
             }
         }
 
-        inline bool save_file(const wstring& file, const void* ptr, size_t n, bool append = false) {
+        inline bool save_file(const std::wstring& file, const void* ptr, size_t n, bool append = false) {
             using namespace PrionDetail;
             if (file.empty() || file == L"-") {
                 return save_file_helper(stdout, ptr, n);
@@ -2210,16 +2177,16 @@ namespace Prion {
             }
         }
 
-        inline bool load_file(const string& file, string& dst, size_t limit = npos)
-            { return load_file(uconv<wstring>(file), dst, limit); }
-        inline bool save_file(const string& file, const void* ptr, size_t n, bool append)
-            { return save_file(uconv<wstring>(file), ptr, n, append); }
-        inline bool save_file(const wstring& file, const string& src, bool append = false)
+        inline bool load_file(const std::string& file, std::string& dst, size_t limit = npos)
+            { return load_file(uconv<std::wstring>(file), dst, limit); }
+        inline bool save_file(const std::string& file, const void* ptr, size_t n, bool append)
+            { return save_file(uconv<std::wstring>(file), ptr, n, append); }
+        inline bool save_file(const std::wstring& file, const std::string& src, bool append = false)
             { return save_file(file, src.data(), src.size(), append); }
 
     #endif
 
-    inline bool save_file(const string& file, const string& src, bool append = false)
+    inline bool save_file(const std::string& file, const std::string& src, bool append = false)
         { return save_file(file, src.data(), src.size(), append); }
 
     // Terminal I/O operations
@@ -2274,14 +2241,14 @@ namespace Prion {
     constexpr const char* xt_cyan_bg      = "\x1b[46m";  // Cyan bg
     constexpr const char* xt_white_bg     = "\x1b[47m";  // White bg
 
-    inline string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
-    inline string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces
-    inline string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                             // Cursor right n spaces
-    inline string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                              // Cursor left n spaces
-    inline string xt_colour(int rgb) { return "\x1b[38;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (1-6)
-    inline string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (1-6)
-    inline string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
-    inline string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
+    inline std::string xt_move_up(int n) { return "\x1b[" + dec(n) + 'A'; }                                // Cursor up n spaces
+    inline std::string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces
+    inline std::string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                             // Cursor right n spaces
+    inline std::string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                              // Cursor left n spaces
+    inline std::string xt_colour(int rgb) { return "\x1b[38;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (1-6)
+    inline std::string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (1-6)
+    inline std::string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
+    inline std::string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
 
     // [Random numbers]
 
@@ -2455,7 +2422,7 @@ namespace Prion {
 
     // General string functions
 
-    inline bool ascii_icase_equal(const string& lhs, const string& rhs) noexcept {
+    inline bool ascii_icase_equal(const std::string& lhs, const std::string& rhs) noexcept {
         if (lhs.size() != rhs.size())
             return false;
         for (size_t i = 0, n = lhs.size(); i < n; ++i)
@@ -2464,7 +2431,7 @@ namespace Prion {
         return true;
     }
 
-    inline bool ascii_icase_less(const string& lhs, const string& rhs) noexcept {
+    inline bool ascii_icase_less(const std::string& lhs, const std::string& rhs) noexcept {
         for (size_t i = 0, n = std::min(lhs.size(), rhs.size()); i < n; ++i) {
             char a = ascii_toupper(lhs[i]), b = ascii_toupper(rhs[i]);
             if (a != b)
@@ -2473,19 +2440,19 @@ namespace Prion {
         return lhs.size() < rhs.size();
     }
 
-    inline string ascii_lowercase(const string& s) {
+    inline std::string ascii_lowercase(const std::string& s) {
         auto r = s;
         std::transform(r.begin(), r.end(), r.begin(), ascii_tolower);
         return r;
     }
 
-    inline string ascii_uppercase(const string& s) {
+    inline std::string ascii_uppercase(const std::string& s) {
         auto r = s;
         std::transform(r.begin(), r.end(), r.begin(), ascii_toupper);
         return r;
     }
 
-    inline string ascii_titlecase(const string& s) {
+    inline std::string ascii_titlecase(const std::string& s) {
         auto r = s;
         bool was_alpha = false;
         for (char& c: r) {
@@ -2498,7 +2465,7 @@ namespace Prion {
         return r;
     }
 
-    inline string ascii_sentencecase(const string& s) {
+    inline std::string ascii_sentencecase(const std::string& s) {
         auto r = s;
         bool new_sentence = true, was_break = false;
         for (char& c: r) {
@@ -2533,11 +2500,11 @@ namespace Prion {
         return n;
     }
 
-    inline u8string dent(size_t depth) { return u8string(4 * depth, ' '); }
+    inline U8string dent(size_t depth) { return U8string(4 * depth, ' '); }
 
     template <typename InputRange>
-    string join(const InputRange& range, const string& delim = {}, bool term = false) {
-        string result;
+    std::string join(const InputRange& range, const std::string& delim = {}, bool term = false) {
+        std::string result;
         for (auto& s: range) {
             result += s;
             result += delim;
@@ -2548,14 +2515,14 @@ namespace Prion {
     }
 
     template <typename C>
-    void null_term(basic_string<C>& str) noexcept {
+    void null_term(std::basic_string<C>& str) noexcept {
         auto p = str.find(C(0));
         if (p != npos)
             str.resize(p);
     }
 
     template <typename OutputIterator>
-    void split(const string& src, OutputIterator dst, const string& delim = ascii_whitespace) {
+    void split(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace) {
         if (delim.empty()) {
             if (! src.empty()) {
                 *dst = src;
@@ -2576,27 +2543,27 @@ namespace Prion {
         }
     }
 
-    inline vector<string> splitv(const string& src, const string& delim = ascii_whitespace) {
-        vector<string> v;
+    inline std::vector<std::string> splitv(const std::string& src, const std::string& delim = ascii_whitespace) {
+        std::vector<std::string> v;
         split(src, append(v), delim);
         return v;
     }
 
-    inline bool starts_with(const string& str, const string& prefix) noexcept {
+    inline bool starts_with(const std::string& str, const std::string& prefix) noexcept {
         return str.size() >= prefix.size()
             && memcmp(str.data(), prefix.data(), prefix.size()) == 0;
     }
 
-    inline bool ends_with(const string& str, const string& suffix) noexcept {
+    inline bool ends_with(const std::string& str, const std::string& suffix) noexcept {
         return str.size() >= suffix.size()
             && memcmp(str.data() + str.size() - suffix.size(), suffix.data(), suffix.size()) == 0;
     }
 
-    inline bool string_is_ascii(const string& str) noexcept {
+    inline bool string_is_ascii(const std::string& str) noexcept {
         return std::find_if(str.begin(), str.end(), [] (char c) { return c & 0x80; }) == str.end();
     }
 
-    inline string trim(const string& str, const string& chars = ascii_whitespace) {
+    inline std::string trim(const std::string& str, const std::string& chars = ascii_whitespace) {
         size_t pos = str.find_first_not_of(chars);
         if (pos == npos)
             return {};
@@ -2604,7 +2571,7 @@ namespace Prion {
             return str.substr(pos, str.find_last_not_of(chars) + 1 - pos);
     }
 
-    inline string trim_left(const string& str, const string& chars = ascii_whitespace) {
+    inline std::string trim_left(const std::string& str, const std::string& chars = ascii_whitespace) {
         size_t pos = str.find_first_not_of(chars);
         if (pos == npos)
             return {};
@@ -2612,11 +2579,11 @@ namespace Prion {
             return str.substr(pos, npos);
     }
 
-    inline string trim_right(const string& str, const string& chars = ascii_whitespace) {
+    inline std::string trim_right(const std::string& str, const std::string& chars = ascii_whitespace) {
         return str.substr(0, str.find_last_not_of(chars) + 1);
     }
 
-    inline string unqualify(const string& str, const string& delims = ".:") {
+    inline std::string unqualify(const std::string& str, const std::string& delims = ".:") {
         if (delims.empty())
             return str;
         size_t pos = str.find_last_of(delims);
@@ -2628,21 +2595,21 @@ namespace Prion {
 
     // String formatting and parsing functions
 
-    inline unsigned long long binnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
-    inline long long decnum(const string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
-    inline unsigned long long hexnum(const string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
-    inline double fpnum(const string& str) noexcept { return strtod(str.data(), nullptr); }
+    inline unsigned long long binnum(const std::string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
+    inline long long decnum(const std::string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
+    inline unsigned long long hexnum(const std::string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
+    inline double fpnum(const std::string& str) noexcept { return strtod(str.data(), nullptr); }
 
     template <typename T>
-    u8string fp_format(T t, char mode = 'g', int prec = 6) {
-        static const u8string modes = "EFGZefgz";
+    U8string fp_format(T t, char mode = 'g', int prec = 6) {
+        static const U8string modes = "EFGZefgz";
         if (modes.find(mode) == npos)
-            throw std::invalid_argument("Invalid floating point mode: " + quote(u8string{mode}));
-        u8string buf(20, '\0'), fmt;
+            throw std::invalid_argument("Invalid floating point mode: " + quote(U8string{mode}));
+        U8string buf(20, '\0'), fmt;
         switch (mode) {
             case 'Z':  fmt = "%#.*G"; break;
             case 'z':  fmt = "%#.*g"; break;
-            default:   fmt = u8string("%.*") + mode; break;
+            default:   fmt = U8string("%.*") + mode; break;
         }
         auto x = double(t);
         int rc = 0;
@@ -2677,7 +2644,7 @@ namespace Prion {
         return buf;
     }
 
-    inline int64_t si_to_int(const u8string& s) {
+    inline int64_t si_to_int(const U8string& s) {
         using limits = std::numeric_limits<int64_t>;
         static constexpr const char* prefixes = "KMGTPEZY";
         char* endp = nullptr;
@@ -2702,7 +2669,7 @@ namespace Prion {
         return n;
     }
 
-    inline double si_to_float(const u8string& s) {
+    inline double si_to_float(const U8string& s) {
         using limits = std::numeric_limits<double>;
         static constexpr const char* prefixes = "yzafpnum kMGTPEZY";
         char* endp = nullptr;
@@ -2730,10 +2697,10 @@ namespace Prion {
         return x;
     }
 
-    inline u8string hexdump(const void* ptr, size_t n, size_t block = 0) {
+    inline U8string hexdump(const void* ptr, size_t n, size_t block = 0) {
         if (ptr == nullptr || n == 0)
             return {};
-        u8string result;
+        U8string result;
         result.reserve(3 * n);
         size_t col = 0;
         auto bptr = static_cast<const uint8_t*>(ptr);
@@ -2752,11 +2719,11 @@ namespace Prion {
         return result;
     }
 
-    inline u8string hexdump(const string& str, size_t block = 0) { return hexdump(str.data(), str.size(), block); }
-    inline u8string tf(bool b) { return b ? "true" : "false"; }
-    inline u8string yn(bool b) { return b ? "yes" : "no"; }
+    inline U8string hexdump(const std::string& str, size_t block = 0) { return hexdump(str.data(), str.size(), block); }
+    inline U8string tf(bool b) { return b ? "true" : "false"; }
+    inline U8string yn(bool b) { return b ? "yes" : "no"; }
 
-    template <typename T> u8string to_str(const T& t);
+    template <typename T> U8string to_str(const T& t);
 
     namespace PrionDetail {
 
@@ -2772,8 +2739,8 @@ namespace Prion {
         template <typename R, typename I = decltype(std::begin(std::declval<R>())),
             typename V = typename std::iterator_traits<I>::value_type>
         struct RangeToString {
-            u8string operator()(const R& r) const {
-                u8string s = "[";
+            U8string operator()(const R& r) const {
+                U8string s = "[";
                 for (const V& v: r) {
                     s += to_str(v);
                     s += ',';
@@ -2786,9 +2753,9 @@ namespace Prion {
         };
 
         template <typename R, typename I, typename K, typename V>
-        struct RangeToString<R, I, pair<K, V>> {
-            u8string operator()(const R& r) const {
-                u8string s = "{";
+        struct RangeToString<R, I, std::pair<K, V>> {
+            U8string operator()(const R& r) const {
+                U8string s = "{";
                 for (const auto& kv: r) {
                     s += to_str(kv.first);
                     s += ':';
@@ -2804,49 +2771,49 @@ namespace Prion {
 
         template <typename R, typename I>
         struct RangeToString<R, I, char> {
-            u8string operator()(const R& r) const {
+            U8string operator()(const R& r) const {
                 using std::begin;
                 using std::end;
-                return u8string(begin(r), end(r));
+                return U8string(begin(r), end(r));
             }
         };
 
         template <typename T, bool I = std::is_integral<T>::value,
             bool R = IsRangeType<T>::value>
         struct ObjectToString {
-            u8string operator()(const T& t) const {
+            U8string operator()(const T& t) const {
                 std::ostringstream out;
                 out << t;
                 return out.str();
             }
         };
 
-        template <typename T> struct ObjectToString<T, true, false> { u8string operator()(T t) const { return dec(t); } };
+        template <typename T> struct ObjectToString<T, true, false> { U8string operator()(T t) const { return dec(t); } };
         template <typename T> struct ObjectToString<T, false, true>: RangeToString<T> {};
-        template <> struct ObjectToString<u8string> { u8string operator()(const u8string& t) const { return t; } };
-        template <> struct ObjectToString<char*> { u8string operator()(char* t) const { return t ? u8string(t) : u8string(); } };
-        template <> struct ObjectToString<const char*> { u8string operator()(const char* t) const { return t ? u8string(t) : u8string(); } };
-        template <> struct ObjectToString<char> { u8string operator()(char t) const { return {t}; } };
-        template <> struct ObjectToString<bool> { u8string operator()(bool t) const { return t ? "true" : "false"; } };
-        template <> struct ObjectToString<std::nullptr_t> { u8string operator()(std::nullptr_t) const { return "null"; } };
+        template <> struct ObjectToString<U8string> { U8string operator()(const U8string& t) const { return t; } };
+        template <> struct ObjectToString<char*> { U8string operator()(char* t) const { return t ? U8string(t) : U8string(); } };
+        template <> struct ObjectToString<const char*> { U8string operator()(const char* t) const { return t ? U8string(t) : U8string(); } };
+        template <> struct ObjectToString<char> { U8string operator()(char t) const { return {t}; } };
+        template <> struct ObjectToString<bool> { U8string operator()(bool t) const { return t ? "true" : "false"; } };
+        template <> struct ObjectToString<std::nullptr_t> { U8string operator()(std::nullptr_t) const { return "null"; } };
 
-        template <typename T1, typename T2> struct ObjectToString<pair<T1, T2>, false, false> {
-            u8string operator()(const pair<T1, T2>& t) const {
+        template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, false, false> {
+            U8string operator()(const std::pair<T1, T2>& t) const {
                 return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}';
             }
         };
 
     }
 
-    template <typename T> inline u8string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+    template <typename T> inline U8string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
 
     // HTML/XML tags
 
     class Tag {
     public:
         Tag() = default;
-        Tag(const u8string& text, std::ostream& out) {
-            u8string start = trim_right(text, "\n");
+        Tag(const U8string& text, std::ostream& out) {
+            U8string start = trim_right(text, "\n");
             if (start.empty() || start[0] != '<' || ! ascii_isalnum_w(start[1]) || start.back() != '>')
                 throw std::invalid_argument("Invalid HTML tag: " + quote(text));
             if (start.end()[-2] == '/') {
@@ -2859,22 +2826,22 @@ namespace Prion {
                 start += '\n';
             out << start;
             auto cut = std::find_if_not(text.begin() + 2, text.end(), ascii_isalnum_w);
-            end = "</" + u8string(text.begin() + 1, cut) + ">";
+            end = "</" + U8string(text.begin() + 1, cut) + ">";
             if (lines >= 1)
                 end += '\n';
         }
-        Tag(Tag&& t) noexcept: end(move(t.end)), os(t.os) { t.os = nullptr; }
+        Tag(Tag&& t) noexcept: end(std::move(t.end)), os(t.os) { t.os = nullptr; }
         ~Tag() noexcept { if (os) try { *os << end; } catch (...) {} }
         Tag& operator=(Tag&& t) noexcept {
             if (os)
                 *os << end;
-            end = move(t.end);
+            end = std::move(t.end);
             os = t.os;
             t.os = nullptr;
             return *this;
         }
     private:
-        u8string end;
+        U8string end;
         std::ostream* os = nullptr;
         Tag(const Tag&) = delete;
         Tag& operator=(const Tag&) = delete;
@@ -2888,12 +2855,12 @@ namespace Prion {
 
         class Thread {
         public:
-            using callback = function<void()>;
+            using callback = std::function<void()>;
             using id_type = pthread_t;
             Thread() = default;
             explicit Thread(callback f) {
                 if (f) {
-                    impl = make_unique<impl_type>();
+                    impl = std::make_unique<impl_type>();
                     impl->payload = f;
                     impl->state = thread_running;
                     int rc = pthread_create(&impl->thread, nullptr, thread_callback, impl.get());
@@ -2950,7 +2917,7 @@ namespace Prion {
                 std::atomic<int> state;
                 pthread_t thread;
             };
-            unique_ptr<impl_type> impl;
+            std::unique_ptr<impl_type> impl;
             Thread(const Thread&) = delete;
             Thread& operator=(const Thread&) = delete;
             static void* thread_callback(void* ptr) noexcept {
@@ -2968,12 +2935,12 @@ namespace Prion {
 
         class Thread {
         public:
-            using callback = function<void()>;
+            using callback = std::function<void()>;
             using id_type = uint32_t;
             Thread() = default;
             explicit Thread(callback f) {
                 if (f) {
-                    impl = make_unique<impl_type>();
+                    impl = std::make_unique<impl_type>();
                     impl->payload = f;
                     impl->state = thread_running;
                     impl->thread = CreateThread(nullptr, 0, thread_callback, impl.get(), 0, &impl->key);
@@ -3023,7 +2990,7 @@ namespace Prion {
                 DWORD key;
                 HANDLE thread;
             };
-            unique_ptr<impl_type> impl;
+            std::unique_ptr<impl_type> impl;
             Thread(const Thread&) = delete;
             Thread& operator=(const Thread&) = delete;
             static DWORD WINAPI thread_callback(void* ptr) noexcept {
@@ -3128,7 +3095,7 @@ namespace Prion {
                 return wait_impl(lock, ns, predicate(p));
             }
         private:
-            using predicate = function<bool()>;
+            using predicate = std::function<bool()>;
             pthread_cond_t pcond;
             PRI_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& ml, std::chrono::nanoseconds ns, predicate p) {
@@ -3194,7 +3161,7 @@ namespace Prion {
                 return wait_impl(lock, ns, predicate(p));
             }
         private:
-            using predicate = function<bool()>;
+            using predicate = std::function<bool()>;
             CONDITION_VARIABLE wcond;
             PRI_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& lock, std::chrono::nanoseconds ns, predicate p) {
@@ -3339,8 +3306,8 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        inline u8string format_time(int64_t sec, double frac, int prec) {
-            u8string result;
+        inline U8string format_time(int64_t sec, double frac, int prec) {
+            U8string result;
             if (sec < 0 || frac < 0)
                 result += '-';
             sec = std::abs(sec);
@@ -3353,7 +3320,7 @@ namespace Prion {
             int m = sec / 60;
             sec -= 60 * m;
             int rc, s = sec;
-            vector<char> buf(64);
+            std::vector<char> buf(64);
             for (;;) {
                 if (y > 0)
                     rc = snprintf(buf.data(), buf.size(), "%dy%03dd%02dh%02dm%02d", y, d, h, m, s);
@@ -3390,11 +3357,11 @@ namespace Prion {
     // very long localized date format, but there doesn't seem to be a better
     // solution.
 
-    inline u8string format_date(std::chrono::system_clock::time_point tp, const u8string& format, Zone z = Zone::utc) {
+    inline U8string format_date(std::chrono::system_clock::time_point tp, const U8string& format, Zone z = Zone::utc) {
         using namespace std::chrono;
         auto t = system_clock::to_time_t(tp);
         tm stm = z == Zone::local ? *localtime(&t) : *gmtime(&t);
-        u8string result(std::max(2 * format.size(), size_t(100)), '\0');
+        U8string result(std::max(2 * format.size(), size_t(100)), '\0');
         auto rc = strftime(&result[0], result.size(), format.data(), &stm);
         if (rc == 0) {
             result.resize(10 * result.size(), '\0');
@@ -3405,15 +3372,15 @@ namespace Prion {
         return result;
     }
 
-    inline u8string format_date(std::chrono::system_clock::time_point tp, int prec = 0, Zone z = Zone::utc) {
+    inline U8string format_date(std::chrono::system_clock::time_point tp, int prec = 0, Zone z = Zone::utc) {
         using namespace std::chrono;
         using namespace std::literals;
-        u8string result = format_date(tp, "%Y-%m-%d %H:%M:%S"s, z);
+        U8string result = format_date(tp, "%Y-%m-%d %H:%M:%S"s, z);
         if (prec > 0) {
             double sec = to_seconds(tp.time_since_epoch());
             double isec;
             double fsec = modf(sec, &isec);
-            u8string buf(prec + 3, '\0');
+            U8string buf(prec + 3, '\0');
             snprintf(&buf[0], buf.size(), "%.*f", prec, fsec);
             result += buf.data() + 1;
         }
@@ -3421,7 +3388,7 @@ namespace Prion {
     }
 
     template <typename R, typename P>
-    u8string format_time(const std::chrono::duration<R, P>& time, int prec = 0) {
+    U8string format_time(const std::chrono::duration<R, P>& time, int prec = 0) {
         using namespace std::chrono;
         auto whole = duration_cast<seconds>(time);
         auto frac = time - duration_cast<duration<R, P>>(whole);
@@ -3538,7 +3505,7 @@ namespace Prion {
         Blob(const Blob& b) { init_copy(b.data(), b.size()); }
         Blob(Blob&& b) noexcept: ptr(b.ptr), len(b.len) { del.swap(b.del); }
         Blob& operator=(const Blob& b) { copy(b.data(), b.size()); return *this; }
-        Blob& operator=(Blob&& b) noexcept { Blob b2(move(b)); swap(b2); return *this; }
+        Blob& operator=(Blob&& b) noexcept { Blob b2(std::move(b)); swap(b2); return *this; }
         void* data() noexcept { return ptr; }
         const void* data() const noexcept { return ptr; }
         uint8_t* bdata() noexcept { return static_cast<uint8_t*>(ptr); }
@@ -3554,13 +3521,13 @@ namespace Prion {
         bool empty() const noexcept { return len == 0; }
         void fill(uint8_t x) noexcept { memset(ptr, x, len); }
         size_t hash() const noexcept { return djb2a(ptr, len); }
-        u8string hex(size_t block = 0) const { return hexdump(ptr, len, block); }
+        U8string hex(size_t block = 0) const { return hexdump(ptr, len, block); }
         void reset(size_t n) { Blob b(n); swap(b); }
         void reset(size_t n, uint8_t x) { Blob b(n, x); swap(b); }
         void reset(void* p, size_t n) { Blob b(p, n); swap(b); }
         template <typename F> void reset(void* p, size_t n, F f) { Blob b(p, n, f); swap(b); }
         size_t size() const noexcept { return len; }
-        string str() const { return empty() ? string() : string(cdata(), len); }
+        std::string str() const { return empty() ? std::string() : std::string(cdata(), len); }
         void swap(Blob& b) noexcept {
             std::swap(ptr, b.ptr);
             std::swap(len, b.len);
@@ -3569,7 +3536,7 @@ namespace Prion {
     private:
         void* ptr = nullptr;
         size_t len = 0;
-        function<void(void*)> del;
+        std::function<void(void*)> del;
         void init_copy(const void* p, size_t n) {
             if (p && n) {
                 init_size(n);
@@ -3618,11 +3585,11 @@ namespace Prion {
             return 100 * (y / 25) + 10 * (y / 5 % 5) + y % 5 + 222;
         }
 
-        inline void log_message(const u8string& msg, bool timestamp) {
+        inline void log_message(const U8string& msg, bool timestamp) {
             using namespace std::chrono;
             static Mutex mtx;
             auto lock = make_lock(mtx);
-            u8string text = xt_colour(hash_xcolour(Thread::current())) + "# ";
+            U8string text = xt_colour(hash_xcolour(Thread::current())) + "# ";
             if (timestamp)
                 text += "[" + format_date(system_clock::now(), 3) + "] ";
             text += trim_right(msg) + xt_reset + '\n';
@@ -3632,7 +3599,7 @@ namespace Prion {
 
     }
 
-    inline void logx(const u8string& msg) noexcept {
+    inline void logx(const U8string& msg) noexcept {
         try { PrionDetail::log_message(msg, false); }
         catch (...) {}
     }
@@ -3643,11 +3610,11 @@ namespace Prion {
     }
 
     template <typename... Args> inline void logx(Args... args) noexcept {
-        try { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), false); }
+        try { PrionDetail::log_message(join(std::vector<U8string>{to_str(args)...}, " "), false); }
         catch (...) {}
     }
 
-    inline void logt(const u8string& msg) noexcept {
+    inline void logt(const U8string& msg) noexcept {
         try { PrionDetail::log_message(msg, true); }
         catch (...) {}
     }
@@ -3658,14 +3625,14 @@ namespace Prion {
     }
 
     template <typename... Args> inline void logt(Args... args) noexcept {
-        try { PrionDetail::log_message(join(vector<u8string>{to_str(args)...}, " "), true); }
+        try { PrionDetail::log_message(join(std::vector<U8string>{to_str(args)...}, " "), true); }
         catch (...) {}
     }
 
     class Stopwatch {
     public:
         PRI_NO_COPY_MOVE(Stopwatch)
-        explicit Stopwatch(const u8string& name, int precision = 3) noexcept:
+        explicit Stopwatch(const U8string& name, int precision = 3) noexcept:
             Stopwatch(name.data(), precision) {}
         explicit Stopwatch(const char* name, int precision = 3) noexcept {
             try {
@@ -3684,7 +3651,7 @@ namespace Prion {
             catch (...) {}
         }
     private:
-        u8string prefix;
+        U8string prefix;
         int prec;
         ReliableClock::time_point start;
     };
@@ -3693,7 +3660,7 @@ namespace Prion {
 
     namespace PrionDetail {
 
-        inline int decode_hex_byte(string::const_iterator& i, string::const_iterator end) {
+        inline int decode_hex_byte(std::string::const_iterator& i, std::string::const_iterator end) {
             auto j = i;
             if (end - i >= 2 && j[0] == '0' && (j[1] == 'X' || j[1] == 'x'))
                 j += 2;
@@ -3732,7 +3699,7 @@ namespace Prion {
                 uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff),
                 i, j, k, l, m, n, o, p} {}
         explicit Uuid(const uint8_t* ptr) noexcept { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
-        explicit Uuid(const string& s);
+        explicit Uuid(const std::string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
         const uint8_t& operator[](size_t i) const noexcept { return bytes[i]; }
         uint8_t* begin() noexcept { return bytes; }
@@ -3740,7 +3707,7 @@ namespace Prion {
         uint8_t* end() noexcept { return bytes + 16; }
         const uint8_t* end() const noexcept { return bytes + 16; }
         size_t hash() const noexcept { return djb2a(bytes, 16); }
-        u8string str() const;
+        U8string str() const;
         friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
         friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }
     private:
@@ -3751,7 +3718,7 @@ namespace Prion {
         };
     };
 
-    inline Uuid::Uuid(const string& s) {
+    inline Uuid::Uuid(const std::string& s) {
         auto begins = s.begin(), i = begins, ends = s.end();
         auto j = begin(), endu = end();
         int rc = 0;
@@ -3768,8 +3735,8 @@ namespace Prion {
             throw std::invalid_argument("Invalid UUID: " + s);
     }
 
-    inline u8string Uuid::str() const {
-        u8string s;
+    inline U8string Uuid::str() const {
+        U8string s;
         s.reserve(36);
         int i = 0;
         for (; i < 4; ++i)
@@ -3790,7 +3757,7 @@ namespace Prion {
     }
 
     inline std::ostream& operator<<(std::ostream& o, const Uuid& u) { return o << u.str(); }
-    inline u8string to_str(const Uuid& u) { return u.str(); }
+    inline U8string to_str(const Uuid& u) { return u.str(); }
 
     struct RandomUuid {
         using result_type = Uuid;
@@ -3811,15 +3778,15 @@ namespace Prion {
         using value_type = unsigned;
         Version() noexcept {}
         template <typename... Args> Version(unsigned n, Args... args) { append(n, args...); trim(); }
-        explicit Version(const u8string& s);
+        explicit Version(const U8string& s);
         unsigned operator[](size_t i) const noexcept { return i < ver.size() ? ver[i] : 0; }
         const unsigned* begin() const noexcept { return ver.data(); }
         const unsigned* end() const noexcept { return ver.data() + ver.size(); }
         unsigned major() const noexcept { return (*this)[0]; }
         unsigned minor() const noexcept { return (*this)[1]; }
         unsigned patch() const noexcept { return (*this)[2]; }
-        string str(size_t min_elements = 2) const;
-        string suffix() const { return suf; }
+        std::string str(size_t min_elements = 2) const;
+        std::string suffix() const { return suf; }
         uint32_t to32() const noexcept;
         static Version from32(uint32_t n) noexcept;
         friend bool operator==(const Version& lhs, const Version& rhs) noexcept
@@ -3827,21 +3794,21 @@ namespace Prion {
         friend bool operator<(const Version& lhs, const Version& rhs) noexcept
             { int c = compare_3way(lhs.ver, rhs.ver); return c == 0 ? lhs.suf < rhs.suf : c == -1; }
     private:
-        vector<unsigned> ver;
-        u8string suf;
+        std::vector<unsigned> ver;
+        U8string suf;
         template <typename... Args> void append(unsigned n, Args... args) { ver.push_back(n); append(args...); }
-        void append(const u8string& s) { suf = s; }
+        void append(const U8string& s) { suf = s; }
         void append() {}
         void trim() { while (! ver.empty() && ver.back() == 0) ver.pop_back(); }
     };
 
-    inline Version::Version(const u8string& s) {
+    inline Version::Version(const U8string& s) {
         auto i = s.begin(), end = s.end();
         while (i != end) {
             auto j = std::find_if_not(i, end, ascii_isdigit);
             if (i == j)
                 break;
-            ver.push_back(unsigned(decnum(u8string(i, j))));
+            ver.push_back(unsigned(decnum(U8string(i, j))));
             i = j;
             if (i == end || *i != '.')
                 break;
@@ -3853,8 +3820,8 @@ namespace Prion {
         trim();
     }
 
-    inline string Version::str(size_t min_elements) const {
-        string s;
+    inline std::string Version::str(size_t min_elements) const {
+        std::string s;
         for (auto& v: ver)
             s += to_str(v) + '.';
         for (size_t i = ver.size(); i < min_elements; ++i)
@@ -3884,7 +3851,7 @@ namespace Prion {
         return o << v.str();
     }
 
-    inline u8string to_str(const Version& v) {
+    inline U8string to_str(const Version& v) {
         return v.str();
     }
 

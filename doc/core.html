@@ -222,61 +222,12 @@ message. (A planned change in C++17 will make this unnecessary.)</p>
 <h3 id="basic-types">Basic types</h3>
 <div class="defns">
 <ul>
-<li><em>From <code>&lt;functional&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>function</code></strong></li>
+<li><code>using</code> <strong><code>U8string</code></strong> <code>= std::string</code></li>
 </ul>
-</li>
-<li><em>From <code>&lt;iostream&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>cerr</code></strong></li>
-<li><code>using std::</code><strong><code>cin</code></strong></li>
-<li><code>using std::</code><strong><code>clog</code></strong></li>
-<li><code>using std::</code><strong><code>cout</code></strong></li>
-<li><code>using std::</code><strong><code>endl</code></strong></li>
-<li><code>using std::</code><strong><code>flush</code></strong></li>
-</ul>
-</li>
-<li><em>From <code>&lt;memory&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>make_shared</code></strong></li>
-<li><code>using std::</code><strong><code>make_unique</code></strong></li>
-<li><code>using std::</code><strong><code>shared_ptr</code></strong></li>
-<li><code>using std::</code><strong><code>unique_ptr</code></strong></li>
-</ul>
-</li>
-<li><em>From <code>&lt;string&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>basic_string</code></strong></li>
-<li><code>using std::</code><strong><code>string</code></strong></li>
-<li><code>using std::</code><strong><code>u16string</code></strong></li>
-<li><code>using std::</code><strong><code>u32string</code></strong></li>
-<li><code>using std::</code><strong><code>wstring</code></strong></li>
-</ul>
-</li>
-<li><em>From <code>&lt;tuple&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>make_tuple</code></strong></li>
-<li><code>using std::</code><strong><code>tie</code></strong></li>
-<li><code>using std::</code><strong><code>tuple</code></strong></li>
-</ul>
-</li>
-<li><em>From <code>&lt;utility&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>make_pair</code></strong></li>
-<li><code>using std::</code><strong><code>move</code></strong></li>
-<li><code>using std::</code><strong><code>pair</code></strong></li>
-</ul>
-</li>
-<li><em>From <code>&lt;vector&gt;</code></em><ul>
-<li><code>using std::</code><strong><code>vector</code></strong></li>
-</ul>
-</li>
-</ul>
-<p>Imported for convenience.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>using</code> <strong><code>u8string</code></strong> <code>= std::string</code></li>
-</ul>
-<p>Use <code>u8string</code> for strings that are expected to be in UTF-8 (or ASCII, since
-any ASCII string is also valid UTF-8), while plain <code>string</code> is used where the
-string is expected to be in some non-Unicode encoding, or where the string is
-being used simply as an array of bytes rather than encoded text.</p>
+<p>Use <code>U8string</code> for strings that are expected to be in UTF-8 (or ASCII, since
+any ASCII string is also valid UTF-8), while plain <code>std::string</code> is used where
+the string is expected to be in some non-Unicode encoding, or where the string
+is being used simply as an array of bytes rather than encoded text.</p>
 </div>
 <h3 id="arithmetic-types">Arithmetic types</h3>
 <h4 id="endian-integers">Endian integers</h4>
@@ -370,7 +321,7 @@ function gives the same result as the underlying integer type's hash.</p>
 <li><code>bool Blob::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
 <li><code>void Blob::</code><strong><code>fill</code></strong><code>(uint8_t x) noexcept</code></li>
 <li><code>size_t Blob::</code><strong><code>hash</code></strong><code>() const noexcept</code></li>
-<li><code>u8string Blob::</code><strong><code>hex</code></strong><code>(size_t block = 0) const</code></li>
+<li><code>U8string Blob::</code><strong><code>hex</code></strong><code>(size_t block = 0) const</code></li>
 <li><code>void Blob::</code><strong><code>reset</code></strong><code>(size_t n)</code></li>
 <li><code>void Blob::</code><strong><code>reset</code></strong><code>(size_t n, uint8_t x)</code></li>
 <li><code>void Blob::</code><strong><code>reset</code></strong><code>(void* p, size_t n)</code></li>
@@ -442,7 +393,7 @@ standard container, but is often useful for RAII). Behaviour is undefined if
 <div class="defns">
 <ul>
 <li><code>class</code> <strong><code>WindowsCategory</code></strong><code>: public std::error_category</code><ul>
-<li><code>virtual u8string WindowsCategory::</code><strong><code>message</code></strong><code>(int ev) const</code></li>
+<li><code>virtual U8string WindowsCategory::</code><strong><code>message</code></strong><code>(int ev) const</code></li>
 <li><code>virtual const char* WindowsCategory::</code><strong><code>name</code></strong><code>() const noexcept</code></li>
 </ul>
 </li>
@@ -670,7 +621,7 @@ is to be named (e.g. <code>type_name(42)</code>).</p>
 <li><code>uint8_t* Uuid::</code><strong><code>end</code></strong><code>() noexcept</code></li>
 <li><code>const uint8_t* Uuid::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
 <li><code>size_t Uuid::</code><strong><code>hash</code></strong><code>() const noexcept</code></li>
-<li><code>u8string Uuid::</code><strong><code>str</code></strong><code>() const</code></li>
+<li><code>U8string Uuid::</code><strong><code>str</code></strong><code>() const</code></li>
 </ul>
 </li>
 <li><code>bool</code> <strong><code>operator==</code></strong><code>(const Uuid&amp; lhs, const Uuid&amp; rhs) noexcept</code></li>
@@ -719,7 +670,7 @@ comparisons.</p>
 <li><code>using Version::</code><strong><code>value_type</code></strong> <code>= unsigned</code></li>
 <li><code>Version::</code><strong><code>Version</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;typename... Args&gt; Version::</code><strong><code>Version</code></strong><code>(unsigned n, Args... args)</code></li>
-<li><code>explicit Version::</code><strong><code>Version</code></strong><code>(const u8string&amp; s)</code></li>
+<li><code>explicit Version::</code><strong><code>Version</code></strong><code>(const U8string&amp; s)</code></li>
 <li><code>Version::</code><strong><code>Version</code></strong><code>(const Version&amp; v)</code></li>
 <li><code>Version::</code><strong><code>Version</code></strong><code>(Version&amp;&amp; v) noexcept</code></li>
 <li><code>Version::</code><strong><code>~Version</code></strong><code>() noexcept</code></li>
@@ -1569,10 +1520,10 @@ the file.</p>
 <h3 id="logging">Logging</h3>
 <div class="defns">
 <ul>
-<li><code>void</code> <strong><code>logx</code></strong><code>(const u8string&amp; msg) noexcept</code></li>
+<li><code>void</code> <strong><code>logx</code></strong><code>(const U8string&amp; msg) noexcept</code></li>
 <li><code>void</code> <strong><code>logx</code></strong><code>(const char* msg) noexcept</code></li>
 <li><code>template &lt;typename... Args&gt; void</code> <strong><code>logx</code></strong><code>(Args... args) noexcept</code></li>
-<li><code>void</code> <strong><code>logt</code></strong><code>(const u8string&amp; msg) noexcept</code></li>
+<li><code>void</code> <strong><code>logt</code></strong><code>(const U8string&amp; msg) noexcept</code></li>
 <li><code>void</code> <strong><code>logt</code></strong><code>(const char* msg) noexcept</code></li>
 <li><code>template &lt;typename... Args&gt; void</code> <strong><code>logt</code></strong><code>(Args... args) noexcept</code></li>
 </ul>
@@ -1589,7 +1540,7 @@ internal workings are silently ignored.</p>
 <div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Stopwatch</code></strong><ul>
-<li><code>explicit Stopwatch::</code><strong><code>Stopwatch</code></strong><code>(const u8string&amp; name, int precision = 3) noexcept</code></li>
+<li><code>explicit Stopwatch::</code><strong><code>Stopwatch</code></strong><code>(const U8string&amp; name, int precision = 3) noexcept</code></li>
 <li><code>explicit Stopwatch::</code><strong><code>Stopwatch</code></strong><code>(const char* name, int precision = 3) noexcept</code></li>
 <li><code>Stopwatch::</code><strong><code>~Stopwatch</code></strong><code>() noexcept</code></li>
 </ul>
@@ -1774,7 +1725,7 @@ of undefined behaviour.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>u8string</code> <strong><code>dent</code></strong><code>(size_t depth)</code></li>
+<li><code>U8string</code> <strong><code>dent</code></strong><code>(size_t depth)</code></li>
 </ul>
 <p>Returns a string containing <code>4*depth</code> spaces, for indentation.</p>
 </div>
@@ -1802,8 +1753,8 @@ been used as an output buffer by some C APIs).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>u8string</code> <strong><code>quote</code></strong><code>(const string&amp; str)</code></li>
-<li><code>u8string</code> <strong><code>bquote</code></strong><code>(const string&amp; str)</code></li>
+<li><code>U8string</code> <strong><code>quote</code></strong><code>(const string&amp; str)</code></li>
+<li><code>U8string</code> <strong><code>bquote</code></strong><code>(const string&amp; str)</code></li>
 </ul>
 <p>Return a quoted string; internal quotes, backslashes, and control characters
 are escaped. The <code>bquote()</code> function always escapes all non-ASCII bytes;
@@ -1843,9 +1794,9 @@ characters are found.</p>
 <h3 id="string-formatting-and-parsing-functions">String formatting and parsing functions</h3>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; u8string</code> <strong><code>bin</code></strong><code>(T x, size_t digits = 8 * sizeof(T))</code></li>
-<li><code>template &lt;typename T&gt; u8string</code> <strong><code>dec</code></strong><code>(T x, size_t digits = 1)</code></li>
-<li><code>template &lt;typename T&gt; u8string</code> <strong><code>hex</code></strong><code>(T x, size_t digits = 2 * sizeof(T))</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>bin</code></strong><code>(T x, size_t digits = 8 * sizeof(T))</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>dec</code></strong><code>(T x, size_t digits = 1)</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>hex</code></strong><code>(T x, size_t digits = 2 * sizeof(T))</code></li>
 <li><code>unsigned long long</code> <strong><code>binnum</code></strong><code>(const string&amp; str) noexcept</code></li>
 <li><code>long long</code> <strong><code>decnum</code></strong><code>(const string&amp; str) noexcept</code></li>
 <li><code>unsigned long long</code> <strong><code>hexnum</code></strong><code>(const string&amp; str) noexcept</code></li>
@@ -1863,7 +1814,7 @@ range will be clamped to the nearest end of the return type's range (for
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; u8string</code> <strong><code>fp_format</code></strong><code>(T t, char mode = 'g', int prec = 6)</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>fp_format</code></strong><code>(T t, char mode = 'g', int prec = 6)</code></li>
 </ul>
 <p>Simple floating point formatting, by calling <code>snprintf()</code>. <code>T</code> must be an
 arithmetic type; it will be converted to <code>double</code> internally. The additional
@@ -1874,8 +1825,8 @@ circumstances.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>int64_t</code> <strong><code>si_to_int</code></strong><code>(const u8string&amp; s)</code></li>
-<li><code>double</code> <strong><code>si_to_float</code></strong><code>(const u8string&amp; s)</code></li>
+<li><code>int64_t</code> <strong><code>si_to_int</code></strong><code>(const U8string&amp; s)</code></li>
+<li><code>double</code> <strong><code>si_to_float</code></strong><code>(const U8string&amp; s)</code></li>
 </ul>
 <p>These parse a number from a string representation tagged with an SI multiplier
 abbreviation (e.g. <code>"123k"</code>). For the integer version, only tags representing
@@ -1891,22 +1842,22 @@ type.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
-<li><code>u8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
+<li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
+<li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
 </ul>
 <p>Converts a block of raw data into hexadecimal bytes. If <code>block</code> is not zero, a
 line feed is inserted after each block.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>u8string</code> <strong><code>tf</code></strong><code>(bool b)</code></li>
-<li><code>u8string</code> <strong><code>yn</code></strong><code>(bool b)</code></li>
+<li><code>U8string</code> <strong><code>tf</code></strong><code>(bool b)</code></li>
+<li><code>U8string</code> <strong><code>yn</code></strong><code>(bool b)</code></li>
 </ul>
 <p>Convert a boolean to <code>"true"/"false"</code> or <code>"yes"/"no"</code>.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; u8string</code> <strong><code>to_str</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>to_str</code></strong><code>(const T&amp; t)</code></li>
 </ul>
 <p>Formats an object as a string. For most types this uses the type's output
 stream operator. For strings, including character arrays and pointers, the
@@ -1921,7 +1872,7 @@ is a pair; <code>to_str()</code> is called recursively on each range element.</p
 <ul>
 <li><code>class</code> <strong><code>Tag</code></strong><ul>
 <li><code>Tag::</code><strong><code>Tag</code></strong><code>() noexcept</code></li>
-<li><code>Tag::</code><strong><code>Tag</code></strong><code>(const u8string&amp; text, std::ostream&amp; out)</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(const U8string&amp; text, std::ostream&amp; out)</code></li>
 <li><code>Tag::</code><strong><code>Tag</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
 <li><code>Tag::</code><strong><code>~Tag</code></strong><code>() noexcept</code></li>
 <li><code>Tag&amp; Tag::</code><strong><code>operator=</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
@@ -2120,8 +2071,8 @@ Resolution is system dependent. Behaviour is undefined if the duration exceeds
 <h3 id="time-and-date-formatting">Time and date formatting</h3>
 <div class="defns">
 <ul>
-<li><code>u8string</code> <strong><code>format_date</code></strong><code>(system_clock::time_point tp, int prec = 0, Zone z = Zone::utc)</code></li>
-<li><code>u8string</code> <strong><code>format_date</code></strong><code>(system_clock::time_point tp, const u8string&amp; format, Zone z = Zone::utc)</code></li>
+<li><code>U8string</code> <strong><code>format_date</code></strong><code>(system_clock::time_point tp, int prec = 0, Zone z = Zone::utc)</code></li>
+<li><code>U8string</code> <strong><code>format_date</code></strong><code>(system_clock::time_point tp, const U8string&amp; format, Zone z = Zone::utc)</code></li>
 </ul>
 <p>These convert a time point into a broken down date and format it. The first
 version writes the date in ISO 8601 format (<code>"yyyy-mm-dd hh:mm:ss"</code>). If
@@ -2225,7 +2176,7 @@ is a limitation of <code>strftime()</code>).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename R, typename P&gt; u8string</code> <strong><code>format_time</code></strong><code>(const duration&lt;R, P&gt;&amp; time, int prec = 0)</code></li>
+<li><code>template &lt;typename R, typename P&gt; U8string</code> <strong><code>format_time</code></strong><code>(const duration&lt;R, P&gt;&amp; time, int prec = 0)</code></li>
 </ul>
 <p>Formats a time duration in Julian years, days, hours, minutes, seconds, and
 (if <code>prec&gt;0</code>) fractions of a second. Results are unspecified if the number of

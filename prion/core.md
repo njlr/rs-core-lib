@@ -114,45 +114,12 @@ message. (A planned change in C++17 will make this unnecessary.)
 
 ### Basic types ###
 
-* _From `<functional>`_
-    * `using std::`**`function`**
-* _From `<iostream>`_
-    * `using std::`**`cerr`**
-    * `using std::`**`cin`**
-    * `using std::`**`clog`**
-    * `using std::`**`cout`**
-    * `using std::`**`endl`**
-    * `using std::`**`flush`**
-* _From `<memory>`_
-    * `using std::`**`make_shared`**
-    * `using std::`**`make_unique`**
-    * `using std::`**`shared_ptr`**
-    * `using std::`**`unique_ptr`**
-* _From `<string>`_
-    * `using std::`**`basic_string`**
-    * `using std::`**`string`**
-    * `using std::`**`u16string`**
-    * `using std::`**`u32string`**
-    * `using std::`**`wstring`**
-* _From `<tuple>`_
-    * `using std::`**`make_tuple`**
-    * `using std::`**`tie`**
-    * `using std::`**`tuple`**
-* _From `<utility>`_
-    * `using std::`**`make_pair`**
-    * `using std::`**`move`**
-    * `using std::`**`pair`**
-* _From `<vector>`_
-    * `using std::`**`vector`**
+* `using` **`U8string`** `= std::string`
 
-Imported for convenience.
-
-* `using` **`u8string`** `= std::string`
-
-Use `u8string` for strings that are expected to be in UTF-8 (or ASCII, since
-any ASCII string is also valid UTF-8), while plain `string` is used where the
-string is expected to be in some non-Unicode encoding, or where the string is
-being used simply as an array of bytes rather than encoded text.
+Use `U8string` for strings that are expected to be in UTF-8 (or ASCII, since
+any ASCII string is also valid UTF-8), while plain `std::string` is used where
+the string is expected to be in some non-Unicode encoding, or where the string
+is being used simply as an array of bytes rather than encoded text.
 
 ### Arithmetic types ###
 
@@ -239,7 +206,7 @@ An integer constrained to the range `{-1,0,+1}`.
     * `bool Blob::`**`empty`**`() const noexcept`
     * `void Blob::`**`fill`**`(uint8_t x) noexcept`
     * `size_t Blob::`**`hash`**`() const noexcept`
-    * `u8string Blob::`**`hex`**`(size_t block = 0) const`
+    * `U8string Blob::`**`hex`**`(size_t block = 0) const`
     * `void Blob::`**`reset`**`(size_t n)`
     * `void Blob::`**`reset`**`(size_t n, uint8_t x)`
     * `void Blob::`**`reset`**`(void* p, size_t n)`
@@ -312,7 +279,7 @@ standard container, but is often useful for RAII). Behaviour is undefined if
 ### Exceptions ###
 
 * `class` **`WindowsCategory`**`: public std::error_category`
-    * `virtual u8string WindowsCategory::`**`message`**`(int ev) const`
+    * `virtual U8string WindowsCategory::`**`message`**`(int ev) const`
     * `virtual const char* WindowsCategory::`**`name`**`() const noexcept`
 * `const std::error_category&` **`windows_category`**`() noexcept`
 
@@ -486,7 +453,7 @@ is to be named (e.g. `type_name(42)`).
     * `uint8_t* Uuid::`**`end`**`() noexcept`
     * `const uint8_t* Uuid::`**`end`**`() const noexcept`
     * `size_t Uuid::`**`hash`**`() const noexcept`
-    * `u8string Uuid::`**`str`**`() const`
+    * `U8string Uuid::`**`str`**`() const`
 * `bool` **`operator==`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
 * `bool` **`operator!=`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
 * `bool` **`operator<`**`(const Uuid& lhs, const Uuid& rhs) noexcept`
@@ -534,7 +501,7 @@ Generates a random version 4 UUID.
     * `using Version::`**`value_type`** `= unsigned`
     * `Version::`**`Version`**`() noexcept`
     * `template <typename... Args> Version::`**`Version`**`(unsigned n, Args... args)`
-    * `explicit Version::`**`Version`**`(const u8string& s)`
+    * `explicit Version::`**`Version`**`(const U8string& s)`
     * `Version::`**`Version`**`(const Version& v)`
     * `Version::`**`Version`**`(Version&& v) noexcept`
     * `Version::`**`~Version`**`() noexcept`
@@ -1270,10 +1237,10 @@ the file.
 
 ### Logging ###
 
-* `void` **`logx`**`(const u8string& msg) noexcept`
+* `void` **`logx`**`(const U8string& msg) noexcept`
 * `void` **`logx`**`(const char* msg) noexcept`
 * `template <typename... Args> void` **`logx`**`(Args... args) noexcept`
-* `void` **`logt`**`(const u8string& msg) noexcept`
+* `void` **`logt`**`(const U8string& msg) noexcept`
 * `void` **`logt`**`(const char* msg) noexcept`
 * `template <typename... Args> void` **`logt`**`(Args... args) noexcept`
 
@@ -1289,7 +1256,7 @@ only for debugging the code around them, any exceptions thrown by their
 internal workings are silently ignored.
 
 * `class` **`Stopwatch`**
-    * `explicit Stopwatch::`**`Stopwatch`**`(const u8string& name, int precision = 3) noexcept`
+    * `explicit Stopwatch::`**`Stopwatch`**`(const U8string& name, int precision = 3) noexcept`
     * `explicit Stopwatch::`**`Stopwatch`**`(const char* name, int precision = 3) noexcept`
     * `Stopwatch::`**`~Stopwatch`**`() noexcept`
 
@@ -1452,7 +1419,7 @@ of undefined behaviour.
 Returns the length of a null-terminated string (a generalized version of
 `strlen()`). This will return zero if the pointer is null.
 
-* `u8string` **`dent`**`(size_t depth)`
+* `U8string` **`dent`**`(size_t depth)`
 
 Returns a string containing `4*depth` spaces, for indentation.
 
@@ -1474,8 +1441,8 @@ line break).
 Cuts off a string at the first null character (useful after the string has
 been used as an output buffer by some C APIs).
 
-* `u8string` **`quote`**`(const string& str)`
-* `u8string` **`bquote`**`(const string& str)`
+* `U8string` **`quote`**`(const string& str)`
+* `U8string` **`bquote`**`(const string& str)`
 
 Return a quoted string; internal quotes, backslashes, and control characters
 are escaped. The `bquote()` function always escapes all non-ASCII bytes;
@@ -1506,9 +1473,9 @@ characters are found.
 
 ### String formatting and parsing functions ###
 
-* `template <typename T> u8string` **`bin`**`(T x, size_t digits = 8 * sizeof(T))`
-* `template <typename T> u8string` **`dec`**`(T x, size_t digits = 1)`
-* `template <typename T> u8string` **`hex`**`(T x, size_t digits = 2 * sizeof(T))`
+* `template <typename T> U8string` **`bin`**`(T x, size_t digits = 8 * sizeof(T))`
+* `template <typename T> U8string` **`dec`**`(T x, size_t digits = 1)`
+* `template <typename T> U8string` **`hex`**`(T x, size_t digits = 2 * sizeof(T))`
 * `unsigned long long` **`binnum`**`(const string& str) noexcept`
 * `long long` **`decnum`**`(const string& str) noexcept`
 * `unsigned long long` **`hexnum`**`(const string& str) noexcept`
@@ -1524,7 +1491,7 @@ string is empty or does not contain a valid number. Results that are out of
 range will be clamped to the nearest end of the return type's range (for
 `fpnum()` this will normally be positive or negative infinity).
 
-* `template <typename T> u8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
+* `template <typename T> U8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
 
 Simple floating point formatting, by calling `snprintf()`. `T` must be an
 arithmetic type; it will be converted to `double` internally. The additional
@@ -1533,8 +1500,8 @@ stripped. This will throw `std::invalid_argument` if the mode is not one of
 `[EFGZefgz]`; it may throw `std::system_error` under implementation defined
 circumstances.
 
-* `int64_t` **`si_to_int`**`(const u8string& s)`
-* `double` **`si_to_float`**`(const u8string& s)`
+* `int64_t` **`si_to_int`**`(const U8string& s)`
+* `double` **`si_to_float`**`(const U8string& s)`
 
 These parse a number from a string representation tagged with an SI multiplier
 abbreviation (e.g. `"123k"`). For the integer version, only tags representing
@@ -1549,18 +1516,18 @@ This will throw `std::invalid_argument` if the string does not start with a
 valid number, or `std::range_error` if the result is too big for the return
 type.
 
-* `u8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
-* `u8string` **`hexdump`**`(const string& str, size_t block = 0)`
+* `U8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
+* `U8string` **`hexdump`**`(const string& str, size_t block = 0)`
 
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
 
-* `u8string` **`tf`**`(bool b)`
-* `u8string` **`yn`**`(bool b)`
+* `U8string` **`tf`**`(bool b)`
+* `U8string` **`yn`**`(bool b)`
 
 Convert a boolean to `"true"/"false"` or `"yes"/"no"`.
 
-* `template <typename T> u8string` **`to_str`**`(const T& t)`
+* `template <typename T> U8string` **`to_str`**`(const T& t)`
 
 Formats an object as a string. For most types this uses the type's output
 stream operator. For strings, including character arrays and pointers, the
@@ -1574,7 +1541,7 @@ is a pair; `to_str()` is called recursively on each range element.
 
 * `class` **`Tag`**
     * `Tag::`**`Tag`**`() noexcept`
-    * `Tag::`**`Tag`**`(const u8string& text, std::ostream& out)`
+    * `Tag::`**`Tag`**`(const U8string& text, std::ostream& out)`
     * `Tag::`**`Tag`**`(Tag&& t) noexcept`
     * `Tag::`**`~Tag`**`() noexcept`
     * `Tag& Tag::`**`operator=`**`(Tag&& t) noexcept`
@@ -1756,8 +1723,8 @@ Resolution is system dependent. Behaviour is undefined if the duration exceeds
 
 ### Time and date formatting ###
 
-* `u8string` **`format_date`**`(system_clock::time_point tp, int prec = 0, Zone z = Zone::utc)`
-* `u8string` **`format_date`**`(system_clock::time_point tp, const u8string& format, Zone z = Zone::utc)`
+* `U8string` **`format_date`**`(system_clock::time_point tp, int prec = 0, Zone z = Zone::utc)`
+* `U8string` **`format_date`**`(system_clock::time_point tp, const U8string& format, Zone z = Zone::utc)`
 
 These convert a time point into a broken down date and format it. The first
 version writes the date in ISO 8601 format (`"yyyy-mm-dd hh:mm:ss"`). If
@@ -1787,7 +1754,7 @@ For reference, the portable subset of the `strftime()` formatting codes are:
 | `%M`  | Minute (`00-59`)                     | `%Z`    | Time zone name                       |
 | `%S`  | Second (`00-60`)                     | `%z`    | Time zone offset                     |
 
-* `template <typename R, typename P> u8string` **`format_time`**`(const duration<R, P>& time, int prec = 0)`
+* `template <typename R, typename P> U8string` **`format_time`**`(const duration<R, P>& time, int prec = 0)`
 
 Formats a time duration in Julian years, days, hours, minutes, seconds, and
 (if `prec>0`) fractions of a second. Results are unspecified if the number of
