@@ -736,6 +736,8 @@ namespace Prion {
 
     // Exceptions
 
+    inline void rethrow(std::exception_ptr p) { if (p) std::rethrow_exception(p); }
+
     #ifdef _WIN32
 
         class WindowsCategory:
@@ -2880,8 +2882,7 @@ namespace Prion {
                 impl->state = thread_joined;
                 if (rc)
                     throw std::system_error(rc, std::generic_category(), "pthread_join()");
-                if (impl->except)
-                    std::rethrow_exception(impl->except);
+                rethrow(impl->except);
             }
             static size_t cpu_threads() noexcept {
                 size_t n = 0;
@@ -2966,8 +2967,7 @@ namespace Prion {
                 impl->state = thread_joined;
                 if (rc == WAIT_FAILED)
                     throw std::system_error(GetLastError(), windows_category(), "WaitForSingleObject()");
-                if (impl->except)
-                    std::rethrow_exception(impl->except);
+                rethrow(impl->except);
             }
             static size_t cpu_threads() noexcept {
                 SYSTEM_INFO sysinfo;

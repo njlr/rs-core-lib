@@ -392,6 +392,14 @@ standard container, but is often useful for RAII). Behaviour is undefined if
 <h3 id="exceptions">Exceptions</h3>
 <div class="defns">
 <ul>
+<li><code>void</code> <strong><code>rethrow</code></strong><code>(std::exception_ptr p)</code></li>
+</ul>
+<p>Rethrows the exception, if one is present. This is the same as
+<code>std::rethrow_exception()</code>, except that it does nothing if the exception
+pointer is null.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>class</code> <strong><code>WindowsCategory</code></strong><code>: public std::error_category</code><ul>
 <li><code>virtual U8string WindowsCategory::</code><strong><code>message</code></strong><code>(int ev) const</code></li>
 <li><code>virtual const char* WindowsCategory::</code><strong><code>name</code></strong><code>() const noexcept</code></li>

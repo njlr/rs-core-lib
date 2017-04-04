@@ -278,6 +278,12 @@ standard container, but is often useful for RAII). Behaviour is undefined if
 
 ### Exceptions ###
 
+* `void` **`rethrow`**`(std::exception_ptr p)`
+
+Rethrows the exception, if one is present. This is the same as
+`std::rethrow_exception()`, except that it does nothing if the exception
+pointer is null.
+
 * `class` **`WindowsCategory`**`: public std::error_category`
     * `virtual U8string WindowsCategory::`**`message`**`(int ev) const`
     * `virtual const char* WindowsCategory::`**`name`**`() const noexcept`
