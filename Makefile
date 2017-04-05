@@ -113,12 +113,12 @@ cleanall:
 	rm -rf build doc *.stackdump __test_*
 
 dep:
-	# $(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
-	# 	| sed -E -e 's! \.\./$(NAME)/! !g' \
-	# 			 -e 's!^[[:graph:]]*\.o: $(NAME)(/|/[[:graph:]]+/)!build/$$(TARGET)\1&!' \
-	# 			 -e 's!^ +!  !' \
-	# 	         -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
-	# 	> $(DEPENDS)
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
+		| sed -E -e 's! \.\./$(NAME)/! !g' \
+			-e 's!^[[:graph:]]*\.o: $(NAME)(/|/[[:graph:]]+/)!build/$$(TARGET)\1&!' \
+			-e 's!^ +!  !' \
+			-e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
+		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
 		| grep -E '^[ \t]*PRI_LDLIB\((\w|[ ,:])+\)' \
 		| sed -E -e 's/[ \t]+//g' \
@@ -131,30 +131,6 @@ dep:
 			-e 's/;/ -l/g' \
 		| tr '~' '\n' \
 		>> $(DEPENDS)
-
-	# $(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
-	# 	| sed -E -e 's! \.\./$(NAME)/! !g' \
-	# 			 -e 's!^[[:graph:]]*\.o: $(NAME)(/|/[[:graph:]]+/)!build/$$(TARGET)\1&!' \
-	# 			 -e 's!^ +!  !' \
-	# 	         -e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
-	# 	> $(DEPENDS)
-	# $(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
-	# 	| grep -Ev '^#' \
-	# 	| awk '/PRI_LDLIB/ { getline t; print $$0 t; next }; 1' \
-	# 	| grep -h PRI_LDLIB \
-	# 	| tr ';' '\n' \
-	# 	| sed -E 's/.*"([A-Za-z0-9_: ]+)".*/\1/' \
-	# 	| tr -d ' ' \
-	# 	| nl -pn rz \
-	# 	| sed -E 's/^([0-9]+)[^A-Za-z0-9_]+(.+)/\2 \1/' \
-	# 	| sort \
-	# 	| while read tag num; do if [ "$$tag" != "$$pre" ]; then echo $$num $$tag; pre=$$tag; fi; done \
-	# 	| sort \
-	# 	| sed -E -e 's/^[0-9]+ //' \
-	# 		     -e 's/^(.+):(.+)$$/ifeq ($$(LIBTAG),\1);LDLIBS += -l\2;endif/' \
-	# 		     -e 's/^[A-Za-z0-9_]+$$/LDLIBS += -l&/' \
-	# 	| tr ';' '\n' \
-	# 	>> $(DEPENDS)
 
 help: help-suffix
 
