@@ -119,16 +119,13 @@ dep:
 			-e 's!^ +!  !' \
 			-e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
-	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E $(SOURCES) \
-		| grep -E '^[ \t]*PRI_LDLIB\((\w|[ ,:])+\)' \
-		| sed -E -e 's/[ \t]+//g' \
-			-e 's/\).*$$/)/' \
-			-e 's/^.*:/~&/' \
-			-e 's/,/;/g' \
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E -P $(SOURCES) \
+		| grep -F 'static_assert(true, "PRI_LDLIB"' \
+		| sed -E -e 's/static_assert\(true, "PRI_LDLIB" " *(.+) *"\)/\1/' \
+			-e 's/(\w) +(\w)/\1 -l\2/g' \
+			-e 's/^[^:]+$$/LDLIBS += -l&/' \
+			-e 's/^(\w+) *: *(.+)/ifeq ($$(LIBTAG),\1)~LDLIBS += -l\2~endif/' \
 		| LC_COLLATE=C sort -u \
-		| sed -E -e 's/^PRI_LDLIB\((.+)\)/LDLIBS += -l\1/' \
-			-e 's/^~PRI_LDLIB\((.+):(.+)\)/ifeq ($$(LIBTAG),\1)~LDLIBS += -l\2~endif/' \
-			-e 's/;/ -l/g' \
 		| tr '~' '\n' \
 		>> $(DEPENDS)
 

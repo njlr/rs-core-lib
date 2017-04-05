@@ -63,13 +63,12 @@ Equivalent code:
     enum class Bar { delta = 1, echo, foxtrot };
     std::ostream& operator<<(std::ostream& out, Bar b) { ... }
 
-* `#define` **`PRI_LDLIB`**`([tag:]lib,...)`
+* `#define` **`PRI_LDLIB`**`([tag:] lib ...)`
 
 This instructs the makefile to link with one or more static libraries. Specify
-library names without the `-l` prefix (e.g. `PRI_LDLIB(foo,bar)` will link
-with `-lfoo` and `-lbar`). If link order is important for a particular set of
-libraries, supply them in a comma delimited list in a single `PRI_LDLIB()`
-line.
+library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
+`-lfoo`). If link order is important for a particular set of libraries, supply
+them in a space delimited list in a single `PRI_LDLIB()` line.
 
 Libraries that are needed only on specific targets can be prefixed with one of
 the target identifiers listed below (e.g. `PRI_LDLIB(apple:foo)` will link
