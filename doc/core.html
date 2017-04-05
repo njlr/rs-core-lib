@@ -161,14 +161,18 @@ std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, Bar b) { ... }
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_LDLIB</code></strong><code>([tag:]lib)</code></li>
+<li><code>#define</code> <strong><code>PRI_LDLIB</code></strong><code>([tag:]lib,...)</code></li>
 </ul>
 <p>This instructs the makefile to link with one or more static libraries. Specify
-library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo)</code> will link with
-<code>-lfoo</code>). A separate <code>PRI_LDLIB()</code> line is required for each library.
-Libraries that are needed only on specific targets can be prefixed with one of
+library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo,bar)</code> will link
+with <code>-lfoo</code> and <code>-lbar</code>). If link order is important for a particular set of
+libraries, supply them in a comma delimited list in a single <code>PRI_LDLIB()</code>
+line.</p>
+<p>Libraries that are needed only on specific targets can be prefixed with one of
 the target identifiers listed below (e.g. <code>PRI_LDLIB(apple:foo)</code> will link
-with <code>-lfoo</code> for Apple targets only).</p>
+with <code>-lfoo</code> for Apple targets only). Only one target can be specified per
+invocation; if the same libraries are needed on multiple targets, but not on
+all targets, you will need a separate <code>PRI_LDLIB()</code> line for each target.</p>
 <!-- TEXT -->
 
 <ul>
@@ -177,9 +181,6 @@ with <code>-lfoo</code> for Apple targets only).</p>
 <li><code>mingw:</code></li>
 <li><code>cygwin:</code></li>
 </ul>
-<p>Only one target can be specified per invocation; if the same libraries are
-needed on multiple targets, but not on all targets, you will need a separate
-<code>PRI_LDLIB()</code> line for each target.</p>
 <p><code>PRI_LDLIB()</code> lines are picked up at the <code>"make dep"</code> stage; if you change a
 link library, the change will not be detected until dependencies are rebuilt.</p>
 </div>

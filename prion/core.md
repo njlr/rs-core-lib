@@ -63,24 +63,25 @@ Equivalent code:
     enum class Bar { delta = 1, echo, foxtrot };
     std::ostream& operator<<(std::ostream& out, Bar b) { ... }
 
-* `#define` **`PRI_LDLIB`**`([tag:]lib)`
+* `#define` **`PRI_LDLIB`**`([tag:]lib,...)`
 
 This instructs the makefile to link with one or more static libraries. Specify
-library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
-`-lfoo`). A separate `PRI_LDLIB()` line is required for each library.
+library names without the `-l` prefix (e.g. `PRI_LDLIB(foo,bar)` will link
+with `-lfoo` and `-lbar`). If link order is important for a particular set of
+libraries, supply them in a comma delimited list in a single `PRI_LDLIB()`
+line.
+
 Libraries that are needed only on specific targets can be prefixed with one of
 the target identifiers listed below (e.g. `PRI_LDLIB(apple:foo)` will link
-with `-lfoo` for Apple targets only).
+with `-lfoo` for Apple targets only). Only one target can be specified per
+invocation; if the same libraries are needed on multiple targets, but not on
+all targets, you will need a separate `PRI_LDLIB()` line for each target.
 
 <!-- TEXT -->
 * `apple:`
 * `linux:`
 * `mingw:`
 * `cygwin:`
-
-Only one target can be specified per invocation; if the same libraries are
-needed on multiple targets, but not on all targets, you will need a separate
-`PRI_LDLIB()` line for each target.
 
 `PRI_LDLIB()` lines are picked up at the `"make dep"` stage; if you change a
 link library, the change will not be detected until dependencies are rebuilt.
