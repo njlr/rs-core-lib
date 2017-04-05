@@ -125,7 +125,7 @@
 #define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
 
-#define PRI_LDLIB(libs) static_assert(true, "PRI_LDLIB" # libs)
+#define PRI_LDLIB(libs) static_assert(true, "PRI_LDLIB" # libs);
 
 #define PRI_BITMASK_OPERATORS(EC) \
     inline constexpr bool operator!(EC x) noexcept { return std::underlying_type_t<EC>(x) == 0; } \

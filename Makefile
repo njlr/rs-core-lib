@@ -121,7 +121,7 @@ dep:
 		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E -P $(SOURCES) \
 		| grep -F 'static_assert(true, "PRI_LDLIB"' \
-		| sed -E -e 's/static_assert\(true, "PRI_LDLIB" " *(.+) *"\)/\1/' \
+		| sed -E -e 's/static_assert\(true, "PRI_LDLIB" " *(.+) *"\).*/\1/' \
 			-e 's/(\w) +(\w)/\1 -l\2/g' \
 			-e 's/^[^:]+$$/LDLIBS += -l&/' \
 			-e 's/^(\w+) *: *(.+)/ifeq ($$(LIBTAG),\1)~LDLIBS += -l\2~endif/' \
