@@ -2797,6 +2797,12 @@ namespace Prion {
         template <> struct ObjectToString<bool> { U8string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<std::nullptr_t> { U8string operator()(std::nullptr_t) const { return "null"; } };
 
+        template <typename T, bool I> struct ObjectToString<std::atomic<T>, I, false> {
+            U8string operator()(const std::atomic<T>& t) const {
+                return ObjectToString<T>()(t);
+            }
+        };
+
         template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, false, false> {
             U8string operator()(const std::pair<T1, T2>& t) const {
                 return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}';

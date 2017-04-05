@@ -1,6 +1,7 @@
 #include "prion/core.hpp"
 #include "prion/unit-test.hpp"
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
@@ -3133,6 +3134,7 @@ namespace {
         std::vector<int> iv;
         std::vector<std::string> sv;
         std::map<int, std::string> ism;
+        std::atomic<int> ai;
 
         TEST_EQUAL(bin(0, 1), "0");
         TEST_EQUAL(bin(0, 10), "0000000000");
@@ -3315,6 +3317,7 @@ namespace {
         TEST_EQUAL(yn(false), "no");
 
         s = "Hello";
+        ai = 42;
 
         TEST_EQUAL(to_str(0), "0");
         TEST_EQUAL(to_str(42), "42");
@@ -3331,6 +3334,7 @@ namespace {
         TEST_EQUAL(to_str(false), "false");
         TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
         TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
+        TEST_EQUAL(to_str(ai), "42");
 
         bv.clear();
         iv.clear();
