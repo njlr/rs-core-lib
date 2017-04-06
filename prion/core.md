@@ -1605,7 +1605,7 @@ support don't implement C++11 threads yet.
     * `void Thread::`**`wait`**`()`
     * `size_t Thread::`**`cpu_threads`**`() noexcept`
     * `static Thread::id_type Thread::`**`current`**`() noexcept`
-    * `void Thread::`**`yield`**`() noexcept`
+    * `static void Thread::`**`yield`**`() noexcept`
 
 This is a wrapper for an operating system thread. The constructor accepts a
 callback function, which will be called as the thread's payload. If a null
