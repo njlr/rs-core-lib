@@ -126,7 +126,7 @@ dep:
 			-e 's/^[^:]+$$/1~LDLIBS += -l&/' \
 			-e 's/^(\w+) *: *(.+)/2~ifeq ($$(LIBTAG),\1)~LDLIBS += -l\2~endif/' \
 		| sort -u \
-		| sed -E -e 's/^.~//'-e 's/~/\n/g' \
+		| sed -E -e 's/^.~//' -e 's/~/\n/g' \
 		>> $(DEPENDS)
 
 help: help-suffix
