@@ -77,6 +77,11 @@ ifeq ($(XHOST),mingw)
 	DEFINES += -DNOMINMAX=1 -DUNICODE=1 -D_UNICODE=1 -DWINVER=0x601 -D_WIN32_WINNT=0x601 -DPCRE_STATIC=1
 	LIBPATH := $(MINGW)/lib $(subst ;, ,$(LIBRARY_PATH))
 	LIBTAG := mingw
+	RC := windres
+	RCFLAGS := -O coff
+	RCSOURCES := $(wildcard resources/*.rc) $(wildcard resources/*.ico)
+	RCOBJECT := $(patsubst resources/%.rc,build/$(TARGET)/%.o,$(firstword $(RCSOURCES)))
+	APPOBJECTS += $(RCOBJECT)
 else
 	DEFINES += -D_REENTRANT=1 -D_XOPEN_SOURCE=700
 	LIBPATH := /usr/lib $(subst :, ,$(LIBRARY_PATH))
@@ -293,6 +298,12 @@ build/$(TARGET)/%.o: $(NAME)/%.m
 build/$(TARGET)/%.o: $(NAME)/%.mm
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
+
+ifeq ($(XHOST),mingw)
+$(RCOBJECT): $(RCSOURCES)
+	mkdir -p $(dir $@)
+	$(RC) $(RCFLAGS) $< $@
+endif
 
 $(STATICLIB): $(LIBOBJECTS)
 	@mkdir -p $(dir $@)
