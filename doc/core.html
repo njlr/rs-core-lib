@@ -131,12 +131,12 @@ types that can be used in strings (<code>char</code>, <code>char16_t</code>, <co
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_ENUM</code></strong><code>(EnumType, first_value, first_name, ...)</code></li>
-<li><code>#define</code> <strong><code>PRI_ENUM_CLASS</code></strong><code>(EnumType, first_value, first_name, ...)</code></li>
+<li><code>#define</code> <strong><code>PRI_ENUM</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
+<li><code>#define</code> <strong><code>PRI_ENUM_CLASS</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
 </ul>
 <p>These define an enumeration, given the name of the enumeration type, the
-integer value of the first entry, and a list of value names. They will also
-define the following functions:</p>
+underlying integer type, the integer value of the first entry, and a list of
+value names. They will also define the following functions:</p>
 <ul>
 <li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, EnumType t)</code></li>
 <li><code>constexpr bool</code> <strong><code>enum_is_valid</code></strong><code>(EnumType t) noexcept</code></li>

@@ -33,12 +33,12 @@ types that can be used in strings (`char`, `char16_t`, `char32_t`, or
 `wchar_t`). Behaviour is undefined if `T` is not one of those four types, or
 (for `PRI_CHAR`) if `C` is not representable by a single code unit.
 
-* `#define` **`PRI_ENUM`**`(EnumType, first_value, first_name, ...)`
-* `#define` **`PRI_ENUM_CLASS`**`(EnumType, first_value, first_name, ...)`
+* `#define` **`PRI_ENUM`**`(EnumType, IntType, first_value, first_name, ...)`
+* `#define` **`PRI_ENUM_CLASS`**`(EnumType, IntType, first_value, first_name, ...)`
 
 These define an enumeration, given the name of the enumeration type, the
-integer value of the first entry, and a list of value names. They will also
-define the following functions:
+underlying integer type, the integer value of the first entry, and a list of
+value names. They will also define the following functions:
 
 * `std::ostream&` **`operator<<`**`(std::ostream& out, EnumType t)`
 * `constexpr bool` **`enum_is_valid`**`(EnumType t) noexcept`
