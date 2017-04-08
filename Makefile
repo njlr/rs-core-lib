@@ -87,11 +87,8 @@ else
 	LIBPATH := /usr/lib $(subst :, ,$(LIBRARY_PATH))
 endif
 
-ifneq ($(shell grep -Fior 'sdl2/sdl.h' $(NAME)),)
+ifneq ($(shell grep -Fo sdl $(DEPENDS)),)
 	DEFINES += -DSDL_MAIN_HANDLED=1
-	ifeq ($(HOST),cygwin)
-		FLAGS += -mwindows
-	endif
 endif
 
 LD := $(CXX)
