@@ -12,14 +12,12 @@
 #include <iostream>
 #include <iterator>
 #include <map>
-#include <memory>
+#include <ostream>
 #include <regex>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 // Unit testing macros
 
