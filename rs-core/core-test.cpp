@@ -1,5 +1,5 @@
-#include "prion/core.hpp"
-#include "prion/unit-test.hpp"
+#include "rs-core/core.hpp"
+#include "rs-core/unit-test.hpp"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -33,8 +33,8 @@
     #include <windows.h>
 #endif
 
-using namespace Prion;
-using namespace Prion::Literals;
+using namespace RS;
+using namespace RS::Literals;
 using namespace std::chrono;
 using namespace std::literals;
 
@@ -54,8 +54,8 @@ namespace {
     U8string f2(U8string s) { return '[' + s + ']'; }
     U8string f2(int x, int y) { return dec(x * y); }
 
-    PRI_ENUM(FooEnum, int16_t, 1, alpha, bravo, charlie)
-    PRI_ENUM_CLASS(BarEnum, int32_t, 1, alpha, bravo, charlie)
+    RS_ENUM(FooEnum, int16_t, 1, alpha, bravo, charlie)
+    RS_ENUM_CLASS(BarEnum, int32_t, 1, alpha, bravo, charlie)
 
     enum class ZapEnum: uint32_t {
         alpha = 1,
@@ -63,13 +63,13 @@ namespace {
         charlie = 4,
     };
 
-    PRI_BITMASK_OPERATORS(ZapEnum)
+    RS_BITMASK_OPERATORS(ZapEnum)
 
     void check_preprocessor_macros() {
 
         int n = 42;
-        auto assert1 = [n] { PRI_ASSERT(n == 42); };
-        auto assert2 = [n] { PRI_ASSERT(n == 6 * 9); };
+        auto assert1 = [n] { RS_ASSERT(n == 42); };
+        auto assert2 = [n] { RS_ASSERT(n == 6 * 9); };
 
         TRY(assert1());
         TEST_THROW_MATCH(assert2(), std::logic_error, "\\bcore-test\\.cpp:\\d+\\b.+\\bn == 6 \\* 9\\b");
@@ -77,30 +77,30 @@ namespace {
         std::vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
         std::vector<U8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
 
-        TRY(std::transform(iv.begin(), iv.end(), overwrite(result), PRI_OVERLOAD(f1)));
+        TRY(std::transform(iv.begin(), iv.end(), overwrite(result), RS_OVERLOAD(f1)));
         TEST_EQUAL_RANGE(result, (std::vector<U8string>{"*", "**", "***", "****", "*****"}));
-        TRY(std::transform(sv.begin(), sv.end(), overwrite(result), PRI_OVERLOAD(f1)));
+        TRY(std::transform(sv.begin(), sv.end(), overwrite(result), RS_OVERLOAD(f1)));
         TEST_EQUAL_RANGE(result, (std::vector<U8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
 
-        TRY(std::generate_n(overwrite(result), 3, PRI_OVERLOAD(f2)));
+        TRY(std::generate_n(overwrite(result), 3, RS_OVERLOAD(f2)));
         TEST_EQUAL_RANGE(result, (std::vector<U8string>{"Hello", "Hello", "Hello"}));
-        TRY(std::transform(sv.begin(), sv.end(), overwrite(result), PRI_OVERLOAD(f2)));
+        TRY(std::transform(sv.begin(), sv.end(), overwrite(result), RS_OVERLOAD(f2)));
         TEST_EQUAL_RANGE(result, (std::vector<U8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
-        auto of2 = PRI_OVERLOAD(f2);
+        auto of2 = RS_OVERLOAD(f2);
         auto out = overwrite(result);
         for (size_t i = 0; i < iv.size() && i < iv2.size(); ++i)
             TRY(*out++ = of2(iv[i], iv2[i]));
         TEST_EQUAL_RANGE(result, (std::vector<U8string>{"2", "6", "15", "28", "55"}));
 
-        auto c1 = PRI_CHAR('A', char);      TEST_TYPE_OF(c1, char);      TEST_EQUAL(c1, 'A');
-        auto c2 = PRI_CHAR('A', char16_t);  TEST_TYPE_OF(c2, char16_t);  TEST_EQUAL(c2, u'A');
-        auto c3 = PRI_CHAR('A', char32_t);  TEST_TYPE_OF(c3, char32_t);  TEST_EQUAL(c3, U'A');
-        auto c4 = PRI_CHAR('A', wchar_t);   TEST_TYPE_OF(c4, wchar_t);   TEST_EQUAL(c4, L'A');
+        auto c1 = RS_CHAR('A', char);      TEST_TYPE_OF(c1, char);      TEST_EQUAL(c1, 'A');
+        auto c2 = RS_CHAR('A', char16_t);  TEST_TYPE_OF(c2, char16_t);  TEST_EQUAL(c2, u'A');
+        auto c3 = RS_CHAR('A', char32_t);  TEST_TYPE_OF(c3, char32_t);  TEST_EQUAL(c3, U'A');
+        auto c4 = RS_CHAR('A', wchar_t);   TEST_TYPE_OF(c4, wchar_t);   TEST_EQUAL(c4, L'A');
 
-        auto cp1 = PRI_CSTR("Hello", char);      TEST_TYPE_OF(cp1, const char*);      TEST_EQUAL(cp1, "Hello"s);
-        auto cp2 = PRI_CSTR("Hello", char16_t);  TEST_TYPE_OF(cp2, const char16_t*);  TEST_EQUAL(cp2, u"Hello"s);
-        auto cp3 = PRI_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
-        auto cp4 = PRI_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
+        auto cp1 = RS_CSTR("Hello", char);      TEST_TYPE_OF(cp1, const char*);      TEST_EQUAL(cp1, "Hello"s);
+        auto cp2 = RS_CSTR("Hello", char16_t);  TEST_TYPE_OF(cp2, const char16_t*);  TEST_EQUAL(cp2, u"Hello"s);
+        auto cp3 = RS_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
+        auto cp4 = RS_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
 
         std::vector<FooEnum> vf;
         std::vector<BarEnum> vb;
@@ -190,19 +190,19 @@ namespace {
         constexpr uint32_t c32 = 0x12345678ul;
         constexpr uint64_t c64 = 0x123456789abcdef0ull;
 
-        a8 = PrionDetail::swap_ends(c8);    TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::swap_ends(c16);  TEST_EQUAL(a16, 0x3412u);
-        a32 = PrionDetail::swap_ends(c32);  TEST_EQUAL(a32, 0x78563412ul);
-        a64 = PrionDetail::swap_ends(c64);  TEST_EQUAL(a64, 0xf0debc9a78563412ull);
+        a8 = RS_Detail::swap_ends(c8);    TEST_EQUAL(a8, 0x12u);
+        a16 = RS_Detail::swap_ends(c16);  TEST_EQUAL(a16, 0x3412u);
+        a32 = RS_Detail::swap_ends(c32);  TEST_EQUAL(a32, 0x78563412ul);
+        a64 = RS_Detail::swap_ends(c64);  TEST_EQUAL(a64, 0xf0debc9a78563412ull);
 
-        a8 = PrionDetail::order_bytes<big_endian>(c8);       TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::order_bytes<big_endian>(c16);     TEST_EQUAL(a16, 0x3412u);
-        a32 = PrionDetail::order_bytes<big_endian>(c32);     TEST_EQUAL(a32, 0x78563412ul);
-        a64 = PrionDetail::order_bytes<big_endian>(c64);     TEST_EQUAL(a64, 0xf0debc9a78563412ull);
-        a8 = PrionDetail::order_bytes<little_endian>(c8);    TEST_EQUAL(a8, 0x12u);
-        a16 = PrionDetail::order_bytes<little_endian>(c16);  TEST_EQUAL(a16, 0x1234u);
-        a32 = PrionDetail::order_bytes<little_endian>(c32);  TEST_EQUAL(a32, 0x12345678ul);
-        a64 = PrionDetail::order_bytes<little_endian>(c64);  TEST_EQUAL(a64, 0x123456789abcdef0ull);
+        a8 = RS_Detail::order_bytes<big_endian>(c8);       TEST_EQUAL(a8, 0x12u);
+        a16 = RS_Detail::order_bytes<big_endian>(c16);     TEST_EQUAL(a16, 0x3412u);
+        a32 = RS_Detail::order_bytes<big_endian>(c32);     TEST_EQUAL(a32, 0x78563412ul);
+        a64 = RS_Detail::order_bytes<big_endian>(c64);     TEST_EQUAL(a64, 0xf0debc9a78563412ull);
+        a8 = RS_Detail::order_bytes<little_endian>(c8);    TEST_EQUAL(a8, 0x12u);
+        a16 = RS_Detail::order_bytes<little_endian>(c16);  TEST_EQUAL(a16, 0x1234u);
+        a32 = RS_Detail::order_bytes<little_endian>(c32);  TEST_EQUAL(a32, 0x12345678ul);
+        a64 = RS_Detail::order_bytes<little_endian>(c64);  TEST_EQUAL(a64, 0x123456789abcdef0ull);
 
         constexpr BigEndian<uint8_t> cbe8 = c8;
         constexpr BigEndian<uint16_t> cbe16 = c16;
@@ -2390,13 +2390,13 @@ namespace {
         TempFile tempfile(testfile);
 
         TEST(load_file(readme, s));
-        TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
+        TEST_EQUAL(s.substr(0, 20), "# RS Core Library #\n");
         TEST(load_file(readme, s, 100));
         TEST_EQUAL(s.size(), 100);
-        TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
+        TEST_EQUAL(s.substr(0, 20), "# RS Core Library #\n");
         TEST(load_file(readme, s, 10));
         TEST_EQUAL(s.size(), 10);
-        TEST_EQUAL(s.substr(0, 18), "# Prion Li");
+        TEST_EQUAL(s.substr(0, 20), "# RS Core ");
 
         TEST(save_file(testfile, "Hello world\n"s));
         TEST(load_file(testfile, s));
@@ -2411,13 +2411,13 @@ namespace {
             std::wstring wreadme = L"README.md", wtestfile = L"__test__", wnofile = L"__no_such_file__";
 
             TEST(load_file(wreadme, s));
-            TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
+            TEST_EQUAL(s.substr(0, 20), "# RS Core Library #\n");
             TEST(load_file(wreadme, s, 100));
             TEST_EQUAL(s.size(), 100);
-            TEST_EQUAL(s.substr(0, 18), "# Prion Library #\n");
+            TEST_EQUAL(s.substr(0, 20), "# RS Core Library #\n");
             TEST(load_file(wreadme, s, 10));
             TEST_EQUAL(s.size(), 10);
-            TEST_EQUAL(s.substr(0, 18), "# Prion Li");
+            TEST_EQUAL(s.substr(0, 20), "# RS Core Li");
 
             TEST(save_file(wtestfile, "Hello world\n"s));
             TEST(load_file(wtestfile, s));
@@ -3836,7 +3836,7 @@ namespace {
 
 }
 
-TEST_MODULE(prion, core) {
+TEST_MODULE(core, core) {
 
     check_preprocessor_macros();
     check_endian_integers();

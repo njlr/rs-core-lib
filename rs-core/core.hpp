@@ -114,19 +114,19 @@
 
 // Other preprocessor macros
 
-#define PRI_ASSERT(expr) do { \
+#define RS_ASSERT(expr) do { \
     if (! static_cast<bool>(expr)) \
-        throw std::logic_error(std::string("Assertion failure [") + __FILE__ + ":" + ::Prion::dec(__LINE__) + "]: " + # expr); \
+        throw std::logic_error(std::string("Assertion failure [") + __FILE__ + ":" + ::RS::dec(__LINE__) + "]: " + # expr); \
 } while (false)
 
-#define PRI_CHAR(C, T) (::Prion::PrionDetail::select_char<T>(C, u ## C, U ## C, L ## C))
-#define PRI_CSTR(S, T) (::Prion::PrionDetail::select_cstr<T>(S, u ## S, U ## S, L ## S))
-#define PRI_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
-#define PRI_STATIC_ASSERT(expr) static_assert((expr), # expr)
+#define RS_CHAR(C, T) (::RS::RS_Detail::select_char<T>(C, u ## C, U ## C, L ## C))
+#define RS_CSTR(S, T) (::RS::RS_Detail::select_cstr<T>(S, u ## S, U ## S, L ## S))
+#define RS_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
+#define RS_STATIC_ASSERT(expr) static_assert((expr), # expr)
 
-#define PRI_LDLIB(libs) static_assert(true, "PRI_LDLIB" # libs);
+#define RS_LDLIB(libs) static_assert(true, "RS_LDLIB" # libs);
 
-#define PRI_BITMASK_OPERATORS(EC) \
+#define RS_BITMASK_OPERATORS(EC) \
     inline constexpr bool operator!(EC x) noexcept { return std::underlying_type_t<EC>(x) == 0; } \
     inline constexpr EC operator~(EC x) noexcept { return EC(~ std::underlying_type_t<EC>(x)); } \
     inline constexpr EC operator&(EC lhs, EC rhs) noexcept { return EC(std::underlying_type_t<EC>(lhs) & std::underlying_type_t<EC>(rhs)); } \
@@ -136,9 +136,9 @@
     inline constexpr EC& operator|=(EC& lhs, EC rhs) noexcept { return lhs = lhs | rhs; } \
     inline constexpr EC& operator^=(EC& lhs, EC rhs) noexcept { return lhs = lhs ^ rhs; }
 
-namespace Prion {
+namespace RS {
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename EnumType>
         void write_enum(std::ostream& out, EnumType t, long first_value, const char* prefix, const char* names) {
@@ -160,34 +160,34 @@ namespace Prion {
 
 }
 
-#define PRI_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
-    enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, prion_enum_sentinel }; \
+#define RS_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
+    enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, RS_enum_sentinel }; \
     inline std::ostream& operator<<(std::ostream& out, EnumType t) { \
-        ::Prion::PrionDetail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
+        ::RS::RS_Detail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
         return out; \
     } \
     constexpr __attribute__((unused)) bool enum_is_valid(EnumType t) noexcept { \
-        return IntType(t) >= IntType(first_value) && IntType(t) < IntType(EnumType::prion_enum_sentinel); \
+        return IntType(t) >= IntType(first_value) && IntType(t) < IntType(EnumType::RS_enum_sentinel); \
     } \
-    inline __attribute__((unused)) std::vector<EnumType> prion_enum_values(EnumType) { \
-        IntType n = IntType(EnumType::prion_enum_sentinel) - IntType(first_value); \
+    inline __attribute__((unused)) std::vector<EnumType> RS_enum_values(EnumType) { \
+        IntType n = IntType(EnumType::RS_enum_sentinel) - IntType(first_value); \
         std::vector<EnumType> v(n); \
         for (IntType i = 0; i < n; ++i) \
             v[i] = EnumType(first_value + i); \
         return v; \
     }
 
-#define PRI_ENUM(EnumType, IntType, first_value, first_name, ...) \
-    PRI_ENUM_IMPLEMENTATION(EnumType, IntType,, "", first_value, first_name, __VA_ARGS__)
-#define PRI_ENUM_CLASS(EnumType, IntType, first_value, first_name, ...) \
-    PRI_ENUM_IMPLEMENTATION(EnumType, IntType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
+#define RS_ENUM(EnumType, IntType, first_value, first_name, ...) \
+    RS_ENUM_IMPLEMENTATION(EnumType, IntType,, "", first_value, first_name, __VA_ARGS__)
+#define RS_ENUM_CLASS(EnumType, IntType, first_value, first_name, ...) \
+    RS_ENUM_IMPLEMENTATION(EnumType, IntType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
 
-#define PRI_MOVE_ONLY(T) \
+#define RS_MOVE_ONLY(T) \
     T(const T&) = delete; \
     T(T&&) = default; \
     T& operator=(const T&) = delete; \
     T& operator=(T&&) = default;
-#define PRI_NO_COPY_MOVE(T) \
+#define RS_NO_COPY_MOVE(T) \
     T(const T&) = delete; \
     T(T&&) = delete; \
     T& operator=(const T&) = delete; \
@@ -195,7 +195,7 @@ namespace Prion {
 
 // For internal use only
 // Must be used in the global namespace
-#define PRI_DEFINE_STD_HASH(T) \
+#define RS_DEFINE_STD_HASH(T) \
     namespace std { \
         template <> struct hash<T> { \
             using argument_type = T; \
@@ -204,7 +204,7 @@ namespace Prion {
         }; \
     }
 
-namespace Prion {
+namespace RS {
 
     // Things needed early
 
@@ -226,7 +226,7 @@ namespace Prion {
     template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
     template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
 
-    template <typename T> std::vector<T> enum_values() { return prion_enum_values(T()); }
+    template <typename T> std::vector<T> enum_values() { return RS_enum_values(T()); }
 
     template <typename T> constexpr auto as_signed(T t) noexcept { return static_cast<std::make_signed_t<T>>(t); }
     template <typename T> constexpr auto as_unsigned(T t) noexcept { return static_cast<std::make_unsigned_t<T>>(t); }
@@ -243,7 +243,7 @@ namespace Prion {
         return ptr ? string_type(ptr, n) : string_type();
     }
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         inline void append_hex_byte(uint8_t b, std::string& s) {
             static constexpr const char* digits = "0123456789abcdef";
@@ -288,13 +288,13 @@ namespace Prion {
 
     }
 
-    template <typename T> U8string bin(T x, size_t digits = 8 * sizeof(T)) { return PrionDetail::int_to_string(x, 2, digits); }
-    template <typename T> U8string dec(T x, size_t digits = 1) { return PrionDetail::int_to_string(x, 10, digits); }
-    template <typename T> U8string hex(T x, size_t digits = 2 * sizeof(T)) { return PrionDetail::int_to_string(x, 16, digits); }
+    template <typename T> U8string bin(T x, size_t digits = 8 * sizeof(T)) { return RS_Detail::int_to_string(x, 2, digits); }
+    template <typename T> U8string dec(T x, size_t digits = 1) { return RS_Detail::int_to_string(x, 10, digits); }
+    template <typename T> U8string hex(T x, size_t digits = 2 * sizeof(T)) { return RS_Detail::int_to_string(x, 16, digits); }
 
     // Unicode functions
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename Src, typename Dst,
             size_t N1 = sizeof(typename Src::value_type),
@@ -515,12 +515,12 @@ namespace Prion {
 
     template <typename Dst, typename Src>
     Dst uconv(const Src& s) {
-        return PrionDetail::UtfConvert<Src, Dst>()(s);
+        return RS_Detail::UtfConvert<Src, Dst>()(s);
     }
 
     template <typename C>
     bool uvalid(const std::basic_string<C>& s, size_t& n) noexcept {
-        n = PrionDetail::UtfValidate<C>()(s);
+        n = RS_Detail::UtfValidate<C>()(s);
         return n == s.size();
     }
 
@@ -530,7 +530,7 @@ namespace Prion {
         return uvalid(s, n);
     }
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         inline U8string quote_string(const std::string& str, bool check_utf8) {
             bool allow_8bit = check_utf8 && uvalid(str);
@@ -550,7 +550,7 @@ namespace Prion {
                             result += c;
                         } else {
                             result += "\\x";
-                            PrionDetail::append_hex_byte(b, result);
+                            RS_Detail::append_hex_byte(b, result);
                         }
                         break;
                     }
@@ -562,8 +562,8 @@ namespace Prion {
 
     }
 
-    inline U8string quote(const std::string& str) { return PrionDetail::quote_string(str, true); }
-    inline U8string bquote(const std::string& str) { return PrionDetail::quote_string(str, false); }
+    inline U8string quote(const std::string& str) { return RS_Detail::quote_string(str, true); }
+    inline U8string bquote(const std::string& str) { return RS_Detail::quote_string(str, false); }
 
     // [Types]
 
@@ -655,7 +655,7 @@ namespace Prion {
         little_endian = 2,
     };
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T>
         constexpr T swap_ends(T t, size_t N = sizeof(T)) noexcept {
@@ -676,10 +676,10 @@ namespace Prion {
         using value_type = T;
         static constexpr auto byte_order = B;
         constexpr Endian() noexcept: value(0) {}
-        constexpr Endian(T t) noexcept: value(PrionDetail::order_bytes<B>(t)) {}
+        constexpr Endian(T t) noexcept: value(RS_Detail::order_bytes<B>(t)) {}
         explicit Endian(const void* p) noexcept { memcpy(&value, p, sizeof(T)); }
         constexpr operator T() const noexcept { return get(); }
-        constexpr T get() const noexcept { return PrionDetail::order_bytes<B>(value); }
+        constexpr T get() const noexcept { return RS_Detail::order_bytes<B>(value); }
         constexpr const T* ptr() const noexcept { return &value; }
         T* ptr() noexcept { return &value; }
         constexpr T rep() const noexcept { return value; }
@@ -765,7 +765,7 @@ namespace Prion {
 
     // Metaprogramming and type traits
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <size_t Bits> struct IntegerType;
         template <> struct IntegerType<8> { using signed_type = int8_t; using unsigned_type = uint8_t; };
@@ -775,11 +775,11 @@ namespace Prion {
 
     }
 
-    template <typename T> using BinaryType = typename PrionDetail::IntegerType<8 * sizeof(T)>::unsigned_type;
+    template <typename T> using BinaryType = typename RS_Detail::IntegerType<8 * sizeof(T)>::unsigned_type;
     template <typename T1, typename T2> using CopyConst =
         std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
-    template <size_t Bits> using SignedInteger = typename PrionDetail::IntegerType<Bits>::signed_type;
-    template <size_t Bits> using UnsignedInteger = typename PrionDetail::IntegerType<Bits>::unsigned_type;
+    template <size_t Bits> using SignedInteger = typename RS_Detail::IntegerType<Bits>::signed_type;
+    template <size_t Bits> using UnsignedInteger = typename RS_Detail::IntegerType<Bits>::unsigned_type;
 
     // Smart pointers
 
@@ -893,7 +893,7 @@ namespace Prion {
         { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
 
     template <typename T2, typename T1> inline T2 binary_cast(const T1& t) noexcept {
-        PRI_STATIC_ASSERT(sizeof(T2) == sizeof(T1));
+        RS_STATIC_ASSERT(sizeof(T2) == sizeof(T1));
         T2 t2;
         memcpy(&t2, &t, sizeof(t));
         return t2;
@@ -928,7 +928,7 @@ namespace Prion {
 
     // Arithmetic constants
 
-    #define PRI_DEFINE_CONSTANT(name, value) \
+    #define RS_DEFINE_CONSTANT(name, value) \
         constexpr float name##_f = value##f; \
         constexpr double name##_d = value; \
         constexpr long double name##_ld = value##l; \
@@ -936,79 +936,79 @@ namespace Prion {
 
     // Mathematical constants
 
-    PRI_DEFINE_CONSTANT(e,           2.71828'18284'59045'23536'02874'71352'66249'77572'47093'69996);
-    PRI_DEFINE_CONSTANT(ln2,         0.69314'71805'59945'30941'72321'21458'17656'80755'00134'36026);
-    PRI_DEFINE_CONSTANT(ln10,        2.30258'50929'94045'68401'79914'54684'36420'76011'01488'62877);
-    PRI_DEFINE_CONSTANT(log2e,       1.44269'50408'88963'40735'99246'81001'89213'74266'45954'15299);
-    PRI_DEFINE_CONSTANT(log10e,      0.43429'44819'03251'82765'11289'18916'60508'22943'97005'80367);
-    PRI_DEFINE_CONSTANT(pi,          3.14159'26535'89793'23846'26433'83279'50288'41971'69399'37511);
-    PRI_DEFINE_CONSTANT(pi_2,        1.57079'63267'94896'61923'13216'91639'75144'20985'84699'68755);
-    PRI_DEFINE_CONSTANT(pi_4,        0.78539'81633'97448'30961'56608'45819'87572'10492'92349'84378);
-    PRI_DEFINE_CONSTANT(one_pi,      0.31830'98861'83790'67153'77675'26745'02872'40689'19291'48091);
-    PRI_DEFINE_CONSTANT(two_pi,      0.63661'97723'67581'34307'55350'53490'05744'81378'38582'96183);
-    PRI_DEFINE_CONSTANT(two_sqrtpi,  1.12837'91670'95512'57389'61589'03121'54517'16881'01258'65800);
-    PRI_DEFINE_CONSTANT(sqrtpi,      1.77245'38509'05516'02729'81674'83341'14518'27975'49456'12239);
-    PRI_DEFINE_CONSTANT(sqrt2pi,     2.50662'82746'31000'50241'57652'84811'04525'30069'86740'60994);
-    PRI_DEFINE_CONSTANT(sqrt2,       1.41421'35623'73095'04880'16887'24209'69807'85696'71875'37695);
-    PRI_DEFINE_CONSTANT(sqrt3,       1.73205'08075'68877'29352'74463'41505'87236'69428'05253'81038);
-    PRI_DEFINE_CONSTANT(sqrt5,       2.23606'79774'99789'69640'91736'68731'27623'54406'18359'61153);
-    PRI_DEFINE_CONSTANT(one_sqrt2,   0.70710'67811'86547'52440'08443'62104'84903'92848'35937'68847);
+    RS_DEFINE_CONSTANT(e,           2.71828'18284'59045'23536'02874'71352'66249'77572'47093'69996);
+    RS_DEFINE_CONSTANT(ln2,         0.69314'71805'59945'30941'72321'21458'17656'80755'00134'36026);
+    RS_DEFINE_CONSTANT(ln10,        2.30258'50929'94045'68401'79914'54684'36420'76011'01488'62877);
+    RS_DEFINE_CONSTANT(log2e,       1.44269'50408'88963'40735'99246'81001'89213'74266'45954'15299);
+    RS_DEFINE_CONSTANT(log10e,      0.43429'44819'03251'82765'11289'18916'60508'22943'97005'80367);
+    RS_DEFINE_CONSTANT(pi,          3.14159'26535'89793'23846'26433'83279'50288'41971'69399'37511);
+    RS_DEFINE_CONSTANT(pi_2,        1.57079'63267'94896'61923'13216'91639'75144'20985'84699'68755);
+    RS_DEFINE_CONSTANT(pi_4,        0.78539'81633'97448'30961'56608'45819'87572'10492'92349'84378);
+    RS_DEFINE_CONSTANT(one_pi,      0.31830'98861'83790'67153'77675'26745'02872'40689'19291'48091);
+    RS_DEFINE_CONSTANT(two_pi,      0.63661'97723'67581'34307'55350'53490'05744'81378'38582'96183);
+    RS_DEFINE_CONSTANT(two_sqrtpi,  1.12837'91670'95512'57389'61589'03121'54517'16881'01258'65800);
+    RS_DEFINE_CONSTANT(sqrtpi,      1.77245'38509'05516'02729'81674'83341'14518'27975'49456'12239);
+    RS_DEFINE_CONSTANT(sqrt2pi,     2.50662'82746'31000'50241'57652'84811'04525'30069'86740'60994);
+    RS_DEFINE_CONSTANT(sqrt2,       1.41421'35623'73095'04880'16887'24209'69807'85696'71875'37695);
+    RS_DEFINE_CONSTANT(sqrt3,       1.73205'08075'68877'29352'74463'41505'87236'69428'05253'81038);
+    RS_DEFINE_CONSTANT(sqrt5,       2.23606'79774'99789'69640'91736'68731'27623'54406'18359'61153);
+    RS_DEFINE_CONSTANT(one_sqrt2,   0.70710'67811'86547'52440'08443'62104'84903'92848'35937'68847);
 
     // Conversion factors
 
-    PRI_DEFINE_CONSTANT(inch,           0.0254);              // m
-    PRI_DEFINE_CONSTANT(foot,           0.3048);              // m
-    PRI_DEFINE_CONSTANT(yard,           0.9144);              // m
-    PRI_DEFINE_CONSTANT(mile,           1609.344);            // m
-    PRI_DEFINE_CONSTANT(nautical_mile,  1852.0);              // m
-    PRI_DEFINE_CONSTANT(ounce,          0.028349523125);      // kg
-    PRI_DEFINE_CONSTANT(pound,          0.45359237);          // kg
-    PRI_DEFINE_CONSTANT(short_ton,      907.18474);           // kg
-    PRI_DEFINE_CONSTANT(long_ton,       1016.0469088);        // kg
-    PRI_DEFINE_CONSTANT(pound_force,    4.4482216152605);     // N
-    PRI_DEFINE_CONSTANT(erg,            1.0e-7);              // J
-    PRI_DEFINE_CONSTANT(foot_pound,     1.3558179483314004);  // J
-    PRI_DEFINE_CONSTANT(calorie,        4.184);               // J
-    PRI_DEFINE_CONSTANT(ton_tnt,        4.184e9);             // J
-    PRI_DEFINE_CONSTANT(horsepower,     745.69987158227022);  // W
-    PRI_DEFINE_CONSTANT(mmHg,           133.322387415);       // Pa
-    PRI_DEFINE_CONSTANT(atmosphere,     101325.0);            // Pa
-    PRI_DEFINE_CONSTANT(zero_celsius,   273.15);              // K
+    RS_DEFINE_CONSTANT(inch,           0.0254);              // m
+    RS_DEFINE_CONSTANT(foot,           0.3048);              // m
+    RS_DEFINE_CONSTANT(yard,           0.9144);              // m
+    RS_DEFINE_CONSTANT(mile,           1609.344);            // m
+    RS_DEFINE_CONSTANT(nautical_mile,  1852.0);              // m
+    RS_DEFINE_CONSTANT(ounce,          0.028349523125);      // kg
+    RS_DEFINE_CONSTANT(pound,          0.45359237);          // kg
+    RS_DEFINE_CONSTANT(short_ton,      907.18474);           // kg
+    RS_DEFINE_CONSTANT(long_ton,       1016.0469088);        // kg
+    RS_DEFINE_CONSTANT(pound_force,    4.4482216152605);     // N
+    RS_DEFINE_CONSTANT(erg,            1.0e-7);              // J
+    RS_DEFINE_CONSTANT(foot_pound,     1.3558179483314004);  // J
+    RS_DEFINE_CONSTANT(calorie,        4.184);               // J
+    RS_DEFINE_CONSTANT(ton_tnt,        4.184e9);             // J
+    RS_DEFINE_CONSTANT(horsepower,     745.69987158227022);  // W
+    RS_DEFINE_CONSTANT(mmHg,           133.322387415);       // Pa
+    RS_DEFINE_CONSTANT(atmosphere,     101325.0);            // Pa
+    RS_DEFINE_CONSTANT(zero_celsius,   273.15);              // K
 
     // Physical constants
 
-    PRI_DEFINE_CONSTANT(atomic_mass_unit,           1.660538921e-27);  // kg
-    PRI_DEFINE_CONSTANT(avogadro_constant,          6.02214129e23);    // mol^-1
-    PRI_DEFINE_CONSTANT(boltzmann_constant,         1.3806488e-23);    // J K^-1
-    PRI_DEFINE_CONSTANT(elementary_charge,          1.602176565e-19);  // C
-    PRI_DEFINE_CONSTANT(gas_constant,               8.3144621);        // J mol^-1 K^-1
-    PRI_DEFINE_CONSTANT(gravitational_constant,     6.67384e-11);      // m^3 kg^-1 s^-2
-    PRI_DEFINE_CONSTANT(planck_constant,            6.62606957e-34);   // J s
-    PRI_DEFINE_CONSTANT(speed_of_light,             299792458.0);      // m s^-1
-    PRI_DEFINE_CONSTANT(stefan_boltzmann_constant,  5.670373e-8);      // W m^-2 K^-4
+    RS_DEFINE_CONSTANT(atomic_mass_unit,           1.660538921e-27);  // kg
+    RS_DEFINE_CONSTANT(avogadro_constant,          6.02214129e23);    // mol^-1
+    RS_DEFINE_CONSTANT(boltzmann_constant,         1.3806488e-23);    // J K^-1
+    RS_DEFINE_CONSTANT(elementary_charge,          1.602176565e-19);  // C
+    RS_DEFINE_CONSTANT(gas_constant,               8.3144621);        // J mol^-1 K^-1
+    RS_DEFINE_CONSTANT(gravitational_constant,     6.67384e-11);      // m^3 kg^-1 s^-2
+    RS_DEFINE_CONSTANT(planck_constant,            6.62606957e-34);   // J s
+    RS_DEFINE_CONSTANT(speed_of_light,             299792458.0);      // m s^-1
+    RS_DEFINE_CONSTANT(stefan_boltzmann_constant,  5.670373e-8);      // W m^-2 K^-4
 
     // Astronomical constants
 
-    PRI_DEFINE_CONSTANT(earth_mass,         5.97219e24);          // kg
-    PRI_DEFINE_CONSTANT(earth_radius,       6.3710e6);            // m
-    PRI_DEFINE_CONSTANT(earth_gravity,      9.80665);             // m s^-2
-    PRI_DEFINE_CONSTANT(jupiter_mass,       1.8986e27);           // kg
-    PRI_DEFINE_CONSTANT(jupiter_radius,     6.9911e7);            // m
-    PRI_DEFINE_CONSTANT(solar_mass,         1.98855e30);          // kg
-    PRI_DEFINE_CONSTANT(solar_radius,       6.96342e8);           // m
-    PRI_DEFINE_CONSTANT(solar_luminosity,   3.846e26);            // W
-    PRI_DEFINE_CONSTANT(solar_temperature,  5778.0);              // K
-    PRI_DEFINE_CONSTANT(astronomical_unit,  1.49597870700e11);    // m
-    PRI_DEFINE_CONSTANT(light_year,         9.4607304725808e15);  // m
-    PRI_DEFINE_CONSTANT(parsec,             3.08567758149e16);    // m
-    PRI_DEFINE_CONSTANT(julian_day,         86'400.0);            // s
-    PRI_DEFINE_CONSTANT(julian_year,        31'557'600.0);        // s
-    PRI_DEFINE_CONSTANT(sidereal_year,      31'558'149.7635);     // s
-    PRI_DEFINE_CONSTANT(tropical_year,      31'556'925.19);       // s
+    RS_DEFINE_CONSTANT(earth_mass,         5.97219e24);          // kg
+    RS_DEFINE_CONSTANT(earth_radius,       6.3710e6);            // m
+    RS_DEFINE_CONSTANT(earth_gravity,      9.80665);             // m s^-2
+    RS_DEFINE_CONSTANT(jupiter_mass,       1.8986e27);           // kg
+    RS_DEFINE_CONSTANT(jupiter_radius,     6.9911e7);            // m
+    RS_DEFINE_CONSTANT(solar_mass,         1.98855e30);          // kg
+    RS_DEFINE_CONSTANT(solar_radius,       6.96342e8);           // m
+    RS_DEFINE_CONSTANT(solar_luminosity,   3.846e26);            // W
+    RS_DEFINE_CONSTANT(solar_temperature,  5778.0);              // K
+    RS_DEFINE_CONSTANT(astronomical_unit,  1.49597870700e11);    // m
+    RS_DEFINE_CONSTANT(light_year,         9.4607304725808e15);  // m
+    RS_DEFINE_CONSTANT(parsec,             3.08567758149e16);    // m
+    RS_DEFINE_CONSTANT(julian_day,         86'400.0);            // s
+    RS_DEFINE_CONSTANT(julian_year,        31'557'600.0);        // s
+    RS_DEFINE_CONSTANT(sidereal_year,      31'558'149.7635);     // s
+    RS_DEFINE_CONSTANT(tropical_year,      31'556'925.19);       // s
 
     // Arithmetic literals
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T, char C> constexpr T digit_value() noexcept {
             return T(C >= '0' && C <= '9' ? C - '0'
@@ -1067,9 +1067,9 @@ namespace Prion {
 
     }
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
-        using namespace Prion::Literals;
+        using namespace RS::Literals;
 
     }
 
@@ -1290,14 +1290,14 @@ namespace Prion {
 
     // Range traits
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T> struct ArrayCount;
         template <typename T, size_t N> struct ArrayCount<T[N]> { static constexpr size_t value = N; };
 
     }
 
-    template <typename T> constexpr size_t array_count(T&&) noexcept { return PrionDetail::ArrayCount<std::remove_reference_t<T>>::value; }
+    template <typename T> constexpr size_t array_count(T&&) noexcept { return RS_Detail::ArrayCount<std::remove_reference_t<T>>::value; }
 
     template <typename Range>
     size_t range_count(const Range& r) {
@@ -1346,7 +1346,7 @@ namespace Prion {
         T cur, del;
     };
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T>
         inline void adjust_integer_sequence(T& init, T& stop, T& delta, bool closed) noexcept {
@@ -1370,7 +1370,7 @@ namespace Prion {
 
     template <typename T>
     Irange<IntegerSequenceIterator<T>> iseq(T init, T stop, T delta) noexcept {
-        PrionDetail::adjust_integer_sequence(init, stop, delta, true);
+        RS_Detail::adjust_integer_sequence(init, stop, delta, true);
         return {{init, delta}, {stop, delta}};
     }
 
@@ -1387,7 +1387,7 @@ namespace Prion {
 
     template <typename T>
     Irange<IntegerSequenceIterator<T>> xseq(T init, T stop, T delta) noexcept {
-        PrionDetail::adjust_integer_sequence(init, stop, delta, false);
+        RS_Detail::adjust_integer_sequence(init, stop, delta, false);
         return {{init, delta}, {stop, delta}};
     }
 
@@ -1406,7 +1406,7 @@ namespace Prion {
 
     // Generic arithmetic functions
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         enum class NumMode {
             signed_integer,
@@ -1517,11 +1517,11 @@ namespace Prion {
         { return static_max(args...) < t ? t : static_max(args...); }
     template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
         { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
-    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs); }
-    template <typename T> T quo(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).first; }
-    template <typename T> T rem(T lhs, T rhs) noexcept { return PrionDetail::Divide<T>()(lhs, rhs).second; }
-    template <typename T> T shift_left(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, n); }
-    template <typename T> T shift_right(T t, int n) noexcept { return PrionDetail::ShiftLeft<T>()(t, - n); }
+    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return RS_Detail::Divide<T>()(lhs, rhs); }
+    template <typename T> T quo(T lhs, T rhs) noexcept { return RS_Detail::Divide<T>()(lhs, rhs).first; }
+    template <typename T> T rem(T lhs, T rhs) noexcept { return RS_Detail::Divide<T>()(lhs, rhs).second; }
+    template <typename T> T shift_left(T t, int n) noexcept { return RS_Detail::ShiftLeft<T>()(t, n); }
+    template <typename T> T shift_right(T t, int n) noexcept { return RS_Detail::ShiftLeft<T>()(t, - n); }
 
     // Integer arithmetic functions
 
@@ -1559,7 +1559,7 @@ namespace Prion {
     template <typename T>
     constexpr T gcd(T a, T b) noexcept {
         using std::abs;
-        return PrionDetail::unsigned_gcd(abs(a), abs(b));
+        return RS_Detail::unsigned_gcd(abs(a), abs(b));
     }
 
     template <typename T>
@@ -1602,7 +1602,7 @@ namespace Prion {
 
     // Bitwise operations
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T>
         constexpr T rotl_helper(T t, int n) noexcept {
@@ -1618,31 +1618,31 @@ namespace Prion {
 
     template <typename T>
     constexpr size_t ibits(T t) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
         return __builtin_popcountll(uint64_t(t));
     }
 
     template <typename T>
     constexpr size_t ilog2p1(T t) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
         return t ? 64 - __builtin_clzll(uint64_t(t)) : 0;
     }
 
     template <typename T>
     constexpr T ifloor2(T t) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
         return t ? T(1) << (ilog2p1(t) - 1) : 0;
     }
 
     template <typename T>
     constexpr T iceil2(T t) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
         return t > 1 ? T(1) << (ilog2p1(t - 1) - 1) << 1 : t;
     }
 
     template <typename T>
     constexpr bool ispow2(T t) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
         return ibits(t) == 1;
     }
 
@@ -1652,19 +1652,19 @@ namespace Prion {
 
     template <typename T>
     constexpr T rotl(T t, int n) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
-        return n == 0 ? t : n < 0 ? PrionDetail::rotr_helper(t, - n) : PrionDetail::rotl_helper(t, n);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        return n == 0 ? t : n < 0 ? RS_Detail::rotr_helper(t, - n) : RS_Detail::rotl_helper(t, n);
     }
 
     template <typename T>
     constexpr T rotr(T t, int n) noexcept {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
-        return n == 0 ? t : n < 0 ? PrionDetail::rotl_helper(t, - n) : PrionDetail::rotr_helper(t, n);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        return n == 0 ? t : n < 0 ? RS_Detail::rotl_helper(t, - n) : RS_Detail::rotr_helper(t, n);
     }
 
     // Floating point arithmetic functions
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T2, typename T1, char Mode,
             bool FromFloat = std::is_floating_point<T1>::value>
@@ -1693,9 +1693,9 @@ namespace Prion {
     template <typename T> constexpr T radians(T deg) noexcept { return deg * (pi_c<T> / T(180)); }
     template <typename T1, typename T2> constexpr T2 interpolate(T1 x1, T2 y1, T1 x2, T2 y2, T1 x) noexcept
         { return x1 == x2 ? (y1 + y2) * (T1(1) / T1(2)) : y1 == y2 ? y1 : y1 + (y2 - y1) * ((x - x1) / (x2 - x1)); }
-    template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return PrionDetail::Round<T2, T1, '>'>()(value); }
-    template <typename T2, typename T1> T2 ifloor(T1 value) noexcept { return PrionDetail::Round<T2, T1, '<'>()(value); }
-    template <typename T2, typename T1> T2 round(T1 value) noexcept { return PrionDetail::Round<T2, T1, '='>()(value); }
+    template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return RS_Detail::Round<T2, T1, '>'>()(value); }
+    template <typename T2, typename T1> T2 ifloor(T1 value) noexcept { return RS_Detail::Round<T2, T1, '<'>()(value); }
+    template <typename T2, typename T1> T2 round(T1 value) noexcept { return RS_Detail::Round<T2, T1, '='>()(value); }
 
     // [Functional utilities]
 
@@ -1705,7 +1705,7 @@ namespace Prion {
     // http://stackoverflow.com/questions/7943525/is-it-possible-to-figure-out-the-parameter-type-and-return-type-of-a-lambda
     // http://vitiy.info/c11-functional-decomposition-easy-way-to-do-aop/
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename Function>
         struct FunctionTraits:
@@ -1735,12 +1735,12 @@ namespace Prion {
     }
 
     template <typename Function> struct Arity
-        { static constexpr size_t value = PrionDetail::FunctionTraits<Function>::arity; };
-    template <typename Function> using ArgumentTuple = typename PrionDetail::FunctionTraits<Function>::argument_tuple;
+        { static constexpr size_t value = RS_Detail::FunctionTraits<Function>::arity; };
+    template <typename Function> using ArgumentTuple = typename RS_Detail::FunctionTraits<Function>::argument_tuple;
     template <typename Function, size_t Index> using ArgumentType = std::tuple_element_t<Index, ArgumentTuple<Function>>;
-    template <typename Function> using ReturnType = typename PrionDetail::FunctionTraits<Function>::return_type;
-    template <typename Function> using FunctionSignature = typename PrionDetail::FunctionTraits<Function>::signature;
-    template <typename Function> using StdFunction = typename PrionDetail::FunctionTraits<Function>::std_function;
+    template <typename Function> using ReturnType = typename RS_Detail::FunctionTraits<Function>::return_type;
+    template <typename Function> using FunctionSignature = typename RS_Detail::FunctionTraits<Function>::signature;
+    template <typename Function> using StdFunction = typename RS_Detail::FunctionTraits<Function>::std_function;
 
     // Function operations
 
@@ -1749,7 +1749,7 @@ namespace Prion {
     // tuple_invoke() is based on code from Cppreference.com
     // http://en.cppreference.com/w/cpp/utility/integer_sequence
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename Function, typename Tuple, size_t... Indices>
         decltype(auto) invoke_helper(Function&& f, Tuple&& t, std::index_sequence<Indices...>) {
@@ -1761,7 +1761,7 @@ namespace Prion {
     template<typename Function, typename Tuple>
     decltype(auto) tuple_invoke(Function&& f, Tuple&& t) {
         constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
-        return PrionDetail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t),
+        return RS_Detail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t),
             std::make_index_sequence<size>{});
     }
 
@@ -1844,7 +1844,7 @@ namespace Prion {
 
     // Keyword arguments
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename K, typename V, bool = std::is_convertible<K, V>::value> struct Kwcopy;
         template <typename K, typename V> struct Kwcopy<K, V, true> { void operator()(const K& a, V& p) const { p = V(a); } };
@@ -1859,14 +1859,14 @@ namespace Prion {
 
     template <typename K> struct Kwarg {
         constexpr Kwarg() {}
-        template <typename A> PrionDetail::Kwparam<K> operator=(const A& a) const { return {this, K(a)}; }
+        template <typename A> RS_Detail::Kwparam<K> operator=(const A& a) const { return {this, K(a)}; }
     };
 
     template <typename K, typename V, typename K2, typename... Args>
-        bool kwget(const Kwarg<K>& k, V& v, const PrionDetail::Kwparam<K2>& p, const Args&... args) {
+        bool kwget(const Kwarg<K>& k, V& v, const RS_Detail::Kwparam<K2>& p, const Args&... args) {
             if (&k != p.key)
                 return kwget(k, v, args...);
-            PrionDetail::Kwcopy<K2, V>()(p.val, v);
+            RS_Detail::Kwcopy<K2, V>()(p.val, v);
             return true;
         }
 
@@ -2004,7 +2004,7 @@ namespace Prion {
     // Based on ideas from Evgeny Panasyuk (https://github.com/panaseleus/stack_unwinding)
     // and Andrei Alexandrescu (https://isocpp.org/files/papers/N4152.pdf)
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         #ifdef __GNUC__
             extern "C" char* __cxa_get_globals();
@@ -2029,7 +2029,7 @@ namespace Prion {
         class ConditionalScopeExit:
         private ScopeExitBase<Mode> {
         public:
-            PRI_NO_COPY_MOVE(ConditionalScopeExit)
+            RS_NO_COPY_MOVE(ConditionalScopeExit)
             using callback = std::function<void()>;
             explicit ConditionalScopeExit(callback f) {
                 if (Mode > 0) {
@@ -2051,13 +2051,13 @@ namespace Prion {
 
     }
 
-    using ScopeExit = PrionDetail::ConditionalScopeExit<-1>;
-    using ScopeSuccess = PrionDetail::ConditionalScopeExit<1>;
-    using ScopeFailure = PrionDetail::ConditionalScopeExit<0>;
+    using ScopeExit = RS_Detail::ConditionalScopeExit<-1>;
+    using ScopeSuccess = RS_Detail::ConditionalScopeExit<1>;
+    using ScopeFailure = RS_Detail::ConditionalScopeExit<0>;
 
     class ScopedTransaction {
     public:
-        PRI_NO_COPY_MOVE(ScopedTransaction)
+        RS_NO_COPY_MOVE(ScopedTransaction)
         using callback = std::function<void()>;
         ScopedTransaction() noexcept {}
         ~ScopedTransaction() noexcept { rollback(); }
@@ -2095,7 +2095,7 @@ namespace Prion {
 
     // File I/O operations
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         inline bool load_file_helper(FILE* fp, std::string& dst, size_t limit) {
             static constexpr size_t bufsize = 65536;
@@ -2121,7 +2121,7 @@ namespace Prion {
     #ifdef _XOPEN_SOURCE
 
         inline bool load_file(const std::string& file, std::string& dst, size_t limit = npos) {
-            using namespace PrionDetail;
+            using namespace RS_Detail;
             dst.clear();
             if (file.empty() || file == "-") {
                 return load_file_helper(stdin, dst, limit);
@@ -2135,7 +2135,7 @@ namespace Prion {
         }
 
         inline bool save_file(const std::string& file, const void* ptr, size_t n, bool append = false) {
-            using namespace PrionDetail;
+            using namespace RS_Detail;
             if (file.empty() || file == "-") {
                 return save_file_helper(stdout, ptr, n);
             } else {
@@ -2150,7 +2150,7 @@ namespace Prion {
     #else
 
         inline bool load_file(const std::wstring& file, std::string& dst, size_t limit = npos) {
-            using namespace PrionDetail;
+            using namespace RS_Detail;
             dst.clear();
             if (file.empty() || file == L"-") {
                 return load_file_helper(stdin, dst, limit);
@@ -2164,7 +2164,7 @@ namespace Prion {
         }
 
         inline bool save_file(const std::wstring& file, const void* ptr, size_t n, bool append = false) {
-            using namespace PrionDetail;
+            using namespace RS_Detail;
             if (file.empty() || file == L"-") {
                 return save_file_helper(stdout, ptr, n);
             } else {
@@ -2192,7 +2192,7 @@ namespace Prion {
 
     inline bool is_stdout_redirected() noexcept { return ! isatty(1); }
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         inline int grey(int n) noexcept {
             return 231 + clamp(n, 1, 24);
@@ -2244,10 +2244,10 @@ namespace Prion {
     inline std::string xt_move_down(int n) { return "\x1b[" + dec(n) + 'B'; }                              // Cursor down n spaces
     inline std::string xt_move_right(int n) { return "\x1b[" + dec(n) + 'C'; }                             // Cursor right n spaces
     inline std::string xt_move_left(int n) { return "\x1b[" + dec(n) + 'D'; }                              // Cursor left n spaces
-    inline std::string xt_colour(int rgb) { return "\x1b[38;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (1-6)
-    inline std::string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(PrionDetail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (1-6)
-    inline std::string xt_grey(int grey) { return "\x1b[38;5;" + dec(PrionDetail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
-    inline std::string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(PrionDetail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
+    inline std::string xt_colour(int rgb) { return "\x1b[38;5;" + dec(RS_Detail::rgb(rgb)) + 'm'; }      // Set fg colour to an RGB value (1-6)
+    inline std::string xt_colour_bg(int rgb) { return "\x1b[48;5;" + dec(RS_Detail::rgb(rgb)) + 'm'; }   // Set bg colour to an RGB value (1-6)
+    inline std::string xt_grey(int grey) { return "\x1b[38;5;" + dec(RS_Detail::grey(grey)) + 'm'; }     // Set fg colour to a grey level (1-24)
+    inline std::string xt_grey_bg(int grey) { return "\x1b[48;5;" + dec(RS_Detail::grey(grey)) + 'm'; }  // Set bg colour to a grey level (1-24)
 
     // [Random numbers]
 
@@ -2371,7 +2371,7 @@ namespace Prion {
 
     template <typename RNG, typename T>
     bool random_bool(RNG& rng, T num, T den) {
-        PRI_STATIC_ASSERT(std::is_integral<T>::value);
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
         return random_integer(rng, den) < num;
     }
 
@@ -2704,7 +2704,7 @@ namespace Prion {
         size_t col = 0;
         auto bptr = static_cast<const uint8_t*>(ptr);
         for (size_t i = 0; i < n; ++i) {
-            PrionDetail::append_hex_byte(bptr[i], result);
+            RS_Detail::append_hex_byte(bptr[i], result);
             if (++col == block) {
                 result += '\n';
                 col = 0;
@@ -2724,7 +2724,7 @@ namespace Prion {
 
     template <typename T> U8string to_str(const T& t);
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename> struct SfinaeTrue: std::true_type {};
         template <typename T> auto check_std_begin(int) -> SfinaeTrue<decltype(std::begin(std::declval<T>()))>;
@@ -2810,7 +2810,7 @@ namespace Prion {
 
     }
 
-    template <typename T> inline U8string to_str(const T& t) { return PrionDetail::ObjectToString<T>()(t); }
+    template <typename T> inline U8string to_str(const T& t) { return RS_Detail::ObjectToString<T>()(t); }
 
     // HTML/XML tags
 
@@ -3023,7 +3023,7 @@ namespace Prion {
         private:
             friend class ConditionVariable;
             pthread_mutex_t pmutex;
-            PRI_NO_COPY_MOVE(Mutex)
+            RS_NO_COPY_MOVE(Mutex)
         };
 
     #else
@@ -3038,7 +3038,7 @@ namespace Prion {
         private:
             friend class ConditionVariable;
             CRITICAL_SECTION wcrit;
-            PRI_NO_COPY_MOVE(Mutex)
+            RS_NO_COPY_MOVE(Mutex)
         };
 
     #endif
@@ -3100,9 +3100,9 @@ namespace Prion {
         private:
             using predicate = std::function<bool()>;
             pthread_cond_t pcond;
-            PRI_NO_COPY_MOVE(ConditionVariable)
+            RS_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& ml, std::chrono::nanoseconds ns, predicate p) {
-                using namespace Prion::Literals;
+                using namespace RS::Literals;
                 using namespace std::chrono;
                 static constexpr unsigned long G = 1'000'000'000ul;
                 if (p())
@@ -3166,7 +3166,7 @@ namespace Prion {
         private:
             using predicate = std::function<bool()>;
             CONDITION_VARIABLE wcond;
-            PRI_NO_COPY_MOVE(ConditionVariable)
+            RS_NO_COPY_MOVE(ConditionVariable)
             bool wait_impl(MutexLock& lock, std::chrono::nanoseconds ns, predicate p) {
                 using namespace std::chrono;
                 if (p())
@@ -3209,9 +3209,9 @@ namespace Prion {
 
     // General time and date operations
 
-    PRI_ENUM_CLASS(Zone, int, 1, utc, local)
+    RS_ENUM_CLASS(Zone, int, 1, utc, local)
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         #ifdef _XOPEN_SOURCE
 
@@ -3292,12 +3292,12 @@ namespace Prion {
     template <typename R, typename P>
     void sleep_for(std::chrono::duration<R, P> t) noexcept {
         using namespace std::chrono;
-        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(t));
+        RS_Detail::sleep_for(duration_cast<RS_Detail::SleepUnit>(t));
     }
 
     inline void sleep_for(double t) noexcept {
         using namespace std::chrono;
-        PrionDetail::sleep_for(duration_cast<PrionDetail::SleepUnit>(Dseconds(t)));
+        RS_Detail::sleep_for(duration_cast<RS_Detail::SleepUnit>(Dseconds(t)));
     }
 
     template <typename C, typename D>
@@ -3307,7 +3307,7 @@ namespace Prion {
 
     // Time and date formatting
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         inline U8string format_time(int64_t sec, double frac, int prec) {
             U8string result;
@@ -3395,14 +3395,14 @@ namespace Prion {
         using namespace std::chrono;
         auto whole = duration_cast<seconds>(time);
         auto frac = time - duration_cast<duration<R, P>>(whole);
-        return PrionDetail::format_time(whole.count(), duration_cast<Dseconds>(frac).count(), prec);
+        return RS_Detail::format_time(whole.count(), duration_cast<Dseconds>(frac).count(), prec);
     }
 
     // System specific time and date conversions
 
     template <typename R, typename P>
     timespec duration_to_timespec(const std::chrono::duration<R, P>& d) noexcept {
-        using namespace Prion::Literals;
+        using namespace RS::Literals;
         using namespace std::chrono;
         static constexpr int64_t G = 1'000'000'000ll;
         int64_t nsec = duration_cast<nanoseconds>(d).count();
@@ -3411,7 +3411,7 @@ namespace Prion {
 
     template <typename R, typename P>
     timeval duration_to_timeval(const std::chrono::duration<R, P>& d) noexcept {
-        using namespace Prion::Literals;
+        using namespace RS::Literals;
         using namespace std::chrono;
         #ifdef _XOPEN_SOURCE
             using sec_type = time_t;
@@ -3466,7 +3466,7 @@ namespace Prion {
     #ifdef _WIN32
 
         inline std::chrono::system_clock::time_point filetime_to_timepoint(const FILETIME& ft) noexcept {
-            using namespace Prion::Literals;
+            using namespace RS::Literals;
             using namespace std::chrono;
             static constexpr int64_t filetime_freq = 10'000'000; // FILETIME ticks (100 ns) per second
             static constexpr int64_t windows_epoch = 11'644'473'600ll; // Windows epoch (1601) to Unix epoch (1970)
@@ -3570,7 +3570,7 @@ namespace Prion {
 
     // Logging
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         template <typename T>
         int hash_xcolour(T t) noexcept {
@@ -3603,38 +3603,38 @@ namespace Prion {
     }
 
     inline void logx(const U8string& msg) noexcept {
-        try { PrionDetail::log_message(msg, false); }
+        try { RS_Detail::log_message(msg, false); }
         catch (...) {}
     }
 
     inline void logx(const char* msg) noexcept {
-        try { PrionDetail::log_message(cstr(msg), false); }
+        try { RS_Detail::log_message(cstr(msg), false); }
         catch (...) {}
     }
 
     template <typename... Args> inline void logx(Args... args) noexcept {
-        try { PrionDetail::log_message(join(std::vector<U8string>{to_str(args)...}, " "), false); }
+        try { RS_Detail::log_message(join(std::vector<U8string>{to_str(args)...}, " "), false); }
         catch (...) {}
     }
 
     inline void logt(const U8string& msg) noexcept {
-        try { PrionDetail::log_message(msg, true); }
+        try { RS_Detail::log_message(msg, true); }
         catch (...) {}
     }
 
     inline void logt(const char* msg) noexcept {
-        try { PrionDetail::log_message(cstr(msg), true); }
+        try { RS_Detail::log_message(cstr(msg), true); }
         catch (...) {}
     }
 
     template <typename... Args> inline void logt(Args... args) noexcept {
-        try { PrionDetail::log_message(join(std::vector<U8string>{to_str(args)...}, " "), true); }
+        try { RS_Detail::log_message(join(std::vector<U8string>{to_str(args)...}, " "), true); }
         catch (...) {}
     }
 
     class Stopwatch {
     public:
-        PRI_NO_COPY_MOVE(Stopwatch)
+        RS_NO_COPY_MOVE(Stopwatch)
         explicit Stopwatch(const U8string& name, int precision = 3) noexcept:
             Stopwatch(name.data(), precision) {}
         explicit Stopwatch(const char* name, int precision = 3) noexcept {
@@ -3661,7 +3661,7 @@ namespace Prion {
 
     // UUID
 
-    namespace PrionDetail {
+    namespace RS_Detail {
 
         inline int decode_hex_byte(std::string::const_iterator& i, std::string::const_iterator end) {
             auto j = i;
@@ -3729,7 +3729,7 @@ namespace Prion {
             i = std::find_if(i, ends, ascii_isxdigit);
             if (i == ends)
                 break;
-            rc = PrionDetail::decode_hex_byte(i, ends);
+            rc = RS_Detail::decode_hex_byte(i, ends);
             if (rc == -1)
                 break;
             *j++ = uint8_t(rc);
@@ -3743,19 +3743,19 @@ namespace Prion {
         s.reserve(36);
         int i = 0;
         for (; i < 4; ++i)
-            PrionDetail::append_hex_byte(bytes[i], s);
+            RS_Detail::append_hex_byte(bytes[i], s);
         s += '-';
         for (; i < 6; ++i)
-            PrionDetail::append_hex_byte(bytes[i], s);
+            RS_Detail::append_hex_byte(bytes[i], s);
         s += '-';
         for (; i < 8; ++i)
-            PrionDetail::append_hex_byte(bytes[i], s);
+            RS_Detail::append_hex_byte(bytes[i], s);
         s += '-';
         for (; i < 10; ++i)
-            PrionDetail::append_hex_byte(bytes[i], s);
+            RS_Detail::append_hex_byte(bytes[i], s);
         s += '-';
         for (; i < 16; ++i)
-            PrionDetail::append_hex_byte(bytes[i], s);
+            RS_Detail::append_hex_byte(bytes[i], s);
         return s;
     }
 
@@ -3860,13 +3860,13 @@ namespace Prion {
 
 }
 
-PRI_DEFINE_STD_HASH(Prion::Blob)
-PRI_DEFINE_STD_HASH(Prion::Uuid)
+RS_DEFINE_STD_HASH(RS::Blob)
+RS_DEFINE_STD_HASH(RS::Uuid)
 
 namespace std {
-    template <typename T, Prion::ByteOrder B> struct hash<Prion::Endian<T, B>> {
-        using argument_type = Prion::Endian<T, B>;
+    template <typename T, RS::ByteOrder B> struct hash<RS::Endian<T, B>> {
+        using argument_type = RS::Endian<T, B>;
         using result_type = size_t;
-        size_t operator()(Prion::Endian<T, B> t) const noexcept { return std::hash<T>()(t.get()); }
+        size_t operator()(RS::Endian<T, B> t) const noexcept { return std::hash<T>()(t.get()); }
     };
 }

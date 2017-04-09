@@ -1,1 +1,1 @@
-build/$(TARGET)/core-test.o: prion/core-test.cpp prion/core.hpp prion/unit-test.hpp
+build/$(TARGET)/core-test.o: rs-core/core-test.cpp rs-core/core.hpp rs-core/unit-test.hpp

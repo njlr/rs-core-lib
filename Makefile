@@ -45,7 +45,7 @@ DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOU
 CORELIBS := $(shell ls '$(LIBROOT)'/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!g' | sort -u)
 LIBREGEX := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
 LIBTAG :=
-SCRIPTS := $(LIBROOT)/prion-lib/scripts
+SCRIPTS := $(LIBROOT)/core-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
@@ -122,8 +122,8 @@ dep:
 			-e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E -P $(SOURCES) \
-		| grep -F 'static_assert(true, "PRI_LDLIB"' \
-		| sed -E -e 's/static_assert\(true, "PRI_LDLIB" " *(.+) *"\).*/\1/' \
+		| grep -F 'static_assert(true, "RS_LDLIB"' \
+		| sed -E -e 's/static_assert\(true, "RS_LDLIB" " *(.+) *"\).*/\1/' \
 			-e 's/([A-Za-z0-9_]) +([A-Za-z_])/\1 -l\2/g' \
 			-e 's/^[^:]+$$/1~LDLIBS += -l&/' \
 			-e 's/^([A-Za-z0-9_]+) *: *(.+)/2~ifeq ($$(LIBTAG),\1)~LDLIBS += -l\2~endif/' \

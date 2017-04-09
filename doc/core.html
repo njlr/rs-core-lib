@@ -9,7 +9,7 @@
 <h1 id="core-utilities">Core Utilities</h1>
 <p>By Ross Smith</p>
 <ul>
-<li><code>#include "prion/core.hpp"</code></li>
+<li><code>#include "rs-core/core.hpp"</code></li>
 </ul>
 <h2 id="contents">Contents</h2>
 <div class="toc">
@@ -102,7 +102,7 @@
 <h2 id="preprocessor-macros">Preprocessor macros</h2>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_ASSERT</code></strong><code>(expr)</code></li>
+<li><code>#define</code> <strong><code>RS_ASSERT</code></strong><code>(expr)</code></li>
 </ul>
 <p>A simple assertion macro for quick and dirty debugging. If the expression
 (explicitly cast to <code>bool</code>) is false, this throws a <code>std::logic_error</code>
@@ -111,28 +111,28 @@ code location.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_BITMASK_OPERATORS</code></strong><code>(EC)</code></li>
+<li><code>#define</code> <strong><code>RS_BITMASK_OPERATORS</code></strong><code>(EC)</code></li>
 </ul>
 <p>Defines bit manipulation and related operators for an <code>enum class</code> (unary <code>!</code>,
 <code>~</code>; binary <code>&amp;</code>, <code>&amp;=</code>, <code>|</code>, <code>|=</code>, <code>^</code>, <code>^=</code>).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_CHAR</code></strong><code>(C, T)</code></li>
-<li><code>#define</code> <strong><code>PRI_CSTR</code></strong><code>(S, T)</code></li>
+<li><code>#define</code> <strong><code>RS_CHAR</code></strong><code>(C, T)</code></li>
+<li><code>#define</code> <strong><code>RS_CSTR</code></strong><code>(S, T)</code></li>
 </ul>
 <p>These resolve to the character <code>C</code> as a <code>constexpr T</code>, or the C-style string
-literal <code>S</code> as a <code>constexpr const T*</code>. For example, <code>PRI_CHAR('A',wchar_t)</code>
-resolves to <code>L'A'</code>; <code>PRI_CSTR("Hello",char32_t)</code> resolves to <code>U"Hello"</code>. <code>C</code>
+literal <code>S</code> as a <code>constexpr const T*</code>. For example, <code>RS_CHAR('A',wchar_t)</code>
+resolves to <code>L'A'</code>; <code>RS_CSTR("Hello",char32_t)</code> resolves to <code>U"Hello"</code>. <code>C</code>
 must be a simple character literal; <code>T</code> must be one of the four character
 types that can be used in strings (<code>char</code>, <code>char16_t</code>, <code>char32_t</code>, or
 <code>wchar_t</code>). Behaviour is undefined if <code>T</code> is not one of those four types, or
-(for <code>PRI_CHAR</code>) if <code>C</code> is not representable by a single code unit.</p>
+(for <code>RS_CHAR</code>) if <code>C</code> is not representable by a single code unit.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_ENUM</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
-<li><code>#define</code> <strong><code>PRI_ENUM_CLASS</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
+<li><code>#define</code> <strong><code>RS_ENUM</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
+<li><code>#define</code> <strong><code>RS_ENUM_CLASS</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
 </ul>
 <p>These define an enumeration, given the name of the enumeration type, the
 underlying integer type, the integer value of the first entry, and a list of
@@ -149,8 +149,8 @@ or not the argument is a named value of the enumeration. The
 <code>enum_values&lt;T&gt;()</code> function returns a <code>vector</code> containing a list of the
 enumeration's values.</p>
 <p>Example:</p>
-<pre><code>PRI_ENUM(Foo, 1, alpha, bravo, charlie)
-PRI_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)
+<pre><code>RS_ENUM(Foo, 1, alpha, bravo, charlie)
+RS_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)
 </code></pre>
 <p>Equivalent code:</p>
 <pre><code>enum Foo { alpha = 1, bravo, charlie };
@@ -161,17 +161,17 @@ std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, Bar b) { ... }
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_LDLIB</code></strong><code>([tag:] lib ...)</code></li>
+<li><code>#define</code> <strong><code>RS_LDLIB</code></strong><code>([tag:] lib ...)</code></li>
 </ul>
 <p>This instructs the makefile to link with one or more static libraries. Specify
-library names without the <code>-l</code> prefix (e.g. <code>PRI_LDLIB(foo)</code> will link with
+library names without the <code>-l</code> prefix (e.g. <code>RS_LDLIB(foo)</code> will link with
 <code>-lfoo</code>). If link order is important for a particular set of libraries, supply
-them in a space delimited list in a single <code>PRI_LDLIB()</code> line.</p>
+them in a space delimited list in a single <code>RS_LDLIB()</code> line.</p>
 <p>Libraries that are needed only on specific targets can be prefixed with one of
-the target identifiers listed below (e.g. <code>PRI_LDLIB(apple:foo)</code> will link
+the target identifiers listed below (e.g. <code>RS_LDLIB(apple:foo)</code> will link
 with <code>-lfoo</code> for Apple targets only). Only one target can be specified per
 invocation; if the same libraries are needed on multiple targets, but not on
-all targets, you will need a separate <code>PRI_LDLIB()</code> line for each target.</p>
+all targets, you will need a separate <code>RS_LDLIB()</code> line for each target.</p>
 <!-- TEXT -->
 
 <ul>
@@ -180,19 +180,19 @@ all targets, you will need a separate <code>PRI_LDLIB()</code> line for each tar
 <li><code>mingw:</code></li>
 <li><code>cygwin:</code></li>
 </ul>
-<p><code>PRI_LDLIB()</code> lines are picked up at the <code>"make dep"</code> stage; if you change a
+<p><code>RS_LDLIB()</code> lines are picked up at the <code>"make dep"</code> stage; if you change a
 link library, the change will not be detected until dependencies are rebuilt.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_MOVE_ONLY</code></strong><code>(T)</code><ul>
+<li><code>#define</code> <strong><code>RS_MOVE_ONLY</code></strong><code>(T)</code><ul>
 <li><code>T(const T&amp;) = delete;</code></li>
 <li><code>T(T&amp;&amp;) = default;</code></li>
 <li><code>T&amp; operator=(const T&amp;) = delete;</code></li>
 <li><code>T&amp; operator=(T&amp;&amp;) = default;</code></li>
 </ul>
 </li>
-<li><code>#define</code> <strong><code>PRI_NO_COPY_MOVE</code></strong><code>(T)</code><ul>
+<li><code>#define</code> <strong><code>RS_NO_COPY_MOVE</code></strong><code>(T)</code><ul>
 <li><code>T(const T&amp;) = delete;</code></li>
 <li><code>T(T&amp;&amp;) = delete;</code></li>
 <li><code>T&amp; operator=(const T&amp;) = delete;</code></li>
@@ -204,7 +204,7 @@ link library, the change will not be detected until dependencies are rebuilt.</p
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_OVERLOAD</code></strong><code>(f) [] (auto&amp;&amp;... args) { return f(std::forward&lt;decltype(args)&gt;(args)...); }</code></li>
+<li><code>#define</code> <strong><code>RS_OVERLOAD</code></strong><code>(f) [] (auto&amp;&amp;... args) { return f(std::forward&lt;decltype(args)&gt;(args)...); }</code></li>
 </ul>
 <p>Creates a function object wrapping a set of overloaded functions, that can be
 passed to a context expecting a function (such as an STL algorithm) without
@@ -213,7 +213,7 @@ Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_STATIC_ASSERT</code></strong><code>(expr) static_assert((expr), # expr)</code></li>
+<li><code>#define</code> <strong><code>RS_STATIC_ASSERT</code></strong><code>(expr) static_assert((expr), # expr)</code></li>
 </ul>
 <p>Shorthand for <code>static_assert</code>, using the assertion expression as the error
 message. (A planned change in C++17 will make this unnecessary.)</p>
@@ -726,7 +726,7 @@ string element.</p>
 <h3 id="arithmetic-constants">Arithmetic constants</h3>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>PRI_DEFINE_CONSTANT</code></strong><code>(name, value)</code><ul>
+<li><code>#define</code> <strong><code>RS_DEFINE_CONSTANT</code></strong><code>(name, value)</code><ul>
 <li><code>static constexpr float</code> <strong><code>name##_f</code></strong> <code>= value##f</code></li>
 <li><code>static constexpr double</code> <strong><code>name##_d</code></strong> <code>= value</code></li>
 <li><code>static constexpr long double</code> <strong><code>name##_ld</code></strong> <code>= value##l</code></li>
@@ -826,7 +826,7 @@ constants.</p>
 </ul>
 </div>
 <h3 id="arithmetic-literals">Arithmetic literals</h3>
-<p>These are all in <code>namespace Prion::Literals</code>.</p>
+<p>These are all in <code>namespace RS::Literals</code>.</p>
 <div class="defns">
 <ul>
 <li><code>constexpr int8_t</code> <strong><code>operator""_s8</code></strong><code>(unsigned long long n) noexcept</code></li>
@@ -1795,8 +1795,8 @@ the string is not valid UTF-8.</p>
 <li><code>string</code> <strong><code>unqualify</code></strong><code>(const string&amp; str, const string&amp; delims = ".:")</code></li>
 </ul>
 <p>Strips off any prefix ending in one of the delimiter characters (e.g.
-<code>unqualify("Prion::unqualify()")</code> returns <code>"unqualify()"</code>). This will return
-the original string unchanged if the delimiter string is empty or none of its
+<code>unqualify("RS::unqualify()")</code> returns <code>"unqualify()"</code>). This will return the
+original string unchanged if the delimiter string is empty or none of its
 characters are found.</p>
 </div>
 <h3 id="string-formatting-and-parsing-functions">String formatting and parsing functions</h3>

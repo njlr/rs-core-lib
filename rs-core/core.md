@@ -2,7 +2,7 @@
 
 By Ross Smith
 
-* `#include "prion/core.hpp"`
+* `#include "rs-core/core.hpp"`
 
 ## Contents ##
 
@@ -10,31 +10,31 @@ By Ross Smith
 
 ## Preprocessor macros ##
 
-* `#define` **`PRI_ASSERT`**`(expr)`
+* `#define` **`RS_ASSERT`**`(expr)`
 
 A simple assertion macro for quick and dirty debugging. If the expression
 (explicitly cast to `bool`) is false, this throws a `std::logic_error`
 exception, with a message containing the text of the expression and the source
 code location.
 
-* `#define` **`PRI_BITMASK_OPERATORS`**`(EC)`
+* `#define` **`RS_BITMASK_OPERATORS`**`(EC)`
 
 Defines bit manipulation and related operators for an `enum class` (unary `!`,
 `~`; binary `&`, `&=`, `|`, `|=`, `^`, `^=`).
 
-* `#define` **`PRI_CHAR`**`(C, T)`
-* `#define` **`PRI_CSTR`**`(S, T)`
+* `#define` **`RS_CHAR`**`(C, T)`
+* `#define` **`RS_CSTR`**`(S, T)`
 
 These resolve to the character `C` as a `constexpr T`, or the C-style string
-literal `S` as a `constexpr const T*`. For example, `PRI_CHAR('A',wchar_t)`
-resolves to `L'A'`; `PRI_CSTR("Hello",char32_t)` resolves to `U"Hello"`. `C`
+literal `S` as a `constexpr const T*`. For example, `RS_CHAR('A',wchar_t)`
+resolves to `L'A'`; `RS_CSTR("Hello",char32_t)` resolves to `U"Hello"`. `C`
 must be a simple character literal; `T` must be one of the four character
 types that can be used in strings (`char`, `char16_t`, `char32_t`, or
 `wchar_t`). Behaviour is undefined if `T` is not one of those four types, or
-(for `PRI_CHAR`) if `C` is not representable by a single code unit.
+(for `RS_CHAR`) if `C` is not representable by a single code unit.
 
-* `#define` **`PRI_ENUM`**`(EnumType, IntType, first_value, first_name, ...)`
-* `#define` **`PRI_ENUM_CLASS`**`(EnumType, IntType, first_value, first_name, ...)`
+* `#define` **`RS_ENUM`**`(EnumType, IntType, first_value, first_name, ...)`
+* `#define` **`RS_ENUM_CLASS`**`(EnumType, IntType, first_value, first_name, ...)`
 
 These define an enumeration, given the name of the enumeration type, the
 underlying integer type, the integer value of the first entry, and a list of
@@ -53,8 +53,8 @@ enumeration's values.
 
 Example:
 
-    PRI_ENUM(Foo, 1, alpha, bravo, charlie)
-    PRI_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)
+    RS_ENUM(Foo, 1, alpha, bravo, charlie)
+    RS_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)
 
 Equivalent code:
 
@@ -63,18 +63,18 @@ Equivalent code:
     enum class Bar { delta = 1, echo, foxtrot };
     std::ostream& operator<<(std::ostream& out, Bar b) { ... }
 
-* `#define` **`PRI_LDLIB`**`([tag:] lib ...)`
+* `#define` **`RS_LDLIB`**`([tag:] lib ...)`
 
 This instructs the makefile to link with one or more static libraries. Specify
-library names without the `-l` prefix (e.g. `PRI_LDLIB(foo)` will link with
+library names without the `-l` prefix (e.g. `RS_LDLIB(foo)` will link with
 `-lfoo`). If link order is important for a particular set of libraries, supply
-them in a space delimited list in a single `PRI_LDLIB()` line.
+them in a space delimited list in a single `RS_LDLIB()` line.
 
 Libraries that are needed only on specific targets can be prefixed with one of
-the target identifiers listed below (e.g. `PRI_LDLIB(apple:foo)` will link
+the target identifiers listed below (e.g. `RS_LDLIB(apple:foo)` will link
 with `-lfoo` for Apple targets only). Only one target can be specified per
 invocation; if the same libraries are needed on multiple targets, but not on
-all targets, you will need a separate `PRI_LDLIB()` line for each target.
+all targets, you will need a separate `RS_LDLIB()` line for each target.
 
 <!-- TEXT -->
 * `apple:`
@@ -82,15 +82,15 @@ all targets, you will need a separate `PRI_LDLIB()` line for each target.
 * `mingw:`
 * `cygwin:`
 
-`PRI_LDLIB()` lines are picked up at the `"make dep"` stage; if you change a
+`RS_LDLIB()` lines are picked up at the `"make dep"` stage; if you change a
 link library, the change will not be detected until dependencies are rebuilt.
 
-* `#define` **`PRI_MOVE_ONLY`**`(T)`
+* `#define` **`RS_MOVE_ONLY`**`(T)`
     * `T(const T&) = delete;`
     * `T(T&&) = default;`
     * `T& operator=(const T&) = delete;`
     * `T& operator=(T&&) = default;`
-* `#define` **`PRI_NO_COPY_MOVE`**`(T)`
+* `#define` **`RS_NO_COPY_MOVE`**`(T)`
     * `T(const T&) = delete;`
     * `T(T&&) = delete;`
     * `T& operator=(const T&) = delete;`
@@ -98,14 +98,14 @@ link library, the change will not be detected until dependencies are rebuilt.
 
 Convenience macros for defaulted or deleted copy and move operations.
 
-* `#define` **`PRI_OVERLOAD`**`(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }`
+* `#define` **`RS_OVERLOAD`**`(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }`
 
 Creates a function object wrapping a set of overloaded functions, that can be
 passed to a context expecting a function (such as an STL algorithm) without
 having to explicitly resolve the overload at the call site. (From an idea by
 Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)
 
-* `#define` **`PRI_STATIC_ASSERT`**`(expr) static_assert((expr), # expr)`
+* `#define` **`RS_STATIC_ASSERT`**`(expr) static_assert((expr), # expr)`
 
 Shorthand for `static_assert`, using the assertion expression as the error
 message. (A planned change in C++17 will make this unnecessary.)
@@ -555,7 +555,7 @@ string element.
 
 ### Arithmetic constants ###
 
-* `#define` **`PRI_DEFINE_CONSTANT`**`(name, value)`
+* `#define` **`RS_DEFINE_CONSTANT`**`(name, value)`
     * `static constexpr float` **`name##_f`** `= value##f`
     * `static constexpr double` **`name##_d`** `= value`
     * `static constexpr long double` **`name##_ld`** `= value##l`
@@ -643,7 +643,7 @@ constants.
 
 ### Arithmetic literals ###
 
-These are all in `namespace Prion::Literals`.
+These are all in `namespace RS::Literals`.
 
 * `constexpr int8_t` **`operator""_s8`**`(unsigned long long n) noexcept`
 * `constexpr uint8_t` **`operator""_u8`**`(unsigned long long n) noexcept`
@@ -1473,8 +1473,8 @@ Trim unwanted bytes from the ends of a string.
 * `string` **`unqualify`**`(const string& str, const string& delims = ".:")`
 
 Strips off any prefix ending in one of the delimiter characters (e.g.
-`unqualify("Prion::unqualify()")` returns `"unqualify()"`). This will return
-the original string unchanged if the delimiter string is empty or none of its
+`unqualify("RS::unqualify()")` returns `"unqualify()"`). This will return the
+original string unchanged if the delimiter string is empty or none of its
 characters are found.
 
 ### String formatting and parsing functions ###

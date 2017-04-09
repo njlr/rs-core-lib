@@ -2,12 +2,12 @@
 
 By Ross Smith
 
-* `#include "prion/unit-test.hpp"`
+* `#include "rs-core/unit-test.hpp"`
 
 A typical test module will look something like this:
 
     #include "project/module.hpp"
-    #include "prion/unit-test.hpp"
+    #include "rs-core/unit-test.hpp"
     TEST_MAIN;
     TEST_MODULE(project, module) {
         int answer;

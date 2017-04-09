@@ -1,6 +1,6 @@
 #pragma once
 
-#include "prion/core.hpp"
+#include "rs-core/core.hpp"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -258,8 +258,8 @@
         if (! std::is_same<local_test_type1, local_test_type2>::value) { \
             ::Test::record_failure(); \
             ::Test::print_fail(FAIL_POINT, "Type mismatch: ", # type1, " != ", # type2, \
-                "; type 1 = ", Prion::type_name(typeid(local_test_type1)), ", ", \
-                "type 2 = ", Prion::type_name(typeid(local_test_type2))); \
+                "; type 1 = ", RS::type_name(typeid(local_test_type1)), ", ", \
+                "type 2 = ", RS::type_name(typeid(local_test_type2))); \
         } \
     } while (false)
 
@@ -330,8 +330,8 @@ struct Test {
     }
 
     static void print_out(const std::string& str) {
-        static Prion::Mutex mtx;
-        Prion::MutexLock lock(mtx);
+        static RS::Mutex mtx;
+        RS::MutexLock lock(mtx);
         std::cout << str << std::endl;
     }
 
@@ -385,10 +385,10 @@ struct Test {
                         result += char(uc);
                     } else if (uc <= 0xff) {
                         result += "\\x";
-                        result += Prion::hex(uc, 2);
+                        result += RS::hex(uc, 2);
                     } else {
                         result += "\\x{";
-                        result += Prion::hex(uc);
+                        result += RS::hex(uc);
                         result += "}";
                     }
                     break;
@@ -401,9 +401,9 @@ struct Test {
     template <typename T> static const void* preformat(T* t) noexcept { return t; }
     static unsigned preformat(unsigned char t) noexcept { return t; }
     static int preformat(signed char t) noexcept { return t; }
-    static std::string preformat(char16_t t) noexcept { return "U+" + Prion::hex(t, 4); }
-    static std::string preformat(char32_t t) noexcept { return "U+" + Prion::hex(t, 4); }
-    static std::string preformat(wchar_t t) noexcept { return "U+" + Prion::hex(std::make_unsigned_t<wchar_t>(t), 4); }
+    static std::string preformat(char16_t t) noexcept { return "U+" + RS::hex(t, 4); }
+    static std::string preformat(char32_t t) noexcept { return "U+" + RS::hex(t, 4); }
+    static std::string preformat(wchar_t t) noexcept { return "U+" + RS::hex(std::make_unsigned_t<wchar_t>(t), 4); }
     static std::string preformat(const std::string& t) { return preformat_string(t); }
     static std::string preformat(const std::u16string& t) { return preformat_string(t); }
     static std::string preformat(const std::u32string& t) { return preformat_string(t); }
@@ -481,7 +481,7 @@ struct Test {
                 std::cout << x_fail << "*** Test failures: " << test_failures() << x_reset << std::endl;
             else
                 std::cout << x_good << "OK: all tests passed" << x_reset << std::endl;
-            std::cout << x_info << "Time: " << Prion::fp_format(seconds, 'f', 3) << " s" << x_reset << std::endl;
+            std::cout << x_info << "Time: " << RS::fp_format(seconds, 'f', 3) << " s" << x_reset << std::endl;
         }
         catch (const std::exception& ex) {
             std::cout << x_fail << "*** " << ex.what() << x_reset << std::endl;
