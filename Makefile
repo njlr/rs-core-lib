@@ -42,8 +42,6 @@ TESTOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g'
 DOCINDEX := $(wildcard $(NAME)/index.md)
 DOCSOURCES := $(shell find $(NAME) -name '*.md' | sort)
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
-CORELIBS := $(shell ls '$(LIBROOT)'/*-lib/*/*.hpp | sed -E 's!-lib/.*hpp!-lib!g' | sort -u)
-LIBREGEX := $(shell sed -E 's!([^A-Za-z0-9/_-])!\\&!g' <<< "$(LIBROOT)")
 LIBTAG :=
 SCRIPTS := $(LIBROOT)/core-lib/scripts
 
@@ -115,11 +113,9 @@ cleanall:
 	rm -rf build doc *.stackdump __test_*
 
 dep:
-	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(patsubst %,-I%,$(CORELIBS)) -MM $(SOURCES) \
+	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -MM $(SOURCES) \
 		| sed -E -e 's! \.\./$(NAME)/! !g' \
 			-e 's!^[[:graph:]]*\.o: $(NAME)(/|/[[:graph:]]+/)!build/$$(TARGET)\1&!' \
-			-e 's!^ +!  !' \
-			-e 's!$(LIBREGEX)!$$(LIBROOT)!g' \
 		> $(DEPENDS)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E -P $(SOURCES) \
 		| grep -F 'static_assert(true, "RS_LDLIB"' \
