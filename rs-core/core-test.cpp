@@ -2417,7 +2417,7 @@ namespace {
             TEST_EQUAL(s.substr(0, 20), "# RS Core Library #\n");
             TEST(load_file(wreadme, s, 10));
             TEST_EQUAL(s.size(), 10);
-            TEST_EQUAL(s.substr(0, 20), "# RS Core Li");
+            TEST_EQUAL(s.substr(0, 20), "# RS Core ");
 
             TEST(save_file(wtestfile, "Hello world\n"s));
             TEST(load_file(wtestfile, s));
