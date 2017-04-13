@@ -1546,10 +1546,10 @@ is a pair; `to_str()` is called recursively on each range element.
 ### HTML/XML tags ###
 
 * `class` **`Tag`**
-    * `Tag::`**`Tag`**`() noexcept`
-    * `Tag::`**`Tag`**`(const U8string& text, std::ostream& out)`
-    * `Tag::`**`Tag`**`(Tag&& t) noexcept`
+    * `Tag::`**`Tag`**`()`
+    * `Tag::`**`Tag`**`(std::ostream& out, const std::string& element)`
     * `Tag::`**`~Tag`**`() noexcept`
+    * `Tag::`**`Tag`**`(Tag&& t) noexcept`
     * `Tag& Tag::`**`operator=`**`(Tag&& t) noexcept`
 
 This class writes an HTML/XML tag in its constructor, then writes the
@@ -1558,12 +1558,30 @@ one line feed, a line feed will be written after the closing tag, but not the
 opening one; if it ends with two line feeds, one will be written after both
 tags.
 
-If the opening tag is standalone, the text will simply be written as is, and
-no closing tag will be written (standalone tags are identified by a closing
-slash; the class is not aware of HTML's list of automatic self closing tags).
+The opening tag can be supplied with or without enclosing angle brackets. The
+constructor does not attempt any validation of the tag's format (except that
+an empty tag will cause the class to do nothing); no promises are made about
+the output if the `element` argument is not a valid HTML/XML tag.
 
-The constructor will throw `std::invalid_argument` if the string does not
-appear to be a valid tag (this check is not very sophisticated).
+If the opening tag is standalone, the text will simply be written as is, and
+no closing tag will be written. Standalone tags are identified by a closing
+slash; the class is not aware of HTML's list of automatic self closing tags.
+
+* `template <typename... Args> void` **`tagged`**`(std::ostream& out, const std::string& element, const Args&... args)`
+* `template <typename T> void` **`tagged`**`(std::ostream& out, const std::string& element, const T& t)`
+
+This function can be used to write a piece of literal text enclosed in one or
+more tags. The arguments are the output stream, a list of tags (using the same
+format as the `Tag` class), and an object that will be written to the output
+stream enclosed by the tags.
+
+Example:
+
+    tagged(std::cout, "p\n", "code", "Hello world");
+
+Output:
+
+    <p><code>Hello world</code></p>\n
 
 ### Unicode functions ###
 

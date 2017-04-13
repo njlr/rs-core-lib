@@ -2817,40 +2817,69 @@ namespace RS {
     class Tag {
     public:
         Tag() = default;
-        Tag(const U8string& text, std::ostream& out) {
-            U8string start = trim_right(text, "\n");
-            if (start.empty() || start[0] != '<' || ! ascii_isalnum_w(start[1]) || start.back() != '>')
-                throw std::invalid_argument("Invalid HTML tag: " + quote(text));
-            if (start.end()[-2] == '/') {
-                out << text;
+        Tag(std::ostream& out, const std::string& element) {
+            std::string content = trim_right(element, "\n");
+            size_t lfs = element.size() - content.size();
+            content = trim(content, "\t\n\f\r <>");
+            if (content.empty())
+                return;
+            std::string start = '<' + content + '>';
+            if (content.back() == '/') {
+                if (lfs)
+                    start += '\n';
+                out << start;
                 return;
             }
-            os = &out;
-            size_t lines = text.size() - start.size();
-            if (lines >= 2)
+            auto cut = std::find_if_not(content.begin(), content.end(), ascii_isalnum_w);
+            std::string tag(content.begin(), cut);
+            end = "</" + tag + '>';
+            if (lfs >= 2)
                 start += '\n';
-            out << start;
-            auto cut = std::find_if_not(text.begin() + 2, text.end(), ascii_isalnum_w);
-            end = "</" + U8string(text.begin() + 1, cut) + ">";
-            if (lines >= 1)
+            if (lfs)
                 end += '\n';
+            out << start;
+            os = &out;
         }
-        Tag(Tag&& t) noexcept: end(std::move(t.end)), os(t.os) { t.os = nullptr; }
-        ~Tag() noexcept { if (os) try { *os << end; } catch (...) {} }
-        Tag& operator=(Tag&& t) noexcept {
+        ~Tag() noexcept {
             if (os)
-                *os << end;
-            end = std::move(t.end);
-            os = t.os;
-            t.os = nullptr;
+                try { *os << end; }
+                    catch (...) {}
+        }
+        Tag(const Tag&) = delete;
+        Tag(Tag&& t) noexcept {
+            if (&t != this) {
+                end = std::move(t.end);
+                os = t.os;
+                t.os = nullptr;
+            }
+        }
+        Tag& operator=(const Tag&) = delete;
+        Tag& operator=(Tag&& t) noexcept {
+            if (&t != this) {
+                if (os)
+                    *os << end;
+                end = std::move(t.end);
+                os = t.os;
+                t.os = nullptr;
+            }
             return *this;
         }
     private:
-        U8string end;
+        std::string end;
         std::ostream* os = nullptr;
-        Tag(const Tag&) = delete;
-        Tag& operator=(const Tag&) = delete;
     };
+
+    template <typename T>
+    void tagged(std::ostream& out, const std::string& element, const T& t) {
+        Tag html(out, element);
+        out << t;
+    }
+
+    template <typename... Args>
+    void tagged(std::ostream& out, const std::string& element, const Args&... args) {
+        Tag html(out, element);
+        tagged(out, args...);
+    }
 
     // [Threads]
 

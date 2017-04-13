@@ -3360,52 +3360,67 @@ namespace {
 
     void check_html_xml_tags() {
 
-        const U8string expected =
+        const std::string expected =
             "<h1>Header</h1>\n"
             "<br/>\n"
             "<ul>\n"
-            "<li>alpha</li>\n"
-            "<li>bravo</li>\n"
-            "<li>charlie</li>\n"
+            "<li><code>alpha</code></li>\n"
+            "<li><code>bravo</code></li>\n"
+            "<li><code>charlie</code></li>\n"
             "</ul>\n";
 
         {
             std::ostringstream out;
             {
                 Tag h1;
-                TRY(h1 = Tag("<h1>\n", out));
+                TRY(h1 = Tag(out, "<h1>\n"));
                 out << "Header";
             }
             Tag br;
-            TRY(br = Tag("<br/>\n", out));
+            TRY(br = Tag(out, "<br/>\n"));
             {
                 Tag ul;
-                TRY(ul = Tag("<ul>\n\n", out));
+                TRY(ul = Tag(out, "<ul>\n\n"));
                 for (auto item: {"alpha", "bravo", "charlie"}) {
-                    Tag li;
-                    TRY(li = Tag("<li>\n", out));
+                    Tag li, code;
+                    TRY(li = Tag(out, "<li>\n"));
+                    TRY(code = Tag(out, "<code>"));
                     out << item;
                 }
             }
-            U8string s = out.str();
+            std::string s = out.str();
             TEST_EQUAL(s, expected);
         }
 
         {
             std::ostringstream out;
             {
-                Tag h1("<h1>\n", out);
+                Tag h1(out, "h1\n");
                 out << "Header";
             }
-            Tag br("<br/>\n", out);
+            Tag br(out, "br/\n");
             {
-                Tag ul("<ul>\n\n", out);
+                Tag ul(out, "ul\n\n");
                 for (auto item: {"alpha", "bravo", "charlie"}) {
-                    Tag li("<li>\n", out);
+                    Tag li(out, "li\n");
+                    Tag code(out, "code");
                     out << item;
                 }
             }
-            U8string s = out.str();
+            std::string s = out.str();
+            TEST_EQUAL(s, expected);
+        }
+
+        {
+            std::ostringstream out;
+            tagged(out, "h1\n", "Header");
+            Tag br(out, "br/\n");
+            {
+                Tag ul(out, "ul\n\n");
+                for (auto item: {"alpha", "bravo", "charlie"})
+                    tagged(out, "li\n", "code", item);
+            }
+            std::string s = out.str();
             TEST_EQUAL(s, expected);
         }
 
