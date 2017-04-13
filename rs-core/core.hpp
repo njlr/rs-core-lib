@@ -2006,7 +2006,7 @@ namespace RS {
 
     namespace RS_Detail {
 
-        #ifdef __GNUC__
+        #if defined(__GNUC__) && __GNUC__ < 6
             extern "C" char* __cxa_get_globals();
             inline int uncaught_exceptions() noexcept { return int(*reinterpret_cast<const uint32_t*>(__cxa_get_globals() + sizeof(void*))); }
         #else
