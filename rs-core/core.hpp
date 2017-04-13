@@ -2008,7 +2008,7 @@ namespace RS {
 
         #ifdef __GNUC__
             extern "C" char* __cxa_get_globals();
-            inline unsigned uncaught_exceptions() noexcept { return *reinterpret_cast<unsigned*>(__cxa_get_globals() + sizeof(void*)); }
+            inline int uncaught_exceptions() noexcept { return int(*reinterpret_cast<const uint32_t*>(__cxa_get_globals() + sizeof(void*))); }
         #else
             using std::uncaught_exceptions;
         #endif
@@ -2020,7 +2020,7 @@ namespace RS {
 
         template <int Mode>
         struct ScopeExitBase<Mode, true> {
-            unsigned exceptions;
+            int exceptions;
             ScopeExitBase(): exceptions(uncaught_exceptions()) {}
             bool should_run() const noexcept { return (exceptions == uncaught_exceptions()) == (Mode > 0); }
         };
