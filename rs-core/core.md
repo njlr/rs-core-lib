@@ -260,8 +260,8 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 
 * `template <typename T> class` **`Stack`**
     * `Stack<T>::`**`Stack`**`()`
-    * `Stack<T>::`**`Stack`**`(Stack&& s)`
     * `Stack<T>::`**`~Stack`**`()`
+    * `Stack<T>::`**`Stack`**`(Stack&& s)`
     * `Stack& Stack<T>::`**`operator=`**`(Stack&& s)`
     * `void Stack<T>::`**`clear`**`() noexcept`
     * `bool Stack<T>::`**`empty`**`() const noexcept`

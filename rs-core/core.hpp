@@ -715,8 +715,10 @@ namespace RS {
     class Stack {
     public:
         Stack() = default;
-        Stack(Stack&& s) = default;
         ~Stack() noexcept { clear(); }
+        Stack(const Stack&) = delete;
+        Stack(Stack&& s) = default;
+        Stack& operator=(const Stack&) = delete;
         Stack& operator=(Stack&& s) { if (&s != this) { clear(); con = std::move(s.con); } return *this; }
         void clear() noexcept { while (! empty()) pop(); }
         bool empty() const noexcept { return con.empty(); }
@@ -727,8 +729,6 @@ namespace RS {
         const T& top() const noexcept { return con.back(); }
     private:
         std::deque<T> con;
-        Stack(const Stack&) = delete;
-        Stack& operator=(const Stack&) = delete;
     };
 
     // Exceptions
