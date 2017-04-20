@@ -55,6 +55,7 @@
 #include <exception>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <memory>
@@ -3621,11 +3622,17 @@ namespace RS {
             using namespace std::chrono;
             static Mutex mtx;
             auto lock = make_lock(mtx);
-            U8string text = xt_colour(hash_xcolour(Thread::current())) + "# ";
-            if (timestamp)
-                text += "[" + format_date(system_clock::now(), 3) + "] ";
-            text += trim_right(msg) + xt_reset + '\n';
-            fputs(text.data(), stdout);
+            U8string text = xt_colour(hash_xcolour(Thread::current()));
+            text += "# ";
+            if (timestamp) {
+                text += "[";
+                text += format_date(system_clock::now(), 3);
+                text += "] ";
+            }
+            text += trim_right(msg);
+            text += xt_reset;
+            text += '\n';
+            fwrite(text.data(), 1, text.size(), stdout);
             fflush(stdout);
         }
 
