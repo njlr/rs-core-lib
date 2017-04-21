@@ -160,24 +160,6 @@ from a pointer copies `sizeof(T)` bytes into the object. The `ptr()` and
 `rep()` functions give access to the internal, byte ordered form. The hash
 function gives the same result as the underlying integer type's hash.
 
-#### Sign type ####
-
-* `class` **`Sign`**
-    * `Sign::`**`Sign`**`() noexcept`
-    * `Sign::`**`~Sign`**`() noexcept`
-    * `Sign::`**`Sign`**`(const Sign& e) noexcept`
-    * `Sign::`**`Sign`**`(Sign&& e) noexcept`
-    * `Sign& Sign::`**`operator=`**`(const Sign& e) noexcept`
-    * `Sign& Sign::`**`operator=`**`(Sign&& e) noexcept`
-    * `template <typename T> explicit Sign::`**`Sign`**`(T t) noexcept`
-    * `Sign::`**`operator int`**`() const noexcept`
-    * `Sign Sign::`**`operator+`**`() const noexcept`
-    * `Sign Sign::`**`operator-`**`() const noexcept`
-    * `int Sign::`**`get`**`() const noexcept`
-* `std::ostream&` **`operator<<`**`(std::ostream& out, Sign s)`
-
-An integer constrained to the range `{-1,0,+1}`.
-
 ### Containers ###
 
 * `class` **`Blob`**

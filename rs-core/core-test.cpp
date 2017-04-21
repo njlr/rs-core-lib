@@ -317,32 +317,6 @@ namespace {
 
     }
 
-    void check_sign_type() {
-
-        Sign s, t;
-
-        TEST(! s);
-        TEST_EQUAL(s.get(), 0);
-        TEST_EQUAL(s, 0);
-        TEST_EQUAL(to_str(s), "0");
-        TRY(s = Sign(42));
-        TEST(s);
-        TEST_EQUAL(s.get(), 1);
-        TEST_EQUAL(s, 1);
-        TEST_EQUAL(to_str(s), "+1");
-        TRY(s = Sign(-42));
-        TEST(s);
-        TEST_EQUAL(s.get(), -1);
-        TEST_EQUAL(s, -1);
-        TEST_EQUAL(to_str(s), "-1");
-
-        TRY(s = Sign(10));   TRY(t = Sign(20));   TEST_COMPARE(s, ==, t);
-        TRY(s = Sign(10));   TRY(t = Sign(-20));  TEST_COMPARE(s, >, t);
-        TRY(s = Sign(-10));  TRY(t = Sign(20));   TEST_COMPARE(s, <, t);
-        TRY(s = Sign(-10));  TRY(t = Sign(-20));  TEST_COMPARE(s, ==, t);
-
-    }
-
     class TopTail {
     public:
         TopTail(): sp(nullptr), ch() {}
@@ -3855,7 +3829,6 @@ TEST_MODULE(core, core) {
 
     check_preprocessor_macros();
     check_endian_integers();
-    check_sign_type();
     check_containers();
     check_exceptions();
     check_metaprogramming_and_type_traits();

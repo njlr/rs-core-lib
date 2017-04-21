@@ -21,7 +21,6 @@
 <li><a href="#basic-types">Basic types</a></li>
 <li><a href="#arithmetic-types">Arithmetic types</a><ul>
 <li><a href="#endian-integers">Endian integers</a></li>
-<li><a href="#sign-type">Sign type</a></li>
 </ul>
 </li>
 <li><a href="#containers">Containers</a></li>
@@ -270,27 +269,6 @@ transparently. The default constructor sets the value to zero; the constructor
 from a pointer copies <code>sizeof(T)</code> bytes into the object. The <code>ptr()</code> and
 <code>rep()</code> functions give access to the internal, byte ordered form. The hash
 function gives the same result as the underlying integer type's hash.</p>
-</div>
-<h4 id="sign-type">Sign type</h4>
-<div class="defns">
-<ul>
-<li><code>class</code> <strong><code>Sign</code></strong><ul>
-<li><code>Sign::</code><strong><code>Sign</code></strong><code>() noexcept</code></li>
-<li><code>Sign::</code><strong><code>~Sign</code></strong><code>() noexcept</code></li>
-<li><code>Sign::</code><strong><code>Sign</code></strong><code>(const Sign&amp; e) noexcept</code></li>
-<li><code>Sign::</code><strong><code>Sign</code></strong><code>(Sign&amp;&amp; e) noexcept</code></li>
-<li><code>Sign&amp; Sign::</code><strong><code>operator=</code></strong><code>(const Sign&amp; e) noexcept</code></li>
-<li><code>Sign&amp; Sign::</code><strong><code>operator=</code></strong><code>(Sign&amp;&amp; e) noexcept</code></li>
-<li><code>template &lt;typename T&gt; explicit Sign::</code><strong><code>Sign</code></strong><code>(T t) noexcept</code></li>
-<li><code>Sign::</code><strong><code>operator int</code></strong><code>() const noexcept</code></li>
-<li><code>Sign Sign::</code><strong><code>operator+</code></strong><code>() const noexcept</code></li>
-<li><code>Sign Sign::</code><strong><code>operator-</code></strong><code>() const noexcept</code></li>
-<li><code>int Sign::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
-</ul>
-</li>
-<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Sign s)</code></li>
-</ul>
-<p>An integer constrained to the range <code>{-1,0,+1}</code>.</p>
 </div>
 <h3 id="containers">Containers</h3>
 <div class="defns">

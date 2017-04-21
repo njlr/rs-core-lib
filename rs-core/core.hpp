@@ -694,22 +694,6 @@ namespace RS {
 
     template <typename T, ByteOrder B> inline std::ostream& operator<<(std::ostream& out, Endian<T, B> t) { return out << t.get(); }
 
-    // Sign type
-
-    class Sign {
-    public:
-        Sign() = default;
-        template <typename T> explicit Sign(T t) noexcept: value(t > T() ? 1 : t == T() ? 0 : -1) {}
-        operator int() const noexcept { return value; }
-        Sign operator+() const noexcept { return *this; }
-        Sign operator-() const noexcept { return Sign(- value); }
-        int get() const noexcept { return value; }
-    private:
-        int8_t value = 0;
-    };
-
-    inline std::ostream& operator<<(std::ostream& out, Sign s) { return out << (s == 1 ? "+1" : s == -1 ? "-1" : "0"); }
-
     // Containers
 
     template <typename T>
