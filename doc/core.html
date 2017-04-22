@@ -541,6 +541,14 @@ the same as the corresponding operations on a <code>shared_ptr</code>.</p>
 between an <code>Nnptr</code> and a raw pointer, and between an <code>Nnptr</code> and a <code>nullptr</code>.
 These call the corresponding operations on the underlying raw pointers.</p>
 </div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Nnptr&lt;T&gt;</code> <strong><code>nnptr</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; shared_ptr&lt;T&gt;</code> <strong><code>shptr</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; unique_ptr&lt;T&gt;</code> <strong><code>unptr</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Shorthand for <code>make_nnptr/shared/unique&lt;T&gt;(t)</code>.</p>
+</div>
 <h3 id="type-related-functions">Type related functions</h3>
 <div class="defns">
 <ul>

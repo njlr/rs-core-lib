@@ -784,15 +784,16 @@ namespace RS {
     class Nnptr {
     public:
         using element_type = T;
+        Nnptr() = delete;
+        ~Nnptr() = default;
         Nnptr(const Nnptr& p) = default;
         Nnptr(Nnptr&& p) noexcept { ptr = p.ptr; }
+        Nnptr& operator=(const Nnptr& p) = default;
+        Nnptr& operator=(Nnptr&& p) noexcept { ptr = p.ptr; return *this; }
         template <typename T2> Nnptr(const Nnptr<T2>& p) noexcept: ptr(p.ptr) {}
         template <typename T2> explicit Nnptr(T2* p): ptr(p) { check(p); }
         template <typename T2, typename D> Nnptr(T2* p, D d): ptr(p, d) { check(p); }
         template <typename T2, typename D> Nnptr(std::unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); }
-        ~Nnptr() = default;
-        Nnptr& operator=(const Nnptr& p) = default;
-        Nnptr& operator=(Nnptr&& p) noexcept { ptr = p.ptr; return *this; }
         template <typename T2> Nnptr& operator=(const Nnptr<T2>& p) noexcept { ptr = p.ptr; return *this; }
         template <typename T2, typename D> Nnptr& operator=(std::unique_ptr<T2, D>&& p) { check(p.get()); ptr.reset(p.release()); return *this; }
         explicit operator bool() const noexcept { return bool(ptr); }
@@ -803,20 +804,20 @@ namespace RS {
         template <typename T2> void reset(T2* p) { check(p); ptr.reset(p); }
         template <typename T2, typename D> void reset(T2* p, D d) { check(p); ptr.reset(p, d); }
         bool unique() const noexcept { return ptr.unique(); }
-        template <typename T2, typename... Args> Nnptr<T2> friend make_nnptr(Args&&... args)
-            { return Nnptr<T2>(std::make_shared<T2>(args...)); }
-        template <typename T1, typename T2> Nnptr<T1> friend const_pointer_cast(const Nnptr<T2>& p) noexcept
-            { return Nnptr<T1>(const_pointer_cast<T1>(p.ptr)); }
-        template <typename T1, typename T2> Nnptr<T1> friend dynamic_pointer_cast(const Nnptr<T2>& p) noexcept
-            { return Nnptr<T1>(dynamic_pointer_cast<T1>(p.ptr)); }
-        template <typename T1, typename T2> Nnptr<T1> friend static_pointer_cast(const Nnptr<T2>& p) noexcept
-            { return Nnptr<T1>(static_pointer_cast<T1>(p.ptr)); }
+        template <typename T2, typename... Args> Nnptr<T2> friend make_nnptr(Args&&... args);
+        template <typename T1, typename T2> Nnptr<T1> friend const_pointer_cast(const Nnptr<T2>& p) noexcept;
+        template <typename T1, typename T2> Nnptr<T1> friend dynamic_pointer_cast(const Nnptr<T2>& p) noexcept;
+        template <typename T1, typename T2> Nnptr<T1> friend static_pointer_cast(const Nnptr<T2>& p) noexcept;
     private:
         std::shared_ptr<T> ptr;
         static void check(const void* p) { if (! p) throw NullPointer(); }
-        Nnptr() = delete;
         explicit Nnptr(const std::shared_ptr<T>& p) noexcept: ptr(p) {}
     };
+
+    template <typename T2, typename... Args> Nnptr<T2> make_nnptr(Args&&... args) { return Nnptr<T2>(std::make_shared<T2>(args...)); }
+    template <typename T1, typename T2> Nnptr<T1> const_pointer_cast(const Nnptr<T2>& p) noexcept { return Nnptr<T1>(const_pointer_cast<T1>(p.ptr)); }
+    template <typename T1, typename T2> Nnptr<T1> dynamic_pointer_cast(const Nnptr<T2>& p) noexcept { return Nnptr<T1>(dynamic_pointer_cast<T1>(p.ptr)); }
+    template <typename T1, typename T2> Nnptr<T1> static_pointer_cast(const Nnptr<T2>& p) noexcept { return Nnptr<T1>(static_pointer_cast<T1>(p.ptr)); }
 
     template <typename T1, typename T2> bool operator==(const Nnptr<T1>& lhs, const Nnptr<T2>& rhs) noexcept { return lhs.get() == rhs.get(); }
     template <typename T1, typename T2> bool operator!=(const Nnptr<T1>& lhs, const Nnptr<T2>& rhs) noexcept { return lhs.get() != rhs.get(); }
@@ -848,6 +849,10 @@ namespace RS {
     template <typename T> bool operator>(std::nullptr_t, const Nnptr<T>& rhs) noexcept { return static_cast<T*>(nullptr) > rhs.get(); }
     template <typename T> bool operator<=(std::nullptr_t, const Nnptr<T>& rhs) noexcept { return static_cast<T*>(nullptr) < rhs.get(); }
     template <typename T> bool operator>=(std::nullptr_t, const Nnptr<T>& rhs) noexcept { return static_cast<T*>(nullptr) > rhs.get(); }
+
+    template <typename T> Nnptr<T> nnptr(const T& t) { return make_nnptr<T>(t); }
+    template <typename T> std::shared_ptr<T> shptr(const T& t) { return std::make_shared<T>(t); }
+    template <typename T> std::unique_ptr<T> unptr(const T& t) { return std::make_unique<T>(t); }
 
     // Type related functions
 

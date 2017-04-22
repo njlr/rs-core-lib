@@ -527,6 +527,39 @@ namespace {
         TEST_EQUAL(Nnptest::count, 0);
         TEST_EQUAL(Nnptest::log, "+nil;+1;+2;-0;+3;-1;-2;-3;");
 
+        int i = 42;
+        U8string s = "Hello";
+
+        auto ni = nnptr(i);
+        TEST_TYPE_OF(ni, Nnptr<int>);
+        TEST(ni);
+        if (ni) TEST_EQUAL(*ni, 42);
+
+        auto si = shptr(i);
+        TEST_TYPE_OF(si, std::shared_ptr<int>);
+        TEST(si);
+        if (si) TEST_EQUAL(*si, 42);
+
+        auto ui = unptr(i);
+        TEST_TYPE_OF(ui, std::unique_ptr<int>);
+        TEST(ui);
+        if (ui) TEST_EQUAL(*ui, 42);
+
+        auto ns = nnptr(s);
+        TEST_TYPE_OF(ns, Nnptr<std::string>);
+        TEST(ns);
+        if (ns) TEST_EQUAL(*ns, "Hello");
+
+        auto ss = shptr(s);
+        TEST_TYPE_OF(ss, std::shared_ptr<std::string>);
+        TEST(ss);
+        if (ss) TEST_EQUAL(*ss, "Hello");
+
+        auto us = unptr(s);
+        TEST_TYPE_OF(us, std::unique_ptr<std::string>);
+        TEST(us);
+        if (us) TEST_EQUAL(*us, "Hello");
+
     }
 
     class Base {

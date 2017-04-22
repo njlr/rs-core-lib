@@ -381,6 +381,12 @@ Comparison operators are defined between two heterogeneous `Nnptr` objects,
 between an `Nnptr` and a raw pointer, and between an `Nnptr` and a `nullptr`.
 These call the corresponding operations on the underlying raw pointers.
 
+* `template <typename T> Nnptr<T>` **`nnptr`**`(const T& t)`
+* `template <typename T> shared_ptr<T>` **`shptr`**`(const T& t)`
+* `template <typename T> unique_ptr<T>` **`unptr`**`(const T& t)`
+
+Shorthand for `make_nnptr/shared/unique<T>(t)`.
+
 ### Type related functions ###
 
 * `template <typename T2, typename T1> bool` **`is`**`(const T1& ref) noexcept`
