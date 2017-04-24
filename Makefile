@@ -91,8 +91,8 @@ ifneq ($(shell grep -Fo sdl $(DEPENDS)),)
 endif
 
 LD := $(CXX)
-APP := $(BUILD)/$(NAME)$(EXE)
-TESTER := $(BUILD)/test-$(NAME)$(EXE)
+MAINAPP := $(BUILD)/$(NAME)-app$(EXE)
+TESTAPP := $(BUILD)/$(NAME)-test$(EXE)
 
 .DELETE_ON_ERROR:
 
@@ -102,7 +102,7 @@ TESTER := $(BUILD)/test-$(NAME)$(EXE)
 all: static app unit doc
 
 unlink:
-	rm -f $(STATICLIB) $(APP) $(TESTER)
+	rm -f $(STATICLIB) $(MAINAPP) $(TESTAPP)
 
 undoc:
 	rm -f doc/*.html
@@ -141,9 +141,9 @@ app:
 run:
 help-app: help-prefix
 else
-app: $(APP)
+app: $(MAINAPP)
 run: app
-	$(APP)
+	$(MAINAPP)
 help-app: help-prefix
 	@echo "    app        = Build the application"
 	@echo "    run        = Build and run the application"
@@ -160,10 +160,10 @@ unit:
 check:
 help-test: help-app
 else
-unit: $(TESTER)
+unit: $(TESTAPP)
 check: all
 	@rm -rf __test_*
-	$(TESTER)
+	$(TESTAPP)
 	@rm -rf __test_*
 help-test: help-app
 	@echo "    unit       = Build the unit tests"
@@ -216,17 +216,17 @@ ifneq ($(APPSOURCES),)
 # Application is the installable target
 install: uninstall app
 	mkdir -p $(PREFIX)/bin
-	cp $(APP) $(PREFIX)/bin
+	cp $(MAINAPP) $(PREFIX)/bin
 ifeq ($(XHOST),mingw)
 symlinks:
 	$(error make symlinks is not supported on $(XHOST), use make install)
 else
 symlinks: uninstall app
 	mkdir -p $(PREFIX)/bin
-	ln -fs $(abspath $(APP)) $(PREFIX)/bin
+	ln -fs $(abspath $(MAINAPP)) $(PREFIX)/bin
 endif
 uninstall:
-	rm -f $(PREFIX)/bin/$(notdir $(APP))
+	rm -f $(PREFIX)/bin/$(notdir $(MAINAPP))
 help-install: help-test
 	@echo "    install    = Install the library"
 	@echo "    symlinks   = Install the library using symlinks"
@@ -292,11 +292,11 @@ $(STATICLIB): $(LIBOBJECTS)
 	@rm -f $@
 	$(AR) $(ARFLAGS) $@ $^
 
-$(APP): $(APPOBJECTS) $(STATICPART)
+$(MAINAPP): $(APPOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	$(LD) $(FLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-$(TESTER): $(TESTOBJECTS) $(STATICPART)
+$(TESTAPP): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	$(LD) $(FLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
