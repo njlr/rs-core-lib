@@ -15,6 +15,7 @@ PREFIX := /usr/local
 HOST := $(shell uname | tr A-Z a-z | sed -E 's/[^a-z].*//')
 TARGET := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e 's/[0-9.]*$$//' | tr A-Z a-z)
 XHOST := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
+BUILD := build/$(TARGET)
 CXX := g++
 FLAGS := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
 CCFLAGS :=
@@ -25,20 +26,20 @@ OPT := -O2
 TESTOPT := -O1
 AR := ar
 ARFLAGS := -rsu
-LDFLAGS := -Lbuild/$(TARGET)
+LDFLAGS := -L$(BUILD)
 LDLIBS :=
 EXE :=
 DEPENDS := dependencies.make
-STATICLIB := build/$(TARGET)/lib$(NAME).a
+STATICLIB := $(BUILD)/lib$(NAME).a
 HEADERS := $(shell find $(NAME) -name *.h -or -name *.hpp)
 LIBHEADERS := $(filter-out $(NAME)/library.hpp Makefile,$(shell grep -EL '// NOT INSTALLED' $(HEADERS) Makefile)) # Dummy entry to avoid empty list
 SOURCES := $(shell find $(NAME) -name *.c -or -name *.cpp -or -name *.m -or -name *.mm)
 APPSOURCES := $(shell echo "$(SOURCES)" | tr ' ' '\n' | grep app-)
 TESTSOURCES := $(shell echo "$(SOURCES)" | tr ' ' '\n' | grep '[-]test')
 LIBSOURCES := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
-APPOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(APPSOURCES)')
-LIBOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(LIBSOURCES)')
-TESTOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!build/$(TARGET)/\1.o!g' <<< '$(TESTSOURCES)')
+APPOBJECTS := $(shell sed -E 's!([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(APPSOURCES)')
+LIBOBJECTS := $(shell sed -E 's!([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(LIBSOURCES)')
+TESTOBJECTS := $(shell sed -E 's!([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(TESTSOURCES)')
 DOCINDEX := $(wildcard $(NAME)/index.md)
 DOCSOURCES := $(shell find $(NAME) -name '*.md' | sort)
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
@@ -78,7 +79,7 @@ ifeq ($(XHOST),mingw)
 	RC := windres
 	RCFLAGS := -O coff
 	RCSOURCES := $(wildcard resources/*.rc) $(wildcard resources/*.ico)
-	RCOBJECT := $(patsubst resources/%.rc,build/$(TARGET)/%.o,$(firstword $(RCSOURCES)))
+	RCOBJECT := $(patsubst resources/%.rc,$(BUILD)/%.o,$(firstword $(RCSOURCES)))
 	APPOBJECTS += $(RCOBJECT)
 else
 	DEFINES += -D_REENTRANT=1 -D_XOPEN_SOURCE=700
@@ -90,8 +91,8 @@ ifneq ($(shell grep -Fo sdl $(DEPENDS)),)
 endif
 
 LD := $(CXX)
-APP := build/$(TARGET)/$(NAME)$(EXE)
-TESTER := build/$(TARGET)/test-$(NAME)$(EXE)
+APP := $(BUILD)/$(NAME)$(EXE)
+TESTER := $(BUILD)/test-$(NAME)$(EXE)
 
 .DELETE_ON_ERROR:
 
@@ -107,26 +108,13 @@ undoc:
 	rm -f doc/*.html
 
 clean:
-	rm -rf build/$(TARGET) *.stackdump __test_*
+	rm -rf $(BUILD) *.stackdump __test_*
 
 cleanall:
 	rm -rf build doc *.stackdump __test_*
 
 dep:
-	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -MM $(SOURCES) \
-		| sed -E -e 's! \.\./$(NAME)/! !g' \
-			-e 's!^[[:graph:]]*\.o: $(NAME)(/|/[[:graph:]]+/)!build/$$(TARGET)\1&!' \
-		> $(DEPENDS)
-	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) -E -P $(SOURCES) \
-		| grep -F 'static_assert(true, "RS_LDLIB"' \
-		| sed -E -e 's/static_assert\(true, "RS_LDLIB" " *(.+) *"\).*/\1/' \
-			-e 's/([A-Za-z0-9_]) +([A-Za-z_])/\1 -l\2/g' \
-			-e 's/^[^:]+$$/1~LDLIBS += -l&/' \
-			-e 's/^([A-Za-z0-9_]+) *: *(.+)/2~ifeq ($$(LIBTAG),\1)~LDLIBS += -l\2~endif/' \
-		| sort -u \
-		| sed -E 's/^.~//' \
-		| tr '~' '\n' \
-		>> $(DEPENDS)
+	$(SCRIPTS)/make-dependencies
 
 help: help-suffix
 
@@ -261,35 +249,35 @@ ifneq ($(XHOST),mingw)
 	LDLIBS += -lpthread -lz
 endif
 
-build/$(TARGET)/%-test.o: $(NAME)/%-test.c
+$(BUILD)/%-test.o: %-test.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CCFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-build/$(TARGET)/%-test.o: $(NAME)/%-test.cpp
+$(BUILD)/%-test.o: %-test.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-build/$(TARGET)/%-test.o: $(NAME)/%-test.m
+$(BUILD)/%-test.o: %-test.m
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-build/$(TARGET)/%-test.o: $(NAME)/%-test.mm
+$(BUILD)/%-test.o: %-test.mm
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-build/$(TARGET)/%.o: $(NAME)/%.c
+$(BUILD)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CCFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
-build/$(TARGET)/%.o: $(NAME)/%.cpp
+$(BUILD)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
-build/$(TARGET)/%.o: $(NAME)/%.m
+$(BUILD)/%.o: %.m
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
-build/$(TARGET)/%.o: $(NAME)/%.mm
+$(BUILD)/%.o: %.mm
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
