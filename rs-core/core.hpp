@@ -125,7 +125,7 @@
 #define RS_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define RS_STATIC_ASSERT(expr) static_assert((expr), # expr)
 
-#define RS_LDLIB(libs) static_assert(true, "RS_LDLIB" # libs);
+#define RS_LDLIB(libs)
 
 #define RS_BITMASK_OPERATORS(EC) \
     inline constexpr bool operator!(EC x) noexcept { return std::underlying_type_t<EC>(x) == 0; } \

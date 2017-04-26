@@ -37,7 +37,7 @@ sources = set()
 find_all_files('.', headers, sources)
 find_all_files('/usr/local/include', headers)
 
-match_include = re.compile(R'#\s*include\s*[<"]([^"<>]+\.\w+)[">]')
+match_include = re.compile(R'^\s*#\s*include\s*[<"]([^"<>]+\.\w+)[">]')
 
 def get_includes(file):
     includes = set()
