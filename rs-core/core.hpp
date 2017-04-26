@@ -137,30 +137,6 @@
     inline constexpr EC& operator|=(EC& lhs, EC rhs) noexcept { return lhs = lhs | rhs; } \
     inline constexpr EC& operator^=(EC& lhs, EC rhs) noexcept { return lhs = lhs ^ rhs; }
 
-namespace RS {
-
-    namespace RS_Detail {
-
-        template <typename EnumType>
-        void write_enum(std::ostream& out, EnumType t, long first_value, const char* prefix, const char* names) {
-            using U = std::underlying_type_t<EnumType>;
-            size_t index = U(t) - first_value;
-            for (size_t i = 0; i < index; ++i) {
-                names = strchr(names, ',');
-                if (names == nullptr) {
-                    out << U(t);
-                    return;
-                }
-                names += strspn(names, " ,");
-            }
-            out << prefix;
-            out.write(names, strcspn(names, " ,"));
-        }
-
-    }
-
-}
-
 #define RS_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
     enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, RS_enum_sentinel }; \
     inline std::ostream& operator<<(std::ostream& out, EnumType t) { \
@@ -208,6 +184,26 @@ namespace RS {
 namespace RS {
 
     // Things needed early
+
+    namespace RS_Detail {
+
+        template <typename EnumType>
+        void write_enum(std::ostream& out, EnumType t, long first_value, const char* prefix, const char* names) {
+            using U = std::underlying_type_t<EnumType>;
+            size_t index = U(t) - first_value;
+            for (size_t i = 0; i < index; ++i) {
+                names = strchr(names, ',');
+                if (names == nullptr) {
+                    out << U(t);
+                    return;
+                }
+                names += strspn(names, " ,");
+            }
+            out << prefix;
+            out.write(names, strcspn(names, " ,"));
+        }
+
+    }
 
     using U8string = std::string;
 
