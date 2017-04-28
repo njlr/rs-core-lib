@@ -139,7 +139,7 @@
 
 #define RS_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
     enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, RS_enum_sentinel }; \
-    inline std::ostream& operator<<(std::ostream& out, EnumType t) { \
+    inline __attribute__((unused)) std::ostream& operator<<(std::ostream& out, EnumType t) { \
         ::RS::RS_Detail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
         return out; \
     } \
