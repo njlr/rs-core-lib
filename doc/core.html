@@ -1861,7 +1861,7 @@ conversion to <code>string</code> - The string content is simply copied directly
 using an output stream; a null character pointer is treated as an empty
 string.</li>
 <li>Integer types - Formatted using <code>dec()</code>.</li>
-<li>Floating point types - Formatted using <code>fp_format(t,'z',6)</code>.</li>
+<li>Floating point types - Formatted using <code>fp_format()</code>.</li>
 <li><code>bool</code> - Written as <code>"true"</code> or <code>"false"</code>.</li>
 <li>Ranges (other than strings) - Serialized in a format similar to a JSON array
 (e.g. <code>"[1,2,3]"</code>), or an object (e.g. <code>"{1:a,2:b,3:c}"</code>) if the range's value

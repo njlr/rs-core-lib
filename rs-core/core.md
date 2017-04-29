@@ -1531,7 +1531,7 @@ conversion to `string` - The string content is simply copied directly without
 using an output stream; a null character pointer is treated as an empty
 string.
 * Integer types - Formatted using `dec()`.
-* Floating point types - Formatted using `fp_format(t,'z',6)`.
+* Floating point types - Formatted using `fp_format()`.
 * `bool` - Written as `"true"` or `"false"`.
 * Ranges (other than strings) - Serialized in a format similar to a JSON array
 (e.g. `"[1,2,3]"`), or an object (e.g. `"{1:a,2:b,3:c}"`) if the range's value

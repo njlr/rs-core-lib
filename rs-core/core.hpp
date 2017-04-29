@@ -2788,7 +2788,7 @@ namespace RS {
         template <> struct ObjectToString<bool> { U8string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<std::nullptr_t> { U8string operator()(std::nullptr_t) const { return "null"; } };
         template <typename T> struct ObjectToString<T, 'I'> { U8string operator()(T t) const { return dec(t); } };
-        template <typename T> struct ObjectToString<T, 'F'> { U8string operator()(T t) const { return fp_format(t, 'z'); } };
+        template <typename T> struct ObjectToString<T, 'F'> { U8string operator()(T t) const { return fp_format(t); } };
         template <typename T> struct ObjectToString<T, 'S'> { U8string operator()(T t) const { return static_cast<std::string>(*&t); } };
         template <typename T> struct ObjectToString<T, 'R'>: RangeToString<T> {};
         template <typename T> struct ObjectToString<std::atomic<T>, 'X'> { U8string operator()(const std::atomic<T>& t) const { return ObjectToString<T>()(t); } };
