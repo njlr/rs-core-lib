@@ -1847,19 +1847,28 @@ line feed is inserted after each block.</p>
 <li><code>U8string</code> <strong><code>tf</code></strong><code>(bool b)</code></li>
 <li><code>U8string</code> <strong><code>yn</code></strong><code>(bool b)</code></li>
 </ul>
-<p>Convert a boolean to <code>"true"/"false"</code> or <code>"yes"/"no"</code>.</p>
+<p>Convert a boolean to <code>"true/false"</code> or <code>"yes/no"</code>.</p>
 </div>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; U8string</code> <strong><code>to_str</code></strong><code>(const T&amp; t)</code></li>
 </ul>
-<p>Formats an object as a string. For most types this uses the type's output
-stream operator. For strings, including character arrays and pointers, the
-string content is simply copied directly without using an output stream (a
-null character pointer is treated as an empty string). Ranges (other than
-strings) are serialized in a format similar to a JSON array (e.g.
-<code>"[1,2,3]"</code>), or an object (e.g. <code>"{1:a,2:b,3:c}"</code>) if the range's value type
-is a pair; <code>to_str()</code> is called recursively on each range element.</p>
+<p>Formats an object as a string. This uses the following rules for formatting
+various types:</p>
+<ul>
+<li><code>std::string</code>, <code>char</code>, and character pointers - The string content is simply
+copied directly without using an output stream; a null character pointer is
+treated as an empty string.</li>
+<li>Integer types - Formatted using <code>dec()</code>.</li>
+<li>Floating point types - Formatted using <code>fp_format(t,'z',6)</code>.</li>
+<li><code>bool</code> - Written as <code>"true"</code> or <code>"false"</code>.</li>
+<li>Ranges (other than strings) - Serialized in a format similar to a JSON array
+(e.g. <code>"[1,2,3]"</code>), or an object (e.g. <code>"{1:a,2:b,3:c}"</code>) if the range's value
+type is a pair; <code>to_str()</code> is called recursively on each range element.</li>
+<li>Otherwise, if the type has an implicit or explicit conversion to
+<code>std::string</code>, this will be called.</li>
+<li>Otherwise, the type's output operator will be called.</li>
+</ul>
 </div>
 <h3 id="htmlxml-tags">HTML/XML tags</h3>
 <div class="defns">

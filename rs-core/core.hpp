@@ -2712,15 +2712,6 @@ namespace RS {
 
     namespace RS_Detail {
 
-        template <typename> struct SfinaeTrue: std::true_type {};
-        template <typename T> auto check_std_begin(int) -> SfinaeTrue<decltype(std::begin(std::declval<T>()))>;
-        template <typename T> auto check_std_begin(long) -> std::false_type;
-        template <typename T> auto check_std_end(int) -> SfinaeTrue<decltype(std::end(std::declval<T>()))>;
-        template <typename T> auto check_std_end(long) -> std::false_type;
-        template <typename T> struct CheckStdBegin: decltype(check_std_begin<T>(0)) {};
-        template <typename T> struct CheckStdEnd: decltype(check_std_end<T>(0)) {};
-        template <typename T> struct IsRangeType { static constexpr bool value = CheckStdBegin<T>::value && CheckStdEnd<T>::value; };
-
         template <typename R, typename I = decltype(std::begin(std::declval<R>())),
             typename V = typename std::iterator_traits<I>::value_type>
         struct RangeToString {
@@ -2763,8 +2754,25 @@ namespace RS {
             }
         };
 
-        template <typename T, bool I = std::is_integral<T>::value,
-            bool R = IsRangeType<T>::value>
+        template <typename> struct SfinaeTrue: std::true_type {};
+        template <typename T> auto check_std_begin(int) -> SfinaeTrue<decltype(std::begin(std::declval<T>()))>;
+        template <typename T> auto check_std_begin(long) -> std::false_type;
+        template <typename T> auto check_std_end(int) -> SfinaeTrue<decltype(std::end(std::declval<T>()))>;
+        template <typename T> auto check_std_end(long) -> std::false_type;
+        template <typename T> struct CheckStdBegin: decltype(check_std_begin<T>(0)) {};
+        template <typename T> struct CheckStdEnd: decltype(check_std_end<T>(0)) {};
+        template <typename T> struct IsRangeType { static constexpr bool value = CheckStdBegin<T>::value && CheckStdEnd<T>::value; };
+
+        template <typename T>
+        struct ObjectToStringCategory {
+            static constexpr char value =
+                std::is_integral<T>::value ? 'I' :
+                std::is_floating_point<T>::value ? 'F' :
+                std::is_constructible<std::string, const T&>::value ? 'S' :
+                IsRangeType<T>::value ? 'R' : 'X';
+        };
+
+        template <typename T, char C = ObjectToStringCategory<T>::value>
         struct ObjectToString {
             U8string operator()(const T& t) const {
                 std::ostringstream out;
@@ -2773,26 +2781,19 @@ namespace RS {
             }
         };
 
-        template <typename T> struct ObjectToString<T, true, false> { U8string operator()(T t) const { return dec(t); } };
-        template <typename T> struct ObjectToString<T, false, true>: RangeToString<T> {};
         template <> struct ObjectToString<U8string> { U8string operator()(const U8string& t) const { return t; } };
         template <> struct ObjectToString<char*> { U8string operator()(char* t) const { return t ? U8string(t) : U8string(); } };
         template <> struct ObjectToString<const char*> { U8string operator()(const char* t) const { return t ? U8string(t) : U8string(); } };
         template <> struct ObjectToString<char> { U8string operator()(char t) const { return {t}; } };
         template <> struct ObjectToString<bool> { U8string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<std::nullptr_t> { U8string operator()(std::nullptr_t) const { return "null"; } };
-
-        template <typename T, bool I> struct ObjectToString<std::atomic<T>, I, false> {
-            U8string operator()(const std::atomic<T>& t) const {
-                return ObjectToString<T>()(t);
-            }
-        };
-
-        template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, false, false> {
-            U8string operator()(const std::pair<T1, T2>& t) const {
-                return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}';
-            }
-        };
+        template <typename T> struct ObjectToString<T, 'I'> { U8string operator()(T t) const { return dec(t); } };
+        template <typename T> struct ObjectToString<T, 'F'> { U8string operator()(T t) const { return fp_format(t, 'z'); } };
+        template <typename T> struct ObjectToString<T, 'S'> { U8string operator()(T t) const { return static_cast<std::string>(*&t); } };
+        template <typename T> struct ObjectToString<T, 'R'>: RangeToString<T> {};
+        template <typename T> struct ObjectToString<std::atomic<T>, 'X'> { U8string operator()(const std::atomic<T>& t) const { return ObjectToString<T>()(t); } };
+        template <typename T1, typename T2> struct ObjectToString<std::pair<T1, T2>, 'X'>
+            { U8string operator()(const std::pair<T1, T2>& t) const { return '{' + ObjectToString<T1>()(t.first) + ',' + ObjectToString<T2>()(t.second) + '}'; } };
 
     }
 

@@ -3137,6 +3137,9 @@ namespace {
     void check_string_formatting_and_parsing_functions() {
 
         std::string s;
+        std::u16string s16;
+        std::u32string s32;
+        std::wstring ws;
         std::vector<bool> bv;
         std::vector<int> iv;
         std::vector<std::string> sv;
@@ -3324,6 +3327,9 @@ namespace {
         TEST_EQUAL(yn(false), "no");
 
         s = "Hello";
+        s16 = u"Hello";
+        s32 = U"Hello";
+        ws = L"Hello";
         ai = 42;
 
         TEST_EQUAL(to_str(0), "0");
@@ -3334,8 +3340,6 @@ namespace {
         TEST_EQUAL(to_str(s.data()), "Hello");
         TEST_EQUAL(to_str(""s), "");
         TEST_EQUAL(to_str("Hello"s), "Hello");
-        TEST_EQUAL(to_str(""), "");
-        TEST_EQUAL(to_str("Hello"), "Hello");
         TEST_EQUAL(to_str('X'), "X");
         TEST_EQUAL(to_str(true), "true");
         TEST_EQUAL(to_str(false), "false");
