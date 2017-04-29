@@ -1526,17 +1526,16 @@ Convert a boolean to `"true/false"` or `"yes/no"`.
 Formats an object as a string. This uses the following rules for formatting
 various types:
 
-* `std::string`, `char`, and character pointers - The string content is simply
-copied directly without using an output stream; a null character pointer is
-treated as an empty string.
+* `std::string`, `char`, character pointers, and anything with an implicit
+conversion to `string` - The string content is simply copied directly without
+using an output stream; a null character pointer is treated as an empty
+string.
 * Integer types - Formatted using `dec()`.
 * Floating point types - Formatted using `fp_format(t,'z',6)`.
 * `bool` - Written as `"true"` or `"false"`.
 * Ranges (other than strings) - Serialized in a format similar to a JSON array
 (e.g. `"[1,2,3]"`), or an object (e.g. `"{1:a,2:b,3:c}"`) if the range's value
 type is a pair; `to_str()` is called recursively on each range element.
-* Otherwise, if the type has an implicit or explicit conversion to
-`std::string`, this will be called.
 * Otherwise, the type's output operator will be called.
 
 ### HTML/XML tags ###

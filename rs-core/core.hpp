@@ -2768,7 +2768,7 @@ namespace RS {
             static constexpr char value =
                 std::is_integral<T>::value ? 'I' :
                 std::is_floating_point<T>::value ? 'F' :
-                std::is_constructible<std::string, const T&>::value ? 'S' :
+                std::is_convertible<T, std::string>::value ? 'S' :
                 IsRangeType<T>::value ? 'R' : 'X';
         };
 
