@@ -137,11 +137,12 @@ for src in sorted(sources):
 
 for system in sorted(libraries):
     libs = libraries[system]
-    if system:
-        print('ifeq ($(LIBTAG),{0})'.format(system), file=out)
-    ldlibs = 'LDLIBS +='
-    for lib in libs:
-        ldlibs += ' -l' + lib
-    print(ldlibs, file=out)
-    if system:
-        print('endif', file=out)
+    if libs:
+        if system:
+            print('ifeq ($(LIBTAG),{0})'.format(system), file=out)
+        ldlibs = 'LDLIBS +='
+        for lib in libs:
+            ldlibs += ' -l' + lib
+        print(ldlibs, file=out)
+        if system:
+            print('endif', file=out)
