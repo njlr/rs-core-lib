@@ -96,7 +96,10 @@ for src in sources:
 exclude_lib = None
 prefix, _, suffix = os.path.basename(os.getcwd()).rpartition('-')
 if suffix == 'lib':
-    exclude_lib = prefix
+    if os.path.isdir(prefix):
+        exclude_lib = prefix
+    elif os.path.isdir('rs-' + prefix):
+        exclude_lib = 'rs-' + prefix
 
 match_library = re.compile(R'^\s*RS_LDLIB\(([^()]+)\)')
 
