@@ -614,9 +614,9 @@ namespace {
         const std::type_info& v_info = typeid(void);
         const std::type_info& i_info = typeid(int);
         const std::type_info& s_info = typeid(std::string);
-        auto v_index = std::type_index(v_info);
-        auto i_index = std::type_index(i_info);
-        auto s_index = std::type_index(s_info);
+        auto v_index = std::type_index(typeid(void));
+        auto i_index = std::type_index(typeid(int));
+        auto s_index = std::type_index(typeid(std::string));
 
         TEST_EQUAL(type_name(v_info), "void");
         TEST_MATCH(type_name(i_info), "^(signed )?int$");
@@ -629,6 +629,20 @@ namespace {
         TEST_MATCH(type_name<std::string>(), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
         TEST_MATCH(type_name(42), "^(signed )?int$");
         TEST_MATCH(type_name(s), "^std::([^:]+::)*(string|basic_string ?<.+>)$");
+
+        Derived1 d;
+        Base& b(d);
+        const std::type_info& d_info = typeid(d);
+        const std::type_info& b_info = typeid(b);
+        auto d_index = std::type_index(typeid(d));
+        auto b_index = std::type_index(typeid(b));
+
+        TEST_MATCH(type_name(d), "::Derived1$");
+        TEST_MATCH(type_name(b), "::Derived1$");
+        TEST_MATCH(type_name(d_info), "::Derived1$");
+        TEST_MATCH(type_name(b_info), "::Derived1$");
+        TEST_MATCH(type_name(d_index), "::Derived1$");
+        TEST_MATCH(type_name(b_index), "::Derived1$");
 
     }
 

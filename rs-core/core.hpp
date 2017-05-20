@@ -908,7 +908,7 @@ namespace RS {
     inline std::string type_name(const std::type_info& t) { return demangle(t.name()); }
     inline std::string type_name(const std::type_index& t) { return demangle(t.name()); }
     template <typename T> std::string type_name() { return type_name(typeid(T)); }
-    template <typename T> std::string type_name(const T&) { return type_name(typeid(T)); }
+    template <typename T> std::string type_name(const T& t) { return type_name(typeid(t)); }
 
     // [Constants and literals]
 
