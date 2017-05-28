@@ -24,11 +24,11 @@
 #define TEST_MAIN int main() { return ::Test::test_main(); }
 
 #define TEST_MODULE(project, module) \
-    void test_ ## project ## _ ## module(); \
-    void test_ ## project ## _ ## module ## _setup() __attribute__((constructor)); \
-    void test_ ## project ## _ ## module ## _setup() \
-        { ::Test::register_test(test_ ## project ## _ ## module, # project, # module); } \
-    void test_ ## project ## _ ## module()
+    void test_##project##_##module(); \
+    void test_##project##_##module##_setup() __attribute__((constructor)); \
+    void test_##project##_##module##_setup() \
+        { ::Test::register_test(test_##project##_##module, #project, #module); } \
+    void test_##project##_##module()
 
 #define FAIL_POINT "[", __FILE__, ":", __LINE__, "] "
 
@@ -67,10 +67,10 @@
 #define REQUIRE(expr) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, (expr), # expr); \
+        TEST_IMPL(local_test_status, (expr), #expr); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr " is false"); \
+            ::Test::print_fail(FAIL_POINT, #expr " is false"); \
             return; \
         } \
     } while (false)
@@ -78,20 +78,20 @@
 #define TEST(expr) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, (expr), # expr); \
+        TEST_IMPL(local_test_status, (expr), #expr); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr " is false"); \
+            ::Test::print_fail(FAIL_POINT, #expr " is false"); \
         } \
     } while (false)
 
 #define TEST_COMPARE(lhs, op, rhs) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, (lhs) op (rhs), # lhs " " # op " " # rhs); \
+        TEST_IMPL(local_test_status, (lhs) op (rhs), #lhs " " #op " " #rhs); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # lhs " " # op " " # rhs " failed: lhs = ", lhs, ", rhs = ", rhs); \
+            ::Test::print_fail(FAIL_POINT, #lhs " " #op " " #rhs " failed: lhs = ", lhs, ", rhs = ", rhs); \
         } \
     } while (false)
 
@@ -101,10 +101,10 @@
 #define TEST_EQUAL_RANGE(lhs, rhs) \
     do { \
         bool local_test_status = false; \
-        TEST_IMPL(local_test_status, ::Test::range_equal((lhs), (rhs)), # lhs " == " # rhs); \
+        TEST_IMPL(local_test_status, ::Test::range_equal((lhs), (rhs)), #lhs " == " #rhs); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # lhs " != " # rhs ": lhs = ", ::Test::format_range(lhs), \
+            ::Test::print_fail(FAIL_POINT, #lhs " != " #rhs ": lhs = ", ::Test::format_range(lhs), \
                 ", rhs = ", ::Test::format_range(rhs)); \
         } \
     } while (false)
@@ -115,10 +115,10 @@
         std::string local_test_string(str); \
         std::regex local_test_regex(pattern); \
         TEST_IMPL(local_test_status, std::regex_search(local_test_string, local_test_regex), \
-            "regex match(" # str ", " # pattern ")"); \
+            "regex match(" #str ", " #pattern ")"); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, "regex match(" # str ", " # pattern ") failed: lhs = ", str); \
+            ::Test::print_fail(FAIL_POINT, "regex match(" #str ", " #pattern ") failed: lhs = ", str); \
         } \
     } while (false)
 
@@ -128,10 +128,10 @@
         std::string local_test_string(str); \
         std::regex local_test_regex(pattern, std::regex::icase); \
         TEST_IMPL(local_test_status, std::regex_search(local_test_string, local_test_regex), \
-            "regex match(" # str ", " # pattern ")"); \
+            "regex match(" #str ", " #pattern ")"); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, "regex match(" # str ", " # pattern ", icase) failed: lhs = ", str); \
+            ::Test::print_fail(FAIL_POINT, "regex match(" #str ", " #pattern ", icase) failed: lhs = ", str); \
         } \
     } while (false)
 
@@ -139,10 +139,10 @@
     do { \
         bool local_test_status = false; \
         TEST_IMPL(local_test_status, fabs(double(lhs) - double(rhs)) <= double(tolerance), \
-            # lhs " approx == " # rhs); \
+            #lhs " approx == " #rhs); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # lhs " and " # rhs " not approximately equal: lhs = ", \
+            ::Test::print_fail(FAIL_POINT, #lhs " and " #rhs " not approximately equal: lhs = ", \
                 (lhs), ", rhs = ", (rhs), ", tolerance = ", (tolerance)); \
         } \
     } while (false)
@@ -151,10 +151,10 @@
     do { \
         bool local_test_status = false; \
         TEST_IMPL(local_test_status, ::Test::range_near((lhs), (rhs), double(tolerance)), \
-            # lhs " approx == " # rhs); \
+            #lhs " approx == " #rhs); \
         if (! local_test_status) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # lhs " and " # rhs " not approximately equal: lhs = ", \
+            ::Test::print_fail(FAIL_POINT, #lhs " and " #rhs " not approximately equal: lhs = ", \
                 ::Test::format_range(lhs), ", rhs = ", ::Test::format_range(rhs)); \
         } \
     } while (false)
@@ -170,17 +170,17 @@
         try { \
             expr; \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " failed to throw exception: expected ", # expect); \
+            ::Test::print_fail(FAIL_POINT, #expr, " failed to throw exception: expected ", #expect); \
         } \
         catch (const expect&) {} \
         catch (const std::exception& ex) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got ", ex.what()); \
         } \
         catch (...) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got unknown exception"); \
         } \
     } while (false)
@@ -190,19 +190,19 @@
         try { \
             expr; \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " failed to throw exception: expected ", # expect); \
+            ::Test::print_fail(FAIL_POINT, #expr, " failed to throw exception: expected ", #expect); \
         } \
         catch (const expect& exception) { \
             TEST_EQUAL(std::string(exception.what()), message); \
         } \
         catch (const std::exception& ex) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got ", ex.what()); \
         } \
         catch (...) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got unknown exception"); \
         } \
     } while (false)
@@ -212,19 +212,19 @@
         try { \
             expr; \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " failed to throw exception: expected ", # expect); \
+            ::Test::print_fail(FAIL_POINT, #expr, " failed to throw exception: expected ", #expect); \
         } \
         catch (const expect& exception) { \
             TEST_MATCH(exception.what(), pattern); \
         } \
         catch (const std::exception& ex) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got ", ex.what()); \
         } \
         catch (...) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got unknown exception"); \
         } \
     } while (false)
@@ -234,19 +234,19 @@
         try { \
             expr; \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " failed to throw exception: expected ", # expect); \
+            ::Test::print_fail(FAIL_POINT, #expr, " failed to throw exception: expected ", #expect); \
         } \
         catch (const expect& exception) { \
             TEST_MATCH_ICASE(exception.what(), pattern); \
         } \
         catch (const std::exception& ex) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got ", ex.what()); \
         } \
         catch (...) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, # expr, " threw wrong exception: expected ", # expect, \
+            ::Test::print_fail(FAIL_POINT, #expr, " threw wrong exception: expected ", #expect, \
                 ", got unknown exception"); \
         } \
     } while (false)
@@ -257,7 +257,7 @@
         using local_test_type2 = std::decay_t<type2>; \
         if (! std::is_same<local_test_type1, local_test_type2>::value) { \
             ::Test::record_failure(); \
-            ::Test::print_fail(FAIL_POINT, "Type mismatch: ", # type1, " != ", # type2, \
+            ::Test::print_fail(FAIL_POINT, "Type mismatch: ", #type1, " != ", #type2, \
                 "; type 1 = ", RS::type_name(typeid(local_test_type1)), ", ", \
                 "type 2 = ", RS::type_name(typeid(local_test_type2))); \
         } \
@@ -270,7 +270,7 @@
     TEST_TYPE(decltype(object1), decltype(object2))
 
 #define TRY(expr) \
-    TRY_IMPL((expr), # expr)
+    TRY_IMPL((expr), #expr)
 
 // Implementation wrapper
 

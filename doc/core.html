@@ -110,6 +110,17 @@ code location.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>#define</code> <strong><code>RS_ASSUME</code></strong><code>(expr)</code> <em>[compiler may assume <code>bool(expr)</code> is always true]</em></li>
+<li><code>#define</code> <strong><code>RS_LIKELY</code></strong><code>(expr)</code> <em>[returns <code>bool(expr)</code>; compiler should optimize for the true case]</em></li>
+<li><code>#define</code> <strong><code>RS_UNLIKELY</code></strong><code>(expr)</code> <em>[returns <code>bool(expr)</code>; compiler should optimize for the false case]</em></li>
+<li><code>#define</code> <strong><code>RS_NOTREACHED</code></strong> <em>[compiler may assume this line will never be reached]</em></li>
+</ul>
+<p>Optimization hints. These have no semantic effect on the program (if the
+absolute conditions in <code>RS_ASSUME</code> and <code>RS_NOTREACHED</code> are not violated), but
+give the compiler hints concerning its expected behaviour.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>#define</code> <strong><code>RS_BITMASK_OPERATORS</code></strong><code>(EC)</code></li>
 </ul>
 <p>Defines bit manipulation and related operators for an <code>enum class</code> (unary <code>!</code>,

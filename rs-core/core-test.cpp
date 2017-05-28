@@ -67,10 +67,23 @@ namespace {
 
     void check_preprocessor_macros() {
 
-        int n = 42;
-        auto assert1 = [n] { RS_ASSERT(n == 42); };
-        auto assert2 = [n] { RS_ASSERT(n == 6 * 9); };
+        int n = int(std::time(nullptr));
+        RS_ASSUME(n > 0);
+        if (RS_LIKELY(n > 1000))
+            ++n;
+        if (RS_UNLIKELY(n < 1000))
+            ++n;
+        switch (n - n) {
+            case 0:
+                break;
+            default:
+                RS_NOTREACHED;
+                break;
+        }
 
+        auto assert1 = [&] { RS_ASSERT(n == 42); };
+        auto assert2 = [&] { RS_ASSERT(n == 6 * 9); };
+        n = 42;
         TRY(assert1());
         TEST_THROW_MATCH(assert2(), std::logic_error, "\\bcore-test\\.cpp:\\d+\\b.+\\bn == 6 \\* 9\\b");
 

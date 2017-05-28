@@ -116,16 +116,14 @@
 // Other preprocessor macros
 
 #define RS_ASSERT(expr) do { \
-    if (! static_cast<bool>(expr)) \
-        throw std::logic_error(std::string("Assertion failure [") + __FILE__ + ":" + ::RS::dec(__LINE__) + "]: " + # expr); \
+    if (! bool(expr)) \
+        throw std::logic_error(std::string("Assertion failure [") + __FILE__ + ":" + ::RS::dec(__LINE__) + "]: " + #expr); \
 } while (false)
 
-#define RS_CHAR(C, T) (::RS::RS_Detail::select_char<T>(C, u ## C, U ## C, L ## C))
-#define RS_CSTR(S, T) (::RS::RS_Detail::select_cstr<T>(S, u ## S, U ## S, L ## S))
-#define RS_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
-#define RS_STATIC_ASSERT(expr) static_assert((expr), # expr)
-
-#define RS_LDLIB(libs)
+#define RS_ASSUME(expr) __builtin_assume(bool(expr))
+#define RS_LIKELY(expr) bool(__builtin_expect(bool(expr), 1))
+#define RS_UNLIKELY(expr) bool(__builtin_expect(bool(expr), 0))
+#define RS_NOTREACHED __builtin_unreachable()
 
 #define RS_BITMASK_OPERATORS(EC) \
     inline constexpr bool operator!(EC x) noexcept { return std::underlying_type_t<EC>(x) == 0; } \
@@ -137,10 +135,15 @@
     inline constexpr EC& operator|=(EC& lhs, EC rhs) noexcept { return lhs = lhs | rhs; } \
     inline constexpr EC& operator^=(EC& lhs, EC rhs) noexcept { return lhs = lhs ^ rhs; }
 
+#define RS_CHAR(C, T) (::RS::RS_Detail::select_char<T>(C, u##C, U##C, L##C))
+#define RS_CSTR(S, T) (::RS::RS_Detail::select_cstr<T>(S, u##S, U##S, L##S))
+#define RS_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
+#define RS_STATIC_ASSERT(expr) static_assert((expr), #expr)
+
 #define RS_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
     enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, RS_enum_sentinel }; \
     inline __attribute__((unused)) std::ostream& operator<<(std::ostream& out, EnumType t) { \
-        ::RS::RS_Detail::write_enum(out, t, first_value, name_prefix, # first_name "," # __VA_ARGS__); \
+        ::RS::RS_Detail::write_enum(out, t, first_value, name_prefix, #first_name "," #__VA_ARGS__); \
         return out; \
     } \
     constexpr __attribute__((unused)) bool enum_is_valid(EnumType t) noexcept { \
@@ -157,7 +160,9 @@
 #define RS_ENUM(EnumType, IntType, first_value, first_name, ...) \
     RS_ENUM_IMPLEMENTATION(EnumType, IntType,, "", first_value, first_name, __VA_ARGS__)
 #define RS_ENUM_CLASS(EnumType, IntType, first_value, first_name, ...) \
-    RS_ENUM_IMPLEMENTATION(EnumType, IntType, class, # EnumType "::", first_value, first_name, __VA_ARGS__)
+    RS_ENUM_IMPLEMENTATION(EnumType, IntType, class, #EnumType "::", first_value, first_name, __VA_ARGS__)
+
+#define RS_LDLIB(libs)
 
 #define RS_MOVE_ONLY(T) \
     T(const T&) = delete; \

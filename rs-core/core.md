@@ -17,6 +17,15 @@ A simple assertion macro for quick and dirty debugging. If the expression
 exception, with a message containing the text of the expression and the source
 code location.
 
+* `#define` **`RS_ASSUME`**`(expr)` _[compiler may assume `bool(expr)` is always true]_
+* `#define` **`RS_LIKELY`**`(expr)` _[returns `bool(expr)`; compiler should optimize for the true case]_
+* `#define` **`RS_UNLIKELY`**`(expr)` _[returns `bool(expr)`; compiler should optimize for the false case]_
+* `#define` **`RS_NOTREACHED`** _[compiler may assume this line will never be reached]_
+
+Optimization hints. These have no semantic effect on the program (if the
+absolute conditions in `RS_ASSUME` and `RS_NOTREACHED` are not violated), but
+give the compiler hints concerning its expected behaviour.
+
 * `#define` **`RS_BITMASK_OPERATORS`**`(EC)`
 
 Defines bit manipulation and related operators for an `enum class` (unary `!`,
