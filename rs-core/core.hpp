@@ -120,7 +120,11 @@
         throw std::logic_error(std::string("Assertion failure [") + __FILE__ + ":" + ::RS::dec(__LINE__) + "]: " + #expr); \
 } while (false)
 
-#define RS_ASSUME(expr) __builtin_assume(bool(expr))
+#ifdef __clang__
+    #define RS_ASSUME(expr) __builtin_assume(bool(expr))
+#else
+    #define RS_ASSUME(expr)
+#endif
 #define RS_LIKELY(expr) bool(__builtin_expect(bool(expr), 1))
 #define RS_UNLIKELY(expr) bool(__builtin_expect(bool(expr), 0))
 #define RS_NOTREACHED __builtin_unreachable()
