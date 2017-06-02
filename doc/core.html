@@ -1752,6 +1752,14 @@ line break).</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>std::string</code> <strong><code>linearize</code></strong><code>(const std::string&amp; str)</code></li>
+</ul>
+<p>Replaces all whitespace in a string with a single space, and trims leading and
+trailing whitespace. All non-ASCII bytes are treated as non-whitespace
+characters.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename C&gt; void</code> <strong><code>null_term</code></strong><code>(basic_string&lt;C&gt;&amp; str) noexcept</code></li>
 </ul>
 <p>Cuts off a string at the first null character (useful after the string has

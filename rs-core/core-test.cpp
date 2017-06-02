@@ -3009,24 +3009,6 @@ namespace {
         TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"),
             "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
 
-        TRY(s = quote(""s));                      TEST_EQUAL(s, "\"\""s);
-        TRY(s = quote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
-        TRY(s = quote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
-        TRY(s = quote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
-        TRY(s = quote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
-        TRY(s = quote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
-        TRY(s = quote(u8"åß∂ƒ"s));                TEST_EQUAL(s, u8"\"åß∂ƒ\""s);
-        TRY(s = quote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
-
-        TRY(s = bquote(""s));                      TEST_EQUAL(s, "\"\""s);
-        TRY(s = bquote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
-        TRY(s = bquote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
-        TRY(s = bquote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
-        TRY(s = bquote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
-        TRY(s = bquote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
-        TRY(s = bquote(u8"åß∂ƒ"s));                TEST_EQUAL(s, "\"\\xc3\\xa5\\xc3\\x9f\\xe2\\x88\\x82\\xc6\\x92\""s);
-        TRY(s = bquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
-
         TEST_EQUAL(cstr(p0), ""s);
         TEST_EQUAL(cstr(p1), ""s);
         TEST_EQUAL(cstr(p2), "Hello"s);
@@ -3079,12 +3061,35 @@ namespace {
         sv = {"Hello","world"};          TEST_EQUAL(join(sv, "\n", true), "Hello\nworld\n");
         sv = {"Hello","world","again"};  TEST_EQUAL(join(sv, "\n", true), "Hello\nworld\nagain\n");
 
+        TRY(s = linearize(""));                                  TEST_EQUAL(s, "");
+        TRY(s = linearize("\r\n\r\n"));                          TEST_EQUAL(s, "");
+        TRY(s = linearize("Hello world."));                      TEST_EQUAL(s, "Hello world.");
+        TRY(s = linearize("\r\nHello world.\r\nGoodbye.\r\n"));  TEST_EQUAL(s, "Hello world. Goodbye.");
+
         s = ""s;                TRY(null_term(s));   TEST_EQUAL(s, "");
         s = "Hello world"s;     TRY(null_term(s));   TEST_EQUAL(s, "Hello world");
         s = "Hello\0world"s;    TRY(null_term(s));   TEST_EQUAL(s, "Hello");
         ws = L""s;              TRY(null_term(ws));  TEST_EQUAL(ws, L"");
         ws = L"Hello world"s;   TRY(null_term(ws));  TEST_EQUAL(ws, L"Hello world");
         ws = L"Hello\0world"s;  TRY(null_term(ws));  TEST_EQUAL(ws, L"Hello");
+
+        TRY(s = quote(""s));                      TEST_EQUAL(s, "\"\""s);
+        TRY(s = quote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
+        TRY(s = quote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
+        TRY(s = quote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
+        TRY(s = quote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
+        TRY(s = quote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
+        TRY(s = quote(u8"åß∂ƒ"s));                TEST_EQUAL(s, u8"\"åß∂ƒ\""s);
+        TRY(s = quote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
+
+        TRY(s = bquote(""s));                      TEST_EQUAL(s, "\"\""s);
+        TRY(s = bquote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
+        TRY(s = bquote("Hello world"s));           TEST_EQUAL(s, "\"Hello world\""s);
+        TRY(s = bquote("\\Hello\\world\\"s));      TEST_EQUAL(s, "\"\\\\Hello\\\\world\\\\\""s);
+        TRY(s = bquote("\"Hello\" \"world\""s));   TEST_EQUAL(s, "\"\\\"Hello\\\" \\\"world\\\"\""s);
+        TRY(s = bquote("\t\n\f\r"s));              TEST_EQUAL(s, "\"\\t\\n\\f\\r\""s);
+        TRY(s = bquote(u8"åß∂ƒ"s));                TEST_EQUAL(s, "\"\\xc3\\xa5\\xc3\\x9f\\xe2\\x88\\x82\\xc6\\x92\""s);
+        TRY(s = bquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
 
         TRY(split("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
         TRY(split("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join(sv, "/"), "Hello");

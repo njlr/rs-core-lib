@@ -1440,6 +1440,12 @@ must be assignment compatible with `string`. If the `term` argument to
 (useful when joining lines to form a text that would be expected to end with a
 line break).
 
+* `std::string` **`linearize`**`(const std::string& str)`
+
+Replaces all whitespace in a string with a single space, and trims leading and
+trailing whitespace. All non-ASCII bytes are treated as non-whitespace
+characters.
+
 * `template <typename C> void` **`null_term`**`(basic_string<C>& str) noexcept`
 
 Cuts off a string at the first null character (useful after the string has

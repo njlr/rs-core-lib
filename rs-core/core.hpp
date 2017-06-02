@@ -2400,8 +2400,7 @@ namespace RS {
     constexpr bool ascii_isgraph(char c) noexcept { return c >= '!' && c <= '~'; }
     constexpr bool ascii_islower(char c) noexcept { return c >= 'a' && c <= 'z'; }
     constexpr bool ascii_isprint(char c) noexcept { return c >= ' ' && c <= '~'; }
-    constexpr bool ascii_ispunct(char c) noexcept
-        { return (c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'); }
+    constexpr bool ascii_ispunct(char c) noexcept { return (c >= '!' && c <= '/') || (c >= ':' && c <= '@') || (c >= '[' && c <= '`') || (c >= '{' && c <= '~'); }
     constexpr bool ascii_isspace(char c) noexcept { return (c >= '\t' && c <= '\r') || c == ' '; }
     constexpr bool ascii_isupper(char c) noexcept { return c >= 'A' && c <= 'Z'; }
     constexpr bool ascii_isalpha(char c) noexcept { return ascii_islower(c) || ascii_isupper(c); }
@@ -2505,6 +2504,23 @@ namespace RS {
         }
         if (! term && ! result.empty() && ! delim.empty())
             result.resize(result.size() - delim.size());
+        return result;
+    }
+
+    inline std::string linearize(const std::string& str) {
+        std::string result;
+        size_t i = 0, j = 0, size = str.size();
+        while (j < size) {
+            i = str.find_first_not_of(ascii_whitespace, j);
+            if (i == npos)
+                break;
+            j = str.find_first_of(ascii_whitespace, i);
+            if (j == npos)
+                j = size;
+            if (! result.empty())
+                result += ' ';
+            result.append(str, i, j - i);
+        }
         return result;
     }
 
