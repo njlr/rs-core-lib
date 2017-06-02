@@ -3269,7 +3269,6 @@ namespace RS {
 
         #endif
 
-
     }
 
     template <typename R, typename P>
@@ -3284,8 +3283,7 @@ namespace RS {
         return duration_cast<Dseconds>(d).count();
     }
 
-    inline std::chrono::system_clock::time_point make_date(int year, int month, int day,
-            int hour, int min, double sec, Zone z = Zone::utc) noexcept {
+    inline std::chrono::system_clock::time_point make_date(int year, int month, int day, int hour = 0, int min = 0, double sec = 0, Zone z = Zone::utc) noexcept {
         using namespace std::chrono;
         double isec = 0, fsec = modf(sec, &isec);
         if (fsec < 0) {
@@ -3332,50 +3330,6 @@ namespace RS {
 
     // Time and date formatting
 
-    namespace RS_Detail {
-
-        inline U8string format_time(int64_t sec, double frac, int prec) {
-            U8string result;
-            if (sec < 0 || frac < 0)
-                result += '-';
-            sec = std::abs(sec);
-            int y = sec / 31'557'600;
-            sec -= 31'557'600 * y;
-            int d = sec / 86400;
-            sec -= 86400 * d;
-            int h = sec / 3600;
-            sec -= 3600 * h;
-            int m = sec / 60;
-            sec -= 60 * m;
-            int rc, s = sec;
-            std::vector<char> buf(64);
-            for (;;) {
-                if (y > 0)
-                    rc = snprintf(buf.data(), buf.size(), "%dy%03dd%02dh%02dm%02d", y, d, h, m, s);
-                else if (d > 0)
-                    rc = snprintf(buf.data(), buf.size(), "%dd%02dh%02dm%02d", d, h, m, s);
-                else if (h > 0)
-                    rc = snprintf(buf.data(), buf.size(), "%dh%02dm%02d", h, m, s);
-                else if (m > 0)
-                    rc = snprintf(buf.data(), buf.size(), "%dm%02d", m, s);
-                else
-                    rc = snprintf(buf.data(), buf.size(), "%d", s);
-                if (rc < int(buf.size()))
-                    break;
-                buf.resize(2 * buf.size());
-            }
-            result += buf.data();
-            if (prec > 0) {
-                buf.resize(prec + 3);
-                snprintf(buf.data(), buf.size(), "%.*f", prec, fabs(frac));
-                result += buf.data() + 1;
-            }
-            result += 's';
-            return result;
-        }
-
-    }
-
     // Unfortunately strftime() doesn't set errno and simply returns zero on
     // any error. This means that there is no way to distinguish between an
     // invalid format string, an output buffer that is too small, and a
@@ -3419,8 +3373,34 @@ namespace RS {
     U8string format_time(const std::chrono::duration<R, P>& time, int prec = 0) {
         using namespace std::chrono;
         auto whole = duration_cast<seconds>(time);
+        int64_t s = whole.count();
         auto frac = time - duration_cast<duration<R, P>>(whole);
-        return RS_Detail::format_time(whole.count(), duration_cast<Dseconds>(frac).count(), prec);
+        double f = duration_cast<Dseconds>(frac).count();
+        U8string result;
+        if (s < 0 || f < 0)
+            result += '-';
+        s = std::abs(s);
+        f = std::abs(f);
+        int64_t d = s / 86400;
+        s -= 86400 * d;
+        if (d)
+            result += dec(d) + 'd';
+        int64_t h = s / 3600;
+        s -= 3600 * h;
+        if (d || h)
+            result += dec(h, d ? 2 : 1) + 'h';
+        int64_t m = s / 60;
+        if (d || h || m)
+            result += dec(m, d || h ? 2 : 1) + 'm';
+        s -= 60 * m;
+        result += dec(s, d || h || m ? 2 : 1);
+        if (prec > 0) {
+            size_t pos = result.size();
+            result += fp_format(f, 'f', prec);
+            result.erase(pos, 1);
+        }
+        result += 's';
+        return result;
     }
 
     // System specific time and date conversions

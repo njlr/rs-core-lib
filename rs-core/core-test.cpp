@@ -3749,8 +3749,7 @@ namespace {
         TEST_EQUAL(format_time(Dseconds(123456), 3), "1d10h17m36.000s");
         TEST_EQUAL(format_time(Dseconds(1234567), 3), "14d06h56m07.000s");
         TEST_EQUAL(format_time(Dseconds(12345678), 3), "142d21h21m18.000s");
-        TEST_EQUAL(format_time(Dseconds(123456789), 3), "3y333d03h33m09.000s");
-        TEST_EQUAL(format_time(Dseconds(1234567890), 3), "39y044d05h31m30.000s");
+        TEST_EQUAL(format_time(Dseconds(123456789), 3), "1428d21h33m09.000s");
         TEST_EQUAL(format_time(Dseconds(-0.25), 3), "-0.250s");
         TEST_EQUAL(format_time(Dseconds(-0.5), 3), "-0.500s");
         TEST_EQUAL(format_time(Dseconds(-0.75), 3), "-0.750s");
@@ -3763,8 +3762,7 @@ namespace {
         TEST_EQUAL(format_time(Dseconds(-123456), 3), "-1d10h17m36.000s");
         TEST_EQUAL(format_time(Dseconds(-1234567), 3), "-14d06h56m07.000s");
         TEST_EQUAL(format_time(Dseconds(-12345678), 3), "-142d21h21m18.000s");
-        TEST_EQUAL(format_time(Dseconds(-123456789), 3), "-3y333d03h33m09.000s");
-        TEST_EQUAL(format_time(Dseconds(-1234567890), 3), "-39y044d05h31m30.000s");
+        TEST_EQUAL(format_time(Dseconds(-123456789), 3), "-1428d21h33m09.000s");
         TEST_EQUAL(format_time(nanoseconds(1), 10), "0.0000000010s");
         TEST_EQUAL(format_time(microseconds(1), 7), "0.0000010s");
         TEST_EQUAL(format_time(milliseconds(1), 4), "0.0010s");

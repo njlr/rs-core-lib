@@ -2072,7 +2072,9 @@ otherwise <code>steady_clock</code>.</p>
 </li>
 </ul>
 <p>This is passed to some of the time and date functions to indicate whether a
-broken down date is expressed in UTC or the local time zone.</p>
+broken down date is expressed in UTC or the local time zone. For all functions
+that take a <code>Zone</code> argument, behaviour is unspecified if the argument is not
+one of these two values.</p>
 </div>
 <div class="defns">
 <ul>
@@ -2084,9 +2086,10 @@ number of seconds.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>system_clock::time_point</code> <strong><code>make_date</code></strong><code>(int year, int month, int day, int hour, int min, double sec, Zone z = Zone::utc) noexcept</code></li>
+<li><code>system_clock::time_point</code> <strong><code>make_date</code></strong><code>(int year, int month, int day, int hour = 0, int min = 0, double sec = 0, Zone z = Zone::utc) noexcept</code></li>
 </ul>
-<p>Converts a broken down date into a time point.</p>
+<p>Converts a broken down date into a time point. Behaviour if any of the date
+arguments are invalid follows the same rules as <code>mktime()</code>.</p>
 </div>
 <div class="defns">
 <ul>
@@ -2210,9 +2213,8 @@ is a limitation of <code>strftime()</code>).</p>
 <ul>
 <li><code>template &lt;typename R, typename P&gt; U8string</code> <strong><code>format_time</code></strong><code>(const duration&lt;R, P&gt;&amp; time, int prec = 0)</code></li>
 </ul>
-<p>Formats a time duration in Julian years, days, hours, minutes, seconds, and
-(if <code>prec&gt;0</code>) fractions of a second. Results are unspecified if the number of
-years in <code>time</code> does not fit in a signed 32-bit integer.</p>
+<p>Formats a time duration in days, hours, minutes, seconds, and (if <code>prec&gt;0</code>)
+fractions of a second.</p>
 </div>
 <h3 id="system-specific-time-and-date-conversions">System specific time and date conversions</h3>
 <div class="defns">

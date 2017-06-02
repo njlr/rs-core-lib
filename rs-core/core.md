@@ -1728,7 +1728,9 @@ otherwise `steady_clock`.
     * `Zone::`**`local`**
 
 This is passed to some of the time and date functions to indicate whether a
-broken down date is expressed in UTC or the local time zone.
+broken down date is expressed in UTC or the local time zone. For all functions
+that take a `Zone` argument, behaviour is unspecified if the argument is not
+one of these two values.
 
 * `template <typename R, typename P> void` **`from_seconds`**`(double s, duration<R, P>& d) noexcept`
 * `template <typename R, typename P> double` **`to_seconds`**`(const duration<R, P>& d) noexcept`
@@ -1736,9 +1738,10 @@ broken down date is expressed in UTC or the local time zone.
 Convenience functions to convert between a `duration` and a floating point
 number of seconds.
 
-* `system_clock::time_point` **`make_date`**`(int year, int month, int day, int hour, int min, double sec, Zone z = Zone::utc) noexcept`
+* `system_clock::time_point` **`make_date`**`(int year, int month, int day, int hour = 0, int min = 0, double sec = 0, Zone z = Zone::utc) noexcept`
 
-Converts a broken down date into a time point.
+Converts a broken down date into a time point. Behaviour if any of the date
+arguments are invalid follows the same rules as `mktime()`.
 
 * `template <typename R, typename P> void` **`sleep_for`**`(duration<R, P> t) noexcept`
 * `void` **`sleep_for`**`(double t) noexcept`
@@ -1785,9 +1788,8 @@ For reference, the portable subset of the `strftime()` formatting codes are:
 
 * `template <typename R, typename P> U8string` **`format_time`**`(const duration<R, P>& time, int prec = 0)`
 
-Formats a time duration in Julian years, days, hours, minutes, seconds, and
-(if `prec>0`) fractions of a second. Results are unspecified if the number of
-years in `time` does not fit in a signed 32-bit integer.
+Formats a time duration in days, hours, minutes, seconds, and (if `prec>0`)
+fractions of a second.
 
 ### System specific time and date conversions ###
 
