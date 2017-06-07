@@ -976,12 +976,12 @@ result is not representable by the return type.
 
 * `template <typename T2, typename T1> T2` **`iceil`**`(T1 value) noexcept`
 * `template <typename T2, typename T1> T2` **`ifloor`**`(T1 value) noexcept`
-* `template <typename T2, typename T1> T2` **`round`**`(T1 value) noexcept`
+* `template <typename T2, typename T1> T2` **`iround`**`(T1 value) noexcept`
 
 Rounds the argument toward positive infinity (`iceil()`), toward negative
-infinity (`ifloor()`), or to the nearest integer (`round()`; halves round up),
-converting the result to the specified return type. The usual arithmetic rules
-apply if the result is not representable by the return type.
+infinity (`ifloor()`), or to the nearest integer (`iround()`; halves round
+up), converting the result to the specified return type. The usual arithmetic
+rules apply if the result is not representable by the return type.
 
 ## Functional utilities ##
 

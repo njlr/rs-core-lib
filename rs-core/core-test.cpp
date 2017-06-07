@@ -1939,30 +1939,30 @@ namespace {
         TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 10.0, 1.0), 7.5);
         TEST_EQUAL(interpolate(1.0, 5.0, 1.0, 10.0, 1.5), 7.5);
 
-        TEST_EQUAL(iceil<int>(42), 42);          TEST_EQUAL(ifloor<int>(42), 42);          TEST_EQUAL(round<int>(42), 42);
-        TEST_EQUAL(iceil<double>(42), 42.0);     TEST_EQUAL(ifloor<double>(42), 42.0);     TEST_EQUAL(round<double>(42), 42.0);
-        TEST_EQUAL(iceil<double>(42.0), 42.0);   TEST_EQUAL(ifloor<double>(42.0), 42.0);   TEST_EQUAL(round<double>(42.0), 42.0);
-        TEST_EQUAL(iceil<double>(42.42), 43.0);  TEST_EQUAL(ifloor<double>(42.42), 42.0);  TEST_EQUAL(round<double>(42.42), 42.0);
-        TEST_EQUAL(iceil<float>(42.0), 42.0f);   TEST_EQUAL(ifloor<float>(42.0), 42.0f);   TEST_EQUAL(round<float>(42.0), 42.0f);
-        TEST_EQUAL(iceil<float>(42.42), 43.0f);  TEST_EQUAL(ifloor<float>(42.42), 42.0f);  TEST_EQUAL(round<float>(42.42), 42.0f);
-        TEST_EQUAL(iceil<int>(0.0), 0);          TEST_EQUAL(ifloor<int>(0.0), 0);          TEST_EQUAL(round<int>(0.0), 0);
-        TEST_EQUAL(iceil<int>(0.25), 1);         TEST_EQUAL(ifloor<int>(0.25), 0);         TEST_EQUAL(round<int>(0.25), 0);
-        TEST_EQUAL(iceil<int>(0.5), 1);          TEST_EQUAL(ifloor<int>(0.5), 0);          TEST_EQUAL(round<int>(0.5), 1);
-        TEST_EQUAL(iceil<int>(0.75), 1);         TEST_EQUAL(ifloor<int>(0.75), 0);         TEST_EQUAL(round<int>(0.75), 1);
-        TEST_EQUAL(iceil<int>(1), 1);            TEST_EQUAL(ifloor<int>(1), 1);            TEST_EQUAL(round<int>(1), 1);
-        TEST_EQUAL(iceil<int>(-0.25), 0);        TEST_EQUAL(ifloor<int>(-0.25), -1);       TEST_EQUAL(round<int>(-0.25), 0);
-        TEST_EQUAL(iceil<int>(-0.5), 0);         TEST_EQUAL(ifloor<int>(-0.5), -1);        TEST_EQUAL(round<int>(-0.5), 0);
-        TEST_EQUAL(iceil<int>(-0.75), 0);        TEST_EQUAL(ifloor<int>(-0.75), -1);       TEST_EQUAL(round<int>(-0.75), -1);
-        TEST_EQUAL(iceil<int>(-1), -1);          TEST_EQUAL(ifloor<int>(-1), -1);          TEST_EQUAL(round<int>(-1), -1);
-        TEST_EQUAL(iceil<double>(0.0), 0.0);     TEST_EQUAL(ifloor<double>(0.0), 0.0);     TEST_EQUAL(round<double>(0.0), 0.0);
-        TEST_EQUAL(iceil<double>(0.25), 1.0);    TEST_EQUAL(ifloor<double>(0.25), 0.0);    TEST_EQUAL(round<double>(0.25), 0.0);
-        TEST_EQUAL(iceil<double>(0.5), 1.0);     TEST_EQUAL(ifloor<double>(0.5), 0.0);     TEST_EQUAL(round<double>(0.5), 1.0);
-        TEST_EQUAL(iceil<double>(0.75), 1.0);    TEST_EQUAL(ifloor<double>(0.75), 0.0);    TEST_EQUAL(round<double>(0.75), 1.0);
-        TEST_EQUAL(iceil<double>(1), 1.0);       TEST_EQUAL(ifloor<double>(1), 1.0);       TEST_EQUAL(round<double>(1), 1.0);
-        TEST_EQUAL(iceil<double>(-0.25), 0.0);   TEST_EQUAL(ifloor<double>(-0.25), -1.0);  TEST_EQUAL(round<double>(-0.25), 0.0);
-        TEST_EQUAL(iceil<double>(-0.5), 0.0);    TEST_EQUAL(ifloor<double>(-0.5), -1.0);   TEST_EQUAL(round<double>(-0.5), 0.0);
-        TEST_EQUAL(iceil<double>(-0.75), 0.0);   TEST_EQUAL(ifloor<double>(-0.75), -1.0);  TEST_EQUAL(round<double>(-0.75), -1.0);
-        TEST_EQUAL(iceil<double>(-1), -1.0);     TEST_EQUAL(ifloor<double>(-1), -1.0);     TEST_EQUAL(round<double>(-1), -1.0);
+        TEST_EQUAL(iceil<int>(42), 42);          TEST_EQUAL(ifloor<int>(42), 42);          TEST_EQUAL(iround<int>(42), 42);
+        TEST_EQUAL(iceil<double>(42), 42.0);     TEST_EQUAL(ifloor<double>(42), 42.0);     TEST_EQUAL(iround<double>(42), 42.0);
+        TEST_EQUAL(iceil<double>(42.0), 42.0);   TEST_EQUAL(ifloor<double>(42.0), 42.0);   TEST_EQUAL(iround<double>(42.0), 42.0);
+        TEST_EQUAL(iceil<double>(42.42), 43.0);  TEST_EQUAL(ifloor<double>(42.42), 42.0);  TEST_EQUAL(iround<double>(42.42), 42.0);
+        TEST_EQUAL(iceil<float>(42.0), 42.0f);   TEST_EQUAL(ifloor<float>(42.0), 42.0f);   TEST_EQUAL(iround<float>(42.0), 42.0f);
+        TEST_EQUAL(iceil<float>(42.42), 43.0f);  TEST_EQUAL(ifloor<float>(42.42), 42.0f);  TEST_EQUAL(iround<float>(42.42), 42.0f);
+        TEST_EQUAL(iceil<int>(0.0), 0);          TEST_EQUAL(ifloor<int>(0.0), 0);          TEST_EQUAL(iround<int>(0.0), 0);
+        TEST_EQUAL(iceil<int>(0.25), 1);         TEST_EQUAL(ifloor<int>(0.25), 0);         TEST_EQUAL(iround<int>(0.25), 0);
+        TEST_EQUAL(iceil<int>(0.5), 1);          TEST_EQUAL(ifloor<int>(0.5), 0);          TEST_EQUAL(iround<int>(0.5), 1);
+        TEST_EQUAL(iceil<int>(0.75), 1);         TEST_EQUAL(ifloor<int>(0.75), 0);         TEST_EQUAL(iround<int>(0.75), 1);
+        TEST_EQUAL(iceil<int>(1), 1);            TEST_EQUAL(ifloor<int>(1), 1);            TEST_EQUAL(iround<int>(1), 1);
+        TEST_EQUAL(iceil<int>(-0.25), 0);        TEST_EQUAL(ifloor<int>(-0.25), -1);       TEST_EQUAL(iround<int>(-0.25), 0);
+        TEST_EQUAL(iceil<int>(-0.5), 0);         TEST_EQUAL(ifloor<int>(-0.5), -1);        TEST_EQUAL(iround<int>(-0.5), 0);
+        TEST_EQUAL(iceil<int>(-0.75), 0);        TEST_EQUAL(ifloor<int>(-0.75), -1);       TEST_EQUAL(iround<int>(-0.75), -1);
+        TEST_EQUAL(iceil<int>(-1), -1);          TEST_EQUAL(ifloor<int>(-1), -1);          TEST_EQUAL(iround<int>(-1), -1);
+        TEST_EQUAL(iceil<double>(0.0), 0.0);     TEST_EQUAL(ifloor<double>(0.0), 0.0);     TEST_EQUAL(iround<double>(0.0), 0.0);
+        TEST_EQUAL(iceil<double>(0.25), 1.0);    TEST_EQUAL(ifloor<double>(0.25), 0.0);    TEST_EQUAL(iround<double>(0.25), 0.0);
+        TEST_EQUAL(iceil<double>(0.5), 1.0);     TEST_EQUAL(ifloor<double>(0.5), 0.0);     TEST_EQUAL(iround<double>(0.5), 1.0);
+        TEST_EQUAL(iceil<double>(0.75), 1.0);    TEST_EQUAL(ifloor<double>(0.75), 0.0);    TEST_EQUAL(iround<double>(0.75), 1.0);
+        TEST_EQUAL(iceil<double>(1), 1.0);       TEST_EQUAL(ifloor<double>(1), 1.0);       TEST_EQUAL(iround<double>(1), 1.0);
+        TEST_EQUAL(iceil<double>(-0.25), 0.0);   TEST_EQUAL(ifloor<double>(-0.25), -1.0);  TEST_EQUAL(iround<double>(-0.25), 0.0);
+        TEST_EQUAL(iceil<double>(-0.5), 0.0);    TEST_EQUAL(ifloor<double>(-0.5), -1.0);   TEST_EQUAL(iround<double>(-0.5), 0.0);
+        TEST_EQUAL(iceil<double>(-0.75), 0.0);   TEST_EQUAL(ifloor<double>(-0.75), -1.0);  TEST_EQUAL(iround<double>(-0.75), -1.0);
+        TEST_EQUAL(iceil<double>(-1), -1.0);     TEST_EQUAL(ifloor<double>(-1), -1.0);     TEST_EQUAL(iround<double>(-1), -1.0);
 
     }
 
