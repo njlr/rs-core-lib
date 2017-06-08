@@ -96,7 +96,7 @@ TESTAPP := $(BUILD)/$(NAME)-test$(EXE)
 
 .DELETE_ON_ERROR:
 
-.PHONY: all static app run unit check install symlinks uninstall doc unlink undoc clean cleanall dep help
+.PHONY: all static app run unit check install symlinks uninstall doc unlink undoc clean clean-all dep help
 .PHONY: help-prefix help-app help-test help-install help-suffix print-%
 
 all: static app unit doc
@@ -110,7 +110,7 @@ undoc:
 clean:
 	rm -rf $(BUILD) *.stackdump __test_*
 
-cleanall:
+clean-all:
 	rm -rf build doc *.stackdump __test_*
 
 dep:
@@ -128,7 +128,7 @@ help-suffix: help-install
 	@echo "    unlink     = Delete link targets but not object modules"
 	@echo "    undoc      = Delete the documentation"
 	@echo "    clean      = Delete all targets for this toolset"
-	@echo "    cleanall   = Delete all targets for all toolsets and docs"
+	@echo "    clean-all  = Delete all targets for all toolsets and docs"
 	@echo "    dep        = Rebuild makefile dependencies"
 	@echo "    help       = List make targets"
 	@echo "    print-*    = Query a makefile variable"
