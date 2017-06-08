@@ -1452,6 +1452,27 @@ scope guard object will do nothing on destruction.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>class</code> <strong><code>SizeGuard</code></strong><code>: public ScopeFailure</code><ul>
+<li><code>template &lt;typename T&gt; explicit SizeGuard::</code><strong><code>SizeGuard</code></strong><code>(T&amp; t)</code></li>
+</ul>
+</li>
+</ul>
+<p>Saves the current size of a container, and restores it if an exception unwinds
+the stack. <code>T</code> must be a container type with <code>size()</code> and <code>resize()</code>
+functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>ValueGuard</code></strong><code>: public ScopeFailure</code><ul>
+<li><code>template &lt;typename T&gt; explicit ValueGuard::</code><strong><code>ValueGuard</code></strong><code>(T&amp; t)</code></li>
+</ul>
+</li>
+</ul>
+<p>Saves the current value of a variable, and restores it if an exception unwinds
+the stack.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>class</code> <strong><code>ScopedTransaction</code></strong><ul>
 <li><code>using ScopedTransaction::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
 <li><code>ScopedTransaction::</code><strong><code>ScopedTransaction</code></strong><code>() noexcept</code></li>
@@ -1477,21 +1498,6 @@ called since the last <code>call()</code>.</p>
 Once <code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and
 any newly added function pairs become part of a new cycle, equivalent to a
 newly constructed <code>ScopedTransaction</code>.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>class</code> <strong><code>ScopedValue</code></strong><ul>
-<li><code>template &lt;typename T1, typename T2&gt; ScopedValue::</code><strong><code>ScopedValue</code></strong><code>(T1&amp; var, const T2&amp; value)</code></li>
-<li><code>ScopedValue::</code><strong><code>~ScopedValue</code></strong><code>() noexcept</code></li>
-<li><code>void ScopedValue::</code><strong><code>release</code></strong><code>() noexcept</code></li>
-</ul>
-</li>
-</ul>
-<p>The constructor sets <code>var</code> to <code>value</code>; the destructor restores the original
-value, unless <code>release()</code> has been called. The constructor will leave <code>var</code>
-unchanged if the assignment throws. The destructor may fail to restore the
-value if <code>T</code>'s assignment operator throws (the exception is silently
-discarded).</p>
 </div>
 <h2 id="io-utilities">I/O utilities</h2>
 <h3 id="file-io-operations">File I/O operations</h3>

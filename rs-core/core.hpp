@@ -2050,6 +2050,18 @@ namespace RS {
     using ScopeSuccess = RS_Detail::ConditionalScopeExit<1>;
     using ScopeFailure = RS_Detail::ConditionalScopeExit<0>;
 
+    class SizeGuard:
+    public ScopeFailure {
+    public:
+        template <typename T> explicit SizeGuard(T& t): ScopeFailure([&t,n=t.size()] { t.resize(n); }) {}
+    };
+
+    class ValueGuard:
+    public ScopeFailure {
+    public:
+        template <typename T> explicit ValueGuard(T& t): ScopeFailure([&t,v=t] { t = std::move(v); }) {}
+    };
+
     class ScopedTransaction {
     public:
         RS_NO_COPY_MOVE(ScopedTransaction)
@@ -2070,20 +2082,6 @@ namespace RS {
         }
     private:
         std::vector<callback> stack;
-    };
-
-    class ScopedValue:
-    public ScopeExit {
-    public:
-        template <typename T1, typename T2> ScopedValue(T1& var, const T2& value):
-            ScopeExit(make_callback(var, value)) {}
-    private:
-        template <typename T1, typename T2> static callback make_callback(T1& var, const T2& value) {
-            T1 old = var;
-            callback f = [&var, old] { var = old; };
-            var = value;
-            return f;
-        }
     };
 
     // [I/O utilities]

@@ -1173,6 +1173,19 @@ anything).
 The `release()` function discards the saved function; after it is called, the
 scope guard object will do nothing on destruction.
 
+* `class` **`SizeGuard`**`: public ScopeFailure`
+    * `template <typename T> explicit SizeGuard::`**`SizeGuard`**`(T& t)`
+
+Saves the current size of a container, and restores it if an exception unwinds
+the stack. `T` must be a container type with `size()` and `resize()`
+functions.
+
+* `class` **`ValueGuard`**`: public ScopeFailure`
+    * `template <typename T> explicit ValueGuard::`**`ValueGuard`**`(T& t)`
+
+Saves the current value of a variable, and restores it if an exception unwinds
+the stack.
+
 * `class` **`ScopedTransaction`**
     * `using ScopedTransaction::`**`callback`** `= function<void()>`
     * `ScopedTransaction::`**`ScopedTransaction`**`() noexcept`
@@ -1198,17 +1211,6 @@ A single `ScopedTransaction` object can be used for multiple transactions.
 Once `commit()` or `rollback()` is called, the undo stack is discarded, and
 any newly added function pairs become part of a new cycle, equivalent to a
 newly constructed `ScopedTransaction`.
-
-* `class` **`ScopedValue`**
-    * `template <typename T1, typename T2> ScopedValue::`**`ScopedValue`**`(T1& var, const T2& value)`
-    * `ScopedValue::`**`~ScopedValue`**`() noexcept`
-    * `void ScopedValue::`**`release`**`() noexcept`
-
-The constructor sets `var` to `value`; the destructor restores the original
-value, unless `release()` has been called. The constructor will leave `var`
-unchanged if the assignment throws. The destructor may fail to restore the
-value if `T`'s assignment operator throws (the exception is silently
-discarded).
 
 ## I/O utilities ##
 

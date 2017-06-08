@@ -2286,7 +2286,7 @@ namespace {
             n = 1;
             ScopeExit x([&] { n = 2; });
             TEST_EQUAL(n, 1);
-            throw std::runtime_error("Hello");
+            throw std::runtime_error("fail");
         }
         catch (...) {}
         TEST_EQUAL(n, 2);
@@ -2302,7 +2302,7 @@ namespace {
             n = 1;
             ScopeSuccess x([&] { n = 2; });
             TEST_EQUAL(n, 1);
-            throw std::runtime_error("Hello");
+            throw std::runtime_error("fail");
         }
         catch (...) {}
         TEST_EQUAL(n, 1);
@@ -2318,7 +2318,7 @@ namespace {
             n = 1;
             ScopeFailure x([&] { n = 2; });
             TEST_EQUAL(n, 1);
-            throw std::runtime_error("Hello");
+            throw std::runtime_error("fail");
         }
         catch (...) {}
         TEST_EQUAL(n, 2);
@@ -2329,7 +2329,7 @@ namespace {
 
         try {
             ScopeExit x(nullptr);
-            throw std::runtime_error("Hello");
+            throw std::runtime_error("fail");
         }
         catch (...) {}
 
@@ -2339,7 +2339,7 @@ namespace {
 
         try {
             ScopeSuccess x(nullptr);
-            throw std::runtime_error("Hello");
+            throw std::runtime_error("fail");
         }
         catch (...) {}
 
@@ -2349,12 +2349,88 @@ namespace {
 
         try {
             ScopeFailure x(nullptr);
-            throw std::runtime_error("Hello");
+            throw std::runtime_error("fail");
         }
         catch (...) {}
 
+        s = "hello";
         {
-            s.clear();
+            SizeGuard g(s);
+            s += " world";
+            TEST_EQUAL(s, "hello world");
+        }
+        TEST_EQUAL(s, "hello world");
+
+        s = "hello";
+        try {
+            SizeGuard g(s);
+            s += " world";
+            TEST_EQUAL(s, "hello world");
+            throw std::runtime_error("fail");
+        }
+        catch (...) {}
+        TEST_EQUAL(s, "hello");
+
+        s = "hello";
+        {
+            SizeGuard g(s);
+            s += " world";
+            TEST_EQUAL(s, "hello world");
+            TRY(g.release());
+        }
+        TEST_EQUAL(s, "hello world");
+
+        s = "hello";
+        try {
+            SizeGuard g(s);
+            s += " world";
+            TEST_EQUAL(s, "hello world");
+            TRY(g.release());
+            throw std::runtime_error("fail");
+        }
+        catch (...) {}
+        TEST_EQUAL(s, "hello world");
+
+        s = "hello";
+        {
+            ValueGuard g(s);
+            s = "goodbye";
+            TEST_EQUAL(s, "goodbye");
+        }
+        TEST_EQUAL(s, "goodbye");
+
+        s = "hello";
+        try {
+            ValueGuard g(s);
+            s = "goodbye";
+            TEST_EQUAL(s, "goodbye");
+            throw std::runtime_error("fail");
+        }
+        catch (...) {}
+        TEST_EQUAL(s, "hello");
+
+        s = "hello";
+        {
+            ValueGuard g(s);
+            s = "goodbye";
+            TEST_EQUAL(s, "goodbye");
+            TRY(g.release());
+        }
+        TEST_EQUAL(s, "goodbye");
+
+        s = "hello";
+        try {
+            ValueGuard g(s);
+            s = "goodbye";
+            TEST_EQUAL(s, "goodbye");
+            TRY(g.release());
+            throw std::runtime_error("fail");
+        }
+        catch (...) {}
+        TEST_EQUAL(s, "goodbye");
+
+        s.clear();
+        {
             ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
@@ -2363,8 +2439,8 @@ namespace {
         }
         TEST_EQUAL(s, "abcxyz");
 
+        s.clear();
         {
-            s.clear();
             ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
@@ -2375,8 +2451,8 @@ namespace {
         }
         TEST_EQUAL(s, "abcxyz");
 
+        s.clear();
         {
-            s.clear();
             ScopedTransaction t;
             TRY(t.call([&] { s += 'a'; }, [&] { s += 'z'; }));
             TRY(t.call([&] { s += 'b'; }, [&] { s += 'y'; }));
@@ -2388,21 +2464,6 @@ namespace {
             TEST_EQUAL(s, "abc");
         }
         TEST_EQUAL(s, "abc");
-
-        s = "hello";
-        {
-            ScopedValue sv(s, "world");
-            TEST_EQUAL(s, "world");
-        }
-        TEST_EQUAL(s, "hello");
-
-        s = "hello";
-        {
-            ScopedValue sv(s, "world");
-            TEST_EQUAL(s, "world");
-            TRY(sv.release());
-        }
-        TEST_EQUAL(s, "world");
 
     }
 
