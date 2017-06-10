@@ -1091,16 +1091,28 @@ C-style arrays and is <code>constexpr</code>.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; pair&lt;T, T&gt;</code> <strong><code>divide</code></strong><code>(T lhs, T rhs) noexcept</code></li>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>quo</code></strong><code>(T lhs, T rhs) noexcept</code></li>
-<li><code>template &lt;typename T&gt; T</code> <strong><code>rem</code></strong><code>(T lhs, T rhs) noexcept</code></li>
+<li><code>template &lt;typename T&gt; pair&lt;T, T&gt;</code> <strong><code>divide</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>quo</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>rem</code></strong><code>(T x, T y) noexcept</code></li>
 </ul>
 <p>These perform floor division operations: if the division is not exact, the
 remainder is always positive (regardless of the signs of the arguments), and
-the quotient is the integer that satisfies <code>lhs=quo*rhs+rem</code> (apart from
-rounding errors). The pair returned by <code>divide()</code> contains the quotient and
-remainder. For all three functions, behaviour is undefined if <code>rhs=0</code> or the
-quotient is out of <code>T</code>'s representable range.</p>
+the quotient is the integer that satisfies <code>x=q*y+r</code> (apart from rounding
+errors). The pair returned by <code>divide()</code> contains the quotient and remainder.
+For all three functions, behaviour is undefined if <code>y=0</code> or the quotient is
+out of <code>T</code>'s representable range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; std::pair&lt;T, T&gt;</code> <strong><code>symmetric_divide</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>symmetric_quotient</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>symmetric_remainder</code></strong><code>(T x, T y) noexcept</code></li>
+</ul>
+<p>These perform the same operations as the division functions above, except that
+the remainder is constrained to <code>(-|y|/2,|y|/2]</code> instead of <code>[0,|y|)</code>.
+Behaviour is undefined if <code>y=0</code> or the quotient is out of <code>T</code>'s representable
+range. These functions do not make sense (and will not compile) if <code>T</code> is
+unsigned.</p>
 </div>
 <div class="defns">
 <ul>

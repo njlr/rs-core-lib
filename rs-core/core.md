@@ -867,16 +867,26 @@ Compile time maximum and minimum functions.
 Clamps a value to a fixed range. This returns `static_cast<T>(min)` if
 `t<min`, `static_cast<T>(max)` if `t>max`, otherwise `t`.
 
-* `template <typename T> pair<T, T>` **`divide`**`(T lhs, T rhs) noexcept`
-* `template <typename T> T` **`quo`**`(T lhs, T rhs) noexcept`
-* `template <typename T> T` **`rem`**`(T lhs, T rhs) noexcept`
+* `template <typename T> pair<T, T>` **`divide`**`(T x, T y) noexcept`
+* `template <typename T> T` **`quo`**`(T x, T y) noexcept`
+* `template <typename T> T` **`rem`**`(T x, T y) noexcept`
 
 These perform floor division operations: if the division is not exact, the
 remainder is always positive (regardless of the signs of the arguments), and
-the quotient is the integer that satisfies `lhs=quo*rhs+rem` (apart from
-rounding errors). The pair returned by `divide()` contains the quotient and
-remainder. For all three functions, behaviour is undefined if `rhs=0` or the
-quotient is out of `T`'s representable range.
+the quotient is the integer that satisfies `x=q*y+r` (apart from rounding
+errors). The pair returned by `divide()` contains the quotient and remainder.
+For all three functions, behaviour is undefined if `y=0` or the quotient is
+out of `T`'s representable range.
+
+* `template <typename T> std::pair<T, T>` **`symmetric_divide`**`(T x, T y) noexcept`
+* `template <typename T> T` **`symmetric_quotient`**`(T x, T y) noexcept`
+* `template <typename T> T` **`symmetric_remainder`**`(T x, T y) noexcept`
+
+These perform the same operations as the division functions above, except that
+the remainder is constrained to `(-|y|/2,|y|/2]` instead of `[0,|y|)`.
+Behaviour is undefined if `y=0` or the quotient is out of `T`'s representable
+range. These functions do not make sense (and will not compile) if `T` is
+unsigned.
 
 * `template <typename T> T` **`shift_left`**`(T t, int n) noexcept`
 * `template <typename T> T` **`shift_right`**`(T t, int n) noexcept`

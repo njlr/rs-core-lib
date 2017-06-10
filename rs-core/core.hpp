@@ -1403,54 +1403,59 @@ namespace RS {
 
     namespace RS_Detail {
 
-        enum class NumMode {
-            signed_integer,
-            unsigned_integer,
-            floating_point,
-            not_numeric,
+        template <typename T>
+        struct NumberMode {
+            static constexpr char value =
+                std::is_floating_point<T>::value ? 'F' :
+                std::is_signed<T>::value ? 'S' :
+                std::is_unsigned<T>::value ? 'U' : 'X';
+        };
+
+        template <typename T, bool Symmetric = false, char Mode = NumberMode<T>::value>
+        struct Divide {
+            std::pair<T, T> operator()(T x, T y) const noexcept {
+                return {x / y, x % y};
+            }
         };
 
         template <typename T>
-        struct NumType {
-            static constexpr NumMode value =
-                std::is_floating_point<T>::value ? NumMode::floating_point :
-                std::is_signed<T>::value ? NumMode::signed_integer :
-                std::is_unsigned<T>::value ? NumMode::unsigned_integer : NumMode::not_numeric;
-        };
-
-        template <typename T, NumMode Mode = NumType<T>::value> struct Divide;
-
-        template <typename T>
-        struct Divide<T, NumMode::signed_integer> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
-                auto q = lhs / rhs, r = lhs % rhs;
+        struct Divide<T, false, 'S'> {
+            std::pair<T, T> operator()(T x, T y) const noexcept {
+                auto q = x / y, r = x % y;
                 if (r < T(0)) {
-                    q += rhs < T(0) ? T(1) : T(-1);
-                    r += std::abs(rhs);
+                    q += y < T(0) ? T(1) : T(-1);
+                    r += std::abs(y);
                 }
                 return {q, r};
             }
         };
 
         template <typename T>
-        struct Divide<T, NumMode::unsigned_integer> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
-                return {lhs / rhs, lhs % rhs};
+        struct Divide<T, false, 'F'> {
+            std::pair<T, T> operator()(T x, T y) const noexcept {
+                using std::abs;
+                using std::floor;
+                using std::fmod;
+                auto q = floor(x / y), r = fmod(x, y);
+                if (r < T(0))
+                    r += abs(y);
+                if (y < T(0) && r != T(0))
+                    q += T(1);
+                return {q, r};
             }
         };
 
-        template <typename T>
-        struct Divide<T, NumMode::floating_point> {
-            std::pair<T, T> operator()(T lhs, T rhs) const noexcept {
-                using std::fabs;
-                using std::floor;
-                using std::fmod;
-                auto q = floor(lhs / rhs), r = fmod(lhs, rhs);
-                if (r < T(0))
-                    r += fabs(rhs);
-                if (rhs < T(0) && r != T(0))
-                    q += T(1);
-                return {q, r};
+        template <typename T, char Mode>
+        struct Divide<T, true, Mode> {
+            std::pair<T, T> operator()(T x, T y) const noexcept {
+                static_assert(Mode != 'U', "Symmetric division on unsigned type");
+                using std::abs;
+                auto qr = Divide<T>()(x, y);
+                if (qr.second > abs(y) / T(2)) {
+                    qr.first += y > T(0) ? T(1) : T(-1);
+                    qr.second -= abs(y);
+                }
+                return qr;
             }
         };
 
@@ -1482,22 +1487,22 @@ namespace RS {
             }
         };
 
-        template <typename T, NumMode Mode = NumType<T>::value> struct SignOf;
+        template <typename T, char Mode = NumberMode<T>::value> struct SignOf;
 
         template <typename T>
-        struct SignOf<T, NumMode::signed_integer> {
+        struct SignOf<T, 'S'> {
             constexpr int operator()(T t) const noexcept
                 { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
         };
 
         template <typename T>
-        struct SignOf<T, NumMode::unsigned_integer> {
+        struct SignOf<T, 'U'> {
             constexpr int operator()(T t) const noexcept
                 { return t != T(0); }
         };
 
         template <typename T>
-        struct SignOf<T, NumMode::floating_point> {
+        struct SignOf<T, 'F'> {
             constexpr int operator()(T t) const noexcept
                 { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
         };
@@ -1505,16 +1510,16 @@ namespace RS {
     }
 
     template <typename T> constexpr T static_min(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept
-        { return t < static_min(args...) ? t : static_min(args...); }
+    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept { return t < static_min(args...) ? t : static_min(args...); }
     template <typename T> constexpr T static_max(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept
-        { return static_max(args...) < t ? t : static_max(args...); }
-    template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept
-        { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
-    template <typename T> std::pair<T, T> divide(T lhs, T rhs) noexcept { return RS_Detail::Divide<T>()(lhs, rhs); }
-    template <typename T> T quo(T lhs, T rhs) noexcept { return RS_Detail::Divide<T>()(lhs, rhs).first; }
-    template <typename T> T rem(T lhs, T rhs) noexcept { return RS_Detail::Divide<T>()(lhs, rhs).second; }
+    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept { return static_max(args...) < t ? t : static_max(args...); }
+    template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
+    template <typename T> std::pair<T, T> divide(T x, T y) noexcept { return RS_Detail::Divide<T>()(x, y); }
+    template <typename T> T quo(T x, T y) noexcept { return divide(x, y).first; }
+    template <typename T> T rem(T x, T y) noexcept { return divide(x, y).second; }
+    template <typename T> std::pair<T, T> symmetric_divide(T x, T y) noexcept { return RS_Detail::Divide<T, true>()(x, y); }
+    template <typename T> T symmetric_quotient(T x, T y) noexcept { return symmetric_divide(x, y).first; }
+    template <typename T> T symmetric_remainder(T x, T y) noexcept { return symmetric_divide(x, y).second; }
     template <typename T> T shift_left(T t, int n) noexcept { return RS_Detail::ShiftLeft<T>()(t, n); }
     template <typename T> T shift_right(T t, int n) noexcept { return RS_Detail::ShiftLeft<T>()(t, - n); }
 
