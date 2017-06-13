@@ -43,10 +43,8 @@ def get_includes(file):
     includes = set()
     for line in open(file, 'r', encoding='utf-8'):
         match = match_include.search(line)
-        if match:
-            req = match[1]
-            if req in headers:
-                includes.add(match[1])
+        if match and match[1] in headers:
+            includes.add(match[1])
     return includes
 
 shallow_deps = {} # source or header => set of required headers
