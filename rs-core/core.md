@@ -1280,6 +1280,15 @@ Simple timer for debugging. The destructor will write (using `logx()`) the
 name and the elapsed time since construction. The note on exceptions for
 `logx()` above applies here too.
 
+### Process I/O operations ###
+
+`std::string` **`run_command`**`(const U8string& cmd)`
+
+Runs a shell command synchronously (via `popen()` or the equivalent),
+capturing standard output. No error indication is returned; standard error
+still goes to its usual destination, unless explicitly redirected in the
+command line.
+
 ### Terminal I/O operations ###
 
 * `bool` **`is_stdout_redirected`**`() noexcept`

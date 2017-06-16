@@ -2174,17 +2174,37 @@ namespace RS {
             }
         }
 
-        inline bool load_file(const std::string& file, std::string& dst, size_t limit = npos)
-            { return load_file(uconv<std::wstring>(file), dst, limit); }
-        inline bool save_file(const std::string& file, const void* ptr, size_t n, bool append)
-            { return save_file(uconv<std::wstring>(file), ptr, n, append); }
-        inline bool save_file(const std::wstring& file, const std::string& src, bool append = false)
-            { return save_file(file, src.data(), src.size(), append); }
+        inline bool load_file(const std::string& file, std::string& dst, size_t limit = npos) { return load_file(uconv<std::wstring>(file), dst, limit); }
+        inline bool save_file(const std::string& file, const void* ptr, size_t n, bool append) { return save_file(uconv<std::wstring>(file), ptr, n, append); }
+        inline bool save_file(const std::wstring& file, const std::string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
 
     #endif
 
-    inline bool save_file(const std::string& file, const std::string& src, bool append = false)
-        { return save_file(file, src.data(), src.size(), append); }
+    inline bool save_file(const std::string& file, const std::string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
+
+    // Process I/O operations
+
+    inline std::string run_command(const U8string& cmd) {
+        static constexpr size_t block = 1024;
+        std::shared_ptr<FILE> pipe;
+        #ifdef _XOPEN_SOURCE
+            pipe.reset(popen(cmd.data(), "rb"), pclose);
+        #else
+            auto wcmd = uconv<std::wstring>(cmd);
+            pipe.reset(_wpopen(wcmd.data(), L"rb"), pclose);
+        #endif
+        if (! pipe)
+            return {};
+        U8string result;
+        size_t bytes = 0;
+        do {
+            size_t offset = result.size();
+            result.resize(offset + block);
+            bytes = fread(&result[0] + offset, 1, block, pipe.get());
+            result.resize(offset + bytes);
+        } while (bytes);
+        return result;
+    }
 
     // Terminal I/O operations
 

@@ -67,6 +67,7 @@
 <li><a href="#io-utilities">I/O utilities</a><ul>
 <li><a href="#file-io-operations">File I/O operations</a></li>
 <li><a href="#logging">Logging</a></li>
+<li><a href="#process-io-operations">Process I/O operations</a></li>
 <li><a href="#terminal-io-operations">Terminal I/O operations</a></li>
 </ul>
 </li>
@@ -1574,6 +1575,12 @@ internal workings are silently ignored.</p>
 name and the elapsed time since construction. The note on exceptions for
 <code>logx()</code> above applies here too.</p>
 </div>
+<h3 id="process-io-operations">Process I/O operations</h3>
+<p><code>std::string</code> <strong><code>run_command</code></strong><code>(const U8string&amp; cmd)</code></p>
+<p>Runs a shell command synchronously (via <code>popen()</code> or the equivalent),
+capturing standard output. No error indication is returned; standard error
+still goes to its usual destination, unless explicitly redirected in the
+command line.</p>
 <h3 id="terminal-io-operations">Terminal I/O operations</h3>
 <div class="defns">
 <ul>

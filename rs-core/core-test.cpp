@@ -2623,6 +2623,25 @@ namespace {
 
     }
 
+    void check_process_io_operations() {
+
+        U8string s;
+
+        #ifdef _XOPEN_SOURCE
+            TRY(s = run_command("ls"));
+        #else
+            TRY(s = run_command("dir /b"));
+        #endif
+
+        TEST(! s.empty());
+        std::set<U8string> ss;
+        TRY(split(s, append(ss), "\r\n"));
+        TEST(! ss.empty());
+        TEST(ss.count("Makefile"));
+        TEST(ss.count("build"));
+
+    }
+
     void check_terminal_io_operations() {
 
         U8string s;
@@ -4079,6 +4098,7 @@ TEST_MODULE(core, core) {
     check_keyword_arguments();
     check_scope_guards();
     check_file_io_operations();
+    check_process_io_operations();
     check_terminal_io_operations();
     check_simple_random_generators();
     check_character_functions();
