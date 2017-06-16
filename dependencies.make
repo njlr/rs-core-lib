@@ -1,1 +1,1 @@
-$(BUILD)/rs-core/core-test.o: rs-core/core-test.cpp rs-core/core.hpp rs-core/unit-test.hpp
+$(BUILD)/core-test.o: rs-core/core-test.cpp rs-core/core.hpp rs-core/unit-test.hpp

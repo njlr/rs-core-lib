@@ -126,7 +126,7 @@ out = open('dependencies.make', 'w', encoding='utf-8')
 
 for src in sorted(sources):
     deps = source_deps[src]
-    obj = re.sub(R'\.\w+$', '.o', src)
+    obj = re.sub(R'^[^/]+/(.+)\.\w+$', R'\1.o', src)
     text = '$(BUILD)/{0}: {1} {2}'.format(obj, src, ' '.join(sorted(deps[''])))
     for folder in sorted(deps):
         if folder:

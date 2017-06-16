@@ -91,8 +91,8 @@ ifneq ($(shell grep -Fo sdl $(DEPENDS)),)
 endif
 
 LD := $(CXX)
-MAINAPP := $(BUILD)/$(NAME)-app$(EXE)
-TESTAPP := $(BUILD)/$(NAME)-test$(EXE)
+MAINAPP := $(BUILD)/$(NAME)$(EXE)
+TESTAPP := $(BUILD)/test-$(NAME)$(EXE)
 
 .DELETE_ON_ERROR:
 
