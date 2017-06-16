@@ -2188,7 +2188,7 @@ namespace RS {
         static constexpr size_t block = 1024;
         std::shared_ptr<FILE> pipe;
         #ifdef _XOPEN_SOURCE
-            pipe.reset(popen(cmd.data(), "rb"), pclose);
+            pipe.reset(popen(cmd.data(), "r"), pclose);
         #else
             auto wcmd = uconv<std::wstring>(cmd);
             pipe.reset(_wpopen(wcmd.data(), L"rb"), pclose);
