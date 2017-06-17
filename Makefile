@@ -8,7 +8,7 @@
 # otherwise, if any application modules exist, the application is installable;
 # otherwise, nothing is installable.
 
-LIBROOT ?= ..
+CODEROOT ?= ..
 NAME := $(shell ls */*.{c,h,cpp,hpp} 2>/dev/null | sed -E 's!/.*!!'| uniq -c | sort | tail -n 1 | sed -E 's!^[ 0-9]+!!')
 TAG := $(shell echo "$$PWD" | sed -E 's!^([^/]*/)*([^/]*-)?!!')
 PREFIX := /usr/local
@@ -37,14 +37,14 @@ SOURCES := $(shell find $(NAME) -name *.c -or -name *.cpp -or -name *.m -or -nam
 APPSOURCES := $(shell echo "$(SOURCES)" | tr ' ' '\n' | grep app-)
 TESTSOURCES := $(shell echo "$(SOURCES)" | tr ' ' '\n' | grep '[-]test')
 LIBSOURCES := $(filter-out $(APPSOURCES) $(TESTSOURCES),$(SOURCES))
-APPOBJECTS := $(shell sed -E 's!([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(APPSOURCES)')
-LIBOBJECTS := $(shell sed -E 's!([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(LIBSOURCES)')
-TESTOBJECTS := $(shell sed -E 's!([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(TESTSOURCES)')
+APPOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(APPSOURCES)')
+LIBOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(LIBSOURCES)')
+TESTOBJECTS := $(shell sed -E 's!$(NAME)/([^ ]+)\.[a-z]+!$(BUILD)/\1.o!g' <<< '$(TESTSOURCES)')
 DOCINDEX := $(wildcard $(NAME)/index.md)
 DOCSOURCES := $(shell find $(NAME) -name '*.md' | sort)
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
 LIBTAG :=
-SCRIPTS := $(LIBROOT)/core-lib/scripts
+SCRIPTS := $(CODEROOT)/core-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
@@ -249,35 +249,35 @@ ifneq ($(XHOST),mingw)
 	LDLIBS += -lpthread -lz
 endif
 
-$(BUILD)/%-test.o: %-test.c
+$(BUILD)/%-test.o: $(NAME)/%-test.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CCFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-$(BUILD)/%-test.o: %-test.cpp
+$(BUILD)/%-test.o: $(NAME)/%-test.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-$(BUILD)/%-test.o: %-test.m
+$(BUILD)/%-test.o: $(NAME)/%-test.m
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-$(BUILD)/%-test.o: %-test.mm
+$(BUILD)/%-test.o: $(NAME)/%-test.mm
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(TESTOPT) -c $< -o $@
 
-$(BUILD)/%.o: %.c
+$(BUILD)/%.o: $(NAME)/%.c
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CCFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
-$(BUILD)/%.o: %.cpp
+$(BUILD)/%.o: $(NAME)/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
-$(BUILD)/%.o: %.m
+$(BUILD)/%.o: $(NAME)/%.m
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
-$(BUILD)/%.o: %.mm
+$(BUILD)/%.o: $(NAME)/%.mm
 	@mkdir -p $(dir $@)
 	$(CXX) $(FLAGS) $(OBJCFLAGS) $(CXXFLAGS) $(DEFINES) $(OPT) -c $< -o $@
 
