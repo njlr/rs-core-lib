@@ -8,7 +8,7 @@
 # otherwise, if any application modules exist, the application is installable;
 # otherwise, nothing is installable.
 
-CODEROOT ?= ..
+LIBROOT ?= ..
 NAME := $(shell ls */*.{c,h,cpp,hpp} 2>/dev/null | sed -E 's!/.*!!'| uniq -c | sort | tail -n 1 | sed -E 's!^[ 0-9]+!!')
 TAG := $(shell echo "$$PWD" | sed -E 's!^([^/]*/)*([^/]*-)?!!')
 PREFIX := /usr/local
@@ -44,7 +44,7 @@ DOCINDEX := $(wildcard $(NAME)/index.md)
 DOCSOURCES := $(shell find $(NAME) -name '*.md' | sort)
 DOCS := doc/style.css doc/index.html $(patsubst $(NAME)/%.md,doc/%.html,$(DOCSOURCES))
 LIBTAG :=
-SCRIPTS := $(CODEROOT)/core-lib/scripts
+SCRIPTS := $(LIBROOT)/core-lib/scripts
 
 ifeq ($(HOST),cygwin)
 	EXE := .exe
