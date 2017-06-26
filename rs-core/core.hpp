@@ -2273,8 +2273,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T a, T b) {
-        static_assert(std::is_integral<T>::value,
-            "Random integer type is not an integer");
+        static_assert(std::is_integral<T>::value, "Random integer type is not an integer");
         // We need an unsigned integer type big enough for both the RNG and
         // output ranges.
         using R = typename RNG::result_type;
@@ -2292,8 +2291,8 @@ namespace RS {
             // output of the RNG by the rounded down quotient of the ranges.
             // If one range is not an exact multiple of the other, this may
             // yield a value too large; try again.
-            U ratio = (rng_range - out_range) / (out_range + U(1)) + U(1),
-                crit = ratio * out_range + (ratio - U(1));
+            U ratio = (rng_range - out_range) / (out_range + U(1)) + U(1);
+            U crit = ratio * out_range + (ratio - U(1));
             do result = U(rng() - rmin);
                 while (result > crit);
             result /= ratio;
@@ -2306,8 +2305,8 @@ namespace RS {
             // call this function recursively for the quotient, then call the
             // RNG directly for the remainder. Try again if the result is too
             // large.
-            U hi = U(0), lo = U(0),
-                ratio = (out_range - rng_range) / (rng_range + U(1));
+            U hi = U(0), lo = U(0);
+            U ratio = (out_range - rng_range) / (rng_range + U(1));
             do {
                 hi = random_integer(rng, U(0), ratio) * (rng_range + U(1));
                 lo = U(rng() - rmin);
@@ -2343,12 +2342,7 @@ namespace RS {
     T random_float(RNG& rng, T a = T(1), T b = T(0)) {
         static_assert(std::is_floating_point<T>::value,
             "Random float type is not floating point");
-        static const T half = T(1) / T(2);
-        if (a > b)
-            std::swap(a, b);
-        T num = T(rng()) - T(rng.min()) + half;
-        T den = T(rng.max()) - T(rng.min()) + T(1);
-        return a + (b - a) * (num / den);
+        return a + (b - a) * (T(rng() - rng.min()) / (T(rng.max() - rng.min()) + T(1)));
     }
 
     template <typename T, typename RNG>
