@@ -3177,14 +3177,10 @@ namespace {
 
         TEST_EQUAL(ascii_sentencecase(""), "");
         TEST_EQUAL(ascii_sentencecase("hello world"), "Hello world");
-        TEST_EQUAL(ascii_sentencecase("hello world. goodbye. hello again."),
-            "Hello world. Goodbye. Hello again.");
-        TEST_EQUAL(ascii_sentencecase("hello world\ngoodbye\nhello again"),
-            "Hello world\ngoodbye\nhello again");
-        TEST_EQUAL(ascii_sentencecase("hello world\n\ngoodbye\n\nhello again"),
-            "Hello world\n\nGoodbye\n\nHello again");
-        TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"),
-            "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
+        TEST_EQUAL(ascii_sentencecase("hello world. goodbye. hello again."), "Hello world. Goodbye. Hello again.");
+        TEST_EQUAL(ascii_sentencecase("hello world\ngoodbye\nhello again"), "Hello world\ngoodbye\nhello again");
+        TEST_EQUAL(ascii_sentencecase("hello world\n\ngoodbye\n\nhello again"), "Hello world\n\nGoodbye\n\nHello again");
+        TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"), "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
 
         TEST_EQUAL(cstr(p0), ""s);
         TEST_EQUAL(cstr(p1), ""s);
@@ -3192,7 +3188,7 @@ namespace {
         TEST_EQUAL(cstr(p0, 0), ""s);
         TEST_EQUAL(cstr(p1, 0), ""s);
         TEST_EQUAL(cstr(p2, 0), ""s);
-        TEST_EQUAL(cstr(p0, 5), ""s);
+        TEST_EQUAL(cstr(p0, 5), "\0\0\0\0\0"s);
         TEST_EQUAL(cstr(p2, 5), "Hello"s);
         TEST_EQUAL(cstr(q0), u""s);
         TEST_EQUAL(cstr(q1), u""s);
@@ -3200,7 +3196,7 @@ namespace {
         TEST_EQUAL(cstr(q0, 0), u""s);
         TEST_EQUAL(cstr(q1, 0), u""s);
         TEST_EQUAL(cstr(q2, 0), u""s);
-        TEST_EQUAL(cstr(q0, 5), u""s);
+        TEST_EQUAL(cstr(q0, 5), u"\0\0\0\0\0"s);
         TEST_EQUAL(cstr(q2, 5), u"Hello"s);
         TEST_EQUAL(cstr(r0), U""s);
         TEST_EQUAL(cstr(r1), U""s);
@@ -3208,7 +3204,7 @@ namespace {
         TEST_EQUAL(cstr(r0, 0), U""s);
         TEST_EQUAL(cstr(r1, 0), U""s);
         TEST_EQUAL(cstr(r2, 0), U""s);
-        TEST_EQUAL(cstr(r0, 5), U""s);
+        TEST_EQUAL(cstr(r0, 5), U"\0\0\0\0\0"s);
         TEST_EQUAL(cstr(r2, 5), U"Hello"s);
 
         TEST_EQUAL(cstr_size(p0), 0);
@@ -3575,6 +3571,16 @@ namespace {
         TEST_EQUAL(to_str(iv), "[1,2,3]");
         TEST_EQUAL(to_str(sv), "[hello,world,goodbye]");
         TEST_EQUAL(to_str(ism), "{1:hello,2:world,3:goodbye}");
+
+        TRY(s = fmt(""));                               TEST_EQUAL(s, "");
+        TRY(s = fmt("Hello world"));                    TEST_EQUAL(s, "Hello world");
+        TRY(s = fmt("Hello $1"));                       TEST_EQUAL(s, "Hello ");
+        TRY(s = fmt("Hello $1", "world"s));             TEST_EQUAL(s, "Hello world");
+        TRY(s = fmt("Hello $1", 42));                   TEST_EQUAL(s, "Hello 42");
+        TRY(s = fmt("($1) ($2) ($3)", 10, 20, 30));     TEST_EQUAL(s, "(10) (20) (30)");
+        TRY(s = fmt("${1} ${2} ${3}", 10, 20, 30));     TEST_EQUAL(s, "10 20 30");
+        TRY(s = fmt("$3,$3,$2,$2,$1,$1", 10, 20, 30));  TEST_EQUAL(s, "30,30,20,20,10,10");
+        TRY(s = fmt("Hello $1 $$ ${}", 42));            TEST_EQUAL(s, "Hello 42 $ {}");
 
     }
 

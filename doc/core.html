@@ -1744,8 +1744,8 @@ everything else alone.</p>
 </ul>
 <p>These construct a string from a pointer to a null-terminated character
 sequence, or a pointer and a length. They differ from the corresponding string
-constructors in that passing a null pointer will yield an empty string instead
-of undefined behaviour.</p>
+constructors in that passing a null pointer will yield an empty string, or a
+string of <code>n</code> null characters, instead of undefined behaviour.</p>
 </div>
 <div class="defns">
 <ul>
@@ -1850,6 +1850,18 @@ trailing characters that are not part of a number, and will return zero if the
 string is empty or does not contain a valid number. Results that are out of
 range will be clamped to the nearest end of the return type's range (for
 <code>fpnum()</code> this will normally be positive or negative infinity).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; U8string</code> <strong><code>fmt</code></strong><code>(const U8string&amp; pattern, const Args&amp;... args)</code></li>
+</ul>
+<p>This performs string interpolation, inserting the variadic arguments
+(formatted with <code>to_str()</code>, below) in place of each occurrence of <code>"$n"</code> or
+<code>"${n}"</code> in the pattern string, where <code>n</code> is a decimal integer interpreted as
+a 1-based index into the variadic argument list. An index out of bounds will
+be replaced with an empty string. If a dollar sign is not followed by a bare
+or braced number, the dollar sign is discarded and the next character is
+copied unchanged (so <code>"$$"</code> will produce a literal dollar sign).</p>
 </div>
 <div class="defns">
 <ul>

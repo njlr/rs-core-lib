@@ -1436,8 +1436,8 @@ everything else alone.
 
 These construct a string from a pointer to a null-terminated character
 sequence, or a pointer and a length. They differ from the corresponding string
-constructors in that passing a null pointer will yield an empty string instead
-of undefined behaviour.
+constructors in that passing a null pointer will yield an empty string, or a
+string of `n` null characters, instead of undefined behaviour.
 
 * `template <typename C> size_t` **`cstr_size`**`(const C* ptr)`
 
@@ -1521,6 +1521,16 @@ trailing characters that are not part of a number, and will return zero if the
 string is empty or does not contain a valid number. Results that are out of
 range will be clamped to the nearest end of the return type's range (for
 `fpnum()` this will normally be positive or negative infinity).
+
+* `template <typename... Args> U8string` **`fmt`**`(const U8string& pattern, const Args&... args)`
+
+This performs string interpolation, inserting the variadic arguments
+(formatted with `to_str()`, below) in place of each occurrence of `"$n"` or
+`"${n}"` in the pattern string, where `n` is a decimal integer interpreted as
+a 1-based index into the variadic argument list. An index out of bounds will
+be replaced with an empty string. If a dollar sign is not followed by a bare
+or braced number, the dollar sign is discarded and the next character is
+copied unchanged (so `"$$"` will produce a literal dollar sign).
 
 * `template <typename T> U8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
 

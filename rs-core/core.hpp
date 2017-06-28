@@ -239,14 +239,14 @@ namespace RS {
 
     template <typename C>
     std::basic_string<C> cstr(const C* ptr) {
-        using string_type = std::basic_string<C>;
-        return ptr ? string_type(ptr) : string_type();
+        using S = std::basic_string<C>;
+        return ptr ? S(ptr) : S();
     }
 
     template <typename C>
     std::basic_string<C> cstr(const C* ptr, size_t n) {
-        using string_type = std::basic_string<C>;
-        return ptr ? string_type(ptr, n) : string_type();
+        using S = std::basic_string<C>;
+        return ptr ? S(ptr, n) : S(n, '\0');
     }
 
     namespace RS_Detail {
@@ -2826,6 +2826,7 @@ namespace RS {
         template <> struct ObjectToString<U8string> { U8string operator()(const U8string& t) const { return t; } };
         template <> struct ObjectToString<char*> { U8string operator()(char* t) const { return t ? U8string(t) : U8string(); } };
         template <> struct ObjectToString<const char*> { U8string operator()(const char* t) const { return t ? U8string(t) : U8string(); } };
+        template <size_t N> struct ObjectToString<char[N], 'S'> { U8string operator()(const char* t) const { return U8string(t); } };
         template <> struct ObjectToString<char> { U8string operator()(char t) const { return {t}; } };
         template <> struct ObjectToString<bool> { U8string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<std::nullptr_t> { U8string operator()(std::nullptr_t) const { return "null"; } };
@@ -2840,6 +2841,40 @@ namespace RS {
     }
 
     template <typename T> inline U8string to_str(const T& t) { return RS_Detail::ObjectToString<T>()(t); }
+
+    template <typename... Args>
+    U8string fmt(const U8string& pattern, const Args&... args) {
+        std::vector<U8string> argstr{to_str(args)...};
+        U8string result;
+        size_t i = 0, psize = pattern.size();
+        while (i < psize) {
+            size_t j = pattern.find('$', i);
+            if (j == npos)
+                j = psize;
+            result.append(pattern, i, j - i);
+            i = j;
+            while (pattern[i] == '$') {
+                ++i;
+                j = i;
+                if (pattern[j] == '{')
+                    ++j;
+                size_t k = j;
+                while (ascii_isdigit(pattern[k]))
+                    ++k;
+                if (k == j || (pattern[i] == '{' && pattern[k] != '}')) {
+                    result += pattern[i++];
+                    continue;
+                }
+                size_t a = decnum(pattern.substr(j, k - j));
+                if (a > 0 && a <= argstr.size())
+                    result += argstr[a - 1];
+                if (pattern[k] == '}')
+                    ++k;
+                i = k;
+            }
+        }
+        return result;
+    }
 
     // HTML/XML tags
 
