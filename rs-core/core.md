@@ -396,6 +396,24 @@ These call the corresponding operations on the underlying raw pointers.
 
 Shorthand for `make_nnptr/shared/unique<T>(t)`.
 
+### Type adapters ###
+
+* `template <typename T, int Def = 0> struct` **`Movable`**
+    * `using Movable::`**`value_type`** `= T`
+    * `T Movable::`**`value`**
+    * `Movable::`**`Movable`**`()`
+    * `Movable::`**`Movable`**`(const T& t)`
+    * `Movable::`**`~Movable`**`() noexcept`
+    * `Movable::`**`Movable`**`(const Movable& m)`
+    * `Movable::`**`Movable`**`(Movable&& m) noexcept`
+    * `Movable& Movable::`**`operator=`**`(const Movable& m)`
+    * `Movable& Movable::`**`operator=`**`(Movable&& m) noexcept`
+
+This wraps a `T` object and provides reset-on-move behaviour: `Movable<T>`'s
+move constructor and move assignment operator set the value in the moved-from
+object to `T`'s default value. If `T` is explicitly convertible from an `int`,
+a default value other than zero can be provided.
+
 ### Type related functions ###
 
 * `template <typename T2, typename T1> bool` **`is`**`(const T1& ref) noexcept`

@@ -302,9 +302,7 @@ namespace RS {
 
     namespace RS_Detail {
 
-        template <typename Src, typename Dst,
-            size_t N1 = sizeof(typename Src::value_type),
-            size_t N2 = sizeof(typename Dst::value_type)>
+        template <typename Src, typename Dst, size_t N1 = sizeof(typename Src::value_type), size_t N2 = sizeof(typename Dst::value_type)>
         struct UtfConvert {
             Dst operator()(const Src& s) const {
                 return UtfConvert<std::u32string, Dst>()(UtfConvert<Src, std::u32string>()(s));
@@ -731,8 +729,7 @@ namespace RS {
         public std::error_category {
         public:
             virtual U8string message(int ev) const {
-                static constexpr uint32_t flags =
-                    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+                static constexpr uint32_t flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
                 wchar_t* wptr = nullptr;
                 auto units = FormatMessageW(flags, nullptr, ev, 0, reinterpret_cast<wchar_t*>(&wptr), 0, nullptr);
                 std::shared_ptr<wchar_t> wshare(wptr, LocalFree);
@@ -766,8 +763,7 @@ namespace RS {
     }
 
     template <typename T> using BinaryType = typename RS_Detail::IntegerType<8 * sizeof(T)>::unsigned_type;
-    template <typename T1, typename T2> using CopyConst =
-        std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
+    template <typename T1, typename T2> using CopyConst = std::conditional_t<std::is_const<T1>::value, std::add_const_t<T2>, std::remove_const_t<T2>>;
     template <size_t Bits> using SignedInteger = typename RS_Detail::IntegerType<Bits>::signed_type;
     template <size_t Bits> using UnsignedInteger = typename RS_Detail::IntegerType<Bits>::unsigned_type;
 
@@ -859,33 +855,54 @@ namespace RS {
     template <typename T> std::shared_ptr<T> shptr(const T& t) { return std::make_shared<T>(t); }
     template <typename T> std::unique_ptr<T> unptr(const T& t) { return std::make_unique<T>(t); }
 
+    // Type adapters
+
+    namespace RS_Detail {
+
+        template <typename T, int Def, bool Conv = std::is_constructible<T, int>::value>
+        struct DefaultTo;
+
+        template <typename T, int Def>
+        struct DefaultTo<T, Def, true> {
+            T defval() const { return static_cast<T>(Def); }
+        };
+
+        template <typename T>
+        struct DefaultTo<T, 0, false> {
+            T defval() const { return T(); }
+        };
+
+    }
+
+    template <typename T, int Def = 0>
+    struct Movable:
+    private RS_Detail::DefaultTo<T, Def> {
+        using value_type = T;
+        T value;
+        Movable(): value(this->defval()) {}
+        Movable(const T& t): value(t) {}
+        ~Movable() = default;
+        Movable(const Movable& m) = default;
+        Movable(Movable&& m) noexcept: value(std::move(m.value)) { m.value = this->defval(); }
+        Movable& operator=(const Movable& m) = default;
+        Movable& operator=(Movable&& m) noexcept { if (&m != this) { value = std::move(m.value); m.value = this->defval(); } return *this; }
+    };
+
     // Type related functions
 
-    template <typename T2, typename T1> bool is(const T1& ref) noexcept
-        { return dynamic_cast<const T2*>(&ref) != nullptr; }
-    template <typename T2, typename T1> bool is(const T1* ptr) noexcept
-        { return dynamic_cast<const T2*>(ptr) != nullptr; }
-    template <typename T2, typename T1> bool is(const std::unique_ptr<T1>& ptr) noexcept
-        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
-    template <typename T2, typename T1> bool is(const std::shared_ptr<T1>& ptr) noexcept
-        { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
+    template <typename T2, typename T1> bool is(const T1& ref) noexcept { return dynamic_cast<const T2*>(&ref) != nullptr; }
+    template <typename T2, typename T1> bool is(const T1* ptr) noexcept { return dynamic_cast<const T2*>(ptr) != nullptr; }
+    template <typename T2, typename T1> bool is(const std::unique_ptr<T1>& ptr) noexcept { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
+    template <typename T2, typename T1> bool is(const std::shared_ptr<T1>& ptr) noexcept { return dynamic_cast<const T2*>(ptr.get()) != nullptr; }
 
-    template <typename T2, typename T1> T2& as(T1& ref)
-        { return dynamic_cast<T2&>(ref); }
-    template <typename T2, typename T1> const T2& as(const T1& ref)
-        { return dynamic_cast<const T2&>(ref); }
-    template <typename T2, typename T1> T2& as(T1* ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> const T2& as(const T1* ptr)
-        { if (ptr) return dynamic_cast<const T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(std::unique_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(const std::unique_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(std::shared_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
-    template <typename T2, typename T1> T2& as(const std::shared_ptr<T1>& ptr)
-        { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(T1& ref) { return dynamic_cast<T2&>(ref); }
+    template <typename T2, typename T1> const T2& as(const T1& ref) { return dynamic_cast<const T2&>(ref); }
+    template <typename T2, typename T1> T2& as(T1* ptr) { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> const T2& as(const T1* ptr) { if (ptr) return dynamic_cast<const T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(std::unique_ptr<T1>& ptr) { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(const std::unique_ptr<T1>& ptr) { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(std::shared_ptr<T1>& ptr) { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
+    template <typename T2, typename T1> T2& as(const std::shared_ptr<T1>& ptr) { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
 
     template <typename T2, typename T1> inline T2 binary_cast(const T1& t) noexcept {
         RS_STATIC_ASSERT(sizeof(T2) == sizeof(T1));
@@ -1047,18 +1064,12 @@ namespace RS {
         constexpr ptrdiff_t operator""_t(unsigned long long n) noexcept { return ptrdiff_t(n); }
         constexpr size_t operator""_z(unsigned long long n) noexcept { return size_t(n); }
 
-        constexpr float operator""_degf(long double x) noexcept
-            { return float(x * (pi_ld / 180.0L)); }
-        constexpr float operator""_degf(unsigned long long x) noexcept
-            { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        constexpr double operator""_deg(long double x) noexcept
-            { return double(x * (pi_ld / 180.0L)); }
-        constexpr double operator""_deg(unsigned long long x) noexcept
-            { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        constexpr long double operator""_degl(long double x) noexcept
-            { return x * (pi_ld / 180.0L); }
-        constexpr long double operator""_degl(unsigned long long x) noexcept
-            { return static_cast<long double>(x) * (pi_ld / 180.0L); }
+        constexpr float operator""_degf(long double x) noexcept { return float(x * (pi_ld / 180.0L)); }
+        constexpr float operator""_degf(unsigned long long x) noexcept { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+        constexpr double operator""_deg(long double x) noexcept { return double(x * (pi_ld / 180.0L)); }
+        constexpr double operator""_deg(unsigned long long x) noexcept { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
+        constexpr long double operator""_degl(long double x) noexcept { return x * (pi_ld / 180.0L); }
+        constexpr long double operator""_degl(unsigned long long x) noexcept { return static_cast<long double>(x) * (pi_ld / 180.0L); }
 
     }
 
@@ -1335,8 +1346,7 @@ namespace RS {
         IntegerSequenceIterator(T init, T delta): cur(init), del(delta) {}
         const T& operator*() const noexcept { return cur; }
         IntegerSequenceIterator& operator+=(ptrdiff_t n) noexcept { cur += n * del; return *this; }
-        ptrdiff_t operator-(const IntegerSequenceIterator& rhs) const noexcept
-            { return (ptrdiff_t(cur) - ptrdiff_t(rhs.cur)) / ptrdiff_t(del); }
+        ptrdiff_t operator-(const IntegerSequenceIterator& rhs) const noexcept { return (ptrdiff_t(cur) - ptrdiff_t(rhs.cur)) / ptrdiff_t(del); }
     private:
         T cur, del;
     };
@@ -1487,24 +1497,22 @@ namespace RS {
             }
         };
 
-        template <typename T, char Mode = NumberMode<T>::value> struct SignOf;
+        template <typename T, char Mode = NumberMode<T>::value>
+        struct SignOf;
 
         template <typename T>
         struct SignOf<T, 'S'> {
-            constexpr int operator()(T t) const noexcept
-                { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
+            constexpr int operator()(T t) const noexcept { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
         };
 
         template <typename T>
         struct SignOf<T, 'U'> {
-            constexpr int operator()(T t) const noexcept
-                { return t != T(0); }
+            constexpr int operator()(T t) const noexcept { return t != T(0); }
         };
 
         template <typename T>
         struct SignOf<T, 'F'> {
-            constexpr int operator()(T t) const noexcept
-                { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
+            constexpr int operator()(T t) const noexcept { return t < T(0) ? -1 : t == T(0) ? 0 : 1; }
         };
 
     }
@@ -1666,9 +1674,8 @@ namespace RS {
 
     namespace RS_Detail {
 
-        template <typename T2, typename T1, char Mode,
-            bool FromFloat = std::is_floating_point<T1>::value>
-            struct Round;
+        template <typename T2, typename T1, char Mode, bool FromFloat = std::is_floating_point<T1>::value>
+        struct Round;
 
         template <typename T2, typename T1, char Mode>
         struct Round<T2, T1, Mode, true> {
@@ -1734,8 +1741,7 @@ namespace RS {
 
     }
 
-    template <typename Function> struct Arity
-        { static constexpr size_t value = RS_Detail::FunctionTraits<Function>::arity; };
+    template <typename Function> struct Arity { static constexpr size_t value = RS_Detail::FunctionTraits<Function>::arity; };
     template <typename Function> using ArgumentTuple = typename RS_Detail::FunctionTraits<Function>::argument_tuple;
     template <typename Function, size_t Index> using ArgumentType = std::tuple_element_t<Index, ArgumentTuple<Function>>;
     template <typename Function> using ReturnType = typename RS_Detail::FunctionTraits<Function>::return_type;
@@ -1761,8 +1767,7 @@ namespace RS {
     template<typename Function, typename Tuple>
     decltype(auto) tuple_invoke(Function&& f, Tuple&& t) {
         constexpr auto size = std::tuple_size<std::decay_t<Tuple>>::value;
-        return RS_Detail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t),
-            std::make_index_sequence<size>{});
+        return RS_Detail::invoke_helper(std::forward<Function>(f), std::forward<Tuple>(t), std::make_index_sequence<size>{});
     }
 
     // Generic function objects
@@ -1838,8 +1843,7 @@ namespace RS {
             hash_combine(hash, x);
     }
 
-    template <typename... Args> struct TupleHash
-        { size_t operator()(const std::tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
+    template <typename... Args> struct TupleHash { size_t operator()(const std::tuple<Args...>& t) const { return tuple_invoke(hash_value<Args...>, t); } };
     template <typename... Args> struct TupleHash<std::tuple<Args...>>: TupleHash<Args...> {};
 
     // Keyword arguments
@@ -1863,17 +1867,17 @@ namespace RS {
     };
 
     template <typename K, typename V, typename K2, typename... Args>
-        bool kwget(const Kwarg<K>& k, V& v, const RS_Detail::Kwparam<K2>& p, const Args&... args) {
-            if (&k != p.key)
-                return kwget(k, v, args...);
-            RS_Detail::Kwcopy<K2, V>()(p.val, v);
-            return true;
-        }
+    bool kwget(const Kwarg<K>& k, V& v, const RS_Detail::Kwparam<K2>& p, const Args&... args) {
+        if (&k != p.key)
+            return kwget(k, v, args...);
+        RS_Detail::Kwcopy<K2, V>()(p.val, v);
+        return true;
+    }
 
     template <typename K, typename V, typename... Args>
-        bool kwget(const Kwarg<K>& k, V& v, const Kwarg<bool>& p, const Args&... args) {
-            return kwget(k, v, p = true, args...);
-        }
+    bool kwget(const Kwarg<K>& k, V& v, const Kwarg<bool>& p, const Args&... args) {
+        return kwget(k, v, p = true, args...);
+    }
 
     template <typename K, typename V> bool kwget(const Kwarg<K>&, V&) { return false; }
 
@@ -2318,8 +2322,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T t) {
-        static_assert(std::is_integral<T>::value,
-            "Random integer type is not an integer");
+        static_assert(std::is_integral<T>::value, "Random integer type is not an integer");
         if (t <= T(1))
             return T(0);
         else
@@ -2328,8 +2331,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_dice(RNG& rng, T n = T(1), T faces = T(6)) {
-        static_assert(std::is_integral<T>::value,
-            "Random dice type is not an integer");
+        static_assert(std::is_integral<T>::value, "Random dice type is not an integer");
         if (n < T(1) || faces < T(1))
             return T(0);
         T sum = T(0);
@@ -2340,15 +2342,13 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_float(RNG& rng, T a = T(1), T b = T(0)) {
-        static_assert(std::is_floating_point<T>::value,
-            "Random float type is not floating point");
+        static_assert(std::is_floating_point<T>::value, "Random float type is not floating point");
         return a + (b - a) * (T(rng() - rng.min()) / (T(rng.max() - rng.min()) + T(1)));
     }
 
     template <typename T, typename RNG>
     T random_normal(RNG& rng) {
-        static_assert(std::is_floating_point<T>::value,
-            "Random normal type is not floating point");
+        static_assert(std::is_floating_point<T>::value, "Random normal type is not floating point");
         T u1 = random_float<T>(rng);
         T u2 = random_float<T>(rng);
         return std::sqrt(T(-2) * std::log(u1)) * std::cos(T(2) * pi_c<T> * u2);
@@ -2356,8 +2356,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_normal(RNG& rng, T m, T s) {
-        static_assert(std::is_floating_point<T>::value,
-            "Random float type is not floating point");
+        static_assert(std::is_floating_point<T>::value, "Random float type is not floating point");
         return m + s * random_normal<T>(rng);
     }
 
@@ -2367,8 +2366,7 @@ namespace RS {
         R min = rng.min();
         R range = rng.max() - min;
         R cutoff = min + range / R(2);
-        // Test for odd range is reversed because range is one less than the
-        // number of values.
+        // Test for odd range is reversed because range is one less than the number of values
         bool odd = range % R(1) == R(0);
         R x = R();
         do x = rng();
@@ -2754,8 +2752,7 @@ namespace RS {
 
     namespace RS_Detail {
 
-        template <typename R, typename I = decltype(std::begin(std::declval<R>())),
-            typename V = typename std::iterator_traits<I>::value_type>
+        template <typename R, typename I = decltype(std::begin(std::declval<R>())), typename V = typename std::iterator_traits<I>::value_type>
         struct RangeToString {
             U8string operator()(const R& r) const {
                 U8string s = "[";
@@ -3297,8 +3294,7 @@ namespace RS {
     using Dseconds = std::chrono::duration<double>;
     using Ddays = std::chrono::duration<double, std::ratio<86400>>;
     using Dyears = std::chrono::duration<double, std::ratio<31557600>>;
-    using ReliableClock = std::conditional_t<std::chrono::high_resolution_clock::is_steady,
-        std::chrono::high_resolution_clock, std::chrono::steady_clock>;
+    using ReliableClock = std::conditional_t<std::chrono::high_resolution_clock::is_steady, std::chrono::high_resolution_clock, std::chrono::steady_clock>;
 
     // General time and date operations
 
@@ -3570,13 +3566,7 @@ namespace RS {
         explicit Blob(size_t n) { init_size(n); }
         Blob(size_t n, uint8_t x) { init_size(n); memset(ptr, x, len); }
         Blob(void* p, size_t n): Blob(p, n, &std::free) {}
-        template <typename F> Blob(void* p, size_t n, F f) {
-            if (p && n) {
-                ptr = p;
-                len = n;
-                del = f;
-            }
-        }
+        template <typename F> Blob(void* p, size_t n, F f) { if (p && n) {ptr = p; len = n; del = f; } }
         ~Blob() noexcept { if (ptr && del) try { del(ptr); } catch (...) {} }
         Blob(const Blob& b) { init_copy(b.data(), b.size()); }
         Blob(Blob&& b) noexcept: ptr(b.ptr), len(b.len) { del.swap(b.del); }
@@ -3604,11 +3594,7 @@ namespace RS {
         template <typename F> void reset(void* p, size_t n, F f) { Blob b(p, n, f); swap(b); }
         size_t size() const noexcept { return len; }
         std::string str() const { return empty() ? std::string() : std::string(cdata(), len); }
-        void swap(Blob& b) noexcept {
-            std::swap(ptr, b.ptr);
-            std::swap(len, b.len);
-            del.swap(b.del);
-        }
+        void swap(Blob& b) noexcept { std::swap(ptr, b.ptr); std::swap(len, b.len); del.swap(b.del); }
     private:
         void* ptr = nullptr;
         size_t len = 0;
@@ -3714,8 +3700,7 @@ namespace RS {
     class Stopwatch {
     public:
         RS_NO_COPY_MOVE(Stopwatch)
-        explicit Stopwatch(const U8string& name, int precision = 3) noexcept:
-            Stopwatch(name.data(), precision) {}
+        explicit Stopwatch(const U8string& name, int precision = 3) noexcept: Stopwatch(name.data(), precision) {}
         explicit Stopwatch(const char* name, int precision = 3) noexcept {
             try {
                 prefix = name;
@@ -3775,11 +3760,9 @@ namespace RS {
         Uuid(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e, uint8_t f, uint8_t g, uint8_t h,
             uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
             bytes{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p} {}
-        Uuid(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l,
-            uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
+        Uuid(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
             bytes{uint8_t((abcd >> 24) & 0xff), uint8_t((abcd >> 16) & 0xff), uint8_t((abcd >> 8) & 0xff), uint8_t(abcd & 0xff),
-                uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff),
-                i, j, k, l, m, n, o, p} {}
+                uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff), i, j, k, l, m, n, o, p} {}
         explicit Uuid(const uint8_t* ptr) noexcept { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
         explicit Uuid(const std::string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
@@ -3939,8 +3922,8 @@ namespace RS {
 
 }
 
-RS_DEFINE_STD_HASH(RS::Blob)
-RS_DEFINE_STD_HASH(RS::Uuid)
+RS_DEFINE_STD_HASH(RS::Blob);
+RS_DEFINE_STD_HASH(RS::Uuid);
 
 namespace std {
     template <typename T, RS::ByteOrder B> struct hash<RS::Endian<T, B>> {

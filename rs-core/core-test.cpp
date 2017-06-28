@@ -575,6 +575,43 @@ namespace {
 
     }
 
+    struct Adapt {
+        Movable<U8string> s;
+        Movable<int> x;
+        Movable<int, 10> y;
+        int z = 20;
+    };
+
+    void check_type_adapters() {
+
+        Adapt a, b;
+
+        TEST_EQUAL(a.s.value, "");
+        TEST_EQUAL(a.x.value, 0);
+        TEST_EQUAL(a.y.value, 10);
+        TEST_EQUAL(a.z, 20);
+
+        TRY((b = {"Hello"s, 100, 200, 300}));
+
+        TEST_EQUAL(b.s.value, "Hello");
+        TEST_EQUAL(b.x.value, 100);
+        TEST_EQUAL(b.y.value, 200);
+        TEST_EQUAL(b.z, 300);
+
+        TRY(a = std::move(b));
+
+        TEST_EQUAL(a.s.value, "Hello");
+        TEST_EQUAL(a.x.value, 100);
+        TEST_EQUAL(a.y.value, 200);
+        TEST_EQUAL(a.z, 300);
+
+        TEST_EQUAL(b.s.value, "");
+        TEST_EQUAL(b.x.value, 0);
+        TEST_EQUAL(b.y.value, 10);
+        TEST_EQUAL(b.z, 300);
+
+    }
+
     class Base {
     public:
         virtual ~Base() noexcept {}
@@ -4083,6 +4120,7 @@ TEST_MODULE(core, core) {
     check_exceptions();
     check_metaprogramming_and_type_traits();
     check_smart_pointers();
+    check_type_adapters();
     check_type_related_functions();
     check_uuid();
     check_version_number();
