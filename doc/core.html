@@ -581,7 +581,9 @@ These call the corresponding operations on the underlying raw pointers.</p>
 <p>This wraps a <code>T</code> object and provides reset-on-move behaviour: <code>Movable&lt;T&gt;</code>'s
 move constructor and move assignment operator set the value in the moved-from
 object to <code>T</code>'s default value. If <code>T</code> is explicitly convertible from an <code>int</code>,
-a default value other than zero can be provided.</p>
+a default value other than zero can be provided. The move functions call the
+corresponding functions on <code>T</code>, which are assumed to not throw. If <code>T</code> is also
+copyable, <code>Movable&lt;T&gt;</code> will be copyable.</p>
 </div>
 <h3 id="type-related-functions">Type related functions</h3>
 <div class="defns">

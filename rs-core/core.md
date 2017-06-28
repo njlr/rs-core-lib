@@ -412,7 +412,9 @@ Shorthand for `make_nnptr/shared/unique<T>(t)`.
 This wraps a `T` object and provides reset-on-move behaviour: `Movable<T>`'s
 move constructor and move assignment operator set the value in the moved-from
 object to `T`'s default value. If `T` is explicitly convertible from an `int`,
-a default value other than zero can be provided.
+a default value other than zero can be provided. The move functions call the
+corresponding functions on `T`, which are assumed to not throw. If `T` is also
+copyable, `Movable<T>` will be copyable.
 
 ### Type related functions ###
 
