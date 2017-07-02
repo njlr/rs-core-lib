@@ -1381,14 +1381,15 @@ of 1-24.
 * `template <typename T, typename RNG> T` **`random_float`**`(RNG& rng, T a = 1, T b = 0)` _- Random number between a and b (limits may be in either order)_
 * `template <typename T, typename RNG> T` **`random_normal`**`(RNG& rng)` _- Normal distribution with mean 0, sd 1_
 * `template <typename T, typename RNG> T` **`random_normal`**`(RNG& rng, T m, T s)` _- Normal distribution with given mean and sd_
-* `template <typename Range, typename RNG> [value type]` **`random_choice`**`(RNG& rng, const Range& range)` _- Random element from range (default constructed value if range is empty)_
+* `template <typename ForwardRange, typename RNG> [value type]` **`random_choice`**`(RNG& rng, const ForwardRange& range)` _- Random element from range (default constructed value if range is empty)_
 * `template <typename T, typename RNG> T` **`random_choice`**`(RNG& rng, initializer_list<T> list)` _- Random element from explicit list_
+* `template <typename ForwardRange, typename RNG> vector<[value type]>` **`random_sample`**`(RNG& rng, const ForwardRange& range, size_t k)` _- Random sample from range (throws length_error if k>n)_
 
 Simple random number functions. These do not call the standard distribution
-classes; given the same underlying random number engine (the `RNG` type),
-these can be relied on to return the same values on different systems and
-compilers (apart from small differences due to rounding errors in the floating
-point functions).
+classes; given the same underlying deterministic pseudo-random number engine
+(the `RNG` type), these can be relied on to return the same values on
+different systems and compilers (apart from small differences due to rounding
+errors in the floating point functions).
 
 ## Strings and related functions ##
 

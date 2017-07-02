@@ -2385,11 +2385,11 @@ namespace RS {
         return random_integer(rng, den) < num;
     }
 
-    template <typename Range, typename RNG>
-    RangeValue<Range> random_choice(RNG& rng, const Range& range) {
+    template <typename ForwardRange, typename RNG>
+    RangeValue<ForwardRange> random_choice(RNG& rng, const ForwardRange& range) {
+        using T = RangeValue<ForwardRange>;
         using std::begin;
         using std::end;
-        using T = RangeValue<Range>;
         auto i = begin(range), j = end(range);
         if (i == j)
             return T();
@@ -2404,6 +2404,26 @@ namespace RS {
             return T();
         else
             return list.begin()[random_integer(rng, list.size())];
+    }
+
+    template <typename ForwardRange, typename RNG>
+    std::vector<RangeValue<ForwardRange>> random_sample(RNG& rng, const ForwardRange& range, size_t k) {
+        using T = RangeValue<ForwardRange>;
+        using std::begin;
+        using std::end;
+        auto b = begin(range), e = end(range);
+        size_t n = std::distance(b, e);
+        if (k > n)
+            throw std::length_error("Sample size requested is larger than the population");
+        auto p = b;
+        std::advance(p, k);
+        std::vector<T> sample(b, p);
+        for (size_t i = k; i < n; ++i, ++p) {
+            auto j = random_integer(rng, i);
+            if (j < k)
+                sample[j] = *p;
+        }
+        return sample;
     }
 
     // [Strings and related functions]

@@ -11,6 +11,7 @@
 #include <limits>
 #include <map>
 #include <memory>
+#include <numeric>
 #include <random>
 #include <ratio>
 #include <set>
@@ -2811,6 +2812,36 @@ namespace {
         CHECK_RANDOM_GENERATOR(rc1, 1, 10, 5.5, 2.88661);
         auto rc2 = [&] { return random_choice(rng, {1,2,3,4,5,6,7,8,9,10}); };
         CHECK_RANDOM_GENERATOR(rc2, 1, 10, 5.5, 2.88661);
+
+        static constexpr size_t pop_size = 100;
+        static constexpr size_t sample_iterations = 100;
+        const double expect_mean = double(pop_size + 1) / 2;
+        const double expect_sd = sqrt(double(pop_size * pop_size - 1) / 12);
+        std::vector<int> pop(pop_size), sample;
+        std::iota(pop.begin(), pop.end(), 1);
+        for (size_t n = 0; n <= pop_size; ++n) {
+            double count = 0, sum = 0, sum2 = 0;
+            for (size_t i = 0; i < sample_iterations; ++i) {
+                TRY(sample = random_sample(rng, pop, n));
+                TEST_EQUAL(sample.size(), n);
+                TRY(con_sort_unique(sample));
+                TEST_EQUAL(sample.size(), n);
+                count += sample.size();
+                for (auto x: sample) {
+                    sum += x;
+                    sum2 += x * x;
+                }
+            }
+            if (n > 0) {
+                double mean = sum / count;
+                TEST_NEAR_EPSILON(mean, expect_mean, 4);
+                if (n > 0) {
+                    double sd = sqrt((sum2 - count * mean * mean) / (count - 1));
+                    TEST_NEAR_EPSILON(sd, expect_sd, 2);
+                }
+            }
+        }
+        TEST_THROW(random_sample(rng, pop, 101), std::length_error);
 
     }
 

@@ -1682,14 +1682,15 @@ of 1-24.</p>
 <li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_float</code></strong><code>(RNG&amp; rng, T a = 1, T b = 0)</code> <em>- Random number between a and b (limits may be in either order)</em></li>
 <li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_normal</code></strong><code>(RNG&amp; rng)</code> <em>- Normal distribution with mean 0, sd 1</em></li>
 <li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_normal</code></strong><code>(RNG&amp; rng, T m, T s)</code> <em>- Normal distribution with given mean and sd</em></li>
-<li><code>template &lt;typename Range, typename RNG&gt; [value type]</code> <strong><code>random_choice</code></strong><code>(RNG&amp; rng, const Range&amp; range)</code> <em>- Random element from range (default constructed value if range is empty)</em></li>
+<li><code>template &lt;typename ForwardRange, typename RNG&gt; [value type]</code> <strong><code>random_choice</code></strong><code>(RNG&amp; rng, const ForwardRange&amp; range)</code> <em>- Random element from range (default constructed value if range is empty)</em></li>
 <li><code>template &lt;typename T, typename RNG&gt; T</code> <strong><code>random_choice</code></strong><code>(RNG&amp; rng, initializer_list&lt;T&gt; list)</code> <em>- Random element from explicit list</em></li>
+<li><code>template &lt;typename ForwardRange, typename RNG&gt; vector&lt;[value type]&gt;</code> <strong><code>random_sample</code></strong><code>(RNG&amp; rng, const ForwardRange&amp; range, size_t k)</code> <em>- Random sample from range (throws length_error if k&gt;n)</em></li>
 </ul>
 <p>Simple random number functions. These do not call the standard distribution
-classes; given the same underlying random number engine (the <code>RNG</code> type),
-these can be relied on to return the same values on different systems and
-compilers (apart from small differences due to rounding errors in the floating
-point functions).</p>
+classes; given the same underlying deterministic pseudo-random number engine
+(the <code>RNG</code> type), these can be relied on to return the same values on
+different systems and compilers (apart from small differences due to rounding
+errors in the floating point functions).</p>
 </div>
 <h2 id="strings-and-related-functions">Strings and related functions</h2>
 <h3 id="character-functions">Character functions</h3>
