@@ -1302,7 +1302,7 @@ name and the elapsed time since construction. The note on exceptions for
 
 ### Process I/O operations ###
 
-`std::string` **`run_command`**`(const U8string& cmd)`
+* `std::string` **`run_command`**`(const U8string& cmd)`
 
 Runs a shell command synchronously (via `popen()` or the equivalent),
 capturing standard output. No error indication is returned; standard error
