@@ -139,8 +139,6 @@
     inline constexpr EC& operator|=(EC& lhs, EC rhs) noexcept { return lhs = lhs | rhs; } \
     inline constexpr EC& operator^=(EC& lhs, EC rhs) noexcept { return lhs = lhs ^ rhs; }
 
-#define RS_CHAR(C, T) (::RS::RS_Detail::select_char<T>(C, u##C, U##C, L##C))
-#define RS_CSTR(S, T) (::RS::RS_Detail::select_cstr<T>(S, u##S, U##S, L##S))
 #define RS_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
 #define RS_STATIC_ASSERT(expr) static_assert((expr), #expr)
 
@@ -255,24 +253,6 @@ namespace RS {
             static constexpr const char* digits = "0123456789abcdef";
             s += digits[b / 16];
             s += digits[b % 16];
-        }
-
-        template <typename T>
-        constexpr T select_char(char c, char16_t c16, char32_t c32, wchar_t wc) noexcept {
-            return std::is_same<T, char>::value ? T(c)
-                : std::is_same<T, char16_t>::value ? T(c16)
-                : std::is_same<T, char32_t>::value ? T(c32)
-                : std::is_same<T, wchar_t>::value ? T(wc)
-                : T();
-        }
-
-        template <typename T>
-        constexpr const T* select_cstr(const char* c, const char16_t* c16, const char32_t* c32, const wchar_t* wc) noexcept {
-            return std::is_same<T, char>::value ? reinterpret_cast<const T*>(c)
-                : std::is_same<T, char16_t>::value ? reinterpret_cast<const T*>(c16)
-                : std::is_same<T, char32_t>::value ? reinterpret_cast<const T*>(c32)
-                : std::is_same<T, wchar_t>::value ? reinterpret_cast<const T*>(wc)
-                : nullptr;
         }
 
         template <typename T>

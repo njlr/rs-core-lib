@@ -106,16 +106,6 @@ namespace {
             TRY(*out++ = of2(iv[i], iv2[i]));
         TEST_EQUAL_RANGE(result, (std::vector<U8string>{"2", "6", "15", "28", "55"}));
 
-        auto c1 = RS_CHAR('A', char);      TEST_TYPE_OF(c1, char);      TEST_EQUAL(c1, 'A');
-        auto c2 = RS_CHAR('A', char16_t);  TEST_TYPE_OF(c2, char16_t);  TEST_EQUAL(c2, u'A');
-        auto c3 = RS_CHAR('A', char32_t);  TEST_TYPE_OF(c3, char32_t);  TEST_EQUAL(c3, U'A');
-        auto c4 = RS_CHAR('A', wchar_t);   TEST_TYPE_OF(c4, wchar_t);   TEST_EQUAL(c4, L'A');
-
-        auto cp1 = RS_CSTR("Hello", char);      TEST_TYPE_OF(cp1, const char*);      TEST_EQUAL(cp1, "Hello"s);
-        auto cp2 = RS_CSTR("Hello", char16_t);  TEST_TYPE_OF(cp2, const char16_t*);  TEST_EQUAL(cp2, u"Hello"s);
-        auto cp3 = RS_CSTR("Hello", char32_t);  TEST_TYPE_OF(cp3, const char32_t*);  TEST_EQUAL(cp3, U"Hello"s);
-        auto cp4 = RS_CSTR("Hello", wchar_t);   TEST_TYPE_OF(cp4, const wchar_t*);   TEST_EQUAL(cp4, L"Hello"s);
-
         std::vector<FooEnum> vf;
         std::vector<BarEnum> vb;
 

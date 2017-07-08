@@ -130,19 +130,6 @@ give the compiler hints concerning its expected behaviour.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>#define</code> <strong><code>RS_CHAR</code></strong><code>(C, T)</code></li>
-<li><code>#define</code> <strong><code>RS_CSTR</code></strong><code>(S, T)</code></li>
-</ul>
-<p>These resolve to the character <code>C</code> as a <code>constexpr T</code>, or the C-style string
-literal <code>S</code> as a <code>constexpr const T*</code>. For example, <code>RS_CHAR('A',wchar_t)</code>
-resolves to <code>L'A'</code>; <code>RS_CSTR("Hello",char32_t)</code> resolves to <code>U"Hello"</code>. <code>C</code>
-must be a simple character literal; <code>T</code> must be one of the four character
-types that can be used in strings (<code>char</code>, <code>char16_t</code>, <code>char32_t</code>, or
-<code>wchar_t</code>). Behaviour is undefined if <code>T</code> is not one of those four types, or
-(for <code>RS_CHAR</code>) if <code>C</code> is not representable by a single code unit.</p>
-</div>
-<div class="defns">
-<ul>
 <li><code>#define</code> <strong><code>RS_ENUM</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
 <li><code>#define</code> <strong><code>RS_ENUM_CLASS</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
 </ul>

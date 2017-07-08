@@ -31,17 +31,6 @@ give the compiler hints concerning its expected behaviour.
 Defines bit manipulation and related operators for an `enum class` (unary `!`,
 `~`; binary `&`, `&=`, `|`, `|=`, `^`, `^=`).
 
-* `#define` **`RS_CHAR`**`(C, T)`
-* `#define` **`RS_CSTR`**`(S, T)`
-
-These resolve to the character `C` as a `constexpr T`, or the C-style string
-literal `S` as a `constexpr const T*`. For example, `RS_CHAR('A',wchar_t)`
-resolves to `L'A'`; `RS_CSTR("Hello",char32_t)` resolves to `U"Hello"`. `C`
-must be a simple character literal; `T` must be one of the four character
-types that can be used in strings (`char`, `char16_t`, `char32_t`, or
-`wchar_t`). Behaviour is undefined if `T` is not one of those four types, or
-(for `RS_CHAR`) if `C` is not representable by a single code unit.
-
 * `#define` **`RS_ENUM`**`(EnumType, IntType, first_value, first_name, ...)`
 * `#define` **`RS_ENUM_CLASS`**`(EnumType, IntType, first_value, first_name, ...)`
 
