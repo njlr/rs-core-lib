@@ -2012,7 +2012,7 @@ namespace RS {
 
     namespace RS_Detail {
 
-        #if defined(__GNUC__) && __GNUC__ < 6
+        #if defined(__GNUC__) && __GNUC__ < 7
             extern "C" char* __cxa_get_globals();
             inline int uncaught_exceptions() noexcept { return int(*reinterpret_cast<const uint32_t*>(__cxa_get_globals() + sizeof(void*))); }
         #else
