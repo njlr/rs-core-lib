@@ -736,6 +736,12 @@ zero if they are equal, and +1 if the first range is greater.
 These are just shorthand for a `std::copy()` from a range to an append or
 overwrite iterator.
 
+* `template <typename Range, typename... Ranges> std::vector<[value type]>` **`concatenate`**`(const Range& range, const Ranges&... ranges)`
+
+Returns a vector composed by concatenating all of the argument ranges. The
+value type is that of the first argument range. If any subsequent argument has
+a different value type, it must be assignment compatible with the first.
+
 * `template <typename Container, typename T> void` **`con_remove`**`(Container& con, const T& t)`
 * `template <typename Container, typename Predicate> void` **`con_remove_if`**`(Container& con, Predicate p)`
 * `template <typename Container, typename Predicate> void` **`con_remove_if_not`**`(Container& con, Predicate p)`

@@ -1038,6 +1038,7 @@ namespace {
     void check_generic_algorithms() {
 
         U8string s1, s2;
+        std::vector<int> v1, v2, v3, v4;
         int n;
 
         s1 = "Hello";
@@ -1094,6 +1095,14 @@ namespace {
         s1 = "ABCabcABCabc";     TRY(con_unique(s1, same_case));                  TEST_EQUAL(s1, "AaAa");
         s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1));                        TEST_EQUAL(s1, "abcde");
         s1 = "abcdeabcdabcaba";  TRY(con_sort_unique(s1, std::greater<char>()));  TEST_EQUAL(s1, "edcba");
+
+        v2 = {1, 2, 3};
+        v3 = {4, 5, 6};
+        v4 = {7, 8, 9};
+
+        TRY(v1 = concatenate(v2));          TEST_EQUAL(to_str(v1), "[1,2,3]");
+        TRY(v1 = concatenate(v2, v3));      TEST_EQUAL(to_str(v1), "[1,2,3,4,5,6]");
+        TRY(v1 = concatenate(v2, v3, v4));  TEST_EQUAL(to_str(v1), "[1,2,3,4,5,6,7,8,9]");
 
         auto f1 = [&] { s1 += "Hello"; };
         auto f2 = [&] (size_t i) { s1 += dec(i) + ";"; };

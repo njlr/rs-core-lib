@@ -939,6 +939,14 @@ overwrite iterator.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename Range, typename... Ranges&gt; std::vector&lt;[value type]&gt;</code> <strong><code>concatenate</code></strong><code>(const Range&amp; range, const Ranges&amp;... ranges)</code></li>
+</ul>
+<p>Returns a vector composed by concatenating all of the argument ranges. The
+value type is that of the first argument range. If any subsequent argument has
+a different value type, it must be assignment compatible with the first.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>con_remove</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if</code></strong><code>(Container&amp; con, Predicate p)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if_not</code></strong><code>(Container&amp; con, Predicate p)</code></li>

@@ -1161,6 +1161,28 @@ namespace RS {
         con_unique(con, [cmp] (const auto& a, const auto& b) { return ! cmp(a, b); });
     }
 
+    namespace RS_Detail {
+
+        template <typename T>
+        void concat_helper(std::vector<T>&) noexcept {}
+
+        template <typename T, typename R, typename... RS>
+        void concat_helper(std::vector<T>& v, const R& r, const RS&... rs) noexcept {
+            using std::begin;
+            using std::end;
+            v.insert(v.end(), begin(r), end(r));
+            concat_helper(v, rs...);
+        }
+
+    }
+
+    template <typename Range, typename... Ranges>
+    std::vector<RangeValue<Range>> concatenate(const Range& range, const Ranges&... ranges) {
+        std::vector<RangeValue<Range>> v;
+        RS_Detail::concat_helper(v, range, ranges...);
+        return v;
+    }
+
     template <typename F>
     void do_n(size_t n, F f) {
         for (; n != 0; --n)
