@@ -1386,6 +1386,14 @@ classes; given the same underlying deterministic pseudo-random number engine
 different systems and compilers (apart from small differences due to rounding
 errors in the floating point functions).
 
+### Other random functions ###
+
+* `template <typename RandomAccessRange, typename RNG> void` **`shuffle`**`(RandomAccessRange& range, RNG& rng)`
+
+Shuffles the elements of a random access range into random order. This is
+functionally the same interface as `std::shuffle()`, duplicated here to
+provide a version with reproducible behaviour on all systems.
+
 ## Strings and related functions ##
 
 ### Character functions ###

@@ -74,6 +74,7 @@
 </li>
 <li><a href="#random-numbers">Random numbers</a><ul>
 <li><a href="#simple-random-generators">Simple random generators</a></li>
+<li><a href="#other-random-functions">Other random functions</a></li>
 </ul>
 </li>
 <li><a href="#strings-and-related-functions">Strings and related functions</a><ul>
@@ -1690,6 +1691,15 @@ classes; given the same underlying deterministic pseudo-random number engine
 (the <code>RNG</code> type), these can be relied on to return the same values on
 different systems and compilers (apart from small differences due to rounding
 errors in the floating point functions).</p>
+</div>
+<h3 id="other-random-functions">Other random functions</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename RandomAccessRange, typename RNG&gt; void</code> <strong><code>shuffle</code></strong><code>(RandomAccessRange&amp; range, RNG&amp; rng)</code></li>
+</ul>
+<p>Shuffles the elements of a random access range into random order. This is
+functionally the same interface as <code>std::shuffle()</code>, duplicated here to
+provide a version with reproducible behaviour on all systems.</p>
 </div>
 <h2 id="strings-and-related-functions">Strings and related functions</h2>
 <h3 id="character-functions">Character functions</h3>

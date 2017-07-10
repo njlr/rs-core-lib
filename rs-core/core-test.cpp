@@ -2844,6 +2844,20 @@ namespace {
 
     }
 
+    void check_other_random_functions() {
+
+        std::mt19937 rng(42);
+
+        for (int i = 0; i < 1000; ++i) {
+            U8string s = "abcdefghij";
+            TRY(shuffle(s, rng));
+            TEST_COMPARE(s, >, "abcdefghij");
+            TRY(std::sort(s.begin(), s.end()));
+            TEST_EQUAL(s, "abcdefghij");
+        }
+
+    }
+
     void check_character_functions() {
 
         TEST(! ascii_isalnum('\0'));
@@ -4175,6 +4189,7 @@ TEST_MODULE(core, core) {
     check_process_io_operations();
     check_terminal_io_operations();
     check_simple_random_generators();
+    check_other_random_functions();
     check_character_functions();
     check_general_string_functions();
     check_string_formatting_and_parsing_functions();

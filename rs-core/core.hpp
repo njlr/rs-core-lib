@@ -2428,6 +2428,22 @@ namespace RS {
         return sample;
     }
 
+    // Other random functions
+
+    template <typename RandomAccessRange, typename RNG>
+    void shuffle(RandomAccessRange& range, RNG& rng) {
+        using std::begin;
+        size_t n = range_count(range);
+        if (n < 2)
+            return;
+        auto rb = begin(range);
+        for (size_t i = 0; i < n - 1; ++i) {
+            size_t j = random_integer(rng, i, n - 1);
+            if (i != j)
+                std::swap(rb[i], rb[j]);
+        }
+    }
+
     // [Strings and related functions]
 
     // Character functions
