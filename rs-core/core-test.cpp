@@ -2847,9 +2847,13 @@ namespace {
     void check_other_random_functions() {
 
         std::mt19937 rng(42);
+        U8string s;
+
+        TRY(shuffle(s, rng));
+        TEST_EQUAL(s, "");
 
         for (int i = 0; i < 1000; ++i) {
-            U8string s = "abcdefghij";
+            s = "abcdefghij";
             TRY(shuffle(s, rng));
             TEST_COMPARE(s, >, "abcdefghij");
             TRY(std::sort(s.begin(), s.end()));

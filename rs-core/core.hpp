@@ -2430,18 +2430,21 @@ namespace RS {
 
     // Other random functions
 
+    template <typename RandomAccessIterator, typename RNG>
+    void shuffle(RandomAccessIterator i, RandomAccessIterator j, RNG& rng) {
+        size_t n = std::distance(i, j);
+        for (size_t a = 0; a + 1 < n; ++a) {
+            size_t b = random_integer(rng, a, n - 1);
+            if (a != b)
+                std::swap(i[a], i[b]);
+        }
+    }
+
     template <typename RandomAccessRange, typename RNG>
     void shuffle(RandomAccessRange& range, RNG& rng) {
         using std::begin;
-        size_t n = range_count(range);
-        if (n < 2)
-            return;
-        auto rb = begin(range);
-        for (size_t i = 0; i < n - 1; ++i) {
-            size_t j = random_integer(rng, i, n - 1);
-            if (i != j)
-                std::swap(rb[i], rb[j]);
-        }
+        using std::end;
+        shuffle(begin(range), end(range), rng);
     }
 
     // [Strings and related functions]

@@ -1696,8 +1696,9 @@ errors in the floating point functions).</p>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename RandomAccessRange, typename RNG&gt; void</code> <strong><code>shuffle</code></strong><code>(RandomAccessRange&amp; range, RNG&amp; rng)</code></li>
+<li><code>template &lt;typename RandomAccessIterator, typename RNG&gt; void</code> <strong><code>shuffle</code></strong><code>(RandomAccessIterator i, RandomAccessIterator j, RNG&amp; rng)</code></li>
 </ul>
-<p>Shuffles the elements of a random access range into random order. This is
+<p>Shuffle the elements of a random access range into random order. This is
 functionally the same interface as <code>std::shuffle()</code>, duplicated here to
 provide a version with reproducible behaviour on all systems.</p>
 </div>

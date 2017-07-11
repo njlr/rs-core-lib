@@ -1389,8 +1389,9 @@ errors in the floating point functions).
 ### Other random functions ###
 
 * `template <typename RandomAccessRange, typename RNG> void` **`shuffle`**`(RandomAccessRange& range, RNG& rng)`
+* `template <typename RandomAccessIterator, typename RNG> void` **`shuffle`**`(RandomAccessIterator i, RandomAccessIterator j, RNG& rng)`
 
-Shuffles the elements of a random access range into random order. This is
+Shuffle the elements of a random access range into random order. This is
 functionally the same interface as `std::shuffle()`, duplicated here to
 provide a version with reproducible behaviour on all systems.
 
