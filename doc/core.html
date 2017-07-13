@@ -1407,43 +1407,46 @@ Window app_window(win_title = "Hello World", win_width = 1024, win_height = 768,
 <h3 id="scope-guards">Scope guards</h3>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T&gt; class</code> <strong><code>Resource</code></strong><ul>
+<li><code>template &lt;typename T, int Def = 0&gt; class</code> <strong><code>Resource</code></strong><ul>
+<li><code>using Resource::</code><strong><code>delete_function</code></strong> <code>= std::function&lt;void(T&amp;)&gt;</code></li>
 <li><code>using Resource::</code><strong><code>resource_type</code></strong> <code>= T</code></li>
 <li><code>using Resource::</code><strong><code>value_type</code></strong> <code>= [dereferenced T]</code> <em>[only if T is a pointer]</em></li>
 <li><code>Resource::</code><strong><code>Resource</code></strong><code>() noexcept</code></li>
-<li><code>explicit Resource::</code><strong><code>Resource</code></strong><code>(T t)</code></li>
-<li><code>template &lt;typename D&gt; Resource::</code><strong><code>Resource</code></strong><code>(T t, D d)</code></li>
+<li><code>explicit Resource::</code><strong><code>Resource</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename Del&gt; Resource::</code><strong><code>Resource</code></strong><code>(T t, Del d)</code></li>
 <li><code>Resource::</code><strong><code>Resource</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
 <li><code>Resource::</code><strong><code>~Resource</code></strong><code>() noexcept</code></li>
 <li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
+<li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(T t) noexcept</code></li>
 <li><code>Resource::</code><strong><code>operator T&amp;</code></strong><code>() noexcept</code></li>
 <li><code>Resource::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
 <li><code>explicit Resource::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
-<li><code>bool Resource::</code><strong><code>operator!</code></strong><code>() const noexcept</code></li>
 <li><code>value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() noexcept</code> <em>[only if T is a non-void pointer]</em></li>
 <li><code>const value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() const noexcept</code> <em>[only if T is a non-void pointer]</em></li>
 <li><code>T Resource::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code> <em>[only if T is a non-void pointer]</em></li>
 <li><code>T&amp; Resource::</code><strong><code>get</code></strong><code>() noexcept</code></li>
 <li><code>T Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
 <li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+<li><code>static T Resource::</code><strong><code>def</code></strong><code>() noexcept</code></li>
 </ul>
 </li>
-<li><code>template &lt;typename T, typename D&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T t, D d)</code></li>
+<li><code>template &lt;typename T, typename Del&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T t, Del d)</code></li>
 </ul>
-<p>This holds a resource of some kind, and a deleter function that will be called
-on destruction, similar to a <code>unique_ptr</code> (but without the requirement that
-the resource type be a pointer, or that the deleter type be specified
-explicitly in the class template). The deleter function passed to the
-constructor is expected to take a single argument of type <code>T</code>; it defaults to
-a null function. The destructor will call <code>d(t)</code>, unless <code>release()</code> has been
-called, the resource object has been moved from, or the deleter is null. The
-constructor will call <code>d(t)</code> if anything goes wrong (in practise this can only
-happen if copying <code>D</code> throws).</p>
+<p>This holds a resource of some kind, a deleter function that will be called on
+destruction (similar to a <code>unique_ptr</code>), and optionally a default value (only
+usable if <code>T</code> is constructible from an <code>int</code>). <code>T</code> is assumed to be copyable
+and movable without throwing.</p>
+<p>The deleter function passed to the constructor is expected to take a single
+argument of type <code>T</code>; it defaults to a null function. The destructor will call
+<code>d(t)</code>, unless the resource value is equal to the default or the deleter is
+null. The constructor will call <code>d(t)</code> if anything goes wrong, with the same
+constraints (in practise this can only happen if copying <code>D</code> throws).</p>
+<p>The <code>def()</code> function returns the default value of <code>T</code>, which is <code>T(Def)</code> if
+<code>T</code> is constructible from an <code>int</code>, otherwise <code>T()</code>. The boolean conversion
+operator returns true if the stored value is not equal to the default (note
+that this may give a different result from <code>bool(T)</code>).</p>
 <p>The template is specialized for pointer types; if <code>T</code> is a pointer, the
-deleter will never be called if the resource pointer is null. The <code>bool</code>
-conversion and <code>!</code> operator have their usual meaning for pointers; for other
-types, they will fail to compile if <code>T</code> does not have an explicit conversion
-to <code>bool</code>. Behaviour is otherwise the same for pointer and non-pointer types.</p>
+deleter will never be called if the resource pointer is null.</p>
 </div>
 <div class="defns">
 <ul>

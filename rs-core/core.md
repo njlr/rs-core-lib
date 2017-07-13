@@ -1130,42 +1130,47 @@ Example:
 
 ### Scope guards ###
 
-* `template <typename T> class` **`Resource`**
+* `template <typename T, int Def = 0> class` **`Resource`**
+    * `using Resource::`**`delete_function`** `= std::function<void(T&)>`
     * `using Resource::`**`resource_type`** `= T`
     * `using Resource::`**`value_type`** `= [dereferenced T]` _[only if T is a pointer]_
     * `Resource::`**`Resource`**`() noexcept`
-    * `explicit Resource::`**`Resource`**`(T t)`
-    * `template <typename D> Resource::`**`Resource`**`(T t, D d)`
+    * `explicit Resource::`**`Resource`**`(T t) noexcept`
+    * `template <typename Del> Resource::`**`Resource`**`(T t, Del d)`
     * `Resource::`**`Resource`**`(Resource&& r) noexcept`
     * `Resource::`**`~Resource`**`() noexcept`
     * `Resource& Resource::`**`operator=`**`(Resource&& r) noexcept`
+    * `Resource& Resource::`**`operator=`**`(T t) noexcept`
     * `Resource::`**`operator T&`**`() noexcept`
     * `Resource::`**`operator T`**`() const noexcept`
     * `explicit Resource::`**`operator bool`**`() const noexcept`
-    * `bool Resource::`**`operator!`**`() const noexcept`
     * `value_type& Resource::`**`operator*`**`() noexcept` _[only if T is a non-void pointer]_
     * `const value_type& Resource::`**`operator*`**`() const noexcept` _[only if T is a non-void pointer]_
     * `T Resource::`**`operator->`**`() const noexcept` _[only if T is a non-void pointer]_
     * `T& Resource::`**`get`**`() noexcept`
     * `T Resource::`**`get`**`() const noexcept`
     * `T Resource::`**`release`**`() noexcept`
-* `template <typename T, typename D> Resource<T>` **`make_resource`**`(T t, D d)`
+    * `static T Resource::`**`def`**`() noexcept`
+* `template <typename T, typename Del> Resource<T>` **`make_resource`**`(T t, Del d)`
 
-This holds a resource of some kind, and a deleter function that will be called
-on destruction, similar to a `unique_ptr` (but without the requirement that
-the resource type be a pointer, or that the deleter type be specified
-explicitly in the class template). The deleter function passed to the
-constructor is expected to take a single argument of type `T`; it defaults to
-a null function. The destructor will call `d(t)`, unless `release()` has been
-called, the resource object has been moved from, or the deleter is null. The
-constructor will call `d(t)` if anything goes wrong (in practise this can only
-happen if copying `D` throws).
+This holds a resource of some kind, a deleter function that will be called on
+destruction (similar to a `unique_ptr`), and optionally a default value (only
+usable if `T` is constructible from an `int`). `T` is assumed to be copyable
+and movable without throwing.
+
+The deleter function passed to the constructor is expected to take a single
+argument of type `T`; it defaults to a null function. The destructor will call
+`d(t)`, unless the resource value is equal to the default or the deleter is
+null. The constructor will call `d(t)` if anything goes wrong, with the same
+constraints (in practise this can only happen if copying `D` throws).
+
+The `def()` function returns the default value of `T`, which is `T(Def)` if
+`T` is constructible from an `int`, otherwise `T()`. The boolean conversion
+operator returns true if the stored value is not equal to the default (note
+that this may give a different result from `bool(T)`).
 
 The template is specialized for pointer types; if `T` is a pointer, the
-deleter will never be called if the resource pointer is null. The `bool`
-conversion and `!` operator have their usual meaning for pointers; for other
-types, they will fail to compile if `T` does not have an explicit conversion
-to `bool`. Behaviour is otherwise the same for pointer and non-pointer types.
+deleter will never be called if the resource pointer is null.
 
 * `class` **`ScopeExit`**
     * `using ScopeExit::`**`callback`** `= function<void()>`

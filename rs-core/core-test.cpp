@@ -2411,6 +2411,38 @@ namespace {
 
         {
             n = 1;
+            Resource<int, -1> r;
+            TEST_EQUAL(r.get(), -1);
+            TEST(! r);
+            TRY((r = {2, [&] (int i) { n = i; }}));
+            TEST_EQUAL(r.get(), 2);
+            TEST(r);
+            TEST_EQUAL(n, 1);
+            TRY(r.release());
+            TEST_EQUAL(r.get(), -1);
+            TEST(! r);
+            TEST_EQUAL(n, 1);
+        }
+        TEST_EQUAL(n, 1);
+
+        {
+            Resource<int*> r;
+            TEST(! r);
+            TRY(r = &n);
+            TEST(r);
+            TEST_EQUAL(r.get(), &n);
+        }
+
+        {
+            Resource<void*> r;
+            TEST(! r);
+            TRY(r = &n);
+            TEST(r);
+            TEST_EQUAL(r.get(), &n);
+        }
+
+        {
+            n = 1;
             ScopeExit x([&] { n = 2; });
             TEST_EQUAL(n, 1);
         }

@@ -1885,42 +1885,56 @@ namespace RS {
 
     // Scope guards
 
-    template <typename T>
+    namespace RS_Detail {
+
+        template <typename T, int Def, bool = std::is_constructible<T, int>::value> struct ResourceDefault;
+        template <typename T, int Def> struct ResourceDefault<T, Def, true> { static T get() { return T(Def); } };
+        template <typename T> struct ResourceDefault<T, 0, false> { static T get() { return T(); } };
+
+    }
+
+    template <typename T, int Def = 0>
     class Resource {
     public:
         using resource_type = T;
         Resource() = default;
         explicit Resource(T t): res(t), del() {}
-        template <typename D> Resource(T t, D d): res(t), del() {
-            try { del = deleter(d); }
-            catch (...) { d(res); throw; }
+        template <typename Del> Resource(T t, Del d):
+            res(t), del() {
+                try { del = deleter(d); }
+                catch (...) { d(res); throw; }
+            }
+        Resource(Resource&& r) noexcept: res(std::exchange(r.res, def())), del(std::exchange(r.del, nullptr)) {}
+        ~Resource() noexcept { drop(); }
+        Resource& operator=(Resource&& r) noexcept {
+            drop();
+            res = std::exchange(r.res, def());
+            del = std::exchange(r.del, nullptr);
+            return *this;
         }
-        Resource(Resource&& r) noexcept: res(r.res), del(r.del) { r.res = T(); r.del = {}; }
-        ~Resource() noexcept {
-            if (del) {
+        Resource& operator=(T t) noexcept { drop(); res = t; return *this; }
+        operator T&() noexcept { return res; }
+        operator T() const noexcept { return res; }
+        explicit operator bool() const noexcept { return res != def(); }
+        bool operator!() const noexcept { return ! bool(*this); }
+        T& get() noexcept { return res; }
+        T get() const noexcept { return res; }
+        T release() noexcept { del = nullptr; return std::exchange(res, def()); }
+        static T def() noexcept { return RS_Detail::ResourceDefault<T, Def>::get(); }
+    private:
+        using deleter = std::function<void(T&)>;
+        T res = def();
+        deleter del;
+        Resource(const Resource&) = delete;
+        Resource& operator=(const Resource&) = delete;
+        void drop() noexcept {
+            if (del && res != def()) {
                 try { del(res); }
                 catch (...) {}
             }
+            del = nullptr;
+            res = def();
         }
-        Resource& operator=(Resource&& r) noexcept {
-            Resource temp(std::move(r));
-            std::swap(res, temp.res);
-            std::swap(del, temp.del);
-            return *this;
-        }
-        operator T&() noexcept { return res; }
-        operator T() const noexcept { return res; }
-        explicit operator bool() const noexcept { return static_cast<bool>(res); }
-        bool operator!() const noexcept { return ! static_cast<bool>(res); }
-        T& get() noexcept { return res; }
-        T get() const noexcept { return res; }
-        T release() noexcept { del = {}; return res; }
-    private:
-        using deleter = std::function<void(T&)>;
-        T res = T();
-        deleter del = {};
-        Resource(const Resource&) = delete;
-        Resource& operator=(const Resource&) = delete;
     };
 
     template <typename T>
@@ -1930,39 +1944,44 @@ namespace RS {
         using value_type = T;
         Resource() = default;
         explicit Resource(T* t): res(t), del() {}
-        template <typename D> Resource(T* t, D d): res(t), del() {
+        template <typename Del> Resource(T* t, Del d): res(t), del() {
             try { del = deleter(d); }
             catch (...) { if (res) d(res); throw; }
         }
-        Resource(Resource&& r) noexcept: res(r.res), del(r.del) { r.res = nullptr; r.del = {}; }
-        ~Resource() noexcept {
-            if (res && del) {
-                try { del(res); }
-                catch (...) {}
-            }
-        }
+        Resource(Resource&& r) noexcept: res(std::exchange(r.res, nullptr)), del(std::exchange(r.del, nullptr)) {}
+        ~Resource() noexcept { drop(); }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(std::move(r));
-            std::swap(res, temp.res);
-            std::swap(del, temp.del);
+            drop();
+            res = std::exchange(r.res, nullptr);
+            del = std::exchange(r.del, nullptr);
             return *this;
         }
+        Resource& operator=(T* t) noexcept { drop(); res = t; return *this; }
         operator T*&() noexcept { return res; }
         operator T*() const noexcept { return res; }
         explicit operator bool() const noexcept { return res != nullptr; }
-        bool operator!() const noexcept { return res == nullptr; }
+        bool operator!() const noexcept { return ! bool(*this); }
         T& operator*() noexcept { return *res; }
         const T& operator*() const noexcept { return *res; }
         T* operator->() const noexcept { return res; }
         T*& get() noexcept { return res; }
         T* get() const noexcept { return res; }
-        T* release() noexcept { del = {}; return res; }
+        T* release() noexcept { del = nullptr; return std::exchange(res, nullptr); }
+        static T* def() noexcept { return nullptr; }
     private:
         using deleter = std::function<void(T*)>;
         T* res = nullptr;
-        deleter del = {};
+        deleter del = nullptr;
         Resource(const Resource&) = delete;
         Resource& operator=(const Resource&) = delete;
+        void drop() noexcept {
+            if (del && res) {
+                try { del(res); }
+                catch (...) {}
+            }
+            del = nullptr;
+            res = nullptr;
+        }
     };
 
     template <>
@@ -1972,38 +1991,43 @@ namespace RS {
         using value_type = void;
         Resource() = default;
         explicit Resource(void* t): res(t), del() {}
-        template <typename D> Resource(void* t, const D& d): res(t) {
+        template <typename Del> Resource(void* t, const Del& d): res(t) {
             try { del = deleter(d); }
             catch (...) { if (res) d(res); throw; }
         }
-        Resource(Resource&& r) noexcept: res(r.res), del(r.del) { r.res = nullptr; r.del = {}; }
-        ~Resource() noexcept {
-            if (res && del) {
-                try { del(res); }
-                catch (...) {}
-            }
-        }
+        Resource(Resource&& r) noexcept: res(std::exchange(r.res, def())), del(std::exchange(r.del, nullptr)) {}
+        ~Resource() noexcept { drop(); }
         Resource& operator=(Resource&& r) noexcept {
-            Resource temp(std::move(r));
-            std::swap(res, temp.res);
-            std::swap(del, temp.del);
+            drop();
+            res = std::exchange(r.res, nullptr);
+            del = std::exchange(r.del, nullptr);
             return *this;
         }
+        Resource& operator=(void* t) noexcept { drop(); res = t; return *this; }
         operator void*&() noexcept { return res; }
         operator void*() const noexcept { return res; }
         void*& get() noexcept { return res; }
         void* get() const noexcept { return res; }
-        void* release() noexcept { del = {}; return res; }
+        void* release() noexcept { del = nullptr; return std::exchange(res, nullptr); }
+        static void* def() noexcept { return nullptr; }
     private:
         using deleter = std::function<void(void*)>;
         void* res = nullptr;
-        deleter del = {};
+        deleter del = nullptr;
         Resource(const Resource&) = delete;
         Resource& operator=(const Resource&) = delete;
+        void drop() noexcept {
+            if (del && res) {
+                try { del(res); }
+                catch (...) {}
+            }
+            del = nullptr;
+            res = nullptr;
+        }
     };
 
-    template <typename T, typename D>
-    Resource<T> make_resource(T t, D d) {
+    template <typename T, typename Del>
+    Resource<T> make_resource(T t, Del d) {
         return {t, d};
     }
 
