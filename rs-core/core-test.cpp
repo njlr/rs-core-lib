@@ -2850,23 +2850,23 @@ namespace {
         const double expect_sd = sqrt(double(pop_size * pop_size - 1) / 12);
         std::vector<int> pop(pop_size), sample;
         std::iota(pop.begin(), pop.end(), 1);
-        for (size_t n = 0; n <= pop_size; ++n) {
+        for (size_t k = 0; k <= pop_size; ++k) {
             double count = 0, sum = 0, sum2 = 0;
             for (size_t i = 0; i < sample_iterations; ++i) {
-                TRY(sample = random_sample(rng, pop, n));
-                TEST_EQUAL(sample.size(), n);
+                TRY(sample = random_sample(rng, pop, k));
+                TEST_EQUAL(sample.size(), k);
                 TRY(con_sort_unique(sample));
-                TEST_EQUAL(sample.size(), n);
+                TEST_EQUAL(sample.size(), k);
                 count += sample.size();
                 for (auto x: sample) {
                     sum += x;
                     sum2 += x * x;
                 }
             }
-            if (n > 0) {
+            if (k >= 1) {
                 double mean = sum / count;
                 TEST_NEAR_EPSILON(mean, expect_mean, 4);
-                if (n > 0) {
+                if (k >= 2) {
                     double sd = sqrt((sum2 - count * mean * mean) / (count - 1));
                     TEST_NEAR_EPSILON(sd, expect_sd, 2);
                 }
