@@ -3870,16 +3870,7 @@ namespace RS {
         friend bool operator==(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == 0; }
         friend bool operator<(const Uuid& lhs, const Uuid& rhs) noexcept { return memcmp(lhs.bytes, rhs.bytes, 16) == -1; }
     private:
-        friend struct RandomUuid;
-        union {
-            uint8_t bytes[16];
-            uint32_t words[4];
-            struct {
-                uint32_t ua;
-                uint16_t ub[2];
-                uint8_t uc[8];
-            };
-        };
+        uint8_t bytes[16];
     };
 
     inline Uuid::Uuid(const void* ptr, size_t n) noexcept {
