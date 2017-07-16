@@ -2454,8 +2454,37 @@ namespace RS {
 
     // Other random functions
 
-    template <typename RandomAccessIterator, typename RNG>
-    void shuffle(RandomAccessIterator i, RandomAccessIterator j, RNG& rng) {
+    template <typename RNG>
+    void random_bytes(RNG& rng, void* ptr, size_t n) {
+        static constexpr auto max64 = ~ uint64_t(0);
+        if (! ptr || ! n)
+            return;
+        auto range_m1 = uint64_t(std::min(uintmax_t(RNG::max()) - uintmax_t(RNG::min()), uintmax_t(max64)));
+        size_t block;
+        if (range_m1 == max64)
+            block = 8;
+        else
+            block = (ilog2p1(range_m1) - 1) / 8;
+        auto bp = static_cast<uint8_t*>(ptr);
+        if (block) {
+            while (n >= block) {
+                auto x = rng() - RNG::min();
+                memcpy(bp, &x, block);
+                bp += block;
+                n -= block;
+            }
+            if (n) {
+                auto x = rng() - RNG::min();
+                memcpy(bp, &x, n);
+            }
+        } else {
+            for (size_t i = 0; i < n; ++i)
+                bp[i] = uint8_t(random_integer(rng, 256));
+        }
+    }
+
+    template <typename RNG, typename RandomAccessIterator>
+    void shuffle(RNG& rng, RandomAccessIterator i, RandomAccessIterator j) {
         size_t n = std::distance(i, j);
         for (size_t a = 0; a + 1 < n; ++a) {
             size_t b = random_integer(rng, a, n - 1);
@@ -2464,8 +2493,8 @@ namespace RS {
         }
     }
 
-    template <typename RandomAccessRange, typename RNG>
-    void shuffle(RandomAccessRange& range, RNG& rng) {
+    template <typename RNG, typename RandomAccessRange>
+    void shuffle(RNG& rng, RandomAccessRange& range) {
         using std::begin;
         using std::end;
         shuffle(begin(range), end(range), rng);
@@ -3828,7 +3857,7 @@ namespace RS {
         Uuid(uint32_t abcd, uint16_t ef, uint16_t gh, uint8_t i, uint8_t j, uint8_t k, uint8_t l, uint8_t m, uint8_t n, uint8_t o, uint8_t p) noexcept:
             bytes{uint8_t((abcd >> 24) & 0xff), uint8_t((abcd >> 16) & 0xff), uint8_t((abcd >> 8) & 0xff), uint8_t(abcd & 0xff),
                 uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff), i, j, k, l, m, n, o, p} {}
-        explicit Uuid(const uint8_t* ptr) noexcept { if (ptr) memcpy(bytes, ptr, 16); else memset(bytes, 0, 16); }
+        explicit Uuid(const void* ptr, size_t n) noexcept;
         explicit Uuid(const std::string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
         const uint8_t& operator[](size_t i) const noexcept { return bytes[i]; }
@@ -3845,8 +3874,24 @@ namespace RS {
         union {
             uint8_t bytes[16];
             uint32_t words[4];
+            struct {
+                uint32_t ua;
+                uint16_t ub[2];
+                uint8_t uc[8];
+            };
         };
     };
+
+    inline Uuid::Uuid(const void* ptr, size_t n) noexcept {
+        if (! ptr)
+            n = 0;
+        if (n > 16)
+            n = 16;
+        if (ptr && n)
+            memcpy(bytes, ptr, n);
+        if (n < 16)
+            memset(bytes + n, 0, 16 - n);
+    }
 
     inline Uuid::Uuid(const std::string& s) {
         auto begins = s.begin(), i = begins, ends = s.end();
@@ -3891,14 +3936,12 @@ namespace RS {
 
     struct RandomUuid {
         using result_type = Uuid;
-        template <typename Rng> Uuid operator()(Rng& rng) const {
-            std::uniform_int_distribution<uint32_t> dist;
-            Uuid result;
-            for (auto& w: result.words)
-                w = dist(rng);
-            result[6] = (result[6] & 0x0f) | 0x40;
-            result[8] = (result[8] & 0x3f) | 0x80;
-            return result;
+        template <typename RNG> Uuid operator()(RNG& rng) const {
+            Uuid u;
+            random_bytes(rng, u.begin(), 16);
+            u[6] = (u[6] & 0x0f) | 0x40;
+            u[8] = (u[8] & 0x3f) | 0x80;
+            return u;
         }
     };
 
