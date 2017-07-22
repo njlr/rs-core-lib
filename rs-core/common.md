@@ -140,7 +140,7 @@ from a pointer copies `sizeof(T)` bytes into the object. The `ptr()` and
 `rep()` functions give access to the internal, byte ordered form. The hash
 function gives the same result as the underlying integer type's hash.
 
-### String types ###
+### String and character types ###
 
 * `using` **`U8string`** `= std::string`
 
@@ -148,6 +148,22 @@ Use `U8string` for strings that are expected to be in UTF-8 (or ASCII, since
 any ASCII string is also valid UTF-8), while plain `std::string` is used where
 the string is expected to be in some non-Unicode encoding, or where the string
 is being used simply as an array of bytes rather than encoded text.
+
+* `#define` **`RS_NATIVE_WCHAR`** `1` _- defined if the system API uses wide characters_
+* `using` **`NativeCharacter`** `= [char on Unix, wchar_t on Windows]`
+* `using` **`NativeString`** `= [std::string on Unix, std::wstring on Windows]`
+
+These are defined to reflect the character types used in the operating
+system's native API.
+
+* `#define` **`RS_WCHAR_UTF16`** `1` _- defined if wchar_t and wstring are UTF-16_
+* `#define` **`RS_WCHAR_UTF32`** `1` _- defined if wchar_t and wstring are UTF-32_
+* `using` **`WcharEquivalent`** `= [char16_t or char32_t]`
+* `using` **`WstringEquivalent`** `= [std::u16string or std::u32string]`
+
+These are defined to reflect the encoding represented by `wchar_t` ad
+`std::wstring`. Systems where wide strings are neither UTF-16 nor UTF-32 are
+not supported.
 
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr)`
 * `template <typename C> basic_string<C>` **`cstr`**`(const C* ptr, size_t n)`

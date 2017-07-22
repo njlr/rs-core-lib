@@ -178,7 +178,24 @@ namespace RS {
 
     // Things needed early
 
+    #ifdef _XOPEN_SOURCE
+        using NativeCharacter = char;
+    #else
+        #define RS_NATIVE_WCHAR 1
+        using NativeCharacter = wchar_t;
+    #endif
+
+    #if WCHAR_MAX < 0x7fffffff
+        #define RS_WCHAR_UTF16 1
+        using WcharEquivalent = char16_t;
+    #else
+        #define RS_WCHAR_UTF32 1
+        using WcharEquivalent = char32_t;
+    #endif
+
     using U8string = std::string;
+    using NativeString = std::basic_string<NativeCharacter>;
+    using WstringEquivalent = std::basic_string<WcharEquivalent>;
 
     #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
         constexpr bool big_endian_target = false;
