@@ -2,8 +2,19 @@
 
 #### Minimal common utilities by Ross Smith ####
 
-* [`"rs-core/core.hpp"`](core.html) - Core utilities.
-* [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing utilities.
+* _Utility modules_
+    * [`"rs-core/common.hpp"`](common.html) - Common utilities.
+    * [`"rs-core/container.hpp"`](container.html) - Containers.
+    * [`"rs-core/float.hpp"`](float.html) - Floating point utilities.
+    * [`"rs-core/io.hpp"`](io.html) - I/O utilities.
+    * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments.
+    * [`"rs-core/random.hpp"`](random.html) - Random numbers.
+    * [`"rs-core/string.hpp"`](string.html) - String algorithms.
+    * [`"rs-core/thread.hpp"`](thread.html) - Threads.
+    * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms.
+    * [`"rs-core/uuid.hpp"`](uuid.html) - UUID.
+* _Testing modules_
+    * [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing.
 
 This is a header-only library that basically represents the absolute minimum
 set of common utilities that I've found a common need for in other projects,
@@ -17,13 +28,14 @@ before using it with any other library. The makefile included here exists
 mainly to be referenced by inclusion in other projects' makefiles; it can also
 be used to run the library's own unit tests.
 
-The library is written in C++14; you will need an up-to-date C++ compiler,
-probably a recent version of Clang or GCC. I developed it mainly on macOS,
-currently using Clang 7.0, as well as testing with GCC 5.x. All test builds
-are made using strict compilation mode (`-Wall -Wextra -Werror`). It will not
-work with any existing release of Microsoft Visual C++.
+The library is written in C++14 (more or less); you will need an up-to-date
+C++ compiler, probably a recent version of Clang or GCC. I developed it mainly
+on macOS, currently using Clang 8.1, as well as testing with GCC 5/6 on
+Windows. All test builds are made using strict compilation mode (`-Wall
+-Wextra -Werror`). It will not work with any existing release of Microsoft
+Visual C++.
 
-Because I'm primarily targeting a shortlist of compilers rather than a
+Because I'm primarily targeting a short list of compilers rather than a
 specific edition of the C++ standard, the code makes a few assumptions that
 are not guaranteed by the standard but are reliably true on all the system I
 care about. These include:

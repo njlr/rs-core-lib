@@ -96,10 +96,10 @@ TESTAPP := $(BUILD)/test-$(NAME)$(EXE)
 
 .DELETE_ON_ERROR:
 
-.PHONY: all static app run unit check install symlinks uninstall doc unlink undoc clean clean-all dep help
+.PHONY: all static app run tests check install symlinks uninstall doc unlink undoc clean clean-all dep help
 .PHONY: help-prefix help-app help-test help-install help-suffix print-%
 
-all: static app unit doc
+all: static app tests doc
 
 unlink:
 	rm -f $(STATICLIB) $(MAINAPP) $(TESTAPP)
@@ -119,7 +119,9 @@ dep:
 help: help-suffix
 
 help-prefix:
+	@echo
 	@echo "Make targets:"
+	@echo
 	@echo "    all        = Build everything (default)"
 	@echo "    static     = Build the static library"
 
@@ -132,6 +134,7 @@ help-suffix: help-install
 	@echo "    dep        = Rebuild makefile dependencies"
 	@echo "    help       = List make targets"
 	@echo "    print-*    = Query a makefile variable"
+	@echo
 
 print-%:
 	@echo "$* = $($*)"
@@ -156,18 +159,18 @@ STATICPART := $(STATICLIB)
 endif
 
 ifeq ($(TESTSOURCES),)
-unit:
+tests:
 check:
 help-test: help-app
 else
-unit: $(TESTAPP)
+tests: $(TESTAPP)
 check: all
 	@rm -rf __test_*
 	$(TESTAPP)
 	@rm -rf __test_*
 help-test: help-app
-	@echo "    unit       = Build the unit tests"
-	@echo "    check      = Build and run the unit tests"
+	@echo "    tests      = Build the unit tests"
+	@echo "    check      = Build everything and run the unit tests"
 endif
 
 ifeq ($(DOCSOURCES),)

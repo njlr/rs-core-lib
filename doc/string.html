@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Core String Algorithms</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="core-string-algorithms">Core String Algorithms</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/string.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#core-string-algorithms">Core String Algorithms</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#character-functions">Character functions</a></li>
+<li><a href="#general-string-functions">General string functions</a></li>
+<li><a href="#string-formatting-and-parsing-functions">String formatting and parsing functions</a></li>
+<li><a href="#htmlxml-tags">HTML/XML tags</a></li>
+<li><a href="#type-names">Type names</a></li>
+<li><a href="#unicode-functions">Unicode functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="character-functions">Character functions</h2>
+<div class="defns">
+<ul>
+<li><code>constexpr bool</code> <strong><code>ascii_isalnum</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isalpha</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_iscntrl</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isdigit</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isgraph</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_islower</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isprint</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_ispunct</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isspace</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isupper</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isxdigit</code></strong><code>(char c) noexcept</code></li>
+</ul>
+<p>These are simple ASCII-only versions of the standard character type functions.
+All of them will always return false for bytes outside the ASCII range
+(0-127).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr bool</code> <strong><code>ascii_isalnum_w</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_isalpha_w</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr bool</code> <strong><code>ascii_ispunct_w</code></strong><code>(char c) noexcept</code></li>
+</ul>
+<p>These behave the same as the corresponding functions without the <code>"_w"</code>
+suffix, except that the underscore character is counted as a letter instead of
+a punctuation mark. (The suffix is intended to suggest the <code>"\w"</code> regex
+element, which does much the same thing.)</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr char</code> <strong><code>ascii_tolower</code></strong><code>(char c) noexcept</code></li>
+<li><code>constexpr char</code> <strong><code>ascii_toupper</code></strong><code>(char c) noexcept</code></li>
+</ul>
+<p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
+unchanged.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>char_to</code></strong><code>(char c) noexcept</code></li>
+</ul>
+<p>A simple conversion function that casts a <code>char</code> to a larger integer type by
+first passing it through <code>unsigned char</code>, to ensure that characters with the
+high bit set end up as integers in the 128-255 range, and not as negative or
+extremely high values.</p>
+</div>
+<h2 id="general-string-functions">General string functions</h2>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>ascii_icase_equal</code></strong><code>(const string&amp; lhs, const string&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>ascii_icase_less</code></strong><code>(const string&amp; lhs, const string&amp; rhs) noexcept</code></li>
+</ul>
+<p>Comparison functions that treat upper and lower case ASCII letters as
+equivalent (comparison between letters and non-letters uses the upper case
+code points).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>string</code> <strong><code>ascii_lowercase</code></strong><code>(const string&amp; s)</code></li>
+<li><code>string</code> <strong><code>ascii_uppercase</code></strong><code>(const string&amp; s)</code></li>
+<li><code>string</code> <strong><code>ascii_titlecase</code></strong><code>(const string&amp; s)</code></li>
+<li><code>string</code> <strong><code>ascii_sentencecase</code></strong><code>(const string&amp; s)</code></li>
+</ul>
+<p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
+unchanged. The sentence case function capitalizes the first letter of every
+sentence (delimited by a full stop or two consecutive line breaks), leaving
+everything else alone.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>U8string</code> <strong><code>dent</code></strong><code>(size_t depth)</code></li>
+</ul>
+<p>Returns a string containing <code>4*depth</code> spaces, for indentation.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename InputRange&gt; string</code> <strong><code>join</code></strong><code>(const InputRange&amp; range, const string&amp; delim = "", bool term = false)</code></li>
+<li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
+<li><code>vector&lt;string&gt;</code> <strong><code>splitv</code></strong><code>(const string&amp; src, const string&amp; delim = ascii_whitespace)</code></li>
+</ul>
+<p>Join strings into a single string, using the given delimiter, or split a
+string into substrings, discarding any sequence of delimiter characters. The
+<code>splitv()</code> version returns a vector of strings instead of writing to an
+existing container. The value type of the <code>InputRange</code> or <code>OutputIterator</code>
+must be assignment compatible with <code>string</code>. If the <code>term</code> argument to
+<code>join()</code> is set, an extra delimiter will be added after the last element
+(useful when joining lines to form a text that would be expected to end with a
+line break).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>std::string</code> <strong><code>linearize</code></strong><code>(const std::string&amp; str)</code></li>
+</ul>
+<p>Replaces all whitespace in a string with a single space, and trims leading and
+trailing whitespace. All non-ASCII bytes are treated as non-whitespace
+characters.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename C&gt; void</code> <strong><code>null_term</code></strong><code>(basic_string&lt;C&gt;&amp; str) noexcept</code></li>
+</ul>
+<p>Cuts off a string at the first null character (useful after the string has
+been used as an output buffer by some C APIs).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>U8string</code> <strong><code>quote</code></strong><code>(const string&amp; str)</code></li>
+<li><code>U8string</code> <strong><code>bquote</code></strong><code>(const string&amp; str)</code></li>
+</ul>
+<p>Return a quoted string; internal quotes, backslashes, and control characters
+are escaped. The <code>bquote()</code> function always escapes all non-ASCII bytes;
+<code>quote()</code> passes valid UTF-8 unchanged, but will switch to <code>bquote()</code> mode if
+the string is not valid UTF-8.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>starts_with</code></strong><code>(const string&amp; str, const string&amp; prefix) noexcept</code></li>
+<li><code>bool</code> <strong><code>ends_with</code></strong><code>(const string&amp; str, const string&amp; suffix) noexcept</code></li>
+</ul>
+<p>True if the string starts or ends with the specified substring.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>string_is_ascii</code></strong><code>(const string&amp; str) noexcept</code></li>
+</ul>
+<p>True if the string contains no 8-bit bytes.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>string</code> <strong><code>trim</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+<li><code>string</code> <strong><code>trim_left</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+<li><code>string</code> <strong><code>trim_right</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+</ul>
+<p>Trim unwanted bytes from the ends of a string.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>string</code> <strong><code>unqualify</code></strong><code>(const string&amp; str, const string&amp; delims = ".:")</code></li>
+</ul>
+<p>Strips off any prefix ending in one of the delimiter characters (e.g.
+<code>unqualify("RS::unqualify()")</code> returns <code>"unqualify()"</code>). This will return the
+original string unchanged if the delimiter string is empty or none of its
+characters are found.</p>
+</div>
+<h2 id="string-formatting-and-parsing-functions">String formatting and parsing functions</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>bin</code></strong><code>(T x, size_t digits = 8 * sizeof(T))</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>dec</code></strong><code>(T x, size_t digits = 1)</code></li>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>hex</code></strong><code>(T x, size_t digits = 2 * sizeof(T))</code></li>
+<li><code>unsigned long long</code> <strong><code>binnum</code></strong><code>(const string&amp; str) noexcept</code></li>
+<li><code>long long</code> <strong><code>decnum</code></strong><code>(const string&amp; str) noexcept</code></li>
+<li><code>unsigned long long</code> <strong><code>hexnum</code></strong><code>(const string&amp; str) noexcept</code></li>
+<li><code>double</code> <strong><code>fpnum</code></strong><code>(const string&amp; str) noexcept</code></li>
+</ul>
+<p>Simple string and number conversion functions. The <code>bin()</code>, <code>dec()</code>, and
+<code>hex()</code> functions convert an integer to a binary, decimal, or hexadecimal
+string, generating at least the specified number of digits. The <code>binnum()</code>,
+<code>decnum()</code>, and <code>hexnum()</code> functions perform the reverse conversion, while
+<code>fpnum()</code> converts a string to a floating point number; these will ignore any
+trailing characters that are not part of a number, and will return zero if the
+string is empty or does not contain a valid number. Results that are out of
+range will be clamped to the nearest end of the return type's range (for
+<code>fpnum()</code> this will normally be positive or negative infinity).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; U8string</code> <strong><code>fmt</code></strong><code>(const U8string&amp; pattern, const Args&amp;... args)</code></li>
+</ul>
+<p>This performs string interpolation, inserting the variadic arguments
+(formatted with <code>to_str()</code>, below) in place of each occurrence of <code>"$n"</code> or
+<code>"${n}"</code> in the pattern string, where <code>n</code> is a decimal integer interpreted as
+a 1-based index into the variadic argument list. An index out of bounds will
+be replaced with an empty string. If a dollar sign is not followed by a bare
+or braced number, the dollar sign is discarded and the next character is
+copied unchanged (so <code>"$$"</code> will produce a literal dollar sign).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>fp_format</code></strong><code>(T t, char mode = 'g', int prec = 6)</code></li>
+</ul>
+<p>Simple floating point formatting, by calling <code>snprintf()</code>. <code>T</code> must be an
+arithmetic type; it will be converted to <code>double</code> internally. The additional
+format <code>'Z/z'</code> is the same as <code>'G/g'</code> except that trailing zeros are not
+stripped. This will throw <code>std::invalid_argument</code> if the mode is not one of
+<code>[EFGZefgz]</code>; it may throw <code>std::system_error</code> under implementation defined
+circumstances.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>int64_t</code> <strong><code>si_to_int</code></strong><code>(const U8string&amp; s)</code></li>
+<li><code>double</code> <strong><code>si_to_float</code></strong><code>(const U8string&amp; s)</code></li>
+</ul>
+<p>These parse a number from a string representation tagged with an SI multiplier
+abbreviation (e.g. <code>"123k"</code>). For the integer version, only tags representing
+positive powers of 1000 (starting with<code>"k"</code>) are recognised, and are case
+insensitive. For the floating point version, all tags representing powers of
+100 are recognised (<code>"u"</code> is used for "micro"), and are case sensitive, except
+that <code>"K"</code> is equivalent to <code>"k"</code>. For both versions, a space is allowed
+between the number and the tag, and any additional text after the number or
+tag is ignored.</p>
+<p>This will throw <code>std::invalid_argument</code> if the string does not start with a
+valid number, or <code>std::range_error</code> if the result is too big for the return
+type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
+<li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
+</ul>
+<p>Converts a block of raw data into hexadecimal bytes. If <code>block</code> is not zero, a
+line feed is inserted after each block.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>U8string</code> <strong><code>tf</code></strong><code>(bool b)</code></li>
+<li><code>U8string</code> <strong><code>yn</code></strong><code>(bool b)</code></li>
+</ul>
+<p>Convert a boolean to <code>"true/false"</code> or <code>"yes/no"</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; U8string</code> <strong><code>to_str</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Formats an object as a string. This uses the following rules for formatting
+various types:</p>
+<ul>
+<li><code>std::string</code>, <code>char</code>, character pointers, and anything with an implicit
+conversion to <code>string</code> - The string content is simply copied directly without
+using an output stream; a null character pointer is treated as an empty
+string.</li>
+<li>Integer types - Formatted using <code>dec()</code>.</li>
+<li>Floating point types - Formatted using <code>fp_format()</code>.</li>
+<li><code>bool</code> - Written as <code>"true"</code> or <code>"false"</code>.</li>
+<li>Ranges (other than strings) - Serialized in a format similar to a JSON array
+(e.g. <code>"[1,2,3]"</code>), or an object (e.g. <code>"{1:a,2:b,3:c}"</code>) if the range's value
+type is a pair; <code>to_str()</code> is called recursively on each range element.</li>
+<li>Otherwise, the type's output operator will be called.</li>
+</ul>
+</div>
+<h2 id="htmlxml-tags">HTML/XML tags</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Tag</code></strong><ul>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>()</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(std::ostream&amp; out, const std::string&amp; element)</code></li>
+<li><code>Tag::</code><strong><code>~Tag</code></strong><code>() noexcept</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
+<li><code>Tag&amp; Tag::</code><strong><code>operator=</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>This class writes an HTML/XML tag in its constructor, then writes the
+corresponding closing tag in its destructor. If the supplied string ends with
+one line feed, a line feed will be written after the closing tag, but not the
+opening one; if it ends with two line feeds, one will be written after both
+tags.</p>
+<p>The opening tag can be supplied with or without enclosing angle brackets. The
+constructor does not attempt any validation of the tag's format (except that
+an empty tag will cause the class to do nothing); no promises are made about
+the output if the <code>element</code> argument is not a valid HTML/XML tag.</p>
+<p>If the opening tag is standalone, the text will simply be written as is, and
+no closing tag will be written. Standalone tags are identified by a closing
+slash; the class is not aware of HTML's list of automatic self closing tags.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; void</code> <strong><code>tagged</code></strong><code>(std::ostream&amp; out, const std::string&amp; element, const Args&amp;... args)</code></li>
+<li><code>template &lt;typename T&gt; void</code> <strong><code>tagged</code></strong><code>(std::ostream&amp; out, const std::string&amp; element, const T&amp; t)</code></li>
+</ul>
+<p>This function can be used to write a piece of literal text enclosed in one or
+more tags. The arguments are the output stream, a list of tags (using the same
+format as the <code>Tag</code> class), and an object that will be written to the output
+stream enclosed by the tags.</p>
+<p>Example:</p>
+<pre><code>tagged(std::cout, "p\n", "code", "Hello world");
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;&lt;code&gt;Hello world&lt;/code&gt;&lt;/p&gt;\n
+</code></pre>
+</div>
+<h2 id="type-names">Type names</h2>
+<div class="defns">
+<ul>
+<li><code>std::string</code> <strong><code>demangle</code></strong><code>(const std::string&amp; name)</code></li>
+<li><code>std::string</code> <strong><code>type_name</code></strong><code>(const std::type_info&amp; t)</code></li>
+<li><code>std::string</code> <strong><code>type_name</code></strong><code>(const std::type_index&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; std::string</code> <strong><code>type_name</code></strong><code>()</code></li>
+<li><code>template &lt;typename T&gt; std::string</code> <strong><code>type_name</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Demangle a type name. The original mangled name can be supplied as an explicit
+string, as a <code>std::type_info</code> or <code>std:type_index</code> object, as a type argument
+to a template function (e.g. <code>type_name&lt;int&gt;()</code>), or as an object whose type
+is to be named (e.g. <code>type_name(42)</code>). The last version will report the
+dynamic type of the referenced object.</p>
+</div>
+<h2 id="unicode-functions">Unicode functions</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename S2, typename S1&gt; S2</code> <strong><code>uconv</code></strong><code>(const S1&amp; s)</code></li>
+</ul>
+<p>Converts between UTF representations. The input and output types (<code>S1</code> and
+<code>S2</code>) must be instantiations of <code>basic_string</code> with 8, 16, or 32 bit character
+types. If the character types are the same size, the input string is copied to
+the output without any validity checking; otherwise, invalid UTF in the input
+is replaced with the standard Unicode replacement character (<code>U+FFFD</code>) in the
+output.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename C&gt; bool</code> <strong><code>uvalid</code></strong><code>(const basic_string&lt;C&gt;&amp; s) noexcept</code></li>
+<li><code>template &lt;typename C&gt; bool</code> <strong><code>uvalid</code></strong><code>(const basic_string&lt;C&gt;&amp; s, size_t&amp; n) noexcept</code></li>
+</ul>
+<p>Check a string for a valid UTF encoding; the encoding is deduced from the size
+of the character type. The second version reports the number of code units
+before an invalid code sequence was encountered (i.e. the size of a valid UTF
+prefix; this will be equal to <code>s.size()</code> if the function returns true). These
+will always succeed for an empty string.</p></body>
+</html>

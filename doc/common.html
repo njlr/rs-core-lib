@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Common Utilities</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="common-utilities">Common Utilities</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/common.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#common-utilities">Common Utilities</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#preprocessor-macros">Preprocessor macros</a></li>
+<li><a href="#types">Types</a><ul>
+<li><a href="#integer-types">Integer types</a></li>
+<li><a href="#string-types">String types</a></li>
+<li><a href="#exceptions">Exceptions</a></li>
+<li><a href="#metaprogramming-and-type-traits">Metaprogramming and type traits</a></li>
+<li><a href="#mixins">Mixins</a></li>
+<li><a href="#smart-pointers">Smart pointers</a></li>
+<li><a href="#type-adapters">Type adapters</a></li>
+<li><a href="#type-related-functions">Type related functions</a></li>
+<li><a href="#version-number">Version number</a></li>
+</ul>
+</li>
+<li><a href="#constants-and-literals">Constants and literals</a><ul>
+<li><a href="#arithmetic-literals">Arithmetic literals</a></li>
+<li><a href="#string-related-constants">String related constants</a></li>
+<li><a href="#other-constants">Other constants</a></li>
+</ul>
+</li>
+<li><a href="#algorithms-and-ranges">Algorithms and ranges</a><ul>
+<li><a href="#generic-algorithms">Generic algorithms</a></li>
+<li><a href="#integer-sequences">Integer sequences</a></li>
+<li><a href="#memory-algorithms">Memory algorithms</a></li>
+<li><a href="#range-traits">Range traits</a></li>
+<li><a href="#range-types">Range types</a></li>
+</ul>
+</li>
+<li><a href="#arithmetic-functions">Arithmetic functions</a><ul>
+<li><a href="#generic-arithmetic-functions">Generic arithmetic functions</a></li>
+<li><a href="#integer-arithmetic-functions">Integer arithmetic functions</a></li>
+<li><a href="#bitwise-operations">Bitwise operations</a></li>
+</ul>
+</li>
+<li><a href="#debugging-utilities">Debugging utilities</a><ul>
+<li><a href="#logging">Logging</a></li>
+</ul>
+</li>
+<li><a href="#functional-utilities">Functional utilities</a><ul>
+<li><a href="#function-traits">Function traits</a></li>
+<li><a href="#function-operations">Function operations</a></li>
+<li><a href="#generic-function-objects">Generic function objects</a></li>
+<li><a href="#hash-functions">Hash functions</a></li>
+<li><a href="#scope-guards">Scope guards</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="preprocessor-macros">Preprocessor macros</h2>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_ASSUME</code></strong><code>(expr)</code> <em>[compiler may assume <code>bool(expr)</code> is always true]</em></li>
+<li><code>#define</code> <strong><code>RS_LIKELY</code></strong><code>(expr)</code> <em>[returns <code>bool(expr)</code>; compiler should optimize for the true case]</em></li>
+<li><code>#define</code> <strong><code>RS_UNLIKELY</code></strong><code>(expr)</code> <em>[returns <code>bool(expr)</code>; compiler should optimize for the false case]</em></li>
+<li><code>#define</code> <strong><code>RS_NOTREACHED</code></strong> <em>[compiler may assume this line will never be reached]</em></li>
+</ul>
+<p>Optimization hints. These have no semantic effect on the program (if the
+absolute conditions in <code>RS_ASSUME</code> and <code>RS_NOTREACHED</code> are not violated), but
+give the compiler hints concerning its expected behaviour.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_BITMASK_OPERATORS</code></strong><code>(EC)</code></li>
+</ul>
+<p>Defines bit manipulation and related operators for an <code>enum class</code> (unary <code>!</code>,
+<code>~</code>; binary <code>&amp;</code>, <code>&amp;=</code>, <code>|</code>, <code>|=</code>, <code>^</code>, <code>^=</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_ENUM</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
+<li><code>#define</code> <strong><code>RS_ENUM_CLASS</code></strong><code>(EnumType, IntType, first_value, first_name, ...)</code></li>
+</ul>
+<p>These define an enumeration, given the name of the enumeration type, the
+underlying integer type, the integer value of the first entry, and a list of
+value names. They will also define the following functions:</p>
+<ul>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, EnumType t)</code></li>
+<li><code>constexpr bool</code> <strong><code>enum_is_valid</code></strong><code>(EnumType t) noexcept</code></li>
+<li><code>std::vector&lt;EnumType&gt;</code> <strong><code>enum_values&lt;EnumType&gt;</code></strong><code>()</code></li>
+</ul>
+<p>The output operator prints the name of an enumeration constant (qualified with
+the class name if this is an <code>enum class</code>), or the integer value if the
+argument is not a named value. The <code>enum_is_valid()</code> function reports whether
+or not the argument is a named value of the enumeration. The
+<code>enum_values&lt;T&gt;()</code> function returns a <code>vector</code> containing a list of the
+enumeration's values.</p>
+<p>Example:</p>
+<pre><code>RS_ENUM(Foo, 1, alpha, bravo, charlie)
+RS_ENUM_CLASS(Bar, 1, delta, echo, foxtrot)
+</code></pre>
+<p>Equivalent code:</p>
+<pre><code>enum Foo { alpha = 1, bravo, charlie };
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, Foo f) { ... }
+enum class Bar { delta = 1, echo, foxtrot };
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, Bar b) { ... }
+</code></pre>
+</div>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_LDLIB</code></strong><code>([tag:] lib ...)</code></li>
+</ul>
+<p>This instructs the makefile to link with one or more static libraries. Specify
+library names without the <code>-l</code> prefix (e.g. <code>RS_LDLIB(foo)</code> will link with
+<code>-lfoo</code>). If link order is important for a particular set of libraries, supply
+them in a space delimited list in a single <code>RS_LDLIB()</code> line.</p>
+<p>Libraries that are needed only on specific targets can be prefixed with one of
+the target identifiers listed below (e.g. <code>RS_LDLIB(apple:foo)</code> will link
+with <code>-lfoo</code> for Apple targets only). Only one target can be specified per
+invocation; if the same libraries are needed on multiple targets, but not on
+all targets, you will need a separate <code>RS_LDLIB()</code> line for each target.</p>
+<!-- TEXT -->
+
+<ul>
+<li><code>apple:</code></li>
+<li><code>linux:</code></li>
+<li><code>mingw:</code></li>
+<li><code>cygwin:</code></li>
+</ul>
+<p><code>RS_LDLIB()</code> lines are picked up at the <code>"make dep"</code> stage; if you change a
+link library, the change will not be detected until dependencies are rebuilt.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_MOVE_ONLY</code></strong><code>(T)</code><ul>
+<li><code>T(const T&amp;) = delete;</code></li>
+<li><code>T(T&amp;&amp;) = default;</code></li>
+<li><code>T&amp; operator=(const T&amp;) = delete;</code></li>
+<li><code>T&amp; operator=(T&amp;&amp;) = default;</code></li>
+</ul>
+</li>
+<li><code>#define</code> <strong><code>RS_NO_COPY_MOVE</code></strong><code>(T)</code><ul>
+<li><code>T(const T&amp;) = delete;</code></li>
+<li><code>T(T&amp;&amp;) = delete;</code></li>
+<li><code>T&amp; operator=(const T&amp;) = delete;</code></li>
+<li><code>T&amp; operator=(T&amp;&amp;) = delete;</code></li>
+</ul>
+</li>
+</ul>
+<p>Convenience macros for defaulted or deleted copy and move operations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_OVERLOAD</code></strong><code>(f) [] (auto&amp;&amp;... args) { return f(std::forward&lt;decltype(args)&gt;(args)...); }</code></li>
+</ul>
+<p>Creates a function object wrapping a set of overloaded functions, that can be
+passed to a context expecting a function (such as an STL algorithm) without
+having to explicitly resolve the overload at the call site. (From an idea by
+Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_STATIC_ASSERT</code></strong><code>(expr) static_assert((expr), # expr)</code></li>
+</ul>
+<p>Shorthand for <code>static_assert</code>, using the assertion expression as the error
+message. (A planned change in C++17 will make this unnecessary.)</p>
+</div>
+<h2 id="types">Types</h2>
+<h3 id="integer-types">Integer types</h3>
+<div class="defns">
+<ul>
+<li><code>enum</code> <strong><code>ByteOrder</code></strong><ul>
+<li><strong><code>big_endian</code></strong></li>
+<li><strong><code>little_endian</code></strong></li>
+</ul>
+</li>
+<li><code>template &lt;typename T, ByteOrder B&gt; class</code> <strong><code>Endian</code></strong><ul>
+<li><code>using Endian::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>static constexpr ByteOrder Endian::</code><strong><code>byte_order</code></strong> <code>= B</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>() noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>~Endian</code></strong><code>() noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(const Endian&amp; e) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(Endian&amp;&amp; e) noexcept</code></li>
+<li><code>constexpr Endian&amp; Endian::</code><strong><code>operator=</code></strong><code>(const Endian&amp; e) noexcept</code></li>
+<li><code>constexpr Endian&amp; Endian::</code><strong><code>operator=</code></strong><code>(Endian&amp;&amp; e) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>Endian</code></strong><code>(T t) noexcept</code></li>
+<li><code>explicit Endian::</code><strong><code>Endian</code></strong><code>(const void* p) noexcept</code></li>
+<li><code>constexpr Endian::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
+<li><code>constexpr T Endian::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>constexpr const T* Endian::</code><strong><code>ptr</code></strong><code>() const noexcept</code></li>
+<li><code>T* Endian::</code><strong><code>ptr</code></strong><code>() noexcept</code></li>
+<li><code>constexpr T Endian::</code><strong><code>rep</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Endian::</code><strong><code>rep</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BigEndian</code></strong> <code>= Endian&lt;T, big_endian&gt;</code></li>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>LittleEndian</code></strong> <code>= Endian&lt;T, little_endian&gt;</code></li>
+<li><code>template &lt;typename T, ByteOrder B&gt; std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, Endian&lt;T, B&gt; t)</code></li>
+<li><code>template &lt;typename T, ByteOrder B&gt; class std::</code><strong><code>hash</code></strong><code>&lt;Endian&lt;T, B&gt;&gt;</code></li>
+<li><em>comparison operators between all combinations of <code>Endian</code> and <code>T</code></em></li>
+</ul>
+<p>An <code>Endian</code> object holds an integer in a defined byte order. This is a literal
+type and can be used in <code>constexpr</code> expressions.</p>
+<p>Assignment to or from an endian integer performs any necessary reordering
+transparently. The default constructor sets the value to zero; the constructor
+from a pointer copies <code>sizeof(T)</code> bytes into the object. The <code>ptr()</code> and
+<code>rep()</code> functions give access to the internal, byte ordered form. The hash
+function gives the same result as the underlying integer type's hash.</p>
+</div>
+<h3 id="string-types">String types</h3>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>U8string</code></strong> <code>= std::string</code></li>
+</ul>
+<p>Use <code>U8string</code> for strings that are expected to be in UTF-8 (or ASCII, since
+any ASCII string is also valid UTF-8), while plain <code>std::string</code> is used where
+the string is expected to be in some non-Unicode encoding, or where the string
+is being used simply as an array of bytes rather than encoded text.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>cstr</code></strong><code>(const C* ptr)</code></li>
+<li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>cstr</code></strong><code>(const C* ptr, size_t n)</code></li>
+</ul>
+<p>These construct a string from a pointer to a null-terminated character
+sequence, or a pointer and a length. They differ from the corresponding string
+constructors in that passing a null pointer will yield an empty string, or a
+string of <code>n</code> null characters, instead of undefined behaviour.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename C&gt; size_t</code> <strong><code>cstr_size</code></strong><code>(const C* ptr)</code></li>
+</ul>
+<p>Returns the length of a null-terminated string (a generalized version of
+<code>strlen()</code>). This will return zero if the pointer is null.</p>
+</div>
+<h3 id="exceptions">Exceptions</h3>
+<div class="defns">
+<ul>
+<li><code>void</code> <strong><code>rethrow</code></strong><code>(std::exception_ptr p)</code></li>
+</ul>
+<p>Rethrows the exception, if one is present. This is the same as
+<code>std::rethrow_exception()</code>, except that it does nothing if the exception
+pointer is null.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>WindowsCategory</code></strong><code>: public std::error_category</code><ul>
+<li><code>virtual U8string WindowsCategory::</code><strong><code>message</code></strong><code>(int ev) const</code></li>
+<li><code>virtual const char* WindowsCategory::</code><strong><code>name</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>const std::error_category&amp;</code> <strong><code>windows_category</code></strong><code>() noexcept</code></li>
+</ul>
+<p>An error category instance for translating Win32 API error codes; naturally
+this is only defined on builds that use the Win32 API. (MSVC provides this
+through <code>std::system_category()</code>, but GCC does not supply any equivalent on
+Cygwin or Mingw.)</p>
+</div>
+<h3 id="metaprogramming-and-type-traits">Metaprogramming and type traits</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>BinaryType</code></strong> <code>= [unsigned integer type]</code></li>
+</ul>
+<p>Yields an unsigned integer type the same size as <code>T</code>. This will fail to
+compile if no such type exists.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T1, typename T2&gt; using</code> <strong><code>CopyConst</code></strong> <code>= ...</code></li>
+</ul>
+<p>Yields a type created by transferring the <code>const</code> qualification (or lack of
+it) from <code>T1</code> to the unqualified type of <code>T2</code>. For example, <code>CopyConst&lt;int,
+const string&gt;</code> yields <code>string</code>, while <code>CopyConst&lt;const int, string&gt;</code> yields
+<code>const string</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;size_t Bits&gt; using</code> <strong><code>SignedInteger</code></strong> <code>= [signed integer type]</code></li>
+<li><code>template &lt;size_t Bits&gt; using</code> <strong><code>UnsignedInteger</code></strong> <code>= [unsigned integer type]</code></li>
+</ul>
+<p>Signed and unsigned integer types with the specified number of bits (the same
+types as <code>int8_t</code>, <code>int16_t</code>, etc). These will fail to compile if <code>Bits</code> is
+not a power of 2 in the supported range (8-64).</p>
+</div>
+<h3 id="mixins">Mixins</h3>
+<div class="defns">
+<!-- DEFN -->
+
+<p>These are convenience base classes that define members and
+operators that would normally just be repetitive boilerplate (similar to the
+ones in Boost). They all use the CRTP idiom; a class <code>T</code> should derive from
+<code>Mixin&lt;T&gt;</code> to automatically generate the desired boilerplate code. The table
+below shows which operations the user is required to define, and which ones
+the mixin will automatically define. (Here, <code>t</code> and <code>u</code> are objects of type
+<code>T</code>, <code>v</code> is an object of <code>T</code>'s value type, and <code>n</code> is an integer.)</p>
+<table>
+<thead>
+<tr>
+<th>Mixin</th>
+<th>Requires</th>
+<th>Defines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>EqualityComparable</code></strong><code>&lt;T&gt;</code></td>
+<td><code>t==u</code></td>
+<td><code>t!=u</code></td>
+</tr>
+<tr>
+<td><strong><code>LessThanComparable</code></strong><code>&lt;T&gt;</code></td>
+<td><code>t==u, t&lt;u</code></td>
+<td><code>t!=u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
+</tr>
+<tr>
+<td><strong><code>InputIterator</code></strong><code>&lt;T,CV&gt;</code></td>
+<td><code>*t, ++t, t==u</code></td>
+<td><code>t-&gt;, t++, t!=u</code></td>
+</tr>
+<tr>
+<td><strong><code>OutputIterator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>t=v</code></td>
+<td><code>*t, ++t, t++</code></td>
+</tr>
+<tr>
+<td><strong><code>ForwardIterator</code></strong><code>&lt;T,CV&gt;</code></td>
+<td><code>*t, ++t, t==u</code></td>
+<td><code>t-&gt;, t++, t!=u</code></td>
+</tr>
+<tr>
+<td><strong><code>BidirectionalIterator</code></strong><code>&lt;T,CV&gt;</code></td>
+<td><code>*t, ++t, --t, t==u</code></td>
+<td><code>t-&gt;, t++, t--, t!=u</code></td>
+</tr>
+<tr>
+<td><strong><code>RandomAccessIterator</code></strong><code>&lt;T,CV&gt;</code></td>
+<td><code>*t, t+=n, t-u</code></td>
+<td><code>t-&gt;, t[n], ++t, t++, --t, t--, t-=n, t+n, n+t, t-n,</code><br><code>t==u, t!=u, t&lt;u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
+</tr>
+<tr>
+<td><strong><code>FlexibleRandomAccessIterator</code></strong><code>&lt;T,CV&gt;</code></td>
+<td><code>*t, ++t, --t, t+=n, t-u, t==u</code></td>
+<td><code>t-&gt;, t[n], t++, t--, t-=n, t+n, n+t, t-n,</code><br><code>t!=u, t&lt;u, t&gt;u, t&lt;=u, t&gt;=u</code></td>
+</tr>
+</tbody>
+</table>
+<p>In the iterator mixins, <code>CV</code> is either <code>V</code> or <code>const V</code>, where <code>V</code> is the
+iterator's value type, depending on whether a mutable or const iterator is
+required.</p>
+<p>The first version of <code>RandomAccessIterator</code> uses the minimal set of user
+supplied operations to generate all of those required;
+<code>FlexibleRandomAccessIterator</code> requires more user supplied operations, but
+will decay safely to one of the simpler iterator types if an underlying type
+does not supply all of the corresponding operations.</p>
+<p>In addition to the operators listed in the table above, all iterator mixins
+supply the standard member types:</p>
+<ul>
+<li><code>using</code> <strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using</code> <strong><code>iterator_category</code></strong> <code>= [standard iterator tag type]</code></li>
+<li><code>using</code> <strong><code>pointer</code></strong> <code>= CV*</code></li>
+<li><code>using</code> <strong><code>reference</code></strong> <code>= CV&amp;</code></li>
+<li><code>using</code> <strong><code>value_type</code></strong> <code>= std::remove_const_t&lt;CV&gt;</code></li>
+</ul>
+</div>
+<h3 id="smart-pointers">Smart pointers</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; shared_ptr&lt;T&gt;</code> <strong><code>shptr</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; unique_ptr&lt;T&gt;</code> <strong><code>unptr</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Shorthand for <code>make_shared/unique&lt;T&gt;(t)</code>.</p>
+</div>
+<h3 id="type-adapters">Type adapters</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, int Def = 0&gt; struct</code> <strong><code>Movable</code></strong><ul>
+<li><code>using Movable::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>T Movable::</code><strong><code>value</code></strong></li>
+<li><code>Movable::</code><strong><code>Movable</code></strong><code>()</code></li>
+<li><code>Movable::</code><strong><code>Movable</code></strong><code>(const T&amp; t)</code></li>
+<li><code>Movable::</code><strong><code>~Movable</code></strong><code>() noexcept</code></li>
+<li><code>Movable::</code><strong><code>Movable</code></strong><code>(const Movable&amp; m)</code></li>
+<li><code>Movable::</code><strong><code>Movable</code></strong><code>(Movable&amp;&amp; m) noexcept</code></li>
+<li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(const Movable&amp; m)</code></li>
+<li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(Movable&amp;&amp; m) noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>This wraps a <code>T</code> object and provides reset-on-move behaviour: <code>Movable&lt;T&gt;</code>'s
+move constructor and move assignment operator set the value in the moved-from
+object to <code>T</code>'s default value. If <code>T</code> is explicitly convertible from an <code>int</code>,
+a default value other than zero can be provided. The move functions call the
+corresponding functions on <code>T</code>, which are assumed to not throw. If <code>T</code> is also
+copyable, <code>Movable&lt;T&gt;</code> will be copyable.</p>
+</div>
+<h3 id="type-related-functions">Type related functions</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1&amp; ref) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const T1* ptr) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; bool</code> <strong><code>is</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(T1&amp; ref)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; const T2&amp;</code> <strong><code>as</code></strong><code>(const T1&amp; ref)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(T1* ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; const T2&amp;</code> <strong><code>as</code></strong><code>(const T1* ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(unique_ptr&lt;T1&gt;&amp; ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const unique_ptr&lt;T1&gt;&amp; ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(shared_ptr&lt;T1&gt;&amp; ptr)</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2&amp;</code> <strong><code>as</code></strong><code>(const shared_ptr&lt;T1&gt;&amp; ptr)</code></li>
+</ul>
+<p>These are simple wrappers around <code>dynamic_cast</code>. The <code>is()</code> function returns
+true if the pointer or reference's target has the requested dynamic type;
+<code>as()</code> returns a reference to the object converted to the requested dynamic
+type, or throws <code>std::bad_cast</code> if the <code>dynamic_cast</code> fails.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>binary_cast</code></strong><code>(const T1&amp; t) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T1&gt; T2</code> <strong><code>implicit_cast</code></strong><code>(const T1&amp; t)</code></li>
+</ul>
+<p>Type conversions. The <code>binary_cast()</code> operation does a simple bitwise copy
+from one type to another; it will fail to compile if the two types have
+different sizes, but does no other safety checks. The <code>implicit_cast()</code>
+operation performs the conversion only if it would be allowed as an implicit
+conversion.</p>
+</div>
+<h3 id="version-number">Version number</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Version</code></strong><ul>
+<li><code>using Version::</code><strong><code>value_type</code></strong> <code>= unsigned</code></li>
+<li><code>Version::</code><strong><code>Version</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; Version::</code><strong><code>Version</code></strong><code>(unsigned n, Args... args)</code></li>
+<li><code>explicit Version::</code><strong><code>Version</code></strong><code>(const U8string&amp; s)</code></li>
+<li><code>Version::</code><strong><code>Version</code></strong><code>(const Version&amp; v)</code></li>
+<li><code>Version::</code><strong><code>Version</code></strong><code>(Version&amp;&amp; v) noexcept</code></li>
+<li><code>Version::</code><strong><code>~Version</code></strong><code>() noexcept</code></li>
+<li><code>Version&amp; Version::</code><strong><code>operator=</code></strong><code>(const Version&amp; v)</code></li>
+<li><code>Version&amp; Version::</code><strong><code>operator=</code></strong><code>(Version&amp;&amp; v) noexcept</code></li>
+<li><code>unsigned Version::</code><strong><code>operator[]</code></strong><code>(size_t i) const noexcept</code></li>
+<li><code>const unsigned* Version::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>const unsigned* Version::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+<li><code>unsigned Version::</code><strong><code>major</code></strong><code>() const noexcept</code></li>
+<li><code>unsigned Version::</code><strong><code>minor</code></strong><code>() const noexcept</code></li>
+<li><code>unsigned Version::</code><strong><code>patch</code></strong><code>() const noexcept</code></li>
+<li><code>string Version::</code><strong><code>str</code></strong><code>(size_t min_elements = 2) const</code></li>
+<li><code>string Version::</code><strong><code>suffix</code></strong><code>() const</code></li>
+<li><code>uint32_t Version::</code><strong><code>to32</code></strong><code>() const noexcept</code></li>
+<li><code>static Version Version::</code><strong><code>from32</code></strong><code>(uint32_t n) noexcept</code></li>
+</ul>
+</li>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Version&amp; lhs, const Version&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Version&amp; lhs, const Version&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;</code></strong><code>(const Version&amp; lhs, const Version&amp; rhs) noexcept;</code></li>
+<li><code>bool</code> <strong><code>operator&gt;</code></strong><code>(const Version&amp; lhs, const Version&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;=</code></strong><code>(const Version&amp; lhs, const Version&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;=</code></strong><code>(const Version&amp; lhs, const Version&amp; rhs) noexcept</code></li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; o, const Version&amp; v)</code></li>
+</ul>
+<p>A version number, represented as an array of integers optionally followed by a
+trailing string (e.g. <code>1.2.3beta</code>). The default constructor sets the version
+number to zero; the second constructor expects one or more integers followed
+by a string; the third constructor parses a string (a string that does not
+start with an integer is assumed to start with an implicit zero). Results are
+unspecified if a version number element is too big to fit in an <code>unsigned
+int</code>.</p>
+<p>The indexing operator returns the requested element; it will return zero if
+the index is out of range for the stored array. The <code>major()</code>, <code>minor()</code>, and
+<code>patch()</code> functions return elements 0, 1, and 2. The <code>suffix()</code> function
+returns the trailing string element.</p>
+<p>The <code>str()</code> function (and the output operator) formats the version number in
+the conventional form; a minimum number of elements can be requested. The
+<code>to32()</code> and <code>from32()</code> functions pack or unpack the version into a 32 bit
+integer, with one byte per element (e.g. version <code>1.2.3</code> becomes
+<code>0x01020300</code>); <code>to32()</code> truncates elements higher than 255 and ignores the
+string element.</p>
+</div>
+<h2 id="constants-and-literals">Constants and literals</h2>
+<h3 id="arithmetic-literals">Arithmetic literals</h3>
+<p>These are all in <code>namespace RS::Literals</code>.</p>
+<div class="defns">
+<ul>
+<li><code>constexpr int8_t</code> <strong><code>operator""_s8</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint8_t</code> <strong><code>operator""_u8</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr int16_t</code> <strong><code>operator""_s16</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint16_t</code> <strong><code>operator""_u16</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr int32_t</code> <strong><code>operator""_s32</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint32_t</code> <strong><code>operator""_u32</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr int64_t</code> <strong><code>operator""_s64</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr uint64_t</code> <strong><code>operator""_u64</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr wchar_t</code> <strong><code>operator""_wc</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr char16_t</code> <strong><code>operator""_c16</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr char32_t</code> <strong><code>operator""_c32</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr ptrdiff_t</code> <strong><code>operator""_t</code></strong><code>(unsigned long long n) noexcept</code></li>
+<li><code>constexpr size_t</code> <strong><code>operator""_z</code></strong><code>(unsigned long long n) noexcept</code></li>
+</ul>
+<p>Integer literals.</p>
+</div>
+<h3 id="string-related-constants">String related constants</h3>
+<div class="defns">
+<ul>
+<li><code>constexpr const char*</code> <strong><code>ascii_whitespace</code></strong> <code>= "\t\n\v\f\r "</code></li>
+</ul>
+<p>ASCII whitespace characters.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr size_t</code> <strong><code>npos</code></strong> <code>= string::npos</code></li>
+</ul>
+<p>Defined for convenience. Following the conventions established by the standard
+library, this value is often used as a function argument to mean "as large as
+possible" or "no limit", or as a return value to mean "not found".</p>
+</div>
+<h3 id="other-constants">Other constants</h3>
+<div class="defns">
+<ul>
+<li><code>constexpr bool</code> <strong><code>big_endian_target</code></strong></li>
+<li><code>constexpr bool</code> <strong><code>little_endian_target</code></strong></li>
+</ul>
+<p>One of these will be true and the other false, reflecting the target system's
+byte order.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr unsigned</code> <strong><code>KB</code></strong> <code>= 1024</code></li>
+<li><code>constexpr unsigned long</code> <strong><code>MB</code></strong> <code>= 1 048 576</code></li>
+<li><code>constexpr unsigned long</code> <strong><code>GB</code></strong> <code>= 1 073 741 824</code></li>
+<li><code>constexpr unsigned long long</code> <strong><code>TB</code></strong> <code>= 1 099 511 627 776</code></li>
+</ul>
+<p>Powers of 2<sup>10</sup>.</p>
+</div>
+<h2 id="algorithms-and-ranges">Algorithms and ranges</h2>
+<h3 id="generic-algorithms">Generic algorithms</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Container&gt; [output iterator]</code> <strong><code>append</code></strong><code>(Container&amp; con)</code></li>
+<li><code>template &lt;typename Container&gt; [output iterator]</code> <strong><code>overwrite</code></strong><code>(Container&amp; con)</code></li>
+</ul>
+<p>These create output iterators that will append elements to a standard
+container (see <code>append_to()</code> below). The <code>append()</code> function is similar to
+<code>std::back_inserter()</code> (but supports containers without <code>push_back()</code>), while
+<code>overwrite()</code> will first clear the container and then return the append
+iterator.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>append_to</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
+</ul>
+<p>Appends an item to a container; used by <code>append()</code> and <code>overwrite()</code>. The
+generic version calls <code>con.insert(con.end(), t)</code>; overloads (found by argument
+dependent lookup) can be used for container-like types that do not have a
+suitable <code>insert()</code> method.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range1, typename Range2&gt; int</code> <strong><code>compare_3way</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2)</code></li>
+<li><code>template &lt;typename Range1, typename Range2, typename Compare&gt; int</code> <strong><code>compare_3way</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2, Compare cmp)</code></li>
+</ul>
+<p>Compare two ranges, returning -1 if the first range is less than the second,
+zero if they are equal, and +1 if the first range is greater.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range, typename Container&gt; void</code> <strong><code>con_append</code></strong><code>(const Range&amp; src, Container&amp; dst)</code></li>
+<li><code>template &lt;typename Range, typename Container&gt; void</code> <strong><code>con_overwrite</code></strong><code>(const Range&amp; src, Container&amp; dst)</code></li>
+</ul>
+<p>These are just shorthand for a <code>std::copy()</code> from a range to an append or
+overwrite iterator.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range, typename... Ranges&gt; std::vector&lt;[value type]&gt;</code> <strong><code>concatenate</code></strong><code>(const Range&amp; range, const Ranges&amp;... ranges)</code></li>
+</ul>
+<p>Returns a vector composed by concatenating all of the argument ranges. The
+value type is that of the first argument range. If any subsequent argument has
+a different value type, it must be assignment compatible with the first.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>con_remove</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
+<li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if</code></strong><code>(Container&amp; con, Predicate p)</code></li>
+<li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if_not</code></strong><code>(Container&amp; con, Predicate p)</code></li>
+<li><code>template &lt;typename Container&gt; void</code> <strong><code>con_unique</code></strong><code>(Container&amp; con)</code></li>
+<li><code>template &lt;typename Container, typename BinaryPredicate&gt; void</code> <strong><code>con_unique</code></strong><code>(Container&amp; con, BinaryPredicate p)</code></li>
+<li><code>template &lt;typename Container&gt; void</code> <strong><code>con_sort_unique</code></strong><code>(Container&amp; con)</code></li>
+<li><code>template &lt;typename Container, typename Compare&gt; void</code> <strong><code>con_sort_unique</code></strong><code>(Container&amp; con, Compare cmp)</code></li>
+</ul>
+<p>These carry out the same algorithms as the similarly named STL functions,
+except that unwanted elements are removed from the container rather than
+shuffled to the end. The <code>con_sort_unique()</code> functions perform a sort followed
+by removing equivalent elements from the container; like <code>std::sort()</code>, its
+predicate has less-than semantics (whereas that of <code>con_unique()</code>, like that
+of <code>std::unique()</code>, has equality semantics).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename F&gt; void</code> <strong><code>do_n</code></strong><code>(size_t n, F f)</code></li>
+<li><code>template &lt;typename F&gt; void</code> <strong><code>for_n</code></strong><code>(size_t n, F f)</code></li>
+</ul>
+<p>These simply call the function <code>n</code> times. The <code>do_n()</code> loop expects a function
+that takes no arguments, while <code>for_n()</code> passes the iteration count (zero to
+<code>n-1</code>) as an argument.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename M, typename K&gt; M::mapped_type</code> <strong><code>find_in_map</code></strong><code>(const M&amp; map, const K&amp; key)</code></li>
+<li><code>template &lt;typename M, typename K, typename T&gt; M::mapped_type</code> <strong><code>find_in_map</code></strong><code>(const M&amp; map, const K&amp; key, const T&amp; def)</code></li>
+</ul>
+<p>Find a key in a map, returning the corresponding value, or the supplied
+default value (or a default constructed <code>mapped_type</code>) if the key is not
+found.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range1, typename Range2&gt; bool</code> <strong><code>sets_intersect</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2)</code></li>
+<li><code>template &lt;typename Range1, typename Range2, typename Compare&gt; bool</code> <strong><code>sets_intersect</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2, Compare c)</code></li>
+</ul>
+<p>Test whether two ordered ranges (sets) have any elements in common. The ranges
+are assumed to be ordered in accordance with the comparison predicate.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>sum_of</code></strong><code>(const Range&amp; r)</code></li>
+<li><code>template &lt;typename Range&gt; [value type]</code> <strong><code>product_of</code></strong><code>(const Range&amp; r)</code></li>
+</ul>
+<p>Simple range sum and product functions, to save the trouble of calling
+<code>std::accumulate()</code> in trivial cases. Calling <code>sum_of()</code> on an empty range
+will return a default constructed value. The value type of <code>product_of()</code> must
+be constructible by a <code>static_cast</code> from <code>int</code>; an empty range will return 1.</p>
+</div>
+<h3 id="integer-sequences">Integer sequences</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T stop) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>iseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T stop) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T init, T stop) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Irange&lt;[random access iterator]&gt;</code> <strong><code>xseq</code></strong><code>(T init, T stop, T delta) noexcept</code></li>
+</ul>
+<p>Linear sequences of integers (<code>T</code> must be an integer type). The generated
+range starts with <code>init</code> (defaulting to zero) and runs to <code>stop</code>, in steps of
+<code>delta</code> (defaulting to 1). The <code>iseq()</code> function produces an inclusive
+(closed) sequence that includes <code>stop</code>, while <code>xseq()</code> is an exclusive (half
+open) sequence that excludes it (if the exact value <code>stop</code> would never be
+generated, because <code>stop-init</code> is not a multiple of <code>delta</code>, there is no
+difference between the two).</p>
+<p>If <code>stop=init</code>, or if <code>delta=0</code>, the <code>iseq()</code> sequence contains a single
+value, while the <code>xseq()</code> sequence is empty. Both sequences will be empty if
+<code>stop-init</code> and <code>delta</code> have opposite signs.</p>
+<p>The iterators must be able to generate a value beyond the end of the sequence
+in order to check for an end iterator; for <code>iseq()</code>, this means that
+<code>stop+delta</code> must be in range for <code>T</code>.</p>
+</div>
+<h3 id="memory-algorithms">Memory algorithms</h3>
+<div class="defns">
+<ul>
+<li><code>int</code> <strong><code>mem_compare</code></strong><code>(const void* lhs, size_t n1, const void* rhs, size_t n2) noexcept</code></li>
+</ul>
+<p>This returns -1 if the first block is less than the second (by a
+lexicographical bytewise comparison), 0 if they are equal, 1 if the first is
+greater than the second. If the two blocks are equal up to the length of the
+shorter one, the shorter is considered less than the longer. This is similar
+to <code>memcmp()</code>, except that the memory blocks being compared may have different
+lengths. A null pointer is treated as less than any non-null pointer; the
+length accompanying a null pointer is ignored.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t</code> <strong><code>mem_match</code></strong><code>(const void* lhs, const void* rhs, size_t n) noexcept</code></li>
+</ul>
+<p>Returns the number of leading bytes the two blocks have in common. This will
+return zero if either pointer is null.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void</code> <strong><code>mem_swap</code></strong><code>(void* ptr1, void* ptr2, size_t n) noexcept</code></li>
+</ul>
+<p>Swap two blocks of memory. This will work if the two ranges overlap or are the
+same, but behaviour is undefined if either pointer is null.</p>
+</div>
+<h3 id="range-traits">Range traits</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range&gt; using</code> <strong><code>RangeIterator</code></strong> <code>= ...</code></li>
+<li><code>template &lt;typename Range&gt; using</code> <strong><code>RangeValue</code></strong> <code>= ...</code></li>
+</ul>
+<p>The iterator and value types of a range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, size_t N&gt; constexpr size_t</code> <strong><code>array_count</code></strong><code>(T[N]) noexcept</code></li>
+<li><code>template &lt;typename Range&gt; size_t</code> <strong><code>range_count</code></strong><code>(const Range&amp; r)</code></li>
+<li><code>template &lt;typename Range&gt; bool</code> <strong><code>range_empty</code></strong><code>(const Range&amp; r)</code></li>
+</ul>
+<p>Return the length of a range. The <code>range_count()</code> function is just shorthand
+for <code>std::distance(begin(r),end(r))</code>, and <code>range_empty()</code> has the obvious
+meaning. The <code>array_count()</code> version returns the same value, but only works on
+C-style arrays and is <code>constexpr</code>.</p>
+</div>
+<h3 id="range-types">Range types</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Iterator&gt; struct</code> <strong><code>Irange</code></strong><ul>
+<li><code>using Irange::</code><strong><code>iterator</code></strong> <code>= Iterator</code></li>
+<li><code>using Irange::</code><strong><code>value_type</code></strong> <code>= [Iterator's value type]</code></li>
+<li><code>Iterator Irange::</code><strong><code>first</code></strong></li>
+<li><code>Iterator Irange::</code><strong><code>second</code></strong></li>
+<li><code>constexpr Iterator Irange::</code><strong><code>begin</code></strong><code>() const { return first; }</code></li>
+<li><code>constexpr Iterator Irange::</code><strong><code>end</code></strong><code>() const { return second; }</code></li>
+<li><code>constexpr bool Irange::</code><strong><code>empty</code></strong><code>() const { return first == second; }</code></li>
+<li><code>constexpr size_t Irange::</code><strong><code>size</code></strong><code>() const { return std::distance(first, second); }</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt;</code> <strong><code>irange</code></strong><code>(const Iterator&amp; i, const Iterator&amp; j)</code></li>
+<li><code>template &lt;typename Iterator&gt; constexpr Irange&lt;Iterator&gt;</code> <strong><code>irange</code></strong><code>(const pair&lt;Iterator, Iterator&gt;&amp; p)</code></li>
+</ul>
+<p>A wrapper for a pair of iterators, usable as a range in standard algorithms.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr Irange&lt;T*&gt;</code> <strong><code>array_range</code></strong><code>(T* ptr, size_t len)</code></li>
+</ul>
+<p>Returns <code>irange(ptr,ptr+len)</code>.</p>
+</div>
+<h2 id="arithmetic-functions">Arithmetic functions</h2>
+<h3 id="generic-arithmetic-functions">Generic arithmetic functions</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, typename... Args&gt; constexpr T</code> <strong><code>static_min</code></strong><code>(T t, Args... args) noexcept</code></li>
+<li><code>template &lt;typename T, typename... Args&gt; constexpr T</code> <strong><code>static_max</code></strong><code>(T t, Args... args) noexcept</code></li>
+</ul>
+<p>Compile time maximum and minimum functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, typename T2, typename T3&gt; constexpr T</code> <strong><code>clamp</code></strong><code>(const T&amp; x, const T2&amp; min, const T3&amp; max) noexcept</code></li>
+</ul>
+<p>Clamps a value to a fixed range. This returns <code>static_cast&lt;T&gt;(min)</code> if
+<code>t&lt;min</code>, <code>static_cast&lt;T&gt;(max)</code> if <code>t&gt;max</code>, otherwise <code>t</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; pair&lt;T, T&gt;</code> <strong><code>divide</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>quo</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>rem</code></strong><code>(T x, T y) noexcept</code></li>
+</ul>
+<p>These perform floor division operations: if the division is not exact, the
+remainder is always positive (regardless of the signs of the arguments), and
+the quotient is the integer that satisfies <code>x=q*y+r</code> (apart from rounding
+errors). The pair returned by <code>divide()</code> contains the quotient and remainder.
+For all three functions, behaviour is undefined if <code>y=0</code> or the quotient is
+out of <code>T</code>'s representable range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; std::pair&lt;T, T&gt;</code> <strong><code>symmetric_divide</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>symmetric_quotient</code></strong><code>(T x, T y) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>symmetric_remainder</code></strong><code>(T x, T y) noexcept</code></li>
+</ul>
+<p>These perform the same operations as the division functions above, except that
+the remainder is constrained to <code>(-|y|/2,|y|/2]</code> instead of <code>[0,|y|)</code>.
+Behaviour is undefined if <code>y=0</code> or the quotient is out of <code>T</code>'s representable
+range. These functions do not make sense (and will not compile) if <code>T</code> is
+unsigned.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>shift_left</code></strong><code>(T t, int n) noexcept</code></li>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>shift_right</code></strong><code>(T t, int n) noexcept</code></li>
+</ul>
+<p>Multiply or divide <code>t</code> by <code>2<sup>n</sup></code>. <code>T</code> may be an integer or
+floating point type. Results are unspecified if the correct result would be
+out of <code>T</code>'s representable range.</p>
+</div>
+<h3 id="integer-arithmetic-functions">Integer arithmetic functions</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr std::make_signed_t&lt;T&gt;</code> <strong><code>as_signed</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr std::make_unsigned_t&lt;T&gt;</code> <strong><code>as_unsigned</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>These return their argument converted to a signed or unsigned value of the
+same size (the argument is returned unchanged if <code>T</code> already had the desired
+signedness). Behaviour is undefined if <code>T</code> is not an integer or enumeration
+type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>binomial</code></strong><code>(T a, T b) noexcept</code></li>
+<li><code>double</code> <strong><code>xbinomial</code></strong><code>(int a, int b) noexcept</code></li>
+</ul>
+<p>These return the binomial coefficient (<code>a!/b!(a-b)!</code> if <code>0&lt;=b&lt;=a</code>, otherwise
+zero). <code>T</code> must be an integer type. Behaviour is undefined if the correct
+result would be out of range for the return type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>gcd</code></strong><code>(T a, T b) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>lcm</code></strong><code>(T a, T b) noexcept</code></li>
+</ul>
+<p>Return the greatest common divisor or lowest common multiple of two numbers.
+The argument type must be an integer. If one argument is zero, <code>gcd()</code> will
+return the other one, and <code>lcm()</code> will return zero. The return value is always
+positive (if not zero), regardless of the signs of the arguments. If the
+correct result for <code>lcm()</code> would be outside the range of <code>T</code>, behaviour is
+undefined if <code>T</code> is signed, unspecified if <code>T</code> is unsigned.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>int_power</code></strong><code>(T x, T y) noexcept</code></li>
+</ul>
+<p>Calculates <code>x<sup>y</sup></code> for integer types.
+<code>0<sup>0</sup></code> will return 1. Behaviour is undefined if <code>y</code> is
+negative, or if <code>T</code> is signed and the true result would be out of range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; T</code> <strong><code>int_sqrt</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>Returns the integer square root of the argument (the true square root
+truncated to an integer). Behaviour is undefined if the argument is negative.</p>
+</div>
+<h3 id="bitwise-operations">Bitwise operations</h3>
+<p>For all functions in this section that are templated on the argument type,
+results are unspecified if the argument is negative, and the function will
+fail to compile if the argument is not an integer.</p>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>ibits</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>Returns the umber of 1 bits in the argument.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>ifloor2</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>iceil2</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>Return the argument rounded down or up to a power of 2. The result of
+<code>iceil2()</code> is unspecified if the correct answer is not representable.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr int</code> <strong><code>ilog2p1</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>Returns <code>floor(log2(t))+1</code>, equal to the number of significant bits in <code>t</code>,
+or zero if <code>t</code> is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr bool</code> <strong><code>ispow2</code></strong><code>(T t) noexcept</code></li>
+</ul>
+<p>True if the argument is an exact power of 2.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr uint64_t</code> <strong><code>letter_to_mask</code></strong><code>(char c) noexcept</code></li>
+</ul>
+<p>Converts a letter to a mask with bit 0-51 set (corresponding to <code>[A-Za-z]</code>.
+Returns zero if the argument is not an ASCII letter.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>rotl</code></strong><code>(T t, int n) noexcept</code></li>
+<li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>rotr</code></strong><code>(T t, int n) noexcept</code></li>
+</ul>
+<p>Bitwise rotate left or right. The bit count is reduced modulo the number of
+bits in <code>T</code>; a negative shift in one direction is treated as a positive shift
+in the other.</p>
+</div>
+<h2 id="debugging-utilities">Debugging utilities</h2>
+<h3 id="logging">Logging</h3>
+<div class="defns">
+<ul>
+<li><code>void</code> <strong><code>logx</code></strong><code>(const U8string&amp; msg) noexcept</code></li>
+<li><code>void</code> <strong><code>logx</code></strong><code>(const char* msg) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; void</code> <strong><code>logx</code></strong><code>(Args... args) noexcept</code></li>
+</ul>
+<p>These write a message to standard output, followed by a line feed and an
+output flush. If multiple arguments are supplied, they are delimited with a
+space.</p>
+<p>This is intended for use in multithreaded code that needs coherent logging
+output. A private mutex is used to ensure that messages from different threads
+are not interleaved. Output from different threads will be given different
+colours, chosen at random based on a hash of the thread ID. Because these are
+intended only for debugging the code around them, any exceptions thrown by
+their internal workings are silently ignored.</p>
+</div>
+<h2 id="functional-utilities">Functional utilities</h2>
+<h3 id="function-traits">Function traits</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Function&gt; struct</code> <strong><code>Arity</code></strong><ul>
+<li><code>static constexpr size_t Arity::</code><strong><code>value</code></strong></li>
+</ul>
+</li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>ArgumentTuple</code></strong> <code>= [tuple type]</code></li>
+<li><code>template &lt;typename Function, size_t Index&gt; using</code> <strong><code>ArgumentType</code></strong> <code>= [type of given argument]</code></li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>ReturnType</code></strong> <code>= [return type]</code></li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>FunctionSignature</code></strong> <code>= [result(args...)]</code></li>
+<li><code>template &lt;typename Function&gt; using</code> <strong><code>StdFunction</code></strong> <code>= function&lt;FunctionSignature&lt;Function&gt;&gt;</code></li>
+</ul>
+<p>Properties of a function type. This will work with ordinary functions (if not
+overloaded), function pointers, function objects, lambda expressions, and
+<code>std::function</code> instantiations.</p>
+</div>
+<h3 id="function-operations">Function operations</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Function&gt; StdFunction&lt;Function&gt;</code> <strong><code>stdfun</code></strong><code>(Function&amp; f)</code></li>
+</ul>
+<p>Wraps a function in the appropriate standard function type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template&lt;typename Function, typename Tuple&gt; decltype(auto)</code> <strong><code>tuple_invoke</code></strong><code>(Function&amp;&amp; f, Tuple&amp;&amp; t)</code></li>
+</ul>
+<p>Calls a function, passing a tuple as the argument list.</p>
+</div>
+<h3 id="generic-function-objects">Generic function objects</h3>
+<div class="defns">
+<ul>
+<li><code>struct</code> <strong><code>DoNothing</code></strong><ul>
+<li><code>void</code> <strong><code>operator()</code></strong><code>() const noexcept {}</code></li>
+<li><code>template &lt;typename T&gt; void</code> <strong><code>operator()</code></strong><code>(T&amp;) const noexcept {}</code></li>
+<li><code>template &lt;typename T&gt; void</code> <strong><code>operator()</code></strong><code>(const T&amp;) const noexcept {}</code></li>
+</ul>
+</li>
+<li><code>constexpr DoNothing</code> <strong><code>do_nothing</code></strong></li>
+<li><code>struct</code> <strong><code>Identity</code></strong><ul>
+<li><code>template &lt;typename T&gt; T&amp;</code> <strong><code>operator()</code></strong><code>(T&amp; t) const noexcept { return t; }</code></li>
+<li><code>template &lt;typename T&gt; const T&amp;</code> <strong><code>operator()</code></strong><code>(const T&amp; t) const noexcept { return t; }</code></li>
+</ul>
+</li>
+<li><code>constexpr Identity</code> <strong><code>identity</code></strong></li>
+</ul>
+<p>Trivial function objects.</p>
+</div>
+<h3 id="hash-functions">Hash functions</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Djb2a</code></strong><ul>
+<li><code>Djb2a&amp;</code> <strong><code>Djb2a</code></strong><code>::operator()(const void* ptr, size_t n) noexcept</code></li>
+<li><code>Djb2a&amp;</code> <strong><code>Djb2a</code></strong><code>::operator()(const string&amp; s) noexcept</code></li>
+<li><code>Djb2a::</code><strong><code>operator uint32_t</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>uint32_t</code> <strong><code>djb2a</code></strong><code>(const void* ptr, size_t n) noexcept</code></li>
+</ul>
+<p>A simple, efficient hash algorithm for a string of bytes.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; size_t</code> <strong><code>hash_value</code></strong><code>(const Args&amp;... args) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; void</code> <strong><code>hash_combine</code></strong><code>(size_t&amp; hash, const Args&amp;... args) noexcept</code></li>
+<li><code>template &lt;typename Range&gt; size_t</code> <strong><code>hash_range</code></strong><code>(const Range&amp; range) noexcept</code></li>
+<li><code>template &lt;typename Range&gt; void</code> <strong><code>hash_range</code></strong><code>(size_t&amp; hash, const Range&amp; range) noexcept</code></li>
+</ul>
+<p>Functions for combining hashes incrementally, or for generating the hash of a
+number of objects in one call, for use in implementing hash functions for
+compound types. The first version of each pair of functions (<code>hash_value()</code>
+and <code>hash_combine()</code> have different names to avoid overload resolution
+problems) calculates the hash of the supplied data; the second version takes
+an existing hash value and mixes it with additional data. All of these call
+the element type's <code>std::hash</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; struct</code> <strong><code>TupleHash</code></strong><ul>
+<li><code>size_t</code> <strong><code>operator()</code></strong><code>(const tuple&lt;Args...&gt;&amp; t) const</code></li>
+</ul>
+</li>
+</ul>
+<p>Hash function for a tuple.</p>
+</div>
+<h3 id="scope-guards">Scope guards</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, int Def = 0&gt; class</code> <strong><code>Resource</code></strong><ul>
+<li><code>using Resource::</code><strong><code>delete_function</code></strong> <code>= std::function&lt;void(T&amp;)&gt;</code></li>
+<li><code>using Resource::</code><strong><code>resource_type</code></strong> <code>= T</code></li>
+<li><code>using Resource::</code><strong><code>value_type</code></strong> <code>= [dereferenced T]</code> <em>[only if T is a pointer]</em></li>
+<li><code>Resource::</code><strong><code>Resource</code></strong><code>() noexcept</code></li>
+<li><code>explicit Resource::</code><strong><code>Resource</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename Del&gt; Resource::</code><strong><code>Resource</code></strong><code>(T t, Del d)</code></li>
+<li><code>Resource::</code><strong><code>Resource</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
+<li><code>Resource::</code><strong><code>~Resource</code></strong><code>() noexcept</code></li>
+<li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(Resource&amp;&amp; r) noexcept</code></li>
+<li><code>Resource&amp; Resource::</code><strong><code>operator=</code></strong><code>(T t) noexcept</code></li>
+<li><code>Resource::</code><strong><code>operator T&amp;</code></strong><code>() noexcept</code></li>
+<li><code>Resource::</code><strong><code>operator T</code></strong><code>() const noexcept</code></li>
+<li><code>explicit Resource::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
+<li><code>value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() noexcept</code> <em>[only if T is a non-void pointer]</em></li>
+<li><code>const value_type&amp; Resource::</code><strong><code>operator*</code></strong><code>() const noexcept</code> <em>[only if T is a non-void pointer]</em></li>
+<li><code>T Resource::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code> <em>[only if T is a non-void pointer]</em></li>
+<li><code>T&amp; Resource::</code><strong><code>get</code></strong><code>() noexcept</code></li>
+<li><code>T Resource::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>T Resource::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+<li><code>static T Resource::</code><strong><code>def</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename T, typename Del&gt; Resource&lt;T&gt;</code> <strong><code>make_resource</code></strong><code>(T t, Del d)</code></li>
+</ul>
+<p>This holds a resource of some kind, a deleter function that will be called on
+destruction (similar to a <code>unique_ptr</code>), and optionally a default value (only
+usable if <code>T</code> is constructible from an <code>int</code>). <code>T</code> is assumed to be copyable
+and movable without throwing.</p>
+<p>The deleter function passed to the constructor is expected to take a single
+argument of type <code>T</code>; it defaults to a null function. The destructor will call
+<code>d(t)</code>, unless the resource value is equal to the default or the deleter is
+null. The constructor will call <code>d(t)</code> if anything goes wrong, with the same
+constraints (in practise this can only happen if copying <code>D</code> throws).</p>
+<p>The <code>def()</code> function returns the default value of <code>T</code>, which is <code>T(Def)</code> if
+<code>T</code> is constructible from an <code>int</code>, otherwise <code>T()</code>. The boolean conversion
+operator returns true if the stored value is not equal to the default (note
+that this may give a different result from <code>bool(T)</code>).</p>
+<p>The template is specialized for pointer types; if <code>T</code> is a pointer, the
+deleter will never be called if the resource pointer is null.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>ScopeExit</code></strong><ul>
+<li><code>using ScopeExit::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
+<li><code>explicit ScopeExit::</code><strong><code>ScopeExit</code></strong><code>(callback f)</code></li>
+<li><code>ScopeExit::</code><strong><code>~ScopeExit</code></strong><code>() noexcept</code></li>
+<li><code>void ScopeExit::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>class</code> <strong><code>ScopeSuccess</code></strong><ul>
+<li><code>using ScopeSuccess::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
+<li><code>explicit ScopeSuccess::</code><strong><code>ScopeSuccess</code></strong><code>(callback f)</code></li>
+<li><code>ScopeSuccess::</code><strong><code>~ScopeSuccess</code></strong><code>() noexcept</code></li>
+<li><code>void ScopeSuccess::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>class</code> <strong><code>ScopeFailure</code></strong><ul>
+<li><code>using ScopeFailure::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
+<li><code>explicit ScopeFailure::</code><strong><code>ScopeFailure</code></strong><code>(callback f)</code></li>
+<li><code>ScopeFailure::</code><strong><code>~ScopeFailure</code></strong><code>() noexcept</code></li>
+<li><code>void ScopeFailure::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>These store a function object, to be called when the guard is destroyed
+(passing <code>nullptr</code> will just do nothing). <code>ScopeExit</code> calls the function
+unconditionally, <code>ScopeSuccess</code> calls it only on normal exit (not when
+unwinding due to an exception), and <code>ScopeFailure</code> calls it only when an
+exception causes stack unwinding (not on normal exit). If the constructor
+throws an exception (this is only possible if the function object's copy
+constructor or assignment operator throws), <code>ScopeExit</code> and <code>ScopeFailure</code>
+will call the function before propagating the exception, while <code>ScopeSuccess</code>
+will not. Any exceptions thrown by the function call in the destructor are
+silently ignored (normally the function should be written so as not to throw
+anything).</p>
+<p>The <code>release()</code> function discards the saved function; after it is called, the
+scope guard object will do nothing on destruction.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>SizeGuard</code></strong><code>: public ScopeFailure</code><ul>
+<li><code>template &lt;typename T&gt; explicit SizeGuard::</code><strong><code>SizeGuard</code></strong><code>(T&amp; t)</code></li>
+</ul>
+</li>
+</ul>
+<p>Saves the current size of a container, and restores it if an exception unwinds
+the stack. <code>T</code> must be a container type with <code>size()</code> and <code>resize()</code>
+functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>ValueGuard</code></strong><code>: public ScopeFailure</code><ul>
+<li><code>template &lt;typename T&gt; explicit ValueGuard::</code><strong><code>ValueGuard</code></strong><code>(T&amp; t)</code></li>
+</ul>
+</li>
+</ul>
+<p>Saves the current value of a variable, and restores it if an exception unwinds
+the stack.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>ScopedTransaction</code></strong><ul>
+<li><code>using ScopedTransaction::</code><strong><code>callback</code></strong> <code>= function&lt;void()&gt;</code></li>
+<li><code>ScopedTransaction::</code><strong><code>ScopedTransaction</code></strong><code>() noexcept</code></li>
+<li><code>ScopedTransaction::</code><strong><code>~ScopedTransaction</code></strong><code>() noexcept</code></li>
+<li><code>void ScopedTransaction::</code><strong><code>call</code></strong><code>(callback func, callback undo)</code></li>
+<li><code>void ScopedTransaction::</code><strong><code>commit</code></strong><code>() noexcept</code></li>
+<li><code>void ScopedTransaction::</code><strong><code>rollback</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>This holds a stack of "undo" operations, to be carried out if anything goes
+wrong during a sequence of operations. The <code>call()</code> function accepts two
+function objects; <code>func()</code> is called immediately, while <code>undo()</code> is saved on
+the stack. If <code>func()</code> throws an exception, its <code>undo()</code> is not called, but
+any pre-existing undo stack is invoked. Either function can be a null pointer
+if no action is required.</p>
+<p>Calling <code>commit()</code> discards the saved undo functions; <code>rollback()</code> calls them
+in reverse order of insertion, silently ignoring any exceptions (normally the
+undo functions should be written so as not to throw anything). The destructor
+will perform a rollback if neither <code>commit()</code> nor <code>rollback()</code> have been
+called since the last <code>call()</code>.</p>
+<p>A single <code>ScopedTransaction</code> object can be used for multiple transactions.
+Once <code>commit()</code> or <code>rollback()</code> is called, the undo stack is discarded, and
+any newly added function pairs become part of a new cycle, equivalent to a
+newly constructed <code>ScopedTransaction</code>.</p></body>
+</html>

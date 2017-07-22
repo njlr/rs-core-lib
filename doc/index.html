@@ -8,9 +8,25 @@
 <body>
 <h1 id="rs-core-library">RS Core Library</h1>
 <h4 id="minimal-common-utilities-by-ross-smith">Minimal common utilities by Ross Smith</h4>
+<div class="defns">
 <ul>
-<li><a href="core.html"><code>"rs-core/core.hpp"</code></a> - Core utilities.</li>
-<li><a href="unit-test.html"><code>"rs-core/unit-test.hpp"</code></a> - Unit testing utilities.</li>
+<li><em>Utility modules</em><ul>
+<li><a href="common.html"><code>"rs-core/common.hpp"</code></a> - Common utilities.</li>
+<li><a href="container.html"><code>"rs-core/container.hpp"</code></a> - Containers.</li>
+<li><a href="float.html"><code>"rs-core/float.hpp"</code></a> - Floating point utilities.</li>
+<li><a href="io.html"><code>"rs-core/io.hpp"</code></a> - I/O utilities.</li>
+<li><a href="kwargs.html"><code>"rs-core/kwargs.hpp"</code></a> - Keyword arguments.</li>
+<li><a href="random.html"><code>"rs-core/random.hpp"</code></a> - Random numbers.</li>
+<li><a href="string.html"><code>"rs-core/string.hpp"</code></a> - String algorithms.</li>
+<li><a href="thread.html"><code>"rs-core/thread.hpp"</code></a> - Threads.</li>
+<li><a href="time.html"><code>"rs-core/time.hpp"</code></a> - Time and date algorithms.</li>
+<li><a href="uuid.html"><code>"rs-core/uuid.hpp"</code></a> - UUID.</li>
+</ul>
+</li>
+<li><em>Testing modules</em><ul>
+<li><a href="unit-test.html"><code>"rs-core/unit-test.hpp"</code></a> - Unit testing.</li>
+</ul>
+</li>
 </ul>
 <p>This is a header-only library that basically represents the absolute minimum
 set of common utilities that I've found a common need for in other projects,
@@ -21,12 +37,13 @@ explicit namespace qualification or via <code>using namespace RS</code>.</p>
 before using it with any other library. The makefile included here exists
 mainly to be referenced by inclusion in other projects' makefiles; it can also
 be used to run the library's own unit tests.</p>
-<p>The library is written in C++14; you will need an up-to-date C++ compiler,
-probably a recent version of Clang or GCC. I developed it mainly on macOS,
-currently using Clang 7.0, as well as testing with GCC 5.x. All test builds
-are made using strict compilation mode (<code>-Wall -Wextra -Werror</code>). It will not
-work with any existing release of Microsoft Visual C++.</p>
-<p>Because I'm primarily targeting a shortlist of compilers rather than a
+<p>The library is written in C++14 (more or less); you will need an up-to-date
+C++ compiler, probably a recent version of Clang or GCC. I developed it mainly
+on macOS, currently using Clang 8.1, as well as testing with GCC 5/6 on
+Windows. All test builds are made using strict compilation mode (<code>-Wall
+-Wextra -Werror</code>). It will not work with any existing release of Microsoft
+Visual C++.</p>
+<p>Because I'm primarily targeting a short list of compilers rather than a
 specific edition of the C++ standard, the code makes a few assumptions that
 are not guaranteed by the standard but are reliably true on all the system I
 care about. These include:</p>
