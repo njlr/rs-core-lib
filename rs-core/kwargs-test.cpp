@@ -8,12 +8,12 @@ namespace {
 
     constexpr Kwarg<int> kw_alpha;
     constexpr Kwarg<bool> kw_bravo;
-    constexpr Kwarg<std::string> kw_charlie;
+    constexpr Kwarg<U8string> kw_charlie;
 
     struct Kwtest {
         int a = 0;
         bool b = false;
-        std::string c;
+        U8string c;
         template <typename... Args> int fun(const Args&... args) {
             auto i = int(kwget(kw_alpha, a, args...));
             auto j = int(kwget(kw_bravo, b, args...));

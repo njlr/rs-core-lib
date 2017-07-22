@@ -1,6 +1,13 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include <atomic>
+#include <chrono>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <system_error>
 
 namespace RS {
 

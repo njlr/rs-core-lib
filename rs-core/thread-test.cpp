@@ -2,6 +2,7 @@
 #include "rs-core/time.hpp"
 #include "rs-core/unit-test.hpp"
 #include <chrono>
+#include <stdexcept>
 
 using namespace RS;
 using namespace std::chrono;
@@ -27,7 +28,7 @@ namespace {
         }
 
         {
-            std::string s;
+            U8string s;
             Thread t;
             TRY(t = Thread([&] { s = "Neddie"; }));
             TEST_COMPARE(t.get_id(), !=, Thread::current());
@@ -61,7 +62,7 @@ namespace {
         {
             Mutex m;
             ConditionVariable cv;
-            std::string s;
+            U8string s;
             auto f = [&] {
                 MutexLock lock;
                 TRY(lock = make_lock(m));
@@ -80,7 +81,7 @@ namespace {
         {
             Mutex m;
             ConditionVariable cv;
-            std::string s;
+            U8string s;
             auto f1 = [&] {
                 MutexLock lock;
                 TRY(lock = make_lock(m));
@@ -104,7 +105,7 @@ namespace {
         {
             Mutex m;
             ConditionVariable cv;
-            std::string s;
+            U8string s;
             auto f1 = [&] {
                 MutexLock lock;
                 TRY(lock = make_lock(m));

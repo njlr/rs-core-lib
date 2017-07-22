@@ -38,7 +38,6 @@
 // Includes go here so anything that needs the macros above will see them
 
 #include <algorithm>
-#include <atomic>
 #include <cerrno>
 #include <chrono>
 #include <clocale>
@@ -51,25 +50,18 @@
 #include <cstring>
 #include <ctime>
 #include <cwchar>
-#include <deque>
 #include <exception>
 #include <functional>
-#include <initializer_list>
-#include <iostream>
 #include <iterator>
 #include <limits>
 #include <memory>
-#include <new>
 #include <ostream>
 #include <random>
-#include <ratio>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
 #include <type_traits>
-#include <typeindex>
 #include <typeinfo>
 #include <utility>
 #include <vector>

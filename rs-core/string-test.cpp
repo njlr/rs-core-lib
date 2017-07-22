@@ -1,5 +1,14 @@
 #include "rs-core/string.hpp"
 #include "rs-core/unit-test.hpp"
+#include <atomic>
+#include <map>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <typeindex>
+#include <typeinfo>
+#include <utility>
+#include <vector>
 
 using namespace RS;
 using namespace std::literals;

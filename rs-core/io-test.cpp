@@ -2,6 +2,7 @@
 #include "rs-core/string.hpp"
 #include "rs-core/unit-test.hpp"
 #include <set>
+#include <string>
 
 using namespace RS;
 using namespace std::literals;

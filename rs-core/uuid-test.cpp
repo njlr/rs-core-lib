@@ -1,5 +1,7 @@
 #include "rs-core/uuid.hpp"
 #include "rs-core/unit-test.hpp"
+#include <random>
+#include <stdexcept>
 
 using namespace RS;
 

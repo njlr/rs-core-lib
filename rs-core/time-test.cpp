@@ -1,5 +1,8 @@
 #include "rs-core/time.hpp"
 #include "rs-core/unit-test.hpp"
+#include <chrono>
+#include <cmath>
+#include <ratio>
 
 #ifdef _XOPEN_SOURCE
     #include <sys/time.h>

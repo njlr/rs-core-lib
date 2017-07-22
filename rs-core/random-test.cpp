@@ -1,5 +1,12 @@
 #include "rs-core/random.hpp"
 #include "rs-core/unit-test.hpp"
+#include <algorithm>
+#include <limits>
+#include <numeric>
+#include <random>
+#include <stdexcept>
+#include <type_traits>
+#include <vector>
 
 using namespace RS;
 

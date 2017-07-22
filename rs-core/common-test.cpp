@@ -1,19 +1,13 @@
 #include "rs-core/common.hpp"
 #include "rs-core/unit-test.hpp"
 #include <algorithm>
-#include <atomic>
-#include <chrono>
 #include <cmath>
-#include <cstdlib>
+#include <cstddef>
 #include <ctime>
 #include <exception>
 #include <functional>
-#include <limits>
 #include <map>
 #include <memory>
-#include <numeric>
-#include <random>
-#include <ratio>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -21,7 +15,6 @@
 #include <system_error>
 #include <tuple>
 #include <type_traits>
-#include <typeindex>
 #include <typeinfo>
 #include <utility>
 #include <vector>
@@ -56,9 +49,9 @@ namespace {
         return out.str();
     }
 
-    #define MAKE_STR_FOR_CONTAINER(container) \
+    #define MAKE_STR_FOR_CONTAINER(Con) \
         template <typename T> \
-        U8string make_str(const std::container<T>& c) { \
+        U8string make_str(const std::Con<T>& c) { \
             if (c.empty()) \
                 return "[]"; \
             std::ostringstream out; \
@@ -852,8 +845,8 @@ namespace {
         s1 = "hello goodbye";  s2 = "hello world";    TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, 1);
         s1 = "hello world";    s2 = "hello goodbye";  TRY(n = compare_3way(s1, s2, std::greater<>()));  TEST_EQUAL(n, -1);
 
-        const auto is_alpha = [] (char c) { return std::isalpha(c); };
-        const auto same_case = [] (char a, char b) { return std::islower(a) == std::islower(b) && std::isupper(a) == std::isupper(b); };
+        const auto is_alpha = [] (char c) { return isalpha(c); };
+        const auto same_case = [] (char a, char b) { return islower(a) == islower(b) && isupper(a) == isupper(b); };
 
         s1 = "abcabcabc";        TRY(con_remove(s1, 'c'));                        TEST_EQUAL(s1, "ababab");
         s1 = "abc123abc123";     TRY(con_remove_if(s1, is_alpha));                TEST_EQUAL(s1, "123123");

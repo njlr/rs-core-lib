@@ -13,7 +13,7 @@ namespace {
         TEST_EQUAL(b.size(), 0);
         TEST_EQUAL(b.hex(), "");
         TEST_EQUAL(b.str(), "");
-        TEST_EQUAL(std::string(b.chars().begin(), b.chars().end()), "");
+        TEST_EQUAL(U8string(b.chars().begin(), b.chars().end()), "");
 
         TRY(b = Blob(nullptr, 1));
         TEST(b.empty());
@@ -24,7 +24,7 @@ namespace {
         TEST_EQUAL(b.size(), 5);
         TEST_EQUAL(b.hex(), "61 61 61 61 61");
         TEST_EQUAL(b.str(), "aaaaa");
-        TEST_EQUAL(std::string(b.chars().begin(), b.chars().end()), "aaaaa");
+        TEST_EQUAL(U8string(b.chars().begin(), b.chars().end()), "aaaaa");
 
         TRY(b.fill('z'));
         TEST_EQUAL(b.size(), 5);

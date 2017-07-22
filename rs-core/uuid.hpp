@@ -2,6 +2,9 @@
 
 #include "rs-core/common.hpp"
 #include "rs-core/random.hpp"
+#include <algorithm>
+#include <ostream>
+#include <stdexcept>
 
 namespace RS {
 
@@ -9,7 +12,7 @@ namespace RS {
 
     namespace RS_Detail {
 
-        inline int decode_hex_byte(std::string::const_iterator& i, std::string::const_iterator end) {
+        inline int decode_hex_byte(U8string::const_iterator& i, U8string::const_iterator end) {
             auto j = i;
             if (end - i >= 2 && j[0] == '0' && (j[1] == 'X' || j[1] == 'x'))
                 j += 2;
@@ -44,7 +47,7 @@ namespace RS {
             bytes{uint8_t((abcd >> 24) & 0xff), uint8_t((abcd >> 16) & 0xff), uint8_t((abcd >> 8) & 0xff), uint8_t(abcd & 0xff),
                 uint8_t((ef >> 8) & 0xff), uint8_t(ef & 0xff), uint8_t((gh >> 8) & 0xff), uint8_t(gh & 0xff), i, j, k, l, m, n, o, p} {}
         explicit Uuid(const void* ptr, size_t n) noexcept;
-        explicit Uuid(const std::string& s);
+        explicit Uuid(const U8string& s);
         uint8_t& operator[](size_t i) noexcept { return bytes[i]; }
         const uint8_t& operator[](size_t i) const noexcept { return bytes[i]; }
         uint8_t* begin() noexcept { return bytes; }
@@ -72,7 +75,7 @@ namespace RS {
             memset(bytes + n, 0, 16 - n);
     }
 
-    inline Uuid::Uuid(const std::string& s) {
+    inline Uuid::Uuid(const U8string& s) {
         auto begins = s.begin(), i = begins, ends = s.end();
         auto j = begin(), endu = end();
         int rc = 0;

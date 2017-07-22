@@ -1,6 +1,9 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include <cmath>
+#include <cstdlib>
+#include <type_traits>
 
 namespace RS {
 

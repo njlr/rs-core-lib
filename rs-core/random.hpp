@@ -2,6 +2,13 @@
 
 #include "rs-core/common.hpp"
 #include "rs-core/float.hpp"
+#include <algorithm>
+#include <cmath>
+#include <initializer_list>
+#include <iterator>
+#include <stdexcept>
+#include <type_traits>
+#include <vector>
 
 namespace RS {
 

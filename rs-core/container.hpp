@@ -2,6 +2,13 @@
 
 #include "rs-core/common.hpp"
 #include "rs-core/string.hpp"
+#include <algorithm>
+#include <cstdlib>
+#include <deque>
+#include <functional>
+#include <new>
+#include <string>
+#include <utility>
 
 namespace RS {
 

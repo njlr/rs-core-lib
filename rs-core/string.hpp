@@ -1,6 +1,24 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include <algorithm>
+#include <atomic>
+#include <cmath>
+#include <cstddef>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <new>
+#include <ostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <system_error>
+#include <type_traits>
+#include <typeindex>
+#include <typeinfo>
+#include <utility>
+#include <vector>
 
 #ifdef __GNUC__
     #include <cxxabi.h>
