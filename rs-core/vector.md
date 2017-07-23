@@ -205,8 +205,9 @@ Comparison operators. These perform simple lexicographical comparison on the
 vector elements.
 
 * `std::ostream&` **`operator<<`**`(std::ostream& out, const Vector& v)`
+* `U8string` **`to_str`**`(const Vector& v)`
 
-Simple output formatting; this simply writes the vector's elements in their
+Simple string formatting; this simply writes the vector's elements in their
 default format, enclosed in square brackets.
 
 ## Matrix ##
@@ -378,9 +379,9 @@ Return the identity or zero matrix.
 Comparison operators.
 
 * `std::ostream&` **`operator<<`**`(std::ostream& out, const Matrix& m)`
+* `U8string` **`to_str`**`(const Matrix& m)`
 
-Simple output formatting; this simply writes one row per line, in the element
-type's default format.
+Simple string formatting; this writes the matrix by row in nested array form.
 
 ## Quaternion ##
 
@@ -490,3 +491,96 @@ the quaternion is zero.
 * `static Quaternion` **`from_vector`**`(const Vector<T, 4>& v) noexcept`
 
 Component-wise conversions between a quaternion and a 4-vector,
+
+## Transformations ##
+
+### Coordinate transformations ###
+
+* `template <typename T> Vector<T, 2>` **`cartesian_to_polar`**`(const Vector<T, 2>& xy) noexcept`
+* `template <typename T> Vector<T, 2>` **`polar_to_cartesian`**`(const Vector<T, 2>& rt) noexcept`
+* `template <typename T> Vector<T, 3>` **`cartesian_to_cylindrical`**`(const Vector<T, 3>& xyz) noexcept`
+* `template <typename T> Vector<T, 3>` **`cartesian_to_spherical`**`(const Vector<T, 3>& xyz) noexcept`
+* `template <typename T> Vector<T, 3>` **`cylindrical_to_cartesian`**`(const Vector<T, 3>& rpz) noexcept`
+* `template <typename T> Vector<T, 3>` **`cylindrical_to_spherical`**`(const Vector<T, 3>& rpz) noexcept`
+* `template <typename T> Vector<T, 3>` **`spherical_to_cartesian`**`(const Vector<T, 3>& rpt) noexcept`
+* `template <typename T> Vector<T, 3>` **`spherical_to_cylindrical`**`(const Vector<T, 3>& rpt) noexcept`
+
+Transformations between coordinate systems in two or three dimensions. These
+require `T` to be a floating point type.
+
+### Projective geometry ###
+
+* `template <typename T> Vector<T, 4>` **`make4`**`(const Vector<T, 3>& v, T w) noexcept`
+* `template <typename T> Vector<T, 4>` **`point4`**`(const Vector<T, 3>& v) noexcept`
+* `template <typename T> Vector<T, 4>` **`norm4`**`(const Vector<T, 3>& v) noexcept`
+
+Convert a 3-vector to a 4-vector. The `point4()` function sets `w` to 1;
+`norm4()` sets it to zero.
+
+* `template <typename T> Vector<T, 3>` **`point3`**`(const Vector<T, 4>& v) noexcept`
+* `template <typename T> Vector<T, 3>` **`norm3`**`(const Vector<T, 4>& v) noexcept`
+
+Convert a 4-vector to a 3-vector. The `point3()` function divides the
+3-coordinates by `w` (unless `w` is zero); `norm3()` just discards `w` and
+returns the truncated vector.
+
+* `template <typename T, int L> Matrix<T, 4, L>` **`make_transform`**`(const Matrix<T, 3, L>& m, const Vector<T, 3>& v) noexcept`
+
+Composes a 4&times;4 projective transformation matrix from a 3&times;3 matrix
+and a translation vector.
+
+    (a b c)             (a b c x)
+    (d e f), (x y z) => (d e f y)
+    (g h i)             (g h i z)
+                        (0 0 0 1)
+
+* `template <typename T, int L> Matrix<T, 4, L>` **`normal_transform`**`(const Matrix<T, 4, L>& m) noexcept`
+
+Converts a point transform to a normal transform (returns the transpose of the
+inverse of the matrix).
+
+### Primitive transformations ###
+
+* `template <typename T> Matrix<T, 3>` **`rotate3`**`(T angle, size_t index) noexcept`
+* `template <typename T> Matrix<T, 4>` **`rotate4`**`(T angle, size_t index) noexcept`
+
+Generate a rotation by the given angle as a 3D or projective matrix. The index
+indicates the axis of rotation (0-2); behaviour is undefined if this is out of
+range.
+
+* `template <typename T> Matrix<T, 3>` **`rotate3`**`(T angle, const Vector<T, 3>& axis) noexcept`
+* `template <typename T> Matrix<T, 4>` **`rotate4`**`(T angle, const Vector<T, 3>& axis) noexcept`
+
+Generate a rotation by the given angle, about the given axis, as a 3D or
+projective matrix. They will return an identity matrix if either argument is
+null.
+
+* `template <typename T> Matrix<T, 3>` **`scale3`**`(T t) noexcept`
+* `template <typename T> Matrix<T, 3>` **`scale3`**`(const Vector<T, 3>& v) noexcept`
+* `template <typename T> Matrix<T, 4>` **`scale4`**`(T t) noexcept`
+* `template <typename T> Matrix<T, 4>` **`scale4`**`(const Vector<T, 3>& v) noexcept`
+
+Generate a proportional or triaxial scaling transformation as a 3D or
+projective matrix.
+
+* `template <typename T> Matrix<T, 4>` **`translate4`**`(const Vector<T, 3>& v) noexcept`
+
+Generates a translation as a projective matrix (equivalent to
+`make_transform(Matrix<T,3>::identity(),v)`).
+
+### Quaternion transformations ###
+
+* `template <typename T> Vector<T, 3>` **`rotate`**`(const Quaternion<T>& q, const Vector<T, 3>& v) noexcept`
+
+Apply the rotation represented by `q` to the vector `v`.
+
+* `template <typename T> Matrix<T, 3>` **`rotate3`**`(const Quaternion<T>& q) noexcept`
+* `template <typename T> Matrix<T, 4>` **`rotate4`**`(const Quaternion<T>& q) noexcept`
+
+Convert a quaternion into a 3-matrix or projective matrix representing the
+same rotation.
+
+* `template <typename T> Quaternion<T>` **`rotateq`**`(T angle, const Vector<T, 3>& axis) noexcept`
+
+Generate the quaternion corresponding to a rotation by the given angle, about
+the given axis.

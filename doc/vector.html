@@ -19,6 +19,13 @@
 <li><a href="#vector">Vector</a></li>
 <li><a href="#matrix">Matrix</a></li>
 <li><a href="#quaternion">Quaternion</a></li>
+<li><a href="#transformations">Transformations</a><ul>
+<li><a href="#coordinate-transformations">Coordinate transformations</a></li>
+<li><a href="#projective-geometry">Projective geometry</a></li>
+<li><a href="#primitive-transformations">Primitive transformations</a></li>
+<li><a href="#quaternion-transformations">Quaternion transformations</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -265,8 +272,9 @@ vector elements.</p>
 <div class="defns">
 <ul>
 <li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Vector&amp; v)</code></li>
+<li><code>U8string</code> <strong><code>to_str</code></strong><code>(const Vector&amp; v)</code></li>
 </ul>
-<p>Simple output formatting; this simply writes the vector's elements in their
+<p>Simple string formatting; this simply writes the vector's elements in their
 default format, enclosed in square brackets.</p>
 </div>
 <h2 id="matrix">Matrix</h2>
@@ -480,9 +488,9 @@ matrix.</p>
 <div class="defns">
 <ul>
 <li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Matrix&amp; m)</code></li>
+<li><code>U8string</code> <strong><code>to_str</code></strong><code>(const Matrix&amp; m)</code></li>
 </ul>
-<p>Simple output formatting; this simply writes one row per line, in the element
-type's default format.</p>
+<p>Simple string formatting; this writes the matrix by row in nested array form.</p>
 </div>
 <h2 id="quaternion">Quaternion</h2>
 <div class="defns">
@@ -620,5 +628,117 @@ the quaternion is zero.</p>
 <li><code>Vector&lt;T, 4&gt; Quaternion::</code><strong><code>to_vector</code></strong><code>() const noexcept</code></li>
 <li><code>static Quaternion</code> <strong><code>from_vector</code></strong><code>(const Vector&lt;T, 4&gt;&amp; v) noexcept</code></li>
 </ul>
-<p>Component-wise conversions between a quaternion and a 4-vector,</p></body>
+<p>Component-wise conversions between a quaternion and a 4-vector,</p>
+</div>
+<h2 id="transformations">Transformations</h2>
+<h3 id="coordinate-transformations">Coordinate transformations</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 2&gt;</code> <strong><code>cartesian_to_polar</code></strong><code>(const Vector&lt;T, 2&gt;&amp; xy) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 2&gt;</code> <strong><code>polar_to_cartesian</code></strong><code>(const Vector&lt;T, 2&gt;&amp; rt) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>cartesian_to_cylindrical</code></strong><code>(const Vector&lt;T, 3&gt;&amp; xyz) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>cartesian_to_spherical</code></strong><code>(const Vector&lt;T, 3&gt;&amp; xyz) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>cylindrical_to_cartesian</code></strong><code>(const Vector&lt;T, 3&gt;&amp; rpz) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>cylindrical_to_spherical</code></strong><code>(const Vector&lt;T, 3&gt;&amp; rpz) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>spherical_to_cartesian</code></strong><code>(const Vector&lt;T, 3&gt;&amp; rpt) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>spherical_to_cylindrical</code></strong><code>(const Vector&lt;T, 3&gt;&amp; rpt) noexcept</code></li>
+</ul>
+<p>Transformations between coordinate systems in two or three dimensions. These
+require <code>T</code> to be a floating point type.</p>
+</div>
+<h3 id="projective-geometry">Projective geometry</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 4&gt;</code> <strong><code>make4</code></strong><code>(const Vector&lt;T, 3&gt;&amp; v, T w) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 4&gt;</code> <strong><code>point4</code></strong><code>(const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 4&gt;</code> <strong><code>norm4</code></strong><code>(const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Convert a 3-vector to a 4-vector. The <code>point4()</code> function sets <code>w</code> to 1;
+<code>norm4()</code> sets it to zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>point3</code></strong><code>(const Vector&lt;T, 4&gt;&amp; v) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>norm3</code></strong><code>(const Vector&lt;T, 4&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Convert a 4-vector to a 3-vector. The <code>point3()</code> function divides the
+3-coordinates by <code>w</code> (unless <code>w</code> is zero); <code>norm3()</code> just discards <code>w</code> and
+returns the truncated vector.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, int L&gt; Matrix&lt;T, 4, L&gt;</code> <strong><code>make_transform</code></strong><code>(const Matrix&lt;T, 3, L&gt;&amp; m, const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Composes a 4&times;4 projective transformation matrix from a 3&times;3 matrix
+and a translation vector.</p>
+<pre><code>(a b c)             (a b c x)
+(d e f), (x y z) =&gt; (d e f y)
+(g h i)             (g h i z)
+                    (0 0 0 1)
+</code></pre>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, int L&gt; Matrix&lt;T, 4, L&gt;</code> <strong><code>normal_transform</code></strong><code>(const Matrix&lt;T, 4, L&gt;&amp; m) noexcept</code></li>
+</ul>
+<p>Converts a point transform to a normal transform (returns the transpose of the
+inverse of the matrix).</p>
+</div>
+<h3 id="primitive-transformations">Primitive transformations</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 3&gt;</code> <strong><code>rotate3</code></strong><code>(T angle, size_t index) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 4&gt;</code> <strong><code>rotate4</code></strong><code>(T angle, size_t index) noexcept</code></li>
+</ul>
+<p>Generate a rotation by the given angle as a 3D or projective matrix. The index
+indicates the axis of rotation (0-2); behaviour is undefined if this is out of
+range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 3&gt;</code> <strong><code>rotate3</code></strong><code>(T angle, const Vector&lt;T, 3&gt;&amp; axis) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 4&gt;</code> <strong><code>rotate4</code></strong><code>(T angle, const Vector&lt;T, 3&gt;&amp; axis) noexcept</code></li>
+</ul>
+<p>Generate a rotation by the given angle, about the given axis, as a 3D or
+projective matrix. They will return an identity matrix if either argument is
+null.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 3&gt;</code> <strong><code>scale3</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 3&gt;</code> <strong><code>scale3</code></strong><code>(const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 4&gt;</code> <strong><code>scale4</code></strong><code>(T t) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 4&gt;</code> <strong><code>scale4</code></strong><code>(const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Generate a proportional or triaxial scaling transformation as a 3D or
+projective matrix.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 4&gt;</code> <strong><code>translate4</code></strong><code>(const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Generates a translation as a projective matrix (equivalent to
+<code>make_transform(Matrix&lt;T,3&gt;::identity(),v)</code>).</p>
+</div>
+<h3 id="quaternion-transformations">Quaternion transformations</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>rotate</code></strong><code>(const Quaternion&lt;T&gt;&amp; q, const Vector&lt;T, 3&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Apply the rotation represented by <code>q</code> to the vector <code>v</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 3&gt;</code> <strong><code>rotate3</code></strong><code>(const Quaternion&lt;T&gt;&amp; q) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Matrix&lt;T, 4&gt;</code> <strong><code>rotate4</code></strong><code>(const Quaternion&lt;T&gt;&amp; q) noexcept</code></li>
+</ul>
+<p>Convert a quaternion into a 3-matrix or projective matrix representing the
+same rotation.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Quaternion&lt;T&gt;</code> <strong><code>rotateq</code></strong><code>(T angle, const Vector&lt;T, 3&gt;&amp; axis) noexcept</code></li>
+</ul>
+<p>Generate the quaternion corresponding to a rotation by the given angle, about
+the given axis.</p></body>
 </html>
