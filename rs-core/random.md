@@ -8,7 +8,45 @@ By Ross Smith
 
 [TOC]
 
-## Simple random generators ##
+## Random device sources ##
+
+* `template <typename T> class` **`Urandom`**
+    * `using Urandom::`**`result_type`** `= T`
+    * `T Urandom::`**`operator()`**`() noexcept`
+    * `static constexpr T Urandom::`**`min`**`() noexcept`
+    * `static constexpr T Urandom::`**`max`**`() noexcept`
+* `using` **`Urandom32`** `= Urandom<uint32_t>`
+* `using` **`Urandom64`** `= Urandom<uint64_t>`
+
+Generate random numbers from the system's standard random device. On Unix this
+reads from `/dev/urandom`. The result type `T` must be a primitive integer
+type. (This is similar to `std::random_device`, which is not implemented on
+all of my target systems.)
+
+* `void` **`urandom_bytes`**`(void* ptr, size_t n) noexcept`
+
+Copies random bytes from the system's standard random device. This will do
+nothing if either argument is null.
+
+## Xoroshiro generator ##
+
+* `class` **`Xoroshiro`**
+    * `using Xoroshiro::`**`result_type`** `= uint64_t`
+    * `Xoroshiro::`**`Xoroshiro`**`() noexcept`
+    * `explicit Xoroshiro::`**`Xoroshiro`**`(uint64_t s) noexcept`
+    * `Xoroshiro::`**`Xoroshiro`**`(uint64_t s1, uint64_t s2) noexcept`
+    * `uint64_t Xoroshiro::`**`operator()`**`() noexcept`
+    * `bool Xoroshiro::`**`operator==`**`(const Xoroshiro& rhs) const noexcept`
+    * `bool Xoroshiro::`**`operator!=`**`(const Xoroshiro& rhs) const noexcept`
+    * `void Xoroshiro::`**`seed`**`(uint64_t s) noexcept`
+    * `void Xoroshiro::`**`seed`**`(uint64_t s1, uint64_t s2) noexcept`
+    * `static constexpr uint64_t Xoroshiro::`**`min`**`() noexcept` _= 0_
+    * `static constexpr uint64_t Xoroshiro::`**`max`**`() noexcept` _= 2<sup>64</sup>-1_
+
+Xoroshiro128+ algorithm by [David Blackman and Sebastiano
+Vigna](http://xoroshiro.di.unimi.it).
+
+## Simple random distributions ##
 
 * `template <typename RNG> bool` **`random_bool`**`(RNG& rng)` _- True with probability 1/2_
 * `template <typename RNG> bool` **`random_bool`**`(RNG& rng, double p)` _- True with probability p (clamped to 0-1)_

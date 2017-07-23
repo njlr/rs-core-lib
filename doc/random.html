@@ -16,13 +16,61 @@
 <ul>
 <li><a href="#random-numbers">Random Numbers</a><ul>
 <li><a href="#contents">Contents</a></li>
-<li><a href="#simple-random-generators">Simple random generators</a></li>
+<li><a href="#random-device-sources">Random device sources</a></li>
+<li><a href="#xoroshiro-generator">Xoroshiro generator</a></li>
+<li><a href="#simple-random-distributions">Simple random distributions</a></li>
 <li><a href="#other-random-functions">Other random functions</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<h2 id="simple-random-generators">Simple random generators</h2>
+<h2 id="random-device-sources">Random device sources</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Urandom</code></strong><ul>
+<li><code>using Urandom::</code><strong><code>result_type</code></strong> <code>= T</code></li>
+<li><code>T Urandom::</code><strong><code>operator()</code></strong><code>() noexcept</code></li>
+<li><code>static constexpr T Urandom::</code><strong><code>min</code></strong><code>() noexcept</code></li>
+<li><code>static constexpr T Urandom::</code><strong><code>max</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>using</code> <strong><code>Urandom32</code></strong> <code>= Urandom&lt;uint32_t&gt;</code></li>
+<li><code>using</code> <strong><code>Urandom64</code></strong> <code>= Urandom&lt;uint64_t&gt;</code></li>
+</ul>
+<p>Generate random numbers from the system's standard random device. On Unix this
+reads from <code>/dev/urandom</code>. The result type <code>T</code> must be a primitive integer
+type. (This is similar to <code>std::random_device</code>, which is not implemented on
+all of my target systems.)</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void</code> <strong><code>urandom_bytes</code></strong><code>(void* ptr, size_t n) noexcept</code></li>
+</ul>
+<p>Copies random bytes from the system's standard random device. This will do
+nothing if either argument is null.</p>
+</div>
+<h2 id="xoroshiro-generator">Xoroshiro generator</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Xoroshiro</code></strong><ul>
+<li><code>using Xoroshiro::</code><strong><code>result_type</code></strong> <code>= uint64_t</code></li>
+<li><code>Xoroshiro::</code><strong><code>Xoroshiro</code></strong><code>() noexcept</code></li>
+<li><code>explicit Xoroshiro::</code><strong><code>Xoroshiro</code></strong><code>(uint64_t s) noexcept</code></li>
+<li><code>Xoroshiro::</code><strong><code>Xoroshiro</code></strong><code>(uint64_t s1, uint64_t s2) noexcept</code></li>
+<li><code>uint64_t Xoroshiro::</code><strong><code>operator()</code></strong><code>() noexcept</code></li>
+<li><code>bool Xoroshiro::</code><strong><code>operator==</code></strong><code>(const Xoroshiro&amp; rhs) const noexcept</code></li>
+<li><code>bool Xoroshiro::</code><strong><code>operator!=</code></strong><code>(const Xoroshiro&amp; rhs) const noexcept</code></li>
+<li><code>void Xoroshiro::</code><strong><code>seed</code></strong><code>(uint64_t s) noexcept</code></li>
+<li><code>void Xoroshiro::</code><strong><code>seed</code></strong><code>(uint64_t s1, uint64_t s2) noexcept</code></li>
+<li><code>static constexpr uint64_t Xoroshiro::</code><strong><code>min</code></strong><code>() noexcept</code> <em>= 0</em></li>
+<li><code>static constexpr uint64_t Xoroshiro::</code><strong><code>max</code></strong><code>() noexcept</code> <em>= 2<sup>64</sup>-1</em></li>
+</ul>
+</li>
+</ul>
+<p>Xoroshiro128+ algorithm by <a href="http://xoroshiro.di.unimi.it">David Blackman and Sebastiano
+Vigna</a>.</p>
+</div>
+<h2 id="simple-random-distributions">Simple random distributions</h2>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename RNG&gt; bool</code> <strong><code>random_bool</code></strong><code>(RNG&amp; rng)</code> <em>- True with probability 1/2</em></li>

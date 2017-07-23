@@ -6,13 +6,82 @@
 #include <cmath>
 #include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 #include <type_traits>
 #include <vector>
 
+#ifdef _XOPEN_SOURCE
+    #include <fcntl.h>
+    #include <unistd.h>
+#else
+    #include <windows.h>
+    #include <wincrypt.h>
+#endif
+
 namespace RS {
 
-    // Simple random generators
+    // Random device sources
+
+    inline void urandom(void* ptr, size_t n) noexcept {
+        if (! ptr || ! n)
+            return;
+        #ifdef _XOPEN_SOURCE
+            int fd = ::open("/dev/urandom", O_RDONLY);
+            ::read(fd, ptr, n);
+            ::close(fd);
+        #else
+            HCRYPTPROV handle = 0;
+            CryptAcquireContext(&handle, nullptr, nullptr, PROV_RSA_FULL, CRYPT_SILENT | CRYPT_VERIFYCONTEXT);
+            CryptGenRandom(handle, n, static_cast<uint8_t*>(ptr));
+            CryptReleaseContext(handle, 0);
+        #endif
+    }
+
+    template <typename T>
+    class Urandom {
+    public:
+        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        using result_type = T;
+        T operator()() noexcept { T u = 0; urandom(&u, sizeof(u)); return u; }
+        static constexpr T min() noexcept { return std::numeric_limits<T>::min(); }
+        static constexpr T max() noexcept { return std::numeric_limits<T>::max(); }
+    };
+
+    using Urandom32 = Urandom<uint32_t>;
+    using Urandom64 = Urandom<uint64_t>;
+
+    // Xoroshiro generator
+
+    class Xoroshiro:
+    public EqualityComparable<Xoroshiro> {
+    public:
+        using result_type = uint64_t;
+        Xoroshiro() noexcept { seed(0); }
+        explicit Xoroshiro(uint64_t s) noexcept { seed(s); }
+        Xoroshiro(uint64_t s1, uint64_t s2) noexcept { seed(s1, s2); }
+        uint64_t operator()() noexcept {
+            y ^= x;
+            x = rotl(x, 55) ^ y ^ (y << 14);
+            y = rotl(y, 36);
+            return x + y;
+        }
+        bool operator==(const Xoroshiro& rhs) const noexcept { return x == rhs.x && y == rhs.y; }
+        void seed(uint64_t s) noexcept {
+            x = s + 0x9e3779b97f4a7c15ull;
+            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+            x ^= (x >> 31);
+            y = s;
+        }
+        void seed(uint64_t s1, uint64_t s2) noexcept { x = s1; y = s2; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t x, y;
+    };
+
+    // Simple random distributions
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T min, T max) {
