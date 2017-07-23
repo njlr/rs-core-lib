@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include "rs-core/string.hpp"
 #include <algorithm>
 #include <cstdio>
 #include <memory>
