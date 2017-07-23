@@ -1261,7 +1261,7 @@ namespace RS {
 
     // Quaternion transformations
 
-    namespace GraphicsDetail {
+    namespace RS_Detail {
 
         template <typename T, size_t N>
         void build_matrix(const Quaternion<T>& q, Matrix<T, N>& m) noexcept {
@@ -1297,7 +1297,7 @@ namespace RS {
     Matrix<T, 3> rotate3(const Quaternion<T>& q) noexcept {
         static_assert(std::is_floating_point<T>::value, "Only floating point coordinates are supported");
         Matrix<T, 3> m;
-        GraphicsDetail::build_matrix(q, m);
+        RS_Detail::build_matrix(q, m);
         return m;
     }
 
@@ -1311,7 +1311,7 @@ namespace RS {
     Matrix<T, 4> rotate4(const Quaternion<T>& q) noexcept {
         static_assert(std::is_floating_point<T>::value, "Only floating point coordinates are supported");
         Matrix<T, 4> m;
-        GraphicsDetail::build_matrix(q, m);
+        RS_Detail::build_matrix(q, m);
         m(3, 3) = T(1);
         return m;
     }
