@@ -1,6 +1,6 @@
 # RS Core Library #
 
-#### Minimal common utilities by Ross Smith ####
+### Common utilities library by Ross Smith ###
 
 * _Utility modules_
     * [`"rs-core/common.hpp"`](common.html) - Common utilities.
@@ -8,17 +8,18 @@
     * [`"rs-core/float.hpp"`](float.html) - Floating point utilities.
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities.
     * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments.
+    * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming.
     * [`"rs-core/random.hpp"`](random.html) - Random numbers.
     * [`"rs-core/string.hpp"`](string.html) - String algorithms.
     * [`"rs-core/thread.hpp"`](thread.html) - Threads.
     * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms.
     * [`"rs-core/uuid.hpp"`](uuid.html) - UUID.
+    * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions.
 * _Testing modules_
     * [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing.
 
-This is a header-only library that basically represents the absolute minimum
-set of common utilities that I've found a common need for in other projects,
-without having to duplicate the code in all of them.
+This is a header-only library that contains the utilities that I've found a
+common need for in multiple projects.
 
 Everything in this library is in `namespace RS`, and can be used either by
 explicit namespace qualification or via `using namespace RS`.

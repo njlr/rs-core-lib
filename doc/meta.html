@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Template Metaprogramming</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="template-metaprogramming">Template Metaprogramming</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/meta.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#template-metaprogramming">Template Metaprogramming</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#logical-metafunctions">Logical metafunctions</a></li>
+<li><a href="#type-lists">Type lists</a><ul>
+<li><a href="#typelist-primitives">Typelist primitives</a></li>
+<li><a href="#typelist-composition-and-decomposition-metafunctions">Typelist composition and decomposition metafunctions</a></li>
+<li><a href="#type-selection-metafunctions">Type selection metafunctions</a></li>
+<li><a href="#typelist-transformation-metafunctions">Typelist transformation metafunctions</a></li>
+<li><a href="#other-typelist-operations">Other typelist operations</a></li>
+<li><a href="#typelist-property-metafunctions">Typelist property metafunctions</a></li>
+</ul>
+</li>
+<li><a href="#introspection">Introspection</a><ul>
+<li><a href="#reflection-tools">Reflection tools</a></li>
+<li><a href="#operator-detection">Operator detection</a></li>
+<li><a href="#function-detection">Function detection</a></li>
+<li><a href="#type-categories">Type categories</a></li>
+<li><a href="#related-types">Related types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="introduction">Introduction</h2>
+<p>Metafunctions are templates that operate on types; usually they take one or
+more types as arguments and "return" another type, but non-type template
+arguments and return types are also possible.</p>
+<p>Metafunctions that return a type are implemented as alias templates,
+evaluating directly to the result type, without the traditional <code>::type</code>
+member type.</p>
+<p>Metafunctions that return a boolean or integer value are implemented twice,
+once as template types with the traditional <code>::value</code> member constant, and
+again as template constants that yield the value directly. The two
+implementations are supplied because the inline constant form is more
+convenient if the value is going to be used directly, but these can't be used
+as template template arguments in building other metafunctions, for which the
+traditional member constant form is required. The two versions of each value
+metafunction are distinguished by spelling conventions: template types are
+named in <code>MixedCase</code>, constants in <code>lower_case</code>.</p>
+<h2 id="logical-metafunctions">Logical metafunctions</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename P&gt; struct</code> <strong><code>MetaNot</code></strong></li>
+<li><code>template &lt;typename... PS&gt; struct</code> <strong><code>MetaAnd</code></strong></li>
+<li><code>template &lt;typename... PS&gt; struct</code> <strong><code>MetaOr</code></strong></li>
+<li><code>template &lt;typename P1, typename P2&gt; struct</code> <strong><code>MetaXor</code></strong></li>
+<li><code>template &lt;typename P&gt; constexpr bool</code> <strong><code>meta_not</code></strong></li>
+<li><code>template &lt;typename... PS&gt; constexpr bool</code> <strong><code>meta_and</code></strong></li>
+<li><code>template &lt;typename... PS&gt; constexpr bool</code> <strong><code>meta_or</code></strong></li>
+<li><code>template &lt;typename P1, typename P2&gt; constexpr bool</code> <strong><code>meta_xor</code></strong></li>
+</ul>
+<p>Predicate metafunctions that perform the standard logical operations on one or
+more arguments, themselves expected to be predicate metafunctions with a
+<code>::value</code> member.</p>
+</div>
+<h2 id="type-lists">Type lists</h2>
+<p>A typelist is an instantiation of the <code>Typelist&lt;...&gt;</code> template. <code>Nil</code> is a
+synonym for the empty typelist. An assortment of metafunctions are defined
+here that operate on typelists.</p>
+<p>Example:</p>
+<pre><code>using SignedTypes = Typelist&lt;short, int, long&gt;;
+using UnsignedTypes = Typelist&lt;unsigned short, unsigned int, unsigned long&gt;;
+using IntegerTypes = Concat&lt;SignedTypes, UnsignedTypes&gt;;
+static constexpr int n_types = length_of&lt;IntegerTypes&gt;; // 6
+</code></pre>
+<p>In the documentation below, these abbreviations are used to indicate the
+requirements on template parameters:</p>
+<ul>
+<li><code>BF</code> -- Binary metafunction <em>(T1 &otimes; T2 &rarr; T3)</em></li>
+<li><code>BP</code> -- Binary predicate metafunction <em>(T1 &otimes; T2 &rarr; bool)</em></li>
+<li><code>CP</code> -- Comparison predicate metafunction <em>(T1 &otimes; T2 &rarr; bool)</em></li>
+<li><code>SL</code> -- Sorted typelist</li>
+<li><code>T</code> -- General type</li>
+<li><code>TL</code> -- Typelist</li>
+<li><code>UF</code> -- Unary metafunction <em>(T1 &rarr; T2)</em></li>
+<li><code>UP</code> -- Unary predicate metafunction <em>(T &rarr; bool)</em></li>
+<li><code>N</code> -- <code>int</code></li>
+</ul>
+<p>Indexing into typelists is zero-based; functions that return an index will
+return -1 to indicate failure. A comparison predicate is expected to have
+less-than semantics, in the same way as the comparison predicates used for
+ordering in the STL.</p>
+<h3 id="typelist-primitives">Typelist primitives</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... TS&gt; struct</code> <strong><code>Typelist</code></strong></li>
+<li><code>using</code> <strong><code>Nil</code></strong> <code>= Typelist&lt;&gt;</code></li>
+</ul>
+<p>Comparison operators are defined for all typelists (two typelist objects of
+the same type are always equal). An output operator is defined for <code>Nil</code>
+(formatted as <code>"nil"</code>), but not for non-empty typelists.</p>
+</div>
+<h3 id="typelist-composition-and-decomposition-metafunctions">Typelist composition and decomposition metafunctions</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Append&lt;TL,T&gt;</code></td>
+<td><code>TL</code></td>
+<td>Insert <code>T</code> at the end of <code>TL</code></td>
+</tr>
+<tr>
+<td><code>Concat&lt;TL,...&gt;</code></td>
+<td><code>TL</code></td>
+<td>Concatenate typelists or types; argument list may be empty</td>
+</tr>
+<tr>
+<td><code>Insert&lt;TL,T,CP&gt;</code></td>
+<td><code>TL</code></td>
+<td>Insert <code>T</code> in a sorted list</td>
+</tr>
+<tr>
+<td><code>InsertAt&lt;TL,T,N&gt;</code></td>
+<td><code>TL</code></td>
+<td>Insert <code>T</code> at index <code>N</code> in <code>TL</code></td>
+</tr>
+<tr>
+<td><code>Most&lt;TL&gt;</code></td>
+<td><code>TL</code></td>
+<td>All but the last element in <code>TL</code>; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>Prefix&lt;T,TL&gt;</code></td>
+<td><code>TL</code></td>
+<td>Insert <code>T</code> at the beginning of <code>TL</code></td>
+</tr>
+<tr>
+<td><code>RepList&lt;TL,N&gt;</code></td>
+<td><code>TL</code></td>
+<td>Concatenate <code>N</code> copies of <code>TL</code></td>
+</tr>
+<tr>
+<td><code>RepType&lt;T,N&gt;</code></td>
+<td><code>TL</code></td>
+<td>Concatenate <code>N</code> copies of <code>T</code></td>
+</tr>
+<tr>
+<td><code>Resize&lt;TL,N,T&gt;</code></td>
+<td><code>TL</code></td>
+<td>Resize list to length <code>N</code>; use <code>T</code> for padding</td>
+</tr>
+<tr>
+<td><code>Skip&lt;TL,N&gt;</code></td>
+<td><code>TL</code></td>
+<td>Discard the first <code>N</code> elements from <code>TL</code></td>
+</tr>
+<tr>
+<td><code>Sublist&lt;TL,N1,N2&gt;</code></td>
+<td><code>TL</code></td>
+<td>Discard <code>N1</code> elements and return next <code>N2</code> elements</td>
+</tr>
+<tr>
+<td><code>Tail&lt;TL&gt;</code></td>
+<td><code>TL</code></td>
+<td>All but the first element in <code>TL</code>; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>Take&lt;TL,N&gt;</code></td>
+<td><code>TL</code></td>
+<td>First <code>N</code> elements in <code>TL</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="type-selection-metafunctions">Type selection metafunctions</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Head&lt;TL&gt;</code></td>
+<td><code>T</code></td>
+<td>First element in <code>TL</code>; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>Last&lt;TL&gt;</code></td>
+<td><code>T</code></td>
+<td>Last element in <code>TL</code>; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>MaxType&lt;TL,CP&gt;</code></td>
+<td><code>T</code></td>
+<td>Maximum element in <code>TL</code> according to <code>CP</code>; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>MinType&lt;TL,CP&gt;</code></td>
+<td><code>T</code></td>
+<td>Minimum element in <code>TL</code> according to <code>CP</code>; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>TypeAt&lt;TL,N&gt;</code></td>
+<td><code>T</code></td>
+<td><code>Nth</code> element in <code>TL</code>; <code>Nil</code> if <code>N</code> is out of bounds</td>
+</tr>
+</tbody>
+</table>
+<h3 id="typelist-transformation-metafunctions">Typelist transformation metafunctions</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FoldLeft&lt;TL,BF,T&gt;</code></td>
+<td><code>T</code></td>
+<td>Left-to-right reduce, with <code>T</code> as initial value</td>
+</tr>
+<tr>
+<td><code>FoldRight&lt;TL,BF,T&gt;</code></td>
+<td><code>T</code></td>
+<td>Right-to-left reduce, with <code>T</code> as initial value</td>
+</tr>
+<tr>
+<td><code>FullyUnique&lt;TL&gt;</code></td>
+<td><code>TL</code></td>
+<td>Drop all duplicate elements</td>
+</tr>
+<tr>
+<td><code>MakeSet&lt;TL,CP&gt;</code></td>
+<td><code>TL</code></td>
+<td><code>Sort</code> followed by <code>Unique</code></td>
+</tr>
+<tr>
+<td><code>Map&lt;TL,UF&gt;</code></td>
+<td><code>TL</code></td>
+<td>Replace each element <code>T</code> in <code>TL</code> with <code>UF&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><code>PartialReduce&lt;TL,BP,BF&gt;</code></td>
+<td><code>TL</code></td>
+<td>Reduce adjacent elements matched with <code>BP</code></td>
+</tr>
+<tr>
+<td><code>Reduce&lt;TL,BF&gt;</code></td>
+<td><code>T</code></td>
+<td>Left-to-right reduce, with no initial value; <code>Nil</code> if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>Remove&lt;TL,T&gt;</code></td>
+<td><code>TL</code></td>
+<td>Remove all occurrences of <code>T</code> in <code>TL</code></td>
+</tr>
+<tr>
+<td><code>RemoveIf&lt;TL,UP&gt;</code></td>
+<td><code>TL</code></td>
+<td>Remove all elements for which <code>UP&lt;T&gt;</code> is true</td>
+</tr>
+<tr>
+<td><code>Reverse&lt;TL&gt;</code></td>
+<td><code>TL</code></td>
+<td>Reverse the order of <code>TL</code></td>
+</tr>
+<tr>
+<td><code>Select&lt;TL,UP&gt;</code></td>
+<td><code>TL</code></td>
+<td>All elements in <code>TL</code> for which <code>UP&lt;T&gt;</code> is true</td>
+</tr>
+<tr>
+<td><code>Sort&lt;TL,CP&gt;</code></td>
+<td><code>TL</code></td>
+<td>Sort <code>TL</code> according to <code>CP</code> (stable sort)</td>
+</tr>
+<tr>
+<td><code>Unique&lt;TL&gt;</code></td>
+<td><code>TL</code></td>
+<td>Drop consecutive duplicate elements</td>
+</tr>
+<tr>
+<td><code>Zip&lt;TL1,TL2,BF&gt;</code></td>
+<td><code>TL</code></td>
+<td>Map each pair of elements to <code>BF&lt;T1,T2&gt;</code> (output has length of shorter list)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="other-typelist-operations">Other typelist operations</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InheritTypelist&lt;TL&gt;</code></td>
+<td><code>type</code></td>
+<td>Inherits from all unique types in the list</td>
+</tr>
+<tr>
+<td><code>TypelistToTuple&lt;TL&gt;</code></td>
+<td><code>tuple</code></td>
+<td>Tuple with the same types as the list</td>
+</tr>
+<tr>
+<td><code>TupleToTypelist&lt;T&gt;</code></td>
+<td><code>TL</code></td>
+<td>List with the same types as a tuple or pair</td>
+</tr>
+</tbody>
+</table>
+<h3 id="typelist-property-metafunctions">Typelist property metafunctions</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Constant</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AllOf&lt;TL,UP&gt;</code></td>
+<td><code>all_of&lt;TL,UP&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if all types match <code>UP</code>; true if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>AnyOf&lt;TL,UP&gt;</code></td>
+<td><code>any_of&lt;TL,UP&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if at least one type matches <code>UP</code>; false if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>CountIf&lt;TL,UP&gt;</code></td>
+<td><code>count_if&lt;TL,UP&gt;</code></td>
+<td><code>int</code></td>
+<td>Number of elements in <code>TL</code> for which <code>UP&lt;T&gt;</code> is true</td>
+</tr>
+<tr>
+<td><code>CountIfNot&lt;TL,UP&gt;</code></td>
+<td><code>count_if_not&lt;TL,UP&gt;</code></td>
+<td><code>int</code></td>
+<td>Number of elements in <code>TL</code> for which <code>UP&lt;T&gt;</code> is false</td>
+</tr>
+<tr>
+<td><code>CountType&lt;TL,T&gt;</code></td>
+<td><code>count_type&lt;TL,T&gt;</code></td>
+<td><code>int</code></td>
+<td>Number of times <code>T</code> occurs in <code>TL</code></td>
+</tr>
+<tr>
+<td><code>FindIf&lt;TL,UP&gt;</code></td>
+<td><code>find_if&lt;TL,UP&gt;</code></td>
+<td><code>int</code></td>
+<td>Index of the first matching element in <code>TL</code>; -1 if not found</td>
+</tr>
+<tr>
+<td><code>FindIfNot&lt;TL,UP&gt;</code></td>
+<td><code>find_if_not&lt;TL,UP&gt;</code></td>
+<td><code>int</code></td>
+<td>Index of the first non-matching element in <code>TL</code>; -1 if not found</td>
+</tr>
+<tr>
+<td><code>FindType&lt;TL,T&gt;</code></td>
+<td><code>find_type&lt;TL,T&gt;</code></td>
+<td><code>int</code></td>
+<td>Index of the first <code>T</code> in <code>TL</code>; -1 if not found</td>
+</tr>
+<tr>
+<td><code>InList&lt;TL,T&gt;</code></td>
+<td><code>in_list&lt;TL,T&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if <code>T</code> is in <code>TL</code></td>
+</tr>
+<tr>
+<td><code>IsEmpty&lt;TL&gt;</code></td>
+<td><code>is_empty&lt;TL&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if <code>TL</code> is <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>IsNotEmpty&lt;TL&gt;</code></td>
+<td><code>is_not_empty&lt;TL&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if <code>TL</code> is a typelist and is not <code>Nil</code></td>
+</tr>
+<tr>
+<td><code>IsUnique&lt;TL&gt;</code></td>
+<td><code>is_unique&lt;TL&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if <code>TL</code> contains no duplicates</td>
+</tr>
+<tr>
+<td><code>LengthOf&lt;TL&gt;</code></td>
+<td><code>length_of&lt;TL&gt;</code></td>
+<td><code>int</code></td>
+<td>Number of entries in <code>TL</code></td>
+</tr>
+<tr>
+<td><code>NoneOf&lt;TL,UP&gt;</code></td>
+<td><code>none_of&lt;TL,UP&gt;</code></td>
+<td><code>bool</code></td>
+<td>True if no types match <code>UP</code>; true if <code>TL</code> is <code>Nil</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="introspection">Introspection</h2>
+<h3 id="reflection-tools">Reflection tools</h3>
+<p><em>(Based on Walter E. Brown,
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4502.pdf">N4502 Proposing Standard Library Support for the C++ Detection Idiom V2</a>,
+2015.)</em></p>
+<div class="defns">
+<ul>
+<li><code>template &lt;template &lt;typename...&gt; typename Archetype, typename... Args&gt; using</code> <strong><code>IsDetected</code></strong></li>
+<li><code>template &lt;template &lt;typename...&gt; typename Archetype, typename... Args&gt; constexpr bool</code> <strong><code>is_detected</code></strong></li>
+</ul>
+<p>True if the archetype is a valid expression for the supplied argument types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Default, template &lt;typename...&gt; typename Archetype, typename... Args&gt; using</code> <strong><code>DetectedOr</code></strong></li>
+</ul>
+<p>Returns the type defined by the archetype if it is valid, otherwise the default type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Result, template &lt;typename...&gt; typename Archetype, typename... Args&gt; using</code> <strong><code>IsDetectedExact</code></strong></li>
+<li><code>template &lt;typename Result, template &lt;typename...&gt; typename Archetype, typename... Args&gt; constexpr bool</code> <strong><code>is_detected_exact</code></strong></li>
+</ul>
+<p>True if the archetype is valid and returns a specific type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Result, template &lt;typename...&gt; typename Archetype, typename... Args&gt; using</code> <strong><code>IsDetectedConvertible</code></strong></li>
+<li><code>template &lt;typename Result, template &lt;typename...&gt; typename Archetype, typename... Args&gt; constexpr bool</code> <strong><code>is_detected_convertible</code></strong></li>
+</ul>
+<p>True if the archetype is valid and returns a type convertible to the specified type.</p>
+</div>
+<h3 id="operator-detection">Operator detection</h3>
+<div class="defns">
+<!-- DEFN -->
+
+<table>
+<thead>
+<tr>
+<th>Metafunction type</th>
+<th>Metafunction constant</th>
+<th>Operator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>HasPreIncrementOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_pre_increment_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>++T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasPreDecrementOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_pre_decrement_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>--T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasPostIncrementOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_post_increment_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>T++</code></td>
+</tr>
+<tr>
+<td><strong><code>HasPostDecrementOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_post_decrement_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>T--</code></td>
+</tr>
+<tr>
+<td><strong><code>HasUnaryPlusOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_unary_plus_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>+T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasUnaryMinusOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_unary_minus_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>-T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasDereferenceOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_dereference_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>*T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLogicalNotOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_logical_not_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>!T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseNotOperator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_bitwise_not_operator</code></strong><code>&lt;T&gt;</code></td>
+<td><code>~T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasIndexOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_index_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T[T2]</code></td>
+</tr>
+<tr>
+<td><strong><code>HasPlusOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_plus_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T+T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasMinusOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_minus_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T-T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasMultiplyOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_multiply_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T*T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasDivideOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_divide_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T/T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasRemainderOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_remainder_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T%T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseAndOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_bitwise_and_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&amp;T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseOrOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_bitwise_or_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T|T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseXorOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_bitwise_xor_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T^T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLeftShiftOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_left_shift_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&lt;&lt;T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasRightShiftOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_right_shift_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&gt;&gt;T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasEqualOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_equal_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T==T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasNotEqualOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_not_equal_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T!=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLessThanOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_less_than_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&lt;T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasGreaterThanOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_greater_than_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&gt;T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLessOrEqualOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_less_or_equal_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&lt;=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasGreaterOrEqualOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_greater_or_equal_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&gt;=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLogicalAndOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_logical_and_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&amp;&amp;T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLogicalOrOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_logical_or_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T||T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasPlusAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_plus_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T+=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasMinusAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_minus_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T-=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasMultiplyAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_multiply_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T*=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasDivideAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_divide_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T/=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasRemainderAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_remainder_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T%=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseAndAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_bitwise_and_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&amp;=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseOrAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_bitwise_or_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T|=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseXorAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_bitwise_xor_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T^=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLeftShiftAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_left_shift_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&lt;&lt;=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasRightShiftAssignOperator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_right_shift_assign_operator</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T&gt;&gt;=T2</code></td>
+</tr>
+</tbody>
+</table>
+<p>Metafunction predicates to detect the existence of operators. For the binary
+operators, the second argument type can be omitted, defaulting to the same
+type for both arguments. An implicit reference qualification is applied to the
+first argument of the increment, decrement, assignment, and fused assignment
+operators.</p>
+<table>
+<thead>
+<tr>
+<th>Metafunction type</th>
+<th>Metafunction constant</th>
+<th>Operators</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>HasIncrementOperators</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_increment_operators</code></strong><code>&lt;T&gt;</code></td>
+<td><code>++T T++</code></td>
+</tr>
+<tr>
+<td><strong><code>HasStepOperators</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_step_operators</code></strong><code>&lt;T&gt;</code></td>
+<td><code>++T T++ --T T--</code></td>
+</tr>
+<tr>
+<td><strong><code>HasAdditiveOperators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_additive_operators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T+T2 T-T2 T+=T2 T-=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasMultiplicativeOperators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_multiplicative_operators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T*T2 T/T2 T*=T2 T/=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasArithmeticOperators</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_arithmetic_operators</code></strong><code>&lt;T&gt;</code></td>
+<td><code>-T T+T T-T T*T T/T T+=T T-=T T*=T T/=T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasIntegerArithmeticOperators</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_integer_arithmetic_operators</code></strong><code>&lt;T&gt;</code></td>
+<td><code>-T ++T --T T++ T-- T+T T-T T*T T/T T%T T+=T T-=T T*=T T/=T T%=T</code></td>
+</tr>
+<tr>
+<td><strong><code>HasLinearOperators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_linear_operators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>++T --T T++ T-- T+T2 T2+T T-T T-T2 T+=T2 T-=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasScalingOperators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_scaling_operators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T*T2 T2*T T/T T/T2 T*=T2 T/=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasBitwiseOperators</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>has_bitwise_operators</code></strong><code>&lt;T&gt;</code></td>
+<td><code>~T T&amp;T T|T T^T T&lt;&lt;int T&gt;&gt;int T&amp;=T T|=T T^=T T&lt;&lt;=int T&gt;&gt;=int</code></td>
+</tr>
+<tr>
+<td><strong><code>HasEqualityOperators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_equality_operators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T==T2 T!=T2</code></td>
+</tr>
+<tr>
+<td><strong><code>HasComparisonOperators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><strong><code>has_comparison_operators</code></strong><code>&lt;T,T2=T&gt;</code></td>
+<td><code>T==T2 T!=T2 T&lt;T2 T&gt;T2 T&lt;=T2 T&gt;=T2</code></td>
+</tr>
+</tbody>
+</table>
+<p>Combined tests for groups of operators.</p>
+</div>
+<h3 id="function-detection">Function detection</h3>
+<div class="defns">
+<ul>
+<li><code>#define</code> <strong><code>RS_DETECT_FUNCTION</code></strong><code>(function)</code><ul>
+<li><code>template &lt;typename... Args&gt; using</code> <strong><code>HasFunction_</code></strong><em><code>&lt;function&gt;</code></em></li>
+<li><code>template &lt;typename... Args&gt; constexpr bool</code> <strong><code>has_function_</code></strong><em><code>&lt;function&gt;</code></em></li>
+<li><em>true if <code>function(Args...)</code> exists</em></li>
+</ul>
+</li>
+<li><code>#define</code> <strong><code>RS_DETECT_STD_FUNCTION</code></strong><code>(function)</code><ul>
+<li><code>template &lt;typename... Args&gt; using</code> <strong><code>HasStdFunction_</code></strong><em><code>&lt;function&gt;</code></em></li>
+<li><code>template &lt;typename... Args&gt; constexpr bool</code> <strong><code>has_function_std_</code></strong><em><code>&lt;function&gt;</code></em></li>
+<li><em>true if <code>std::function(Args...)</code> exists</em></li>
+</ul>
+</li>
+<li><code>#define</code> <strong><code>RS_DETECT_METHOD</code></strong><code>(function)</code><ul>
+<li><code>template &lt;typename T, typename... Args&gt; using</code> <strong><code>HasMethod_</code></strong><em><code>&lt;function&gt;</code></em></li>
+<li><code>template &lt;typename T, typename... Args&gt; constexpr bool</code> <strong><code>has_method_</code></strong><em><code>&lt;function&gt;</code></em></li>
+<li><em>true if <code>T::function(Args...)</code> exists</em></li>
+</ul>
+</li>
+<li><code>#define</code> <strong><code>RS_DETECT_MEMBER_TYPE</code></strong><code>(type)</code><ul>
+<li><code>template &lt;typename T&gt; using</code> <strong><code>HasMemberType_</code></strong><em><code>&lt;type&gt;</code></em></li>
+<li><code>template &lt;typename T&gt; constexpr bool</code> <strong><code>has_member_type_</code></strong><em><code>&lt;type&gt;</code></em></li>
+<li><em>true if <code>T::type</code> exists</em></li>
+</ul>
+</li>
+</ul>
+<p>Each of these macros defines a metafunction predicate (in the usual two forms)
+that can be used to detect the existence of a function or type.</p>
+<p>Example:</p>
+<pre><code>RS_DETECT_FUNCTION(foo);
+int foo(int, string) { ... }
+assert(has_function_foo&lt;int, string&gt;);
+assert(! has_function_foo&lt;string, int&gt;);
+</code></pre>
+</div>
+<h3 id="type-categories">Type categories</h3>
+<div class="defns">
+<!-- DEFN -->
+
+<table>
+<thead>
+<tr>
+<th>Metafunction type</th>
+<th>Metafunction constant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>IsIterator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_iterator</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><strong><code>IsMutableIterator</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_mutable_iterator</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><strong><code>IsRange</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_range</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><strong><code>IsMutableRange</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_mutable_range</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><strong><code>IsContainer</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_container</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><strong><code>IsInsertableContainer</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_insertable_container</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+<tr>
+<td><strong><code>IsSwappable</code></strong><code>&lt;T&gt;</code></td>
+<td><strong><code>is_swappable</code></strong><code>&lt;T&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>Metafunction predicates that attempt to detect certain kinds of type. In most
+cases we can only look for an expected set of valid operations on the type; we
+have no way to check their semantics. The <code>is_[mutable_]range</code> predicates will
+succeed if the <code>begin()</code> and <code>end()</code> functions can be found either in
+<code>namespace std</code> or by argument dependent lookup; similarly for <code>is_swappable</code>
+and the <code>swap()</code> function.</p>
+</div>
+<h3 id="related-types">Related types</h3>
+<div class="defns">
+<ul>
+<li><strong><code>template &lt;typename T&gt; using</code> </strong><code>IteratorValueType</code>**</li>
+<li><strong><code>template &lt;typename T&gt; using</code> </strong><code>RangeIteratorType</code>**</li>
+<li><strong><code>template &lt;typename T&gt; using</code> </strong><code>RangeValueType</code>**</li>
+</ul>
+<p>These return the types associated with an iterator or range. They are
+extracted by checking the return type of <code>begin()</code>, and do not require a
+specialization of <code>iterator_traits</code> to exist.</p></body>
+</html>

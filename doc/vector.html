@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Vectors, Matrices, and Quaternnions</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="vectors-matrices-and-quaternnions">Vectors, Matrices, and Quaternnions</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/vector.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#vectors-matrices-and-quaternnions">Vectors, Matrices, and Quaternnions</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#vector">Vector</a></li>
+<li><a href="#matrix">Matrix</a></li>
+<li><a href="#quaternion">Quaternion</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="vector">Vector</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, size_t N&gt; class</code> <strong><code>Vector</code></strong></li>
+</ul>
+<p>An <code>N</code>-dimensional vector type. <code>T</code> must be an arithmetic type; <code>N</code> must be a
+positive integer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>Int[1-4]</code></strong> <code>= Vector&lt;int, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Int8_[1-4]</code></strong> <code>= Vector&lt;int8_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Int16_[1-4]</code></strong> <code>= Vector&lt;int16_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Int32_[1-4]</code></strong> <code>= Vector&lt;int32_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Int64_[1-4]</code></strong> <code>= Vector&lt;int64_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Uint8_[1-4]</code></strong> <code>= Vector&lt;uint8_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Uint16_[1-4]</code></strong> <code>= Vector&lt;uint16_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Uint32_[1-4]</code></strong> <code>= Vector&lt;uint32_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Uint64_[1-4]</code></strong> <code>= Vector&lt;uint64_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Ptrdiff[1-4]</code></strong> <code>= Vector&lt;ptrdiff_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Size[1-4]</code></strong> <code>= Vector&lt;size_t, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Float[1-4]</code></strong> <code>= Vector&lt;float, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Double[1-4]</code></strong> <code>= Vector&lt;double, [1-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Ldouble[1-4]</code></strong> <code>= Vector&lt;long double, [1-4]&gt;</code></li>
+</ul>
+<p>Named instantiations (the shorthand used here indicates instantiations for 1
+to 4 dimensions).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Vector::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr size_t Vector::</code><strong><code>dim</code></strong> <code>= N</code></li>
+</ul>
+<p>Member constants.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector::</code><strong><code>Vector</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename T2&gt; explicit Vector::</code><strong><code>Vector</code></strong><code>(T2 t) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; Vector::</code><strong><code>Vector</code></strong><code>(Args... args) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; explicit Vector::</code><strong><code>Vector</code></strong><code>(const T2* ptr) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Vector::</code><strong><code>Vector</code></strong><code>(const Vector&lt;T2, N&gt;&amp; v) noexcept</code></li>
+<li><code>Vector::</code><strong><code>~Vector</code></strong><code>() noexcept</code></li>
+<li><code>Vector::</code><strong><code>Vector</code></strong><code>(const Vector&amp; v) noexcept</code></li>
+<li><code>Vector::</code><strong><code>Vector</code></strong><code>(Vector&amp;&amp; v) noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator=</code></strong><code>(const Vector&amp; v) noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator=</code></strong><code>(Vector&amp;&amp; v) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Vector&amp; Vector::</code><strong><code>operator=</code></strong><code>(const Vector&lt;T2, N&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor sets all elements to zero (the
+same value as the static <code>zero()</code> function); the second constructor sets all
+elements to the given value; the third takes an explicit list of elements; the
+fourth copies <code>N</code> elements starting from the source pointer (behaviour is
+undefined if the pointer is null); the fifth copies the elements of the
+argument vector. The constructors that take a different type depend on the
+existence of an implicit conversion from <code>T2</code> to <code>T</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T&amp; Vector::</code><strong><code>operator[]</code></strong><code>(size_t i) noexcept</code></li>
+<li><code>const T&amp; Vector::</code><strong><code>operator[]</code></strong><code>(size_t i) const noexcept</code></li>
+<li><code>T&amp; Vector::</code><strong><code>at</code></strong><code>(size_t i)</code></li>
+<li><code>const T&amp; Vector::</code><strong><code>at</code></strong><code>(size_t i) const</code></li>
+<li><code>T&amp; Vector::</code><strong><code>x</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Vector::</code><strong><code>x</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Vector::</code><strong><code>y</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Vector::</code><strong><code>y</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Vector::</code><strong><code>z</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Vector::</code><strong><code>z</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Vector::</code><strong><code>w</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Vector::</code><strong><code>w</code></strong><code>() const noexcept</code></li>
+<li><code>T* Vector::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const T* Vector::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>T* Vector::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const T* Vector::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Data access functions. If the index is out of range, behaviour is undefined
+for <code>operator[]</code>; <code>at()</code> throws <code>std::out_of_range</code>. The <code>x()</code>, <code>y()</code>, <code>z()</code>,
+and <code>w()</code> methods yield the first four elements. Behaviour is undefined if
+<code>y()</code>, <code>z()</code>, or <code>w()</code> is called on a vector with too few elements.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;size_t N2&gt; Vector&lt;T, N2 - 1&gt; Vector::</code><strong><code>operator[]</code></strong><code>(const char (&amp;str)[N2]) const</code></li>
+</ul>
+<p>Swizzle operator. This returns a vector made from the components of the
+original vector indicated by letters in the string literal argument; for
+example, <code>v["zyx"]</code> will return <code>{v.z(),v.y(),v.x()}</code>. Behaviour is undefined
+if the string contains any characters other than <code>'x'</code>, <code>'y'</code>, <code>'z'</code>, or
+<code>'w'</code>, or refers to nonexistent components if the original vector had less
+than four components. The output vector has the same number of components as
+there are letters in the string (the length is <code>N-1</code> to remove the implicit
+null terminator).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector Vector::</code><strong><code>operator+</code></strong><code>() const noexcept</code></li>
+<li><code>Vector Vector::</code><strong><code>operator-</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Unary arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector&amp; Vector::</code><strong><code>operator+=</code></strong><code>(const Vector&amp; rhs) noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator-=</code></strong><code>(const Vector&amp; rhs) noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator%=</code></strong><code>(const Vector&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator+</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator-</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; T</code> <strong><code>operator*</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>operator%</code></strong><code>(const Vector&lt;T, 3&gt;&amp; lhs, const Vector&lt;T, 3&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; T</code> <strong><code>dot</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T&gt; Vector&lt;T, 3&gt;</code> <strong><code>cross</code></strong><code>(const Vector&lt;T, 3&gt;&amp; lhs, const Vector&lt;T, 3&gt;&amp; rhs) noexcept</code></li>
+</ul>
+<p>Vector arithmetic operators and functions. The <code>*</code> and <code>%</code> operators are
+equivalent to <code>dot()</code> and <code>cross()</code> respectively; <code>operator%</code>, <code>operator%=</code>
+and <code>cross()</code> are defined only for <code>N=3</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T2&gt; Vector&amp; Vector::</code><strong><code>operator*=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Vector&amp; Vector::</code><strong><code>operator/=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator*</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator*</code></strong><code>(T2 lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator/</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+</ul>
+<p>Vector-scalar arithmetic operators. <code>T2</code> must be implicitly convertible to <code>T</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector Vector::</code><strong><code>operator~</code></strong><code>() const noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator&amp;=</code></strong><code>(const Vector&amp; rhs) noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator|=</code></strong><code>(const Vector&amp; rhs) noexcept</code></li>
+<li><code>Vector&amp; Vector::</code><strong><code>operator^=</code></strong><code>(const Vector&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Vector&amp; Vector::</code><strong><code>operator&amp;=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Vector&amp; Vector::</code><strong><code>operator|=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Vector&amp; Vector::</code><strong><code>operator^=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator&amp;</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator|</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator^</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator&amp;</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator|</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator^</code></strong><code>(const Vector&lt;T, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator&amp;</code></strong><code>(T2 lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator|</code></strong><code>(T2 lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T, typename T2, size_t N&gt; Vector&lt;T, N&gt;</code> <strong><code>operator^</code></strong><code>(T2 lhs, const Vector&lt;T, N&gt;&amp; rhs) noexcept</code></li>
+</ul>
+<p>Bitwise operations on vector elements. These require the corresponding
+operations to be defined on <code>T</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Vector::</code><strong><code>angle</code></strong><code>(const Vector&amp; v) const noexcept</code></li>
+</ul>
+<p>Returns the angle between two vectors (in the range <em>[0,&pi;]</em>). This will
+return zero if either vector is null. Requires <code>T</code> to be a floating point
+type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector Vector::</code><strong><code>dir</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns a unit vector parallel to this vector (or an approximation to it,
+given the limits of floating point arithmetic). This requires <code>T</code> to be a
+floating point type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector</code> <strong><code>emul</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+<li><code>Vector</code> <strong><code>ediv</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+</ul>
+<p>Element-wise multiplication and division operations (also called pointwise or
+Hadamard operations). Behaviour is undefined if any element of the divisor in
+<code>ediv()</code> is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Vector::</code><strong><code>is_null</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the vector is null.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector Vector::</code><strong><code>project</code></strong><code>(const Vector&amp; v) const noexcept</code></li>
+<li><code>Vector Vector::</code><strong><code>reject</code></strong><code>(const Vector&amp; v) const noexcept</code></li>
+</ul>
+<p>These return the projection and rejection of <code>*this</code> onto <code>v</code> (the components
+of <code>*this</code> parallel and orthogonal to <code>v</code>). If <code>v</code> is null, <code>project()</code>
+returns null and <code>reject()</code> returns <code>*this</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Vector::</code><strong><code>r</code></strong><code>() const noexcept</code></li>
+<li><code>T Vector::</code><strong><code>r2</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>These return the length of the vector, or its square. The <code>r()</code> function
+requires <code>T</code> to be a floating point type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr size_t Vector::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns <code>N</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Vector::</code><strong><code>sum</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the sum of the vector's elements.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Vector Vector::</code><strong><code>unit</code></strong><code>(size_t i) noexcept</code></li>
+</ul>
+<p>Returns a unit vector along the given axis. Behaviour is undefined if the
+index is out of range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Vector Vector::</code><strong><code>zero</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Returns the zero vector (the same value as the default constructor).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;=</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;=</code></strong><code>(const Vector&amp; lhs, const Vector&amp; rhs) noexcept</code></li>
+</ul>
+<p>Comparison operators. These perform simple lexicographical comparison on the
+vector elements.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Vector&amp; v)</code></li>
+</ul>
+<p>Simple output formatting; this simply writes the vector's elements in their
+default format, enclosed in square brackets.</p>
+</div>
+<h2 id="matrix">Matrix</h2>
+<div class="defns">
+<ul>
+<li><code>enum class</code> <strong><code>MatrixLayout</code></strong><ul>
+<li><strong><code>column</code></strong> <code>= 'C'</code></li>
+<li><strong><code>row</code></strong> <code>= 'R'</code></li>
+</ul>
+</li>
+</ul>
+<p>Flags indicating the internal layout of a matrix.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, size_t N, MatrixLayout L = MatrixLayout::column&gt; class</code> <strong><code>Matrix</code></strong></li>
+</ul>
+<p>An <code>N</code>&times;<code>N</code> square matrix type. <code>T</code> must be an arithmetic type; <code>N</code> must
+be a positive integer; <code>L</code> must be one of the <code>MatrixLayout</code> enumeration.</p>
+<p>For simplicity of presentation, most of the matrix operations described below
+are documented as though there were only two matrix parameters, the element
+type and the size; the layout is left out to avoid complicating the
+documentation with too many multiple overloads. Except where the documentation
+explicitly says otherwise, all matrix operations work the same for both
+layouts. Operations that take two matrices will work on pairs of different
+layout. When a dissimilar pair is passed to an operation that returns another
+matrix (e.g. adding or multiplying a column matrix with a row matrix), the
+returned matrix has the same layout as the first argument.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>Float[2-4]x[2-4]</code></strong> <code>= Matrix&lt;float, [2-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Float[2-4]x[2-4]c</code></strong> <code>= Matrix&lt;float, [2-4], MatrixLayout::column&gt;</code></li>
+<li><code>using</code> <strong><code>Float[2-4]x[2-4]r</code></strong> <code>= Matrix&lt;float, [2-4], MatrixLayout::row&gt;</code></li>
+<li><code>using</code> <strong><code>Double[2-4]x[2-4]</code></strong> <code>= Matrix&lt;double, [2-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Double[2-4]x[2-4]c</code></strong> <code>= Matrix&lt;double, [2-4], MatrixLayout::column&gt;</code></li>
+<li><code>using</code> <strong><code>Double[2-4]x[2-4]r</code></strong> <code>= Matrix&lt;double, [2-4], MatrixLayout::row&gt;</code></li>
+<li><code>using</code> <strong><code>Ldouble[2-4]x[2-4]</code></strong> <code>= Matrix&lt;long double, [2-4]&gt;</code></li>
+<li><code>using</code> <strong><code>Ldouble[2-4]x[2-4]c</code></strong> <code>= Matrix&lt;long double, [2-4], MatrixLayout::column&gt;</code></li>
+<li><code>using</code> <strong><code>Ldouble[2-4]x[2-4]r</code></strong> <code>= Matrix&lt;long double, [2-4], MatrixLayout::row&gt;</code></li>
+</ul>
+<p>Named instantiations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Matrix::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>using Matrix::</code><strong><code>vector_type</code></strong> <code>= Vector&lt;T, N&gt;</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr size_t Matrix::</code><strong><code>dim</code></strong> <code>= N</code></li>
+<li><code>static constexpr size_t Matrix::</code><strong><code>cells</code></strong> <code>= N * N</code></li>
+<li><code>static constexpr MatrixLayout Matrix::</code><strong><code>layout</code></strong> <code>= L</code></li>
+</ul>
+<p>Member constants.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Matrix::</code><strong><code>Matrix</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename T2&gt; explicit Matrix::</code><strong><code>Matrix</code></strong><code>(T2 t) noexcept</code></li>
+<li><code>template &lt;typename T2, typename T3&gt; Matrix::</code><strong><code>Matrix</code></strong><code>(T2 lead, T3 other) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Matrix::</code><strong><code>Matrix</code></strong><code>(std::initializer_list&lt;T2&gt; ts) noexcept</code></li>
+<li><code>Matrix::</code><strong><code>Matrix</code></strong><code>(const Matrix&amp; m) noexcept</code></li>
+<li><code>Matrix::</code><strong><code>Matrix</code></strong><code>(Matrix&amp;&amp; m) noexcept</code></li>
+<li><code>Matrix::</code><strong><code>~Matrix</code></strong><code>() noexcept</code></li>
+<li><code>Matrix&amp; Matrix::</code><strong><code>operator=</code></strong><code>(const Matrix&amp; m) noexcept</code></li>
+<li><code>Matrix&amp; Matrix::</code><strong><code>operator=</code></strong><code>(Matrix&amp;&amp; m) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Matrix&amp; Matrix::</code><strong><code>operator=</code></strong><code>(std::initializer_list&lt;T2&gt; ts) noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor sets all elements to zero (the
+same result as the static <code>zero()</code> function); the second constructor sets all
+elements to the given value (performing implicit conversion if necessary); the
+third constructor sets the leading diagonal to one value and the remaining
+elements to another; the fourth takes an explicit list of elements.</p>
+<p>The constructors and assignment operators that take a list of elements will
+assign elements in the order implied by the matrix's layout flag. If an
+initializer list contains too few elements, the missing elements will be set
+to zero; if it contains too many, the excess elements are ignored.</p>
+<p>A matrix can be constructed or assigned from one of the opposite layout.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T&amp; Matrix::</code><strong><code>operator()</code></strong><code>(size_t r, size_t c) noexcept</code></li>
+<li><code>T Matrix::</code><strong><code>operator()</code></strong><code>(size_t r, size_t c) const noexcept</code></li>
+<li><code>T&amp; Matrix::</code><strong><code>at</code></strong><code>(size_t r, size_t c)</code></li>
+<li><code>T Matrix::</code><strong><code>at</code></strong><code>(size_t r, size_t c) const</code></li>
+<li><code>T* Matrix::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const T* Matrix::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>T* Matrix::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const T* Matrix::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Element reference functions. If the row or column is out of range, behaviour
+is undefined for <code>operator()</code>; <code>at()</code> throws <code>std::out_of_range</code>. Iterating
+over the elements will visit them in the order implied by the matrix's layout
+flag.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Matrix Matrix::</code><strong><code>operator+</code></strong><code>() const noexcept</code></li>
+<li><code>Matrix Matrix::</code><strong><code>operator-</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Unary arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Matrix&amp; Matrix::</code><strong><code>operator+=</code></strong><code>(const Matrix&amp; rhs) noexcept</code></li>
+<li><code>Matrix&amp; Matrix::</code><strong><code>operator-=</code></strong><code>(const Matrix&amp; rhs) noexcept</code></li>
+<li><code>Matrix&amp; Matrix::</code><strong><code>operator*=</code></strong><code>(const Matrix&amp; rhs) noexcept</code></li>
+<li><code>Matrix</code> <strong><code>operator+</code></strong><code>(const Matrix&amp; lhs, const Matrix&amp; rhs) noexcept</code></li>
+<li><code>Matrix</code> <strong><code>operator-</code></strong><code>(const Matrix&amp; lhs, const Matrix&amp; rhs) noexcept</code></li>
+<li><code>Matrix</code> <strong><code>operator*</code></strong><code>(const Matrix&amp; lhs, const Matrix&amp; rhs) noexcept</code></li>
+</ul>
+<p>Matrix arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T1, typename T2, size_t N&gt; Vector&lt;T2, N&gt;</code> <strong><code>operator*</code></strong><code>(const Matrix&lt;T1, N&gt;&amp; lhs, const Vector&lt;T2, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2, size_t N&gt; Vector&lt;T1, N&gt;</code> <strong><code>operator*</code></strong><code>(const Vector&lt;T1, N&gt;&amp; lhs, const Matrix&lt;T2, N&gt;&amp; rhs) noexcept</code></li>
+</ul>
+<p>Matrix-vector arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T2&gt; Matrix&amp; Matrix::</code><strong><code>operator*=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Matrix&amp; Matrix::</code><strong><code>operator/=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2, size_t N&gt; Matrix&lt;T1, N&gt;</code> <strong><code>operator*</code></strong><code>(const Matrix&lt;T1, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2, size_t N&gt; Matrix&lt;T2, N&gt;</code> <strong><code>operator*</code></strong><code>(T1 lhs, const Matrix&lt;T2, N&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2, size_t N&gt; Matrix&lt;T1, N&gt;</code> <strong><code>operator/</code></strong><code>(const Matrix&lt;T1, N&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+</ul>
+<p>Matrix-scalar arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>vector_type Matrix::</code><strong><code>column</code></strong><code>(size_t c) const noexcept</code></li>
+<li><code>vector_type Matrix::</code><strong><code>row</code></strong><code>(size_t r) const noexcept</code></li>
+</ul>
+<p>Return the selected column or row as a vector. Behaviour is undefined if the
+index is out of bounds.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Matrix::</code><strong><code>det</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the determinant of the matrix. This is currently only implemented for
+<code>N&lt;=4</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Matrix Matrix::</code><strong><code>inverse</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Calculate the inverse of a matrix. This requires <code>T</code> to be a floating point
+type. Behaviour is undefined if the matrix is singular. This is currently only
+implemented for <code>N&lt;=4</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>constexpr size_t Matrix::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns <code>N*N</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Matrix Matrix::</code><strong><code>swap_columns</code></strong><code>(size_t c1, size_t c2) const noexcept</code></li>
+<li><code>Matrix Matrix::</code><strong><code>swap_rows</code></strong><code>(size_t r1, size_t r2) const noexcept</code></li>
+</ul>
+<p>Returns a matrix with two columns or rows swapped. A copy of the original
+matrix is returned if the two arguments are the same. Behaviour is undefined
+if either index is out of range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Matrix Matrix::</code><strong><code>transpose</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Calculate the transpose of a matrix.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Matrix Matrix::</code><strong><code>from_array</code></strong><code>(const T* ptr) noexcept</code></li>
+</ul>
+<p>Builds a matrix by copying elements from the array supplied. Cells are filled
+in the order implied by the matrix layout. Behaviour is undefined if the
+pointer is null or the array does not have enough elements to fill the matrix.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; static Matrix Matrix::</code><strong><code>from_columns</code></strong><code>(Args... args) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; static Matrix Matrix::</code><strong><code>from_rows</code></strong><code>(Args... args) noexcept</code></li>
+</ul>
+<p>Builds a matrix from an explicitly supplied list of elements. These are
+similar to the initializer list constructor, except that the elements are
+filled in column or row order regardless of the matrix layout. The same rules
+are followed if the length of the argument list does not match the size of the
+matrix.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Matrix Matrix::</code><strong><code>identity</code></strong><code>() noexcept</code></li>
+<li><code>static Matrix Matrix::</code><strong><code>zero</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Return the identity or zero matrix.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Matrix&amp; lhs, const Matrix&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Matrix&amp; lhs, const Matrix&amp; rhs) noexcept</code></li>
+</ul>
+<p>Comparison operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Matrix&amp; m)</code></li>
+</ul>
+<p>Simple output formatting; this simply writes one row per line, in the element
+type's default format.</p>
+</div>
+<h2 id="quaternion">Quaternion</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Quaternion</code></strong></li>
+</ul>
+<p>A quaternion type based on the scalar type <code>T</code>, which must be a floating point
+arithmetic type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>FloatQ</code></strong> <code>= Quaternion&lt;float&gt;</code></li>
+<li><code>using</code> <strong><code>DoubleQ</code></strong> <code>= Quaternion&lt;double&gt;</code></li>
+<li><code>using</code> <strong><code>LdoubleQ</code></strong> <code>= Quaternion&lt;long double&gt;</code></li>
+</ul>
+<p>Named instantiations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Quaternion::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Quaternion::</code><strong><code>Quaternion</code></strong><code>() noexcept</code></li>
+<li><code>Quaternion::</code><strong><code>Quaternion</code></strong><code>(T a) noexcept</code></li>
+<li><code>Quaternion::</code><strong><code>Quaternion</code></strong><code>(T a, T b, T c, T d) noexcept</code></li>
+<li><code>Quaternion::</code><strong><code>Quaternion</code></strong><code>(T a, const Vector&lt;T, 3&gt;&amp; bcd) noexcept</code></li>
+<li><code>Quaternion::</code><strong><code>Quaternion</code></strong><code>(const Quaternion&amp; q) noexcept</code></li>
+<li><code>Quaternion::</code><strong><code>Quaternion</code></strong><code>(Quaternion&amp;&amp; q) noexcept</code></li>
+<li><code>Quaternion::</code><strong><code>~Quaternion</code></strong><code>() noexcept</code></li>
+<li><code>Quaternion&amp; Quaternion::</code><strong><code>operator=</code></strong><code>(const Quaternion&amp; q) noexcept</code></li>
+<li><code>Quaternion&amp; Quaternion::</code><strong><code>operator=</code></strong><code>(Quaternion&amp;&amp; q) noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor sets all components to zero; the
+second constructor creates a scalar quaternion; the third and fourth
+constructors assemble a quaternion from four components supplied explicitly or
+as scalar and vector parts.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T&amp; Quaternion::</code><strong><code>a</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Quaternion::</code><strong><code>a</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Quaternion::</code><strong><code>b</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Quaternion::</code><strong><code>b</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Quaternion::</code><strong><code>c</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Quaternion::</code><strong><code>c</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Quaternion::</code><strong><code>d</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Quaternion::</code><strong><code>d</code></strong><code>() const noexcept</code></li>
+<li><code>T* Quaternion::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const T* Quaternion::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>T* Quaternion::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const T* Quaternion::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Quaternion::</code><strong><code>operator[]</code></strong><code>(size_t i) noexcept</code></li>
+<li><code>const T&amp; Quaternion::</code><strong><code>operator[]</code></strong><code>(size_t i) const noexcept</code></li>
+</ul>
+<p>Element access functions. Behaviour is undefined if the index in <code>operator[]</code>
+is out of range (greater than 3).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Quaternion Quaternion::</code><strong><code>operator+</code></strong><code>() const noexcept</code></li>
+<li><code>Quaternion Quaternion::</code><strong><code>operator-</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Unary arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Quaternion&amp; Quaternion::</code><strong><code>operator+=</code></strong><code>(const Quaternion&amp; rhs) noexcept</code></li>
+<li><code>Quaternion&amp; Quaternion::</code><strong><code>operator-=</code></strong><code>(const Quaternion&amp; rhs) noexcept</code></li>
+<li><code>Quaternion&amp; Quaternion::</code><strong><code>operator*=</code></strong><code>(const Quaternion&amp; rhs) noexcept</code></li>
+<li><code>Quaternion</code> <strong><code>operator+</code></strong><code>(const Quaternion&amp; lhs, const Quaternion&amp; rhs) noexcept</code></li>
+<li><code>Quaternion</code> <strong><code>operator-</code></strong><code>(const Quaternion&amp; lhs, const Quaternion&amp; rhs) noexcept</code></li>
+<li><code>Quaternion</code> <strong><code>operator*</code></strong><code>(const Quaternion&amp; lhs, const Quaternion&amp; rhs) noexcept</code></li>
+</ul>
+<p>Quaternion arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T2&gt; Quaternion&amp; Quaternion::</code><strong><code>operator*=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Quaternion&amp; Quaternion::</code><strong><code>operator/=</code></strong><code>(T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; Quaternion&lt;T1&gt;</code> <strong><code>operator*</code></strong><code>(const Quaternion&lt;T1&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; Quaternion&lt;T2&gt;</code> <strong><code>operator*</code></strong><code>(T1 lhs, const Quaternion&lt;T2&gt;&amp; rhs) noexcept</code></li>
+<li><code>template &lt;typename T1, typename T2&gt; Quaternion&lt;T1&gt;</code> <strong><code>operator/</code></strong><code>(const Quaternion&lt;T1&gt;&amp; lhs, T2 rhs) noexcept</code></li>
+</ul>
+<p>Quaternion-scalar arithmetic operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Quaternion&amp; lhs, const Quaternion&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Quaternion&amp; lhs, const Quaternion&amp; rhs) noexcept</code></li>
+</ul>
+<p>Comparison operators.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Quaternion Quaternion::</code><strong><code>conj</code></strong><code>() const noexcept</code></li>
+<li><code>Quaternion Quaternion::</code><strong><code>conj</code></strong><code>(const Quaternion&amp; p) const noexcept</code></li>
+</ul>
+<p>The first version returns the conjugate quaternion. The second version
+performs the conjugation of <code>p</code> by <code>*this</code>, returning
+<code>qpq<sup>-1</sup></code> (where <code>q=*this</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Quaternion::</code><strong><code>norm</code></strong><code>() const noexcept</code></li>
+<li><code>T Quaternion::</code><strong><code>norm2</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the quaternion's norm, or its square.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Quaternion Quaternion::</code><strong><code>recip</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the reciprocal of the quaternion. Behaviour is undefined if the
+quaternion is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Quaternion::</code><strong><code>s_part</code></strong><code>() const noexcept</code></li>
+<li><code>Vector&lt;T, 3&gt; Quaternion::</code><strong><code>v_part</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Return the scalar and vector parts of the quaternion.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Quaternion Quaternion::</code><strong><code>versor</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the quaternion's versor (unit quaternion). Behaviour is undefined if
+the quaternion is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Vector&lt;T, 4&gt; Quaternion::</code><strong><code>to_vector</code></strong><code>() const noexcept</code></li>
+<li><code>static Quaternion</code> <strong><code>from_vector</code></strong><code>(const Vector&lt;T, 4&gt;&amp; v) noexcept</code></li>
+</ul>
+<p>Component-wise conversions between a quaternion and a 4-vector,</p></body>
+</html>
