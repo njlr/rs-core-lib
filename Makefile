@@ -17,7 +17,7 @@ TARGET := $(shell gcc -v 2>&1 | grep '^Target:' | sed -E -e 's/^Target: //' -e '
 XHOST := $(shell echo $(TARGET) | tr A-Z a-z | sed -E -e 's/-gnu$$//' -e 's/.*-//' -e 's/[^a-z].*//')
 BUILD := build/$(TARGET)
 CXX := g++
-FLAGS := -I. -g2 -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
+FLAGS := -I. -march=core2 -mtune=haswell -mfpmath=sse -Wall -Wextra -Werror
 CCFLAGS :=
 CXXFLAGS :=
 OBJCFLAGS :=
@@ -26,7 +26,7 @@ OPT := -O2
 TESTOPT := -O1
 AR := ar
 ARFLAGS := -rsu
-LDFLAGS := -L$(BUILD)
+LDFLAGS := -L$(BUILD) -s
 LDLIBS :=
 EXE :=
 DEPENDS := dependencies.make
