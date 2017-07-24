@@ -297,11 +297,13 @@ $(STATICLIB): $(LIBOBJECTS)
 
 $(MAINAPP): $(APPOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
+	@rm -f $@
 	$(LD) $(FLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 	strip $@
 
 $(TESTAPP): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
+	@rm -f $@
 	$(LD) $(FLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
 	strip $@
 
