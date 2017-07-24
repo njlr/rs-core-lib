@@ -26,7 +26,7 @@ OPT := -O2
 TESTOPT := -O1
 AR := ar
 ARFLAGS := -rsu
-LDFLAGS := -L$(BUILD) -s
+LDFLAGS := -L$(BUILD)
 LDLIBS :=
 EXE :=
 DEPENDS := dependencies.make
@@ -298,10 +298,12 @@ $(STATICLIB): $(LIBOBJECTS)
 $(MAINAPP): $(APPOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	$(LD) $(FLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	strip $@
 
 $(TESTAPP): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	$(LD) $(FLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	strip $@
 
 $(NAME)/library.hpp: $(LIBHEADERS)
 	echo "#pragma once" > $@
