@@ -67,6 +67,7 @@ ifeq ($(CXX),clang++)
 	CXXFLAGS += -std=c++1z -stdlib=libc++
 else
 	CXXFLAGS += -std=gnu++1z
+	LDFLAGS += -s
 endif
 
 ifeq ($(XHOST),mingw)
@@ -299,13 +300,17 @@ $(MAINAPP): $(APPOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(LD) $(FLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
+ifeq ($(CXX),clang++)
 	strip $@
+endif
 
 $(TESTAPP): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(LD) $(FLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
+ifeq ($(CXX),clang++)
 	strip $@
+endif
 
 $(NAME)/library.hpp: $(LIBHEADERS)
 	echo "#pragma once" > $@
