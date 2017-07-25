@@ -576,34 +576,6 @@ namespace RS {
 
     // Arithmetic literals
 
-    namespace RS_Detail {
-
-        template <typename T, char C> constexpr T digit_value() noexcept {
-            return T(C >= '0' && C <= '9' ? C - '0'
-                : C >= 'A' && C <= 'Z' ? C - 'A' + 10
-                : C >= 'a' && C <= 'z' ? C - 'a' + 10 : -1);
-        }
-
-        template <typename T, int Base, char C, char... CS>
-        struct BaseInteger {
-            using prev_type = BaseInteger<T, Base, CS...>;
-            static constexpr T digit = digit_value<T, C>();
-            static constexpr T scale = prev_type::scale * (digit == T(-1) ? T(1) : T(Base));
-            static constexpr T value = prev_type::value + (digit == T(-1) ? T(0) : digit * scale);
-        };
-
-        template <typename T, int Base, char C>
-        struct BaseInteger<T, Base, C> {
-            static constexpr T scale = T(1);
-            static constexpr T value = digit_value<T, C>();
-        };
-
-        template <typename T, char... CS> struct MakeInteger: public BaseInteger<T, 10, CS...> {};
-        template <typename T, char... CS> struct MakeInteger<T, '0', 'x', CS...>: public BaseInteger<T, 16, CS...> {};
-        template <typename T, char... CS> struct MakeInteger<T, '0', 'X', CS...>: public BaseInteger<T, 16, CS...> {};
-
-    }
-
     namespace Literals {
 
         constexpr int8_t operator""_s8(unsigned long long n) noexcept { return int8_t(n); }
@@ -630,10 +602,10 @@ namespace RS {
 
     // Other constants
 
-    constexpr unsigned KB = 1024u;
-    constexpr unsigned long MB = 1'048'576ul;
-    constexpr unsigned long GB = 1'073'741'824ul;
-    constexpr unsigned long long TB = 1'099'511'627'776ull;
+    constexpr unsigned KB = 1u << 10;
+    constexpr unsigned long MB = 1ul << 20;
+    constexpr unsigned long GB = 1ul << 30;
+    constexpr unsigned long long TB = 1ull << 40;
 
     // [Algorithms and ranges]
 
