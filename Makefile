@@ -28,6 +28,7 @@ AR := ar
 ARFLAGS := -rsu
 LDFLAGS := -L$(BUILD)
 LDLIBS :=
+STRIP := @echo >/dev/null
 EXE :=
 DEPENDS := dependencies.make
 STATICLIB := $(BUILD)/lib$(NAME).a
@@ -65,6 +66,7 @@ endif
 
 ifeq ($(CXX),clang++)
 	CXXFLAGS += -std=c++1z -stdlib=libc++
+	STRIP := strip
 else
 	CXXFLAGS += -std=gnu++1z
 	LDFLAGS += -s
@@ -300,17 +302,13 @@ $(MAINAPP): $(APPOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(LD) $(FLAGS) $(DEFINES) $(OPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
-ifeq ($(CXX),clang++)
-	strip $@
-endif
+	$(STRIP) $@
 
 $(TESTAPP): $(TESTOBJECTS) $(STATICPART)
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(LD) $(FLAGS) $(DEFINES) $(TESTOPT) $(LDFLAGS) $^ $(LDLIBS) -o $@
-ifeq ($(CXX),clang++)
-	strip $@
-endif
+	$(STRIP) $@
 
 $(NAME)/library.hpp: $(LIBHEADERS)
 	echo "#pragma once" > $@
