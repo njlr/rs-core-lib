@@ -679,9 +679,6 @@ namespace {
         auto f = 123_u32;
         auto g = 123_s64;
         auto h = 123_u64;
-        auto i = 123_wc;
-        auto j = 123_c16;
-        auto k = 123_c32;
 
         TEST_TYPE_OF(a, int8_t);
         TEST_TYPE_OF(b, uint8_t);
@@ -691,9 +688,6 @@ namespace {
         TEST_TYPE_OF(f, uint32_t);
         TEST_TYPE_OF(g, int64_t);
         TEST_TYPE_OF(h, uint64_t);
-        TEST_TYPE_OF(i, wchar_t);
-        TEST_TYPE_OF(j, char16_t);
-        TEST_TYPE_OF(k, char32_t);
 
         TEST_EQUAL(a, int8_t(123));
         TEST_EQUAL(b, uint8_t(123));
@@ -703,9 +697,6 @@ namespace {
         TEST_EQUAL(f, uint32_t(123));
         TEST_EQUAL(g, int64_t(123));
         TEST_EQUAL(h, uint64_t(123));
-        TEST_EQUAL(i, wchar_t(123));
-        TEST_EQUAL(j, char16_t(123));
-        TEST_EQUAL(k, char32_t(123));
 
         ptrdiff_t t = 0;
         size_t z = 0;
