@@ -91,17 +91,26 @@ The comparison operators perform bytewise comparison by calling `memcmp()`.
 ## Stack ##
 
 * `template <typename T> class` **`Stack`**
-    * `Stack<T>::`**`Stack`**`()`
-    * `Stack<T>::`**`~Stack`**`()`
-    * `Stack<T>::`**`Stack`**`(Stack&& s)`
-    * `Stack& Stack<T>::`**`operator=`**`(Stack&& s)`
-    * `void Stack<T>::`**`clear`**`() noexcept`
-    * `bool Stack<T>::`**`empty`**`() const noexcept`
-    * `void Stack<T>::`**`pop`**`() noexcept`
-    * `void Stack<T>::`**`push`**`(const T& t)`
-    * `void Stack<T>::`**`push`**`(T&& t)`
-    * `size_t Stack<T>::`**`size`**`() const noexcept`
-    * `const T& Stack<T>::`**`top`**`() const noexcept`
+    * `using Stack::`**`const_iterator`** `= [random access iterator]`
+    * `using Stack::`**`iterator`** `= [random access iterator]`
+    * `using Stack::`**`value_type`** `= T`
+    * `Stack::`**`Stack`**`()`
+    * `Stack::`**`~Stack`**`() noexcept`
+    * `Stack::`**`Stack`**`(Stack&& s)`
+    * `Stack& Stack::`**`operator=`**`(Stack&& s)`
+    * `iterator Stack::`**`begin`**`() noexcept`
+    * `const_iterator Stack::`**`begin`**`() const noexcept`
+    * `iterator Stack::`**`end`**`() noexcept`
+    * `const_iterator Stack::`**`end`**`() const noexcept`
+    * `void Stack::`**`clear`**`() noexcept`
+    * `template <typename... Args> void Stack::`**`emplace`**`(Args&&... args)`
+    * `bool Stack::`**`empty`**`() const noexcept`
+    * `void Stack::`**`pop`**`() noexcept`
+    * `void Stack::`**`push`**`(const T& t)`
+    * `void Stack::`**`push`**`(T&& t)`
+    * `size_t Stack::`**`size`**`() const noexcept`
+    * `T& Stack::`**`top`**`() noexcept`
+    * `const T& Stack::`**`top`**`() const noexcept`
 
 A simple LIFO container, whose main function is to ensure that its elements
 are destroyed in reverse order of insertion (this is not guaranteed by any
