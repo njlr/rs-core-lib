@@ -377,8 +377,8 @@ These are all in `namespace RS::Literals`.
 * `constexpr uint32_t` **`operator""_u32`**`(unsigned long long n) noexcept`
 * `constexpr int64_t` **`operator""_s64`**`(unsigned long long n) noexcept`
 * `constexpr uint64_t` **`operator""_u64`**`(unsigned long long n) noexcept`
-* `constexpr ptrdiff_t` **`operator""_t`**`(unsigned long long n) noexcept`
-* `constexpr size_t` **`operator""_z`**`(unsigned long long n) noexcept`
+* `constexpr ptrdiff_t` **`operator""_pt`**`(unsigned long long n) noexcept`
+* `constexpr size_t` **`operator""_sz`**`(unsigned long long n) noexcept`
 
 Integer literals.
 

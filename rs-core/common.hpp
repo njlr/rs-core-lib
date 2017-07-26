@@ -586,8 +586,8 @@ namespace RS {
         constexpr uint32_t operator""_u32(unsigned long long n) noexcept { return uint32_t(n); }
         constexpr int64_t operator""_s64(unsigned long long n) noexcept { return int64_t(n); }
         constexpr uint64_t operator""_u64(unsigned long long n) noexcept { return uint64_t(n); }
-        constexpr ptrdiff_t operator""_t(unsigned long long n) noexcept { return ptrdiff_t(n); }
-        constexpr size_t operator""_z(unsigned long long n) noexcept { return size_t(n); }
+        constexpr ptrdiff_t operator""_pt(unsigned long long n) noexcept { return ptrdiff_t(n); }
+        constexpr size_t operator""_sz(unsigned long long n) noexcept { return size_t(n); }
 
     }
 
