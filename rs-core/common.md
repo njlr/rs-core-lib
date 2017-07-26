@@ -367,18 +367,17 @@ string element.
 
 ### Arithmetic literals ###
 
-These are all in `namespace RS::Literals`.
-
-* `constexpr int8_t` **`operator""_s8`**`(unsigned long long n) noexcept`
-* `constexpr uint8_t` **`operator""_u8`**`(unsigned long long n) noexcept`
-* `constexpr int16_t` **`operator""_s16`**`(unsigned long long n) noexcept`
-* `constexpr uint16_t` **`operator""_u16`**`(unsigned long long n) noexcept`
-* `constexpr int32_t` **`operator""_s32`**`(unsigned long long n) noexcept`
-* `constexpr uint32_t` **`operator""_u32`**`(unsigned long long n) noexcept`
-* `constexpr int64_t` **`operator""_s64`**`(unsigned long long n) noexcept`
-* `constexpr uint64_t` **`operator""_u64`**`(unsigned long long n) noexcept`
-* `constexpr ptrdiff_t` **`operator""_pt`**`(unsigned long long n) noexcept`
-* `constexpr size_t` **`operator""_sz`**`(unsigned long long n) noexcept`
+* `namespace RS::`**`Literals`**
+    * `constexpr int8_t` **`operator""_s8`**`(unsigned long long n) noexcept`
+    * `constexpr uint8_t` **`operator""_u8`**`(unsigned long long n) noexcept`
+    * `constexpr int16_t` **`operator""_s16`**`(unsigned long long n) noexcept`
+    * `constexpr uint16_t` **`operator""_u16`**`(unsigned long long n) noexcept`
+    * `constexpr int32_t` **`operator""_s32`**`(unsigned long long n) noexcept`
+    * `constexpr uint32_t` **`operator""_u32`**`(unsigned long long n) noexcept`
+    * `constexpr int64_t` **`operator""_s64`**`(unsigned long long n) noexcept`
+    * `constexpr uint64_t` **`operator""_u64`**`(unsigned long long n) noexcept`
+    * `constexpr ptrdiff_t` **`operator""_pt`**`(unsigned long long n) noexcept`
+    * `constexpr size_t` **`operator""_sz`**`(unsigned long long n) noexcept`
 
 Integer literals.
 

@@ -17,8 +17,8 @@
 <li><a href="#core-floating-point">Core Floating Point</a><ul>
 <li><a href="#contents">Contents</a></li>
 <li><a href="#arithmetic-constants">Arithmetic constants</a></li>
+<li><a href="#arithmetic-functions">Arithmetic functions</a></li>
 <li><a href="#arithmetic-literals">Arithmetic literals</a></li>
-<li><a href="#floating-point-arithmetic-functions">Floating point arithmetic functions</a></li>
 </ul>
 </li>
 </ul>
@@ -126,19 +126,7 @@ constants.</p>
 </li>
 </ul>
 </div>
-<h2 id="arithmetic-literals">Arithmetic literals</h2>
-<div class="defns">
-<ul>
-<li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(long double x) noexcept</code></li>
-<li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(unsigned long long x) noexcept</code></li>
-<li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>long double x) noexcept</code></li>
-<li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>unsigned long long x) noexcept</code></li>
-<li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(long double x) noexcept</code></li>
-<li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(unsigned long long x) noexcept</code></li>
-</ul>
-<p>Angle literals, converting degrees to radians.</p>
-</div>
-<h2 id="floating-point-arithmetic-functions">Floating point arithmetic functions</h2>
+<h2 id="arithmetic-functions">Arithmetic functions</h2>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; constexpr T</code> <strong><code>degrees</code></strong><code>(T rad) noexcept</code></li>
@@ -164,5 +152,20 @@ result is not representable by the return type.</p>
 <p>Rounds the argument toward positive infinity (<code>iceil()</code>), toward negative
 infinity (<code>ifloor()</code>), or to the nearest integer (<code>iround()</code>; halves round
 up), converting the result to the specified return type. The usual arithmetic
-rules apply if the result is not representable by the return type.</p></body>
+rules apply if the result is not representable by the return type.</p>
+</div>
+<h2 id="arithmetic-literals">Arithmetic literals</h2>
+<div class="defns">
+<ul>
+<li><code>namespace RS::</code><strong><code>Literals</code></strong><ul>
+<li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(long double x) noexcept</code></li>
+<li><code>constexpr float</code> <strong><code>operator""_degf</code></strong><code>(unsigned long long x) noexcept</code></li>
+<li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>long double x) noexcept</code></li>
+<li><code>constexpr double</code> <strong><code>operator""_deg(</code></strong><code>unsigned long long x) noexcept</code></li>
+<li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(long double x) noexcept</code></li>
+<li><code>constexpr long double</code> <strong><code>operator""_degl</code></strong><code>(unsigned long long x) noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>Angle literals, converting degrees to radians.</p></body>
 </html>

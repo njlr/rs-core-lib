@@ -97,18 +97,7 @@ constants.
     * **`sidereal_year`** _= 31558150 s_
     * **`tropical_year`** _= 31556925 s_
 
-## Arithmetic literals ##
-
-* `constexpr float` **`operator""_degf`**`(long double x) noexcept`
-* `constexpr float` **`operator""_degf`**`(unsigned long long x) noexcept`
-* `constexpr double` **`operator""_deg(`**`long double x) noexcept`
-* `constexpr double` **`operator""_deg(`**`unsigned long long x) noexcept`
-* `constexpr long double` **`operator""_degl`**`(long double x) noexcept`
-* `constexpr long double` **`operator""_degl`**`(unsigned long long x) noexcept`
-
-Angle literals, converting degrees to radians.
-
-## Floating point arithmetic functions ##
+## Arithmetic functions ##
 
 * `template <typename T> constexpr T` **`degrees`**`(T rad) noexcept`
 * `template <typename T> constexpr T` **`radians`**`(T deg) noexcept`
@@ -130,3 +119,15 @@ Rounds the argument toward positive infinity (`iceil()`), toward negative
 infinity (`ifloor()`), or to the nearest integer (`iround()`; halves round
 up), converting the result to the specified return type. The usual arithmetic
 rules apply if the result is not representable by the return type.
+
+## Arithmetic literals ##
+
+* `namespace RS::`**`Literals`**
+    * `constexpr float` **`operator""_degf`**`(long double x) noexcept`
+    * `constexpr float` **`operator""_degf`**`(unsigned long long x) noexcept`
+    * `constexpr double` **`operator""_deg(`**`long double x) noexcept`
+    * `constexpr double` **`operator""_deg(`**`unsigned long long x) noexcept`
+    * `constexpr long double` **`operator""_degl`**`(long double x) noexcept`
+    * `constexpr long double` **`operator""_degl`**`(unsigned long long x) noexcept`
+
+Angle literals, converting degrees to radians.

@@ -20,31 +20,7 @@ namespace {
 
     }
 
-    void check_arithmetic_literals() {
-
-        TEST_EQUAL(0_deg, 0.0);
-        TEST_NEAR(45_deg, 0.785398);
-        TEST_NEAR(90_deg, 1.570796);
-        TEST_NEAR(180_deg, 3.141593);
-        TEST_NEAR(360_deg, 6.283185);
-        TEST_NEAR(-45_deg, -0.785398);
-        TEST_NEAR(-90_deg, -1.570796);
-        TEST_NEAR(-180_deg, -3.141593);
-        TEST_NEAR(-360_deg, -6.283185);
-
-        TEST_EQUAL(0.0_deg, 0.0);
-        TEST_NEAR(45.0_deg, 0.785398);
-        TEST_NEAR(90.0_deg, 1.570796);
-        TEST_NEAR(180.0_deg, 3.141593);
-        TEST_NEAR(360.0_deg, 6.283185);
-        TEST_NEAR(-45.0_deg, -0.785398);
-        TEST_NEAR(-90.0_deg, -1.570796);
-        TEST_NEAR(-180.0_deg, -3.141593);
-        TEST_NEAR(-360.0_deg, -6.283185);
-
-    }
-
-    void check_floating_point_arithmetic_functions() {
+    void check_arithmetic_functions() {
 
         TEST_EQUAL(degrees(0.0), 0);
         TEST_NEAR(degrees(1.0), 57.295780);
@@ -109,12 +85,36 @@ namespace {
 
     }
 
+    void check_arithmetic_literals() {
+
+        TEST_EQUAL(0_deg, 0.0);
+        TEST_NEAR(45_deg, 0.785398);
+        TEST_NEAR(90_deg, 1.570796);
+        TEST_NEAR(180_deg, 3.141593);
+        TEST_NEAR(360_deg, 6.283185);
+        TEST_NEAR(-45_deg, -0.785398);
+        TEST_NEAR(-90_deg, -1.570796);
+        TEST_NEAR(-180_deg, -3.141593);
+        TEST_NEAR(-360_deg, -6.283185);
+
+        TEST_EQUAL(0.0_deg, 0.0);
+        TEST_NEAR(45.0_deg, 0.785398);
+        TEST_NEAR(90.0_deg, 1.570796);
+        TEST_NEAR(180.0_deg, 3.141593);
+        TEST_NEAR(360.0_deg, 6.283185);
+        TEST_NEAR(-45.0_deg, -0.785398);
+        TEST_NEAR(-90.0_deg, -1.570796);
+        TEST_NEAR(-180.0_deg, -3.141593);
+        TEST_NEAR(-360.0_deg, -6.283185);
+
+    }
+
 }
 
 TEST_MODULE(core, float) {
 
     check_arithmetic_constants();
+    check_arithmetic_functions();
     check_arithmetic_literals();
-    check_floating_point_arithmetic_functions();
 
 }

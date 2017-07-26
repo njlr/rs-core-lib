@@ -88,20 +88,7 @@ namespace RS {
     RS_DEFINE_CONSTANT(sidereal_year,      31'558'149.7635);     // s
     RS_DEFINE_CONSTANT(tropical_year,      31'556'925.19);       // s
 
-    // Arithmetic literals
-
-    namespace Literals {
-
-        constexpr float operator""_degf(long double x) noexcept { return float(x * (pi_ld / 180.0L)); }
-        constexpr float operator""_degf(unsigned long long x) noexcept { return float(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        constexpr double operator""_deg(long double x) noexcept { return double(x * (pi_ld / 180.0L)); }
-        constexpr double operator""_deg(unsigned long long x) noexcept { return double(static_cast<long double>(x) * (pi_ld / 180.0L)); }
-        constexpr long double operator""_degl(long double x) noexcept { return x * (pi_ld / 180.0L); }
-        constexpr long double operator""_degl(unsigned long long x) noexcept { return static_cast<long double>(x) * (pi_ld / 180.0L); }
-
-    }
-
-    // Floating point arithmetic functions
+    // Arithmetic functions
 
     namespace RS_Detail {
 
@@ -134,5 +121,18 @@ namespace RS {
     template <typename T2, typename T1> T2 iceil(T1 value) noexcept { return RS_Detail::Round<T2, T1, '>'>()(value); }
     template <typename T2, typename T1> T2 ifloor(T1 value) noexcept { return RS_Detail::Round<T2, T1, '<'>()(value); }
     template <typename T2, typename T1> T2 iround(T1 value) noexcept { return RS_Detail::Round<T2, T1, '='>()(value); }
+
+    // Arithmetic literals
+
+    namespace Literals {
+
+        constexpr float operator""_degf(long double x) noexcept { return (float)radians(x); }
+        constexpr float operator""_degf(unsigned long long x) noexcept { return (float)radians((long double)x); }
+        constexpr double operator""_deg(long double x) noexcept { return (double)radians(x); }
+        constexpr double operator""_deg(unsigned long long x) noexcept { return (double)radians((long double)x); }
+        constexpr long double operator""_degl(long double x) noexcept { return radians(x); }
+        constexpr long double operator""_degl(unsigned long long x) noexcept { return radians((long double)x); }
+
+    }
 
 }
