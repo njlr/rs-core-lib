@@ -25,9 +25,9 @@ namespace {
 
         int x = 0;
         Int3 v1(1), v2, v3;
-        const Int3& cv1(v1);
-        const Int3& cv2(v2);
-        const Int3& cv3(v3);
+        const Int3& cv1 = v1;
+        const Int3& cv2 = v2;
+        const Int3& cv3 = v3;
 
         TEST_EQUAL(sizeof(Int3), 3 * sizeof(int));
 
@@ -89,19 +89,16 @@ namespace {
         TRY((v1 = {2,3,5}));
         TRY((v2 = {7,11,13}));
 
-        TRY(v3 = + v1);          TEST_EQUAL(to_str(v3), "[2,3,5]");
-        TRY(v3 = - v1);          TEST_EQUAL(to_str(v3), "[-2,-3,-5]");
-        TRY(v3 = v1 + v2);       TEST_EQUAL(to_str(v3), "[9,14,18]");
-        TRY(v3 = v1 - v2);       TEST_EQUAL(to_str(v3), "[-5,-8,-8]");
-        TRY(v3 = 17 * v1);       TEST_EQUAL(to_str(v3), "[34,51,85]");
-        TRY(v3 = v1 * 19);       TEST_EQUAL(to_str(v3), "[38,57,95]");
-        TRY(x = v1 * v2);        TEST_EQUAL(x, 112);
-        TRY(v3 = v1 % v2);       TEST_EQUAL(to_str(v3), "[-16,9,1]");
-        TRY(v3 = emul(v1, v2));  TEST_EQUAL(to_str(v3), "[14,33,65]");
-        TRY(v3 = ediv(v2, v1));  TEST_EQUAL(to_str(v3), "[3,3,2]");
-
-        TEST_EQUAL(v1.sum(), 10);
-        TEST_EQUAL(v2.sum(), 31);
+        TRY(v3 = + v1);     TEST_EQUAL(to_str(v3), "[2,3,5]");
+        TRY(v3 = - v1);     TEST_EQUAL(to_str(v3), "[-2,-3,-5]");
+        TRY(v3 = v1 + v2);  TEST_EQUAL(to_str(v3), "[9,14,18]");
+        TRY(v3 = v1 - v2);  TEST_EQUAL(to_str(v3), "[-5,-8,-8]");
+        TRY(v3 = 17 * v1);  TEST_EQUAL(to_str(v3), "[34,51,85]");
+        TRY(v3 = v1 * 19);  TEST_EQUAL(to_str(v3), "[38,57,95]");
+        TRY(x = v1 % v2);   TEST_EQUAL(x, 112);
+        TRY(v3 = v1 ^ v2);  TEST_EQUAL(to_str(v3), "[-16,9,1]");
+        TRY(v3 = v1 * v2);  TEST_EQUAL(to_str(v3), "[14,33,65]");
+        TRY(v3 = v2 / v1);  TEST_EQUAL(to_str(v3), "[3,3,2]");
 
         TRY(v3 = Int3::unit(0));  TEST_EQUAL(to_str(v3), "[1,0,0]");
         TRY(v3 = Int3::unit(1));  TEST_EQUAL(to_str(v3), "[0,1,0]");
@@ -130,16 +127,6 @@ namespace {
         TRY(s4 = v1["xxxx"]);  TEST_EQUAL(to_str(s4), "[1,1,1,1]");
         TRY(s4 = v1["yyyy"]);  TEST_EQUAL(to_str(s4), "[2,2,2,2]");
         TRY(s4 = v1["zzzz"]);  TEST_EQUAL(to_str(s4), "[3,3,3,3]");
-
-        Uint8_3 u1, u2, u3;
-
-        TRY((u1 = {8,8,8}));
-        TRY((u2 = {0,9,15}));
-
-        TRY(u3 = ~ u2);     TEST_EQUAL(to_str(u3), "[255,246,240]");
-        TRY(u3 = u1 & u2);  TEST_EQUAL(to_str(u3), "[0,8,8]");
-        TRY(u3 = u1 | u2);  TEST_EQUAL(to_str(u3), "[8,9,15]");
-        TRY(u3 = u1 ^ u2);  TEST_EQUAL(to_str(u3), "[8,1,7]");
 
     }
 
@@ -218,16 +205,13 @@ namespace {
         TRY(v3 = 17 * v1);       TEST_EQUAL(to_str(v3), "[34,51,85]");
         TRY(v3 = v1 * 19);       TEST_EQUAL(to_str(v3), "[38,57,95]");
         TRY(v3 = v1 / 23);       TEST_EQUAL(to_str(v3), "[0.0869565,0.130435,0.217391]");
-        TRY(x = v1 * v2);        TEST_EQUAL(x, 112);
-        TRY(v3 = v1 % v2);       TEST_EQUAL(to_str(v3), "[-16,9,1]");
-        TRY(v3 = emul(v1, v2));  TEST_EQUAL(to_str(v3), "[14,33,65]");
-        TRY(v3 = ediv(v1, v2));  TEST_EQUAL(to_str(v3), "[0.285714,0.272727,0.384615]");
+        TRY(x = v1 % v2);        TEST_EQUAL(x, 112);
+        TRY(v3 = v1 ^ v2);       TEST_EQUAL(to_str(v3), "[-16,9,1]");
+        TRY(v3 = v1 * v2);  TEST_EQUAL(to_str(v3), "[14,33,65]");
+        TRY(v3 = v1 / v2);  TEST_EQUAL(to_str(v3), "[0.285714,0.272727,0.384615]");
 
         TEST_EQUAL(v1.r2(), 38);   TEST_NEAR(v1.r(), 6.164414);
         TEST_EQUAL(v2.r2(), 339);  TEST_NEAR(v2.r(), 18.411953);
-
-        TEST_EQUAL(v1.sum(), 10);
-        TEST_EQUAL(v2.sum(), 31);
 
         TRY(v3 = Double3::unit(0));  TEST_EQUAL(to_str(v3), "[1,0,0]");
         TRY(v3 = Double3::unit(1));  TEST_EQUAL(to_str(v3), "[0,1,0]");
@@ -249,9 +233,9 @@ namespace {
         TRY(v3 = v1.project(v2));
         TRY(v4 = v1.reject(v2));
         TEST_NEAR_RANGE(v3 + v4, v1);
-        TEST_NEAR_RANGE(v2 % v3, Double3());
-        TEST_NEAR(v2 * v4, 0);
-        TEST_NEAR(v3 * v4, 0);
+        TEST_NEAR_RANGE(v2 ^ v3, Double3());
+        TEST_NEAR(v2 % v4, 0);
+        TEST_NEAR(v3 % v4, 0);
 
     }
 

@@ -99,47 +99,34 @@ null terminator).
 
 Unary arithmetic operators.
 
-* `Vector& Vector::`**`operator+=`**`(const Vector& rhs) noexcept`
-* `Vector& Vector::`**`operator-=`**`(const Vector& rhs) noexcept`
-* `Vector& Vector::`**`operator%=`**`(const Vector& rhs) noexcept`
-* `template <typename T, size_t N> Vector<T, N>` **`operator+`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, size_t N> Vector<T, N>` **`operator-`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, size_t N> T` **`operator*`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T> Vector<T, 3>` **`operator%`**`(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) noexcept`
-* `template <typename T, size_t N> T` **`dot`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T> Vector<T, 3>` **`cross`**`(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) noexcept`
+* `template <typename T1, typename T2> Vector<T1, 3>` **`operator^`**`(const Vector<T1, 3>& lhs, const Vector<T2, 3>& rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> T1` **`operator%`**`(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept`
 
-Vector arithmetic operators and functions. The `*` and `%` operators are
-equivalent to `dot()` and `cross()` respectively; `operator%`, `operator%=`
-and `cross()` are defined only for `N=3`.
+Vector cross (`^`) and dot (`%`) product operators. Multiplication between
+`T1` and `T2` must be defined.
+
+* `template <typename T2> Vector& Vector::`**`operator+=`**`(const Vector<T2, N>& rhs) noexcept`
+* `template <typename T2> Vector& Vector::`**`operator-=`**`(const Vector<T2, N>& rhs) noexcept`
+* `template <typename T2> Vector& Vector::`**`operator*=`**`(const Vector<T2, N>& rhs) noexcept`
+* `template <typename T2> Vector& Vector::`**`operator/=`**`(const Vector<T2, N>& rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator+`**`(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator-`**`(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator*`**`(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator/`**`(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept`
+
+Element-wise arithmetic operators. In each case the corresponding operation
+between `T1` and `T2` must be defined. Behaviour is undefined on division by
+zero.
 
 * `template <typename T2> Vector& Vector::`**`operator*=`**`(T2 rhs) noexcept`
 * `template <typename T2> Vector& Vector::`**`operator/=`**`(T2 rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator*`**`(const Vector<T, N>& lhs, T2 rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator*`**`(T2 lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator/`**`(const Vector<T, N>& lhs, T2 rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator*`**`(const Vector<T1, N>& lhs, T2 rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T2, N>` **`operator*`**`(T1 lhs, const Vector<T2, N>& rhs) noexcept`
+* `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator/`**`(const Vector<T1, N>& lhs, T2 rhs) noexcept`
 
-Vector-scalar arithmetic operators. `T2` must be implicitly convertible to `T`.
-
-* `Vector Vector::`**`operator~`**`() const noexcept`
-* `Vector& Vector::`**`operator&=`**`(const Vector& rhs) noexcept`
-* `Vector& Vector::`**`operator|=`**`(const Vector& rhs) noexcept`
-* `Vector& Vector::`**`operator^=`**`(const Vector& rhs) noexcept`
-* `template <typename T2> Vector& Vector::`**`operator&=`**`(T2 rhs) noexcept`
-* `template <typename T2> Vector& Vector::`**`operator|=`**`(T2 rhs) noexcept`
-* `template <typename T2> Vector& Vector::`**`operator^=`**`(T2 rhs) noexcept`
-* `template <typename T, size_t N> Vector<T, N>` **`operator&`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, size_t N> Vector<T, N>` **`operator|`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, size_t N> Vector<T, N>` **`operator^`**`(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator&`**`(const Vector<T, N>& lhs, T2 rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator|`**`(const Vector<T, N>& lhs, T2 rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator^`**`(const Vector<T, N>& lhs, T2 rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator&`**`(T2 lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator|`**`(T2 lhs, const Vector<T, N>& rhs) noexcept`
-* `template <typename T, typename T2, size_t N> Vector<T, N>` **`operator^`**`(T2 lhs, const Vector<T, N>& rhs) noexcept`
-
-Bitwise operations on vector elements. These require the corresponding
-operations to be defined on `T`.
+Vector-scalar arithmetic operators. In each case the corresponding operation
+between `T1` and `T2` must be defined. Behaviour is undefined on division by
+zero.
 
 * `T Vector::`**`angle`**`(const Vector& v) const noexcept`
 
@@ -152,13 +139,6 @@ type.
 Returns a unit vector parallel to this vector (or an approximation to it,
 given the limits of floating point arithmetic). This requires `T` to be a
 floating point type.
-
-* `Vector` **`emul`**`(const Vector& lhs, const Vector& rhs) noexcept`
-* `Vector` **`ediv`**`(const Vector& lhs, const Vector& rhs) noexcept`
-
-Element-wise multiplication and division operations (also called pointwise or
-Hadamard operations). Behaviour is undefined if any element of the divisor in
-`ediv()` is zero.
 
 * `bool Vector::`**`is_null`**`() const noexcept`
 
@@ -180,10 +160,6 @@ requires `T` to be a floating point type.
 * `constexpr size_t Vector::`**`size`**`() const noexcept`
 
 Returns `N`.
-
-* `T Vector::`**`sum`**`() const noexcept`
-
-Returns the sum of the vector's elements.
 
 * `static Vector Vector::`**`unit`**`(size_t i) noexcept`
 
@@ -301,12 +277,12 @@ Unary arithmetic operators.
 
 * `Matrix& Matrix::`**`operator+=`**`(const Matrix& rhs) noexcept`
 * `Matrix& Matrix::`**`operator-=`**`(const Matrix& rhs) noexcept`
-* `Matrix& Matrix::`**`operator*=`**`(const Matrix& rhs) noexcept`
 * `Matrix` **`operator+`**`(const Matrix& lhs, const Matrix& rhs) noexcept`
 * `Matrix` **`operator-`**`(const Matrix& lhs, const Matrix& rhs) noexcept`
 * `Matrix` **`operator*`**`(const Matrix& lhs, const Matrix& rhs) noexcept`
 
-Matrix arithmetic operators.
+Matrix arithmetic operators. No `operator*=` is provided because matrices are
+normally pre-multiplied.
 
 * `template <typename T1, typename T2, size_t N> Vector<T2, N>` **`operator*`**`(const Matrix<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept`
 * `template <typename T1, typename T2, size_t N> Vector<T1, N>` **`operator*`**`(const Vector<T1, N>& lhs, const Matrix<T2, N>& rhs) noexcept`

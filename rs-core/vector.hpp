@@ -33,17 +33,12 @@ namespace RS {
         template <size_t N2> Vector<T, N2 - 1> operator[](const char (&str)[N2]) const;
         Vector operator+() const noexcept { return *this; }
         Vector operator-() const noexcept;
-        Vector operator~() const noexcept;
-        Vector& operator+=(const Vector& rhs) noexcept;
-        Vector& operator-=(const Vector& rhs) noexcept;
+        template <typename T2> Vector& operator+=(const Vector<T2, N>& rhs) noexcept;
+        template <typename T2> Vector& operator-=(const Vector<T2, N>& rhs) noexcept;
+        template <typename T2> Vector& operator*=(const Vector<T2, N>& rhs) noexcept;
+        template <typename T2> Vector& operator/=(const Vector<T2, N>& rhs) noexcept;
         template <typename T2> Vector& operator*=(T2 rhs) noexcept;
         template <typename T2> Vector& operator/=(T2 rhs) noexcept;
-        Vector& operator&=(const Vector& rhs) noexcept;
-        Vector& operator|=(const Vector& rhs) noexcept;
-        Vector& operator^=(const Vector& rhs) noexcept;
-        template <typename T2> Vector& operator&=(T2 rhs) noexcept;
-        template <typename T2> Vector& operator|=(T2 rhs) noexcept;
-        template <typename T2> Vector& operator^=(T2 rhs) noexcept;
         T& at(size_t i) { range_check(i); return data[i]; }
         const T& at(size_t i) const { range_check(i); return data[i]; }
         T& x() noexcept { return data[0]; }
@@ -61,12 +56,11 @@ namespace RS {
         T angle(const Vector& v) const noexcept;
         Vector dir() const noexcept { return *this == Vector() ? Vector() : *this / r(); }
         bool is_null() const noexcept { return *this == Vector(); }
-        Vector project(const Vector& v) const noexcept { return v == Vector() ? Vector() : v * ((*this * v) / (v * v)); }
+        Vector project(const Vector& v) const noexcept { return v == Vector() ? Vector() : v * ((*this % v) / (v % v)); }
         Vector reject(const Vector& v) const noexcept { return *this - project(v); }
         T r() const noexcept { return std::sqrt(r2()); }
         T r2() const noexcept { return std::inner_product(begin(), end(), begin(), T(0)); }
         constexpr size_t size() const noexcept { return N; }
-        T sum() const noexcept { return std::accumulate(begin(), end(), T(0)); }
         static Vector unit(size_t i) noexcept;
         static Vector zero() noexcept { return {}; }
     private:
@@ -136,23 +130,34 @@ namespace RS {
     }
 
     template <typename T, size_t N>
-    Vector<T, N> Vector<T, N>::operator~() const noexcept {
-        Vector v;
-        std::transform(begin(), end(), v.begin(), [] (T t) { return ~ t; });
-        return v;
-    }
-
-    template <typename T, size_t N>
-    Vector<T, N>& Vector<T, N>::operator+=(const Vector& rhs) noexcept {
+    template <typename T2>
+    Vector<T, N>& Vector<T, N>::operator+=(const Vector<T2, N>& rhs) noexcept {
         for (size_t i = 0; i < N; ++i)
             (*this)[i] += rhs[i];
         return *this;
     }
 
     template <typename T, size_t N>
-    Vector<T, N>& Vector<T, N>::operator-=(const Vector& rhs) noexcept {
+    template <typename T2>
+    Vector<T, N>& Vector<T, N>::operator-=(const Vector<T2, N>& rhs) noexcept {
         for (size_t i = 0; i < N; ++i)
             (*this)[i] -= rhs[i];
+        return *this;
+    }
+
+    template <typename T, size_t N>
+    template <typename T2>
+    Vector<T, N>& Vector<T, N>::operator*=(const Vector<T2, N>& rhs) noexcept {
+        for (size_t i = 0; i < N; ++i)
+            (*this)[i] *= rhs[i];
+        return *this;
+    }
+
+    template <typename T, size_t N>
+    template <typename T2>
+    Vector<T, N>& Vector<T, N>::operator/=(const Vector<T2, N>& rhs) noexcept {
+        for (size_t i = 0; i < N; ++i)
+            (*this)[i] /= rhs[i];
         return *this;
     }
 
@@ -171,53 +176,11 @@ namespace RS {
     }
 
     template <typename T, size_t N>
-    Vector<T, N>& Vector<T, N>::operator&=(const Vector& rhs) noexcept {
-        for (size_t i = 0; i < N; ++i)
-            (*this)[i] &= rhs[i];
-        return *this;
-    }
-
-    template <typename T, size_t N>
-    Vector<T, N>& Vector<T, N>::operator|=(const Vector& rhs) noexcept {
-        for (size_t i = 0; i < N; ++i)
-            (*this)[i] |= rhs[i];
-        return *this;
-    }
-
-    template <typename T, size_t N>
-    Vector<T, N>& Vector<T, N>::operator^=(const Vector& rhs) noexcept {
-        for (size_t i = 0; i < N; ++i)
-            (*this)[i] ^= rhs[i];
-        return *this;
-    }
-
-    template <typename T, size_t N>
-    template <typename T2>
-    Vector<T, N>& Vector<T, N>::operator&=(T2 rhs) noexcept {
-        std::for_each(begin(), end(), [rhs] (T& t) { t &= rhs; });
-        return *this;
-    }
-
-    template <typename T, size_t N>
-    template <typename T2>
-    Vector<T, N>& Vector<T, N>::operator|=(T2 rhs) noexcept {
-        std::for_each(begin(), end(), [rhs] (T& t) { t |= rhs; });
-        return *this;
-    }
-
-    template <typename T, size_t N>
-    template <typename T2>
-    Vector<T, N>& Vector<T, N>::operator^=(T2 rhs) noexcept {
-        std::for_each(begin(), end(), [rhs] (T& t) { t ^= rhs; });
-        return *this;
-    }
-
-    template <typename T, size_t N>
     T Vector<T, N>::angle(const Vector& v) const noexcept {
         if (is_null() || v.is_null())
             return T(0);
         else
-            return std::acos(dot(*this, v) / std::sqrt(r2() * v.r2()));
+            return std::acos(*this % v / std::sqrt(r2() * v.r2()));
     }
 
     template <typename T, size_t N>
@@ -227,145 +190,65 @@ namespace RS {
         return v;
     }
 
-    template <typename T, size_t N>
-    Vector<T, N> operator+(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
-        auto v = lhs;
-        v += rhs;
-        return v;
-    }
 
-    template <typename T, size_t N>
-    Vector<T, N> operator-(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
-        auto v = lhs;
-        v -= rhs;
-        return v;
-    }
-
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator*(const Vector<T, N>& lhs, T2 rhs) noexcept {
-        auto v = lhs;
-        v *= rhs;
-        return v;
-    }
-
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator*(T2 lhs, const Vector<T, N>& rhs) noexcept {
-        auto v = rhs;
-        v *= lhs;
-        return v;
-    }
-
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator/(const Vector<T, N>& lhs, T2 rhs) noexcept {
-        auto v = lhs;
-        v /= rhs;
-        return v;
-    }
-
-    template <typename T, size_t N>
-    T dot(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
-        return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), T(0));
-    }
-
-    template <typename T, size_t N>
-    T operator*(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
-        return dot(lhs, rhs);
-    }
-
-    template <typename T>
-    Vector<T, 3> cross(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) noexcept {
+    template <typename T1, typename T2>
+    Vector<T1, 3> operator^(const Vector<T1, 3>& lhs, const Vector<T2, 3>& rhs) noexcept {
         return {lhs[1] * rhs[2] - lhs[2] * rhs[1],
                 lhs[2] * rhs[0] - lhs[0] * rhs[2],
                 lhs[0] * rhs[1] - lhs[1] * rhs[0]};
     }
 
-    template <typename T>
-    Vector<T, 3> operator%(const Vector<T, 3>& lhs, const Vector<T, 3>& rhs) noexcept {
-        return cross(lhs, rhs);
+    template <typename T1, typename T2, size_t N>
+    T1 operator%(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept {
+        return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), T1(0));
     }
 
-    template <typename T>
-    Vector<T, 3>& operator%=(Vector<T, 3>& lhs, const Vector<T, 3>& rhs) noexcept {
-        lhs = cross(lhs, rhs);
-        return lhs;
-    }
-
-    template <typename T, size_t N>
-    Vector<T, N> emul(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
-        Vector<T, N> v;
-        for (size_t i = 0; i < N; ++i)
-            v[i] = lhs[i] * rhs[i];
-        return v;
-    }
-
-    template <typename T, size_t N>
-    Vector<T, N> ediv(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
-        Vector<T, N> v;
-        for (size_t i = 0; i < N; ++i)
-            v[i] = lhs[i] / rhs[i];
-        return v;
-    }
-
-    template <typename T, size_t N>
-    Vector<T, N> operator&(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
+    template <typename T1, typename T2, size_t N>
+    Vector<T1, N> operator+(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept {
         auto v = lhs;
-        v &= rhs;
+        v += rhs;
         return v;
     }
 
-    template <typename T, size_t N>
-    Vector<T, N> operator|(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
+    template <typename T1, typename T2, size_t N>
+    Vector<T1, N> operator-(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept {
         auto v = lhs;
-        v |= rhs;
+        v -= rhs;
         return v;
     }
 
-    template <typename T, size_t N>
-    Vector<T, N> operator^(const Vector<T, N>& lhs, const Vector<T, N>& rhs) noexcept {
+    template <typename T1, typename T2, size_t N>
+    Vector<T1, N> operator*(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept {
         auto v = lhs;
-        v ^= rhs;
+        v *= rhs;
         return v;
     }
 
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator&(const Vector<T, N>& lhs, T2 rhs) noexcept {
+    template <typename T1, typename T2, size_t N>
+    Vector<T1, N> operator/(const Vector<T1, N>& lhs, const Vector<T2, N>& rhs) noexcept {
         auto v = lhs;
-        v &= rhs;
+        v /= rhs;
         return v;
     }
 
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator|(const Vector<T, N>& lhs, T2 rhs) noexcept {
+    template <typename T1, typename T2, size_t N>
+    Vector<T1, N> operator*(const Vector<T1, N>& lhs, T2 rhs) noexcept {
         auto v = lhs;
-        v |= rhs;
+        v *= rhs;
         return v;
     }
 
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator^(const Vector<T, N>& lhs, T2 rhs) noexcept {
+    template <typename T1, typename T2, size_t N>
+    Vector<T2, N> operator*(T1 lhs, const Vector<T2, N>& rhs) noexcept {
+        Vector<T2, N> v(lhs);
+        v *= rhs;
+        return v;
+    }
+
+    template <typename T1, typename T2, size_t N>
+    Vector<T1, N> operator/(const Vector<T1, N>& lhs, T2 rhs) noexcept {
         auto v = lhs;
-        v ^= rhs;
-        return v;
-    }
-
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator&(T2 lhs, const Vector<T, N>& rhs) noexcept {
-        auto v = rhs;
-        v &= lhs;
-        return v;
-    }
-
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator|(T2 lhs, const Vector<T, N>& rhs) noexcept {
-        auto v = rhs;
-        v |= lhs;
-        return v;
-    }
-
-    template <typename T, typename T2, size_t N>
-    Vector<T, N> operator^(T2 lhs, const Vector<T, N>& rhs) noexcept {
-        auto v = rhs;
-        v ^= lhs;
+        v /= rhs;
         return v;
     }
 
@@ -631,7 +514,6 @@ namespace RS {
         Matrix& operator+=(const alt_matrix& rhs) noexcept;
         Matrix& operator-=(const Matrix& rhs) noexcept;
         Matrix& operator-=(const alt_matrix& rhs) noexcept;
-        template <MatrixLayout L2> Matrix& operator*=(const Matrix<T, N, L2>& rhs) noexcept;
         template <typename T2> Matrix& operator*=(T2 rhs) noexcept;
         template <typename T2> Matrix& operator/=(T2 rhs) noexcept;
         T& operator()(size_t r, size_t c) noexcept { return layout_specific::get_ref(data, r, c); }
@@ -765,13 +647,6 @@ namespace RS {
         for (size_t r = 0; r < N; ++r)
             for (size_t c = 0; c < N; ++c)
                 (*this)(r, c) -= rhs(r, c);
-        return *this;
-    }
-
-    template <typename T, size_t N, MatrixLayout L>
-    template <MatrixLayout L2>
-    Matrix<T, N, L>& Matrix<T, N, L>::operator*=(const Matrix<T, N, L2>& rhs) noexcept {
-        *this = *this * rhs;
         return *this;
     }
 
