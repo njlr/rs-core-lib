@@ -1505,13 +1505,6 @@ namespace RS {
 
     namespace RS_Detail {
 
-        #if defined(__GNUC__) && __GNUC__ < 7
-            extern "C" char* __cxa_get_globals();
-            inline int uncaught_exceptions() noexcept { return int(*reinterpret_cast<const uint32_t*>(__cxa_get_globals() + sizeof(void*))); }
-        #else
-            using std::uncaught_exceptions;
-        #endif
-
         template <int Mode, bool Conditional = Mode >= 0>
         struct ScopeExitBase {
             bool should_run() const noexcept { return true; }
@@ -1520,8 +1513,8 @@ namespace RS {
         template <int Mode>
         struct ScopeExitBase<Mode, true> {
             int exceptions;
-            ScopeExitBase(): exceptions(uncaught_exceptions()) {}
-            bool should_run() const noexcept { return (exceptions == uncaught_exceptions()) == (Mode > 0); }
+            ScopeExitBase(): exceptions(std::uncaught_exceptions()) {}
+            bool should_run() const noexcept { return (exceptions == std::uncaught_exceptions()) == (Mode > 0); }
         };
 
         template <int Mode>
