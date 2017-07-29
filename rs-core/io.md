@@ -88,17 +88,16 @@ on Windows.
 
 Xterm cursor movement and output formatting codes.
 
-* `string` **`xt_move_up`**`(int n)      = <esc> [<n>A             = Cursor up n spaces`
-* `string` **`xt_move_down`**`(int n)    = <esc> [<n>B             = Cursor down n spaces`
-* `string` **`xt_move_right`**`(int n)   = <esc> [<n>C             = Cursor right n spaces`
-* `string` **`xt_move_left`**`(int n)    = <esc> [<n>D             = Cursor left n spaces`
-* `string` **`xt_colour`**`(int rgb)     = <esc> [38;5;<16-231>m   = Set foreground colour to an RGB value`
-* `string` **`xt_colour_bg`**`(int rgb)  = <esc> [48;5;<16-231>m   = Set background colour to an RGB value`
-* `string` **`xt_grey`**`(int grey)      = <esc> [38;5;<232-255>m  = Set foreground colour to a grey level`
-* `string` **`xt_grey_bg`**`(int grey)   = <esc> [48;5;<232-255>m  = Set background colour to a grey level`
+* `string` **`xt_move_up`**`(int n)                  = <esc> [<n>A             = Cursor up n spaces`
+* `string` **`xt_move_down`**`(int n)                = <esc> [<n>B             = Cursor down n spaces`
+* `string` **`xt_move_right`**`(int n)               = <esc> [<n>C             = Cursor right n spaces`
+* `string` **`xt_move_left`**`(int n)                = <esc> [<n>D             = Cursor left n spaces`
+* `string` **`xt_colour`**`(int r, int g, int b)     = <esc> [38;5;<16-231>m   = Set foreground colour to an RGB value`
+* `string` **`xt_colour_bg`**`(int r, int g, int b)  = <esc> [48;5;<16-231>m   = Set background colour to an RGB value`
+* `string` **`xt_grey`**`(int grey)                  = <esc> [38;5;<232-255>m  = Set foreground colour to a grey level`
+* `string` **`xt_grey_bg`**`(int grey)               = <esc> [48;5;<232-255>m  = Set background colour to a grey level`
 
 Functions for generating variable Xterm codes. The RGB levels passed to the
-`xt_colour[_bg]()` functions are in the form of a 3 digit number from 111 to
-666; each digit is clamped to a range of 1-6, yielding 216 different colours.
-The grey level passed to the `xt_grey[_bg]()` functions is clamped to a range
-of 1-24.
+`xt_colour[_bg]()` functions are clamped to the range 0 to 5, yielding 216
+different colours. The grey level passed to the `xt_grey[_bg]()` functions is
+clamped to a range of 1-24.
