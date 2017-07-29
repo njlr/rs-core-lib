@@ -41,7 +41,7 @@ namespace RS {
     template <typename T>
     class Urandom {
     public:
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         using result_type = T;
         T operator()() noexcept { T u = 0; urandom(&u, sizeof(u)); return u; }
         static constexpr T min() noexcept { return std::numeric_limits<T>::min(); }
@@ -85,7 +85,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T min, T max) {
-        static_assert(std::is_integral<T>::value, "Random integer type is not an integer");
+        static_assert(std::is_integral<T>::value);
         // We need an unsigned integer type big enough for both the RNG and
         // output ranges.
         using rng_type = typename RNG::result_type;
@@ -132,7 +132,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T t) {
-        static_assert(std::is_integral<T>::value, "Random integer type is not an integer");
+        static_assert(std::is_integral<T>::value);
         if (t <= T(1))
             return T(0);
         else
@@ -141,7 +141,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_dice(RNG& rng, T n = T(1), T faces = T(6)) {
-        static_assert(std::is_integral<T>::value, "Random dice type is not an integer");
+        static_assert(std::is_integral<T>::value);
         if (n < T(1) || faces < T(1))
             return T(0);
         T sum = T(0);
@@ -152,13 +152,13 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_float(RNG& rng, T a = T(1), T b = T(0)) {
-        static_assert(std::is_floating_point<T>::value, "Random float type is not floating point");
+        static_assert(std::is_floating_point<T>::value);
         return a + (b - a) * (T(rng() - rng.min()) / (T(rng.max() - rng.min()) + T(1)));
     }
 
     template <typename T, typename RNG>
     T random_normal(RNG& rng) {
-        static_assert(std::is_floating_point<T>::value, "Random normal type is not floating point");
+        static_assert(std::is_floating_point<T>::value);
         T u1 = random_float<T>(rng);
         T u2 = random_float<T>(rng);
         return std::sqrt(T(-2) * std::log(u1)) * std::cos(T(2) * pi_c<T> * u2);
@@ -166,7 +166,7 @@ namespace RS {
 
     template <typename T, typename RNG>
     T random_normal(RNG& rng, T m, T s) {
-        static_assert(std::is_floating_point<T>::value, "Random float type is not floating point");
+        static_assert(std::is_floating_point<T>::value);
         return m + s * random_normal<T>(rng);
     }
 
@@ -191,7 +191,7 @@ namespace RS {
 
     template <typename RNG, typename T>
     bool random_bool(RNG& rng, T num, T den) {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return random_integer(rng, den) < num;
     }
 

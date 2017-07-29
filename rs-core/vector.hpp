@@ -64,7 +64,7 @@ namespace RS {
         static Vector unit(size_t i) noexcept;
         static Vector zero() noexcept { return {}; }
     private:
-        RS_STATIC_ASSERT(N > 0);
+        static_assert(N > 0);
         T data[N];
         static void range_check(size_t i) { if (i >= N) throw std::out_of_range("Vector index is out of range"); }
     };
@@ -101,14 +101,14 @@ namespace RS {
     template <typename T, size_t N>
     template <typename T2, size_t N2>
     Vector<T, N>::Vector(const Vector<T2, N2>& v) noexcept {
-        RS_STATIC_ASSERT(N2 == N);
+        static_assert(N2 == N);
         std::copy(v.begin(), v.end(), begin());
     }
 
     template <typename T, size_t N>
     template <typename T2, size_t N2>
     Vector<T, N>& Vector<T, N>::operator=(const Vector<T2, N2>& v) noexcept {
-        RS_STATIC_ASSERT(N2 == N);
+        static_assert(N2 == N);
         std::copy(v.begin(), v.end(), begin());
         return *this;
     }
@@ -487,8 +487,8 @@ namespace RS {
     template <typename T, size_t N, MatrixLayout L = MatrixLayout::column>
     class Matrix {
     private:
-        RS_STATIC_ASSERT(N > 0);
-        RS_STATIC_ASSERT(L == MatrixLayout::row || L == MatrixLayout::column);
+        static_assert(N > 0);
+        static_assert(L == MatrixLayout::row || L == MatrixLayout::column);
         template <typename M1, size_t N1> friend struct RS_Detail::Inverse;
         static constexpr MatrixLayout alt_layout = L == MatrixLayout::column ? MatrixLayout::row : MatrixLayout::column;
         using alt_matrix = Matrix<T, N, alt_layout>;

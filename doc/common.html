@@ -166,13 +166,6 @@ passed to a context expecting a function (such as an STL algorithm) without
 having to explicitly resolve the overload at the call site. (From an idea by
 Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)</p>
 </div>
-<div class="defns">
-<ul>
-<li><code>#define</code> <strong><code>RS_STATIC_ASSERT</code></strong><code>(expr) static_assert((expr), # expr)</code></li>
-</ul>
-<p>Shorthand for <code>static_assert</code>, using the assertion expression as the error
-message. (A planned change in C++17 will make this unnecessary.)</p>
-</div>
 <h2 id="types">Types</h2>
 <h3 id="integer-types">Integer types</h3>
 <div class="defns">

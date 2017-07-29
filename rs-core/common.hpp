@@ -126,7 +126,6 @@
     inline constexpr EC& operator^=(EC& lhs, EC rhs) noexcept { return lhs = lhs ^ rhs; }
 
 #define RS_OVERLOAD(f) [] (auto&&... args) { return f(std::forward<decltype(args)>(args)...); }
-#define RS_STATIC_ASSERT(expr) static_assert((expr), #expr)
 
 #define RS_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
     enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, RS_enum_sentinel }; \
@@ -564,7 +563,7 @@ namespace RS {
     template <typename T2, typename T1> T2& as(const std::shared_ptr<T1>& ptr) { if (ptr) return dynamic_cast<T2&>(*ptr); else throw std::bad_cast(); }
 
     template <typename T2, typename T1> inline T2 binary_cast(const T1& t) noexcept {
-        RS_STATIC_ASSERT(sizeof(T2) == sizeof(T1));
+        static_assert(sizeof(T2) == sizeof(T1));
         T2 t2;
         memcpy(&t2, &t, sizeof(t));
         return t2;
@@ -1166,31 +1165,31 @@ namespace RS {
 
     template <typename T>
     constexpr size_t ibits(T t) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return __builtin_popcountll(uint64_t(t));
     }
 
     template <typename T>
     constexpr size_t ilog2p1(T t) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return t ? 64 - __builtin_clzll(uint64_t(t)) : 0;
     }
 
     template <typename T>
     constexpr T ifloor2(T t) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return t ? T(1) << (ilog2p1(t) - 1) : 0;
     }
 
     template <typename T>
     constexpr T iceil2(T t) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return t > 1 ? T(1) << (ilog2p1(t - 1) - 1) << 1 : t;
     }
 
     template <typename T>
     constexpr bool ispow2(T t) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return ibits(t) == 1;
     }
 
@@ -1200,13 +1199,13 @@ namespace RS {
 
     template <typename T>
     constexpr T rotl(T t, int n) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return n == 0 ? t : n < 0 ? RS_Detail::rotr_helper(t, - n) : RS_Detail::rotl_helper(t, n);
     }
 
     template <typename T>
     constexpr T rotr(T t, int n) noexcept {
-        RS_STATIC_ASSERT(std::is_integral<T>::value);
+        static_assert(std::is_integral<T>::value);
         return n == 0 ? t : n < 0 ? RS_Detail::rotl_helper(t, - n) : RS_Detail::rotr_helper(t, n);
     }
 

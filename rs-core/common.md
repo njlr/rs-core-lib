@@ -96,11 +96,6 @@ passed to a context expecting a function (such as an STL algorithm) without
 having to explicitly resolve the overload at the call site. (From an idea by
 Arthur O'Dwyer on the C++ standard proposals mailing list, 14 Sep 2015.)
 
-* `#define` **`RS_STATIC_ASSERT`**`(expr) static_assert((expr), # expr)`
-
-Shorthand for `static_assert`, using the assertion expression as the error
-message. (A planned change in C++17 will make this unnecessary.)
-
 ## Types ##
 
 ### Integer types ###
