@@ -703,7 +703,7 @@ namespace {
         std::u16string s16 = u"Hello";
         std::u32string s32 = U"Hello";
         std::wstring ws = L"Hello";
-        std::atomic<int> ai = 42;
+        std::atomic<int> ai(42);
 
         TEST_EQUAL(to_str(0), "0");
         TEST_EQUAL(to_str(42), "42");
