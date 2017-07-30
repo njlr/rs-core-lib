@@ -377,7 +377,7 @@ namespace {
 
         std::string s;
         std::wstring ws;
-        std::vector<std::string> sv;
+        Strings sv;
 
         TEST(ascii_icase_equal("", ""));                          TEST(! ascii_icase_less("", ""));
         TEST(! ascii_icase_equal("", "hello"));                   TEST(ascii_icase_less("", "hello"));
@@ -540,7 +540,7 @@ namespace {
         std::wstring ws;
         std::vector<bool> bv;
         std::vector<int> iv;
-        std::vector<std::string> sv;
+        Strings sv;
         std::map<int, std::string> ism;
         std::atomic<int> ai;
 

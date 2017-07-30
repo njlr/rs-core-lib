@@ -100,22 +100,22 @@ namespace {
         }
 
         std::vector<int> iv = {1, 2, 3, 4, 5}, iv2 = {2, 3, 5, 7, 11};
-        std::vector<U8string> result, sv = {"Neddie", "Eccles", "Bluebottle"};
+        Strings result, sv = {"Neddie", "Eccles", "Bluebottle"};
 
         TRY(std::transform(iv.begin(), iv.end(), overwrite(result), RS_OVERLOAD(f1)));
-        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"*", "**", "***", "****", "*****"}));
+        TEST_EQUAL_RANGE(result, (Strings{"*", "**", "***", "****", "*****"}));
         TRY(std::transform(sv.begin(), sv.end(), overwrite(result), RS_OVERLOAD(f1)));
-        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        TEST_EQUAL_RANGE(result, (Strings{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
 
         TRY(std::generate_n(overwrite(result), 3, RS_OVERLOAD(f2)));
-        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"Hello", "Hello", "Hello"}));
+        TEST_EQUAL_RANGE(result, (Strings{"Hello", "Hello", "Hello"}));
         TRY(std::transform(sv.begin(), sv.end(), overwrite(result), RS_OVERLOAD(f2)));
-        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
+        TEST_EQUAL_RANGE(result, (Strings{"[Neddie]", "[Eccles]", "[Bluebottle]"}));
         auto of2 = RS_OVERLOAD(f2);
         auto out = overwrite(result);
         for (size_t i = 0; i < iv.size() && i < iv2.size(); ++i)
             TRY(*out++ = of2(iv[i], iv2[i]));
-        TEST_EQUAL_RANGE(result, (std::vector<U8string>{"2", "6", "15", "28", "55"}));
+        TEST_EQUAL_RANGE(result, (Strings{"2", "6", "15", "28", "55"}));
 
         std::vector<FooEnum> vf;
         std::vector<BarEnum> vb;
@@ -1966,7 +1966,7 @@ namespace {
         TEST_COMPARE(h1, !=, h3);
         TEST_COMPARE(h2, !=, h3);
 
-        std::vector<std::string> sv {"hello", "world", "goodbye"};
+        Strings sv {"hello", "world", "goodbye"};
 
         for (auto& s: sv)
             TRY(hash_combine(h4, s));

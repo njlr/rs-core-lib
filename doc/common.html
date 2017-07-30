@@ -220,6 +220,12 @@ is being used simply as an array of bytes rather than encoded text.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>using</code> <strong><code>Strings</code></strong> <code>= std::vector&lt;std::string&gt;</code></li>
+</ul>
+<p>Commonly used type defined for convenience.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>#define</code> <strong><code>RS_NATIVE_WCHAR</code></strong> <code>1</code> <em>- defined if the system API uses wide characters</em></li>
 <li><code>using</code> <strong><code>NativeCharacter</code></strong> <code>= [char on Unix, wchar_t on Windows]</code></li>
 <li><code>using</code> <strong><code>NativeString</code></strong> <code>= [std::string on Unix, std::wstring on Windows]</code></li>

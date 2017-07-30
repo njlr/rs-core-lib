@@ -193,6 +193,7 @@ namespace RS {
     #endif
 
     using U8string = std::string;
+    using Strings = std::vector<std::string>;
     using NativeString = std::basic_string<NativeCharacter>;
     using WstringEquivalent = std::basic_string<WcharEquivalent>;
 
@@ -1640,7 +1641,7 @@ namespace RS {
 
     template <typename... Args> inline void logx(Args... args) noexcept {
         try {
-            std::vector<U8string> v{RS_Detail::make_str(args)...};
+            Strings v{RS_Detail::make_str(args)...};
             U8string msg;
             for (auto& s: v)
                 msg += s += ' ';

@@ -443,8 +443,8 @@ namespace RS {
         }
     }
 
-    inline std::vector<std::string> splitv(const std::string& src, const std::string& delim = ascii_whitespace) {
-        std::vector<std::string> v;
+    inline Strings splitv(const std::string& src, const std::string& delim = ascii_whitespace) {
+        Strings v;
         split(src, append(v), delim);
         return v;
     }
@@ -719,7 +719,7 @@ namespace RS {
 
     template <typename... Args>
     U8string fmt(const U8string& pattern, const Args&... args) {
-        std::vector<U8string> argstr{to_str(args)...};
+        Strings argstr{to_str(args)...};
         U8string result;
         size_t i = 0, psize = pattern.size();
         while (i < psize) {

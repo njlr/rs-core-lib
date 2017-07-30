@@ -144,6 +144,10 @@ any ASCII string is also valid UTF-8), while plain `std::string` is used where
 the string is expected to be in some non-Unicode encoding, or where the string
 is being used simply as an array of bytes rather than encoded text.
 
+* `using` **`Strings`** `= std::vector<std::string>`
+
+Commonly used type defined for convenience.
+
 * `#define` **`RS_NATIVE_WCHAR`** `1` _- defined if the system API uses wide characters_
 * `using` **`NativeCharacter`** `= [char on Unix, wchar_t on Windows]`
 * `using` **`NativeString`** `= [std::string on Unix, std::wstring on Windows]`
