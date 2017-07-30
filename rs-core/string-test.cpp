@@ -532,251 +532,6 @@ namespace {
 
     }
 
-    void check_string_formatting_and_parsing_functions() {
-
-        std::string s;
-        std::u16string s16;
-        std::u32string s32;
-        std::wstring ws;
-        std::vector<bool> bv;
-        std::vector<int> iv;
-        Strings sv;
-        std::map<int, std::string> ism;
-        std::atomic<int> ai;
-
-        TEST_EQUAL(bin(0, 1), "0");
-        TEST_EQUAL(bin(0, 10), "0000000000");
-        TEST_EQUAL(bin(42, 1), "101010");
-        TEST_EQUAL(bin(42, 5), "101010");
-        TEST_EQUAL(bin(42, 10), "0000101010");
-        TEST_EQUAL(bin(0xabcdef, 20), "101010111100110111101111");
-        TEST_EQUAL(bin(0xabcdef, 24), "101010111100110111101111");
-        TEST_EQUAL(bin(0xabcdef, 28), "0000101010111100110111101111");
-        TEST_EQUAL(bin(int8_t(0)), "00000000");
-        TEST_EQUAL(bin(int16_t(0)), "0000000000000000");
-        TEST_EQUAL(bin(int32_t(0)), "00000000000000000000000000000000");
-        TEST_EQUAL(bin(int8_t(42)), "00101010");
-        TEST_EQUAL(bin(int16_t(42)), "0000000000101010");
-        TEST_EQUAL(bin(int32_t(42)), "00000000000000000000000000101010");
-        TEST_EQUAL(bin(int8_t(-42)), "-00101010");
-        TEST_EQUAL(bin(int16_t(-42)), "-0000000000101010");
-        TEST_EQUAL(bin(int32_t(-42)), "-00000000000000000000000000101010");
-        TEST_EQUAL(bin(uint32_t(0xabcdef)), "00000000101010111100110111101111");
-        TEST_EQUAL(bin(uint64_t(0x123456789abcdefull)), "0000000100100011010001010110011110001001101010111100110111101111");
-
-        TEST_EQUAL(dec(0), "0");
-        TEST_EQUAL(dec(42), "42");
-        TEST_EQUAL(dec(-42), "-42");
-        TEST_EQUAL(dec(0, 4), "0000");
-        TEST_EQUAL(dec(42, 4), "0042");
-        TEST_EQUAL(dec(-42, 4), "-0042");
-
-        TEST_EQUAL(hex(0, 1), "0");
-        TEST_EQUAL(hex(0, 2), "00");
-        TEST_EQUAL(hex(42, 1), "2a");
-        TEST_EQUAL(hex(42, 2), "2a");
-        TEST_EQUAL(hex(42, 3), "02a");
-        TEST_EQUAL(hex(0xabcdef, 3), "abcdef");
-        TEST_EQUAL(hex(0xabcdef, 6), "abcdef");
-        TEST_EQUAL(hex(0xabcdef, 9), "000abcdef");
-        TEST_EQUAL(hex(int8_t(0)), "00");
-        TEST_EQUAL(hex(int16_t(0)), "0000");
-        TEST_EQUAL(hex(int32_t(0)), "00000000");
-        TEST_EQUAL(hex(int8_t(42)), "2a");
-        TEST_EQUAL(hex(int16_t(42)), "002a");
-        TEST_EQUAL(hex(int32_t(42)), "0000002a");
-        TEST_EQUAL(hex(int8_t(-42)), "-2a");
-        TEST_EQUAL(hex(int16_t(-42)), "-002a");
-        TEST_EQUAL(hex(int32_t(-42)), "-0000002a");
-        TEST_EQUAL(hex(uint32_t(0xabcdef)), "00abcdef");
-        TEST_EQUAL(hex(uint64_t(0x123456789abcdefull)), "0123456789abcdef");
-
-        TEST_EQUAL(binnum(""), 0);
-        TEST_EQUAL(binnum("0"), 0);
-        TEST_EQUAL(binnum("101010"), 42);
-        TEST_EQUAL(binnum("000000101010"), 42);
-        TEST_EQUAL(binnum("1111111111111111111111111111111111111111111111111111111111111110"), 0xfffffffffffffffeull);
-        TEST_EQUAL(binnum("1111111111111111111111111111111111111111111111111111111111111111"), 0xffffffffffffffffull);
-        TEST_EQUAL(binnum("10000000000000000000000000000000000000000000000000000000000000000"), 0xffffffffffffffffull);
-
-        TEST_EQUAL(decnum(""), 0);
-        TEST_EQUAL(decnum("0"), 0);
-        TEST_EQUAL(decnum("42"), 42);
-        TEST_EQUAL(decnum("0042"), 42);
-        TEST_EQUAL(decnum("+42"), 42);
-        TEST_EQUAL(decnum("-42"), -42);
-        TEST_EQUAL(decnum("9223372036854775806"), 9'223'372'036'854'775'806ll); // 2^63-2
-        TEST_EQUAL(decnum("9223372036854775807"), 9'223'372'036'854'775'807ll); // 2^63-1
-        TEST_EQUAL(decnum("9223372036854775808"), 9'223'372'036'854'775'807ll); // 2^63
-        TEST_EQUAL(decnum("9223372036854775809"), 9'223'372'036'854'775'807ll); // 2^63+1
-        TEST_EQUAL(decnum("-9223372036854775806"), -9'223'372'036'854'775'806ll); // -(2^63-2)
-        TEST_EQUAL(decnum("-9223372036854775807"), -9'223'372'036'854'775'807ll); // -(2^63-1)
-        TEST_EQUAL(decnum("-9223372036854775808"), -9'223'372'036'854'775'807ll-1); // -2^63
-        TEST_EQUAL(decnum("-9223372036854775809"), -9'223'372'036'854'775'807ll-1); // -(2^63+1)
-
-        TEST_EQUAL(hexnum(""), 0);
-        TEST_EQUAL(hexnum("0"), 0);
-        TEST_EQUAL(hexnum("42"), 66);
-        TEST_EQUAL(hexnum("0042"), 66);
-        TEST_EQUAL(hexnum("fffffffffffffffe"), 0xfffffffffffffffeull);
-        TEST_EQUAL(hexnum("ffffffffffffffff"), 0xffffffffffffffffull);
-        TEST_EQUAL(hexnum("10000000000000000"), 0xffffffffffffffffull);
-
-        TEST_EQUAL(fpnum(""), 0);
-        TEST_EQUAL(fpnum("42"), 42);
-        TEST_EQUAL(fpnum("-42"), -42);
-        TEST_EQUAL(fpnum("1.234e5"), 123400);
-        TEST_EQUAL(fpnum("-1.234e5"), -123400);
-        TEST_NEAR(fpnum("1.23e-4"), 0.000123);
-        TEST_NEAR(fpnum("-1.23e-4"), -0.000123);
-        TEST_EQUAL(fpnum("1e9999"), HUGE_VAL);
-        TEST_EQUAL(fpnum("-1e9999"), - HUGE_VAL);
-
-        TEST_EQUAL(fp_format(0), "0");
-        TEST_EQUAL(fp_format(0, 'e', 3), "0.000e0");
-        TEST_EQUAL(fp_format(42, 'e', 3), "4.200e1");
-        TEST_EQUAL(fp_format(-42, 'e', 3), "-4.200e1");
-        TEST_EQUAL(fp_format(1.23456e8, 'e', 3), "1.235e8");
-        TEST_EQUAL(fp_format(1.23456e-6, 'e', 3), "1.235e-6");
-        TEST_EQUAL(fp_format(0, 'f', 3), "0.000");
-        TEST_EQUAL(fp_format(42, 'f', 3), "42.000");
-        TEST_EQUAL(fp_format(-42, 'f', 3), "-42.000");
-        TEST_EQUAL(fp_format(1.23456e8, 'f', 3), "123456000.000");
-        TEST_EQUAL(fp_format(1.23456e-6, 'f', 3), "0.000");
-        TEST_EQUAL(fp_format(0, 'g', 3), "0");
-        TEST_EQUAL(fp_format(42, 'g', 3), "42");
-        TEST_EQUAL(fp_format(-42, 'g', 3), "-42");
-        TEST_EQUAL(fp_format(1.23456e8, 'g', 3), "1.23e8");
-        TEST_EQUAL(fp_format(1.23456e-6, 'g', 3), "1.23e-6");
-        TEST_EQUAL(fp_format(0, 'z', 3), "0.00");
-        TEST_EQUAL(fp_format(42, 'z', 3), "42.0");
-        TEST_EQUAL(fp_format(-42, 'z', 3), "-42.0");
-        TEST_EQUAL(fp_format(1.23456e8, 'z', 3), "1.23e8");
-        TEST_EQUAL(fp_format(1.23456e-6, 'z', 3), "1.23e-6");
-        TEST_EQUAL(fp_format(0.123, 'z', 3), "0.123");
-        TEST_EQUAL(fp_format(1.23, 'z', 3), "1.23");
-        TEST_EQUAL(fp_format(12.3, 'z', 3), "12.3");
-        TEST_EQUAL(fp_format(123, 'z', 3), "123");
-
-        TEST_EQUAL(si_to_int("0"), 0);
-        TEST_EQUAL(si_to_int("42"), 42);
-        TEST_EQUAL(si_to_int("-42"), -42);
-        TEST_EQUAL(si_to_int("0k"), 0);
-        TEST_EQUAL(si_to_int("123k"), 123'000);
-        TEST_EQUAL(si_to_int("123K"), 123'000);
-        TEST_EQUAL(si_to_int("123 k"), 123'000);
-        TEST_EQUAL(si_to_int("123 K"), 123'000);
-        TEST_EQUAL(si_to_int("123 M"), 123'000'000ll);
-        TEST_EQUAL(si_to_int("123 G"), 123'000'000'000ll);
-        TEST_EQUAL(si_to_int("123 T"), 123'000'000'000'000ll);
-        TEST_EQUAL(si_to_int("123 P"), 123'000'000'000'000'000ll);
-        TEST_THROW(si_to_int("123 E"), std::range_error);
-        TEST_THROW(si_to_int("123 Z"), std::range_error);
-        TEST_THROW(si_to_int("123 Y"), std::range_error);
-        TEST_EQUAL(si_to_int("-123k"), -123'000);
-        TEST_EQUAL(si_to_int("-123K"), -123'000);
-        TEST_EQUAL(si_to_int("-123 k"), -123'000);
-        TEST_EQUAL(si_to_int("-123 K"), -123'000);
-        TEST_THROW(si_to_int(""), std::invalid_argument);
-        TEST_THROW(si_to_int("k9"), std::invalid_argument);
-
-        TEST_EQUAL(si_to_float("0"), 0);
-        TEST_EQUAL(si_to_float("42"), 42);
-        TEST_EQUAL(si_to_float("-42"), -42);
-        TEST_EQUAL(si_to_float("1234.5"), 1234.5);
-        TEST_EQUAL(si_to_float("-1234.5"), -1234.5);
-        TEST_EQUAL(si_to_float("0k"), 0);
-        TEST_EQUAL(si_to_float("12.34k"), 12.34e3);
-        TEST_EQUAL(si_to_float("12.34K"), 12.34e3);
-        TEST_EQUAL(si_to_float("12.34 k"), 12.34e3);
-        TEST_EQUAL(si_to_float("12.34 K"), 12.34e3);
-        TEST_EQUAL(si_to_float("12.34 M"), 12.34e6);
-        TEST_EQUAL(si_to_float("12.34 G"), 12.34e9);
-        TEST_EQUAL(si_to_float("12.34 T"), 12.34e12);
-        TEST_EQUAL(si_to_float("12.34 P"), 12.34e15);
-        TEST_EQUAL(si_to_float("12.34 E"), 12.34e18);
-        TEST_EQUAL(si_to_float("12.34 Z"), 12.34e21);
-        TEST_EQUAL(si_to_float("12.34 Y"), 12.34e24);
-        TEST_NEAR_EPSILON(si_to_float("12.34 m"), 12.34e-3, 1e-9);
-        TEST_NEAR_EPSILON(si_to_float("12.34 u"), 12.34e-6, 1e-12);
-        TEST_NEAR_EPSILON(si_to_float("12.34 n"), 12.34e-9, 1e-15);
-        TEST_NEAR_EPSILON(si_to_float("12.34 p"), 12.34e-12, 1e-18);
-        TEST_NEAR_EPSILON(si_to_float("12.34 f"), 12.34e-15, 1e-21);
-        TEST_NEAR_EPSILON(si_to_float("12.34 a"), 12.34e-18, 1e-24);
-        TEST_NEAR_EPSILON(si_to_float("12.34 z"), 12.34e-21, 1e-27);
-        TEST_NEAR_EPSILON(si_to_float("12.34 y"), 12.34e-24, 1e-30);
-        TEST_EQUAL(si_to_float("-12.34k"), -12.34e3);
-        TEST_EQUAL(si_to_float("-12.34K"), -12.34e3);
-        TEST_EQUAL(si_to_float("-12.34 k"), -12.34e3);
-        TEST_EQUAL(si_to_float("-12.34 K"), -12.34e3);
-        TEST_THROW(si_to_float("1e999999"), std::range_error);
-        TEST_THROW(si_to_float(""), std::invalid_argument);
-        TEST_THROW(si_to_float("k9"), std::invalid_argument);
-
-        TEST_EQUAL(hexdump(""s), "");
-        TEST_EQUAL(hexdump(""s, 5), "");
-        TEST_EQUAL(hexdump("Hello world!"s), "48 65 6c 6c 6f 20 77 6f 72 6c 64 21");
-        TEST_EQUAL(hexdump("Hello world!"s, 5), "48 65 6c 6c 6f\n20 77 6f 72 6c\n64 21\n");
-        TEST_EQUAL(hexdump("Hello world!"s, 6), "48 65 6c 6c 6f 20\n77 6f 72 6c 64 21\n");
-
-        TEST_EQUAL(tf(true), "true");
-        TEST_EQUAL(tf(false), "false");
-        TEST_EQUAL(yn(true), "yes");
-        TEST_EQUAL(yn(false), "no");
-
-        s = "Hello";
-        s16 = u"Hello";
-        s32 = U"Hello";
-        ws = L"Hello";
-        ai = 42;
-
-        TEST_EQUAL(to_str(0), "0");
-        TEST_EQUAL(to_str(42), "42");
-        TEST_EQUAL(to_str(-42), "-42");
-        TEST_EQUAL(to_str(123.456), "123.456");
-        TEST_EQUAL(to_str(s), "Hello");
-        TEST_EQUAL(to_str(s.data()), "Hello");
-        TEST_EQUAL(to_str(""s), "");
-        TEST_EQUAL(to_str("Hello"s), "Hello");
-        TEST_EQUAL(to_str('X'), "X");
-        TEST_EQUAL(to_str(true), "true");
-        TEST_EQUAL(to_str(false), "false");
-        TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
-        TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
-        TEST_EQUAL(to_str(ai), "42");
-
-        bv.clear();
-        iv.clear();
-        sv.clear();
-        ism.clear();
-
-        TEST_EQUAL(to_str(bv), "[]");
-        TEST_EQUAL(to_str(iv), "[]");
-        TEST_EQUAL(to_str(sv), "[]");
-        TEST_EQUAL(to_str(ism), "{}");
-
-        bv = {true,false};
-        iv = {1,2,3};
-        sv = {"hello","world","goodbye"};
-        ism = {{1,"hello"},{2,"world"},{3,"goodbye"}};
-
-        TEST_EQUAL(to_str(bv), "[true,false]");
-        TEST_EQUAL(to_str(iv), "[1,2,3]");
-        TEST_EQUAL(to_str(sv), "[hello,world,goodbye]");
-        TEST_EQUAL(to_str(ism), "{1:hello,2:world,3:goodbye}");
-
-        TRY(s = fmt(""));                               TEST_EQUAL(s, "");
-        TRY(s = fmt("Hello world"));                    TEST_EQUAL(s, "Hello world");
-        TRY(s = fmt("Hello $1"));                       TEST_EQUAL(s, "Hello ");
-        TRY(s = fmt("Hello $1", "world"s));             TEST_EQUAL(s, "Hello world");
-        TRY(s = fmt("Hello $1", 42));                   TEST_EQUAL(s, "Hello 42");
-        TRY(s = fmt("($1) ($2) ($3)", 10, 20, 30));     TEST_EQUAL(s, "(10) (20) (30)");
-        TRY(s = fmt("${1} ${2} ${3}", 10, 20, 30));     TEST_EQUAL(s, "10 20 30");
-        TRY(s = fmt("$3,$3,$2,$2,$1,$1", 10, 20, 30));  TEST_EQUAL(s, "30,30,20,20,10,10");
-        TRY(s = fmt("Hello $1 $$ ${}", 42));            TEST_EQUAL(s, "Hello 42 $ {}");
-
-    }
-
     void check_html_xml_tags() {
 
         const std::string expected =
@@ -842,6 +597,258 @@ namespace {
             std::string s = out.str();
             TEST_EQUAL(s, expected);
         }
+
+    }
+
+    void check_string_formatting_functions() {
+
+        TEST_EQUAL(bin(0, 1), "0");
+        TEST_EQUAL(bin(0, 10), "0000000000");
+        TEST_EQUAL(bin(42, 1), "101010");
+        TEST_EQUAL(bin(42, 5), "101010");
+        TEST_EQUAL(bin(42, 10), "0000101010");
+        TEST_EQUAL(bin(0xabcdef, 20), "101010111100110111101111");
+        TEST_EQUAL(bin(0xabcdef, 24), "101010111100110111101111");
+        TEST_EQUAL(bin(0xabcdef, 28), "0000101010111100110111101111");
+        TEST_EQUAL(bin(int8_t(0)), "00000000");
+        TEST_EQUAL(bin(int16_t(0)), "0000000000000000");
+        TEST_EQUAL(bin(int32_t(0)), "00000000000000000000000000000000");
+        TEST_EQUAL(bin(int8_t(42)), "00101010");
+        TEST_EQUAL(bin(int16_t(42)), "0000000000101010");
+        TEST_EQUAL(bin(int32_t(42)), "00000000000000000000000000101010");
+        TEST_EQUAL(bin(int8_t(-42)), "-00101010");
+        TEST_EQUAL(bin(int16_t(-42)), "-0000000000101010");
+        TEST_EQUAL(bin(int32_t(-42)), "-00000000000000000000000000101010");
+        TEST_EQUAL(bin(uint32_t(0xabcdef)), "00000000101010111100110111101111");
+        TEST_EQUAL(bin(uint64_t(0x123456789abcdefull)), "0000000100100011010001010110011110001001101010111100110111101111");
+
+        TEST_EQUAL(dec(0), "0");
+        TEST_EQUAL(dec(42), "42");
+        TEST_EQUAL(dec(-42), "-42");
+        TEST_EQUAL(dec(0, 4), "0000");
+        TEST_EQUAL(dec(42, 4), "0042");
+        TEST_EQUAL(dec(-42, 4), "-0042");
+
+        TEST_EQUAL(hex(0, 1), "0");
+        TEST_EQUAL(hex(0, 2), "00");
+        TEST_EQUAL(hex(42, 1), "2a");
+        TEST_EQUAL(hex(42, 2), "2a");
+        TEST_EQUAL(hex(42, 3), "02a");
+        TEST_EQUAL(hex(0xabcdef, 3), "abcdef");
+        TEST_EQUAL(hex(0xabcdef, 6), "abcdef");
+        TEST_EQUAL(hex(0xabcdef, 9), "000abcdef");
+        TEST_EQUAL(hex(int8_t(0)), "00");
+        TEST_EQUAL(hex(int16_t(0)), "0000");
+        TEST_EQUAL(hex(int32_t(0)), "00000000");
+        TEST_EQUAL(hex(int8_t(42)), "2a");
+        TEST_EQUAL(hex(int16_t(42)), "002a");
+        TEST_EQUAL(hex(int32_t(42)), "0000002a");
+        TEST_EQUAL(hex(int8_t(-42)), "-2a");
+        TEST_EQUAL(hex(int16_t(-42)), "-002a");
+        TEST_EQUAL(hex(int32_t(-42)), "-0000002a");
+        TEST_EQUAL(hex(uint32_t(0xabcdef)), "00abcdef");
+        TEST_EQUAL(hex(uint64_t(0x123456789abcdefull)), "0123456789abcdef");
+
+        TEST_EQUAL(fp_format(0), "0");
+        TEST_EQUAL(fp_format(0, 'e', 3), "0.000e0");
+        TEST_EQUAL(fp_format(42, 'e', 3), "4.200e1");
+        TEST_EQUAL(fp_format(-42, 'e', 3), "-4.200e1");
+        TEST_EQUAL(fp_format(1.23456e8, 'e', 3), "1.235e8");
+        TEST_EQUAL(fp_format(1.23456e-6, 'e', 3), "1.235e-6");
+        TEST_EQUAL(fp_format(0, 'f', 3), "0.000");
+        TEST_EQUAL(fp_format(42, 'f', 3), "42.000");
+        TEST_EQUAL(fp_format(-42, 'f', 3), "-42.000");
+        TEST_EQUAL(fp_format(1.23456e8, 'f', 3), "123456000.000");
+        TEST_EQUAL(fp_format(1.23456e-6, 'f', 3), "0.000");
+        TEST_EQUAL(fp_format(0, 'g', 3), "0");
+        TEST_EQUAL(fp_format(42, 'g', 3), "42");
+        TEST_EQUAL(fp_format(-42, 'g', 3), "-42");
+        TEST_EQUAL(fp_format(1.23456e8, 'g', 3), "1.23e8");
+        TEST_EQUAL(fp_format(1.23456e-6, 'g', 3), "1.23e-6");
+        TEST_EQUAL(fp_format(0, 'z', 3), "0.00");
+        TEST_EQUAL(fp_format(42, 'z', 3), "42.0");
+        TEST_EQUAL(fp_format(-42, 'z', 3), "-42.0");
+        TEST_EQUAL(fp_format(1.23456e8, 'z', 3), "1.23e8");
+        TEST_EQUAL(fp_format(1.23456e-6, 'z', 3), "1.23e-6");
+        TEST_EQUAL(fp_format(0.123, 'z', 3), "0.123");
+        TEST_EQUAL(fp_format(1.23, 'z', 3), "1.23");
+        TEST_EQUAL(fp_format(12.3, 'z', 3), "12.3");
+        TEST_EQUAL(fp_format(123, 'z', 3), "123");
+
+        TEST_EQUAL(roman(0), "0");
+        TEST_EQUAL(roman(1), "I");
+        TEST_EQUAL(roman(42), "XLII");
+        TEST_EQUAL(roman(1111), "MCXI");
+        TEST_EQUAL(roman(2222), "MMCCXXII");
+        TEST_EQUAL(roman(3333), "MMMCCCXXXIII");
+        TEST_EQUAL(roman(4444), "MMMMCDXLIV");
+        TEST_EQUAL(roman(5555), "MMMMMDLV");
+        TEST_EQUAL(roman(6666), "MMMMMMDCLXVI");
+        TEST_EQUAL(roman(7777), "MMMMMMMDCCLXXVII");
+        TEST_EQUAL(roman(8888), "MMMMMMMMDCCCLXXXVIII");
+        TEST_EQUAL(roman(9999), "MMMMMMMMMCMXCIX");
+
+        TEST_EQUAL(hexdump(""s), "");
+        TEST_EQUAL(hexdump(""s, 5), "");
+        TEST_EQUAL(hexdump("Hello world!"s), "48 65 6c 6c 6f 20 77 6f 72 6c 64 21");
+        TEST_EQUAL(hexdump("Hello world!"s, 5), "48 65 6c 6c 6f\n20 77 6f 72 6c\n64 21\n");
+        TEST_EQUAL(hexdump("Hello world!"s, 6), "48 65 6c 6c 6f 20\n77 6f 72 6c 64 21\n");
+
+        TEST_EQUAL(tf(true), "true");
+        TEST_EQUAL(tf(false), "false");
+        TEST_EQUAL(yn(true), "yes");
+        TEST_EQUAL(yn(false), "no");
+
+        std::string s = "Hello";
+        std::u16string s16 = u"Hello";
+        std::u32string s32 = U"Hello";
+        std::wstring ws = L"Hello";
+        std::atomic<int> ai = 42;
+
+        TEST_EQUAL(to_str(0), "0");
+        TEST_EQUAL(to_str(42), "42");
+        TEST_EQUAL(to_str(-42), "-42");
+        TEST_EQUAL(to_str(123.456), "123.456");
+        TEST_EQUAL(to_str(s), "Hello");
+        TEST_EQUAL(to_str(s.data()), "Hello");
+        TEST_EQUAL(to_str(""s), "");
+        TEST_EQUAL(to_str("Hello"s), "Hello");
+        TEST_EQUAL(to_str('X'), "X");
+        TEST_EQUAL(to_str(true), "true");
+        TEST_EQUAL(to_str(false), "false");
+        TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
+        TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
+        TEST_EQUAL(to_str(ai), "42");
+
+        std::vector<bool> bv;
+        std::vector<int> iv;
+        Strings sv;
+        std::map<int, std::string> ism;
+
+        TEST_EQUAL(to_str(bv), "[]");
+        TEST_EQUAL(to_str(iv), "[]");
+        TEST_EQUAL(to_str(sv), "[]");
+        TEST_EQUAL(to_str(ism), "{}");
+
+        bv = {true,false};
+        iv = {1,2,3};
+        sv = {"hello","world","goodbye"};
+        ism = {{1,"hello"},{2,"world"},{3,"goodbye"}};
+
+        TEST_EQUAL(to_str(bv), "[true,false]");
+        TEST_EQUAL(to_str(iv), "[1,2,3]");
+        TEST_EQUAL(to_str(sv), "[hello,world,goodbye]");
+        TEST_EQUAL(to_str(ism), "{1:hello,2:world,3:goodbye}");
+
+        TRY(s = fmt(""));                               TEST_EQUAL(s, "");
+        TRY(s = fmt("Hello world"));                    TEST_EQUAL(s, "Hello world");
+        TRY(s = fmt("Hello $1"));                       TEST_EQUAL(s, "Hello ");
+        TRY(s = fmt("Hello $1", "world"s));             TEST_EQUAL(s, "Hello world");
+        TRY(s = fmt("Hello $1", 42));                   TEST_EQUAL(s, "Hello 42");
+        TRY(s = fmt("($1) ($2) ($3)", 10, 20, 30));     TEST_EQUAL(s, "(10) (20) (30)");
+        TRY(s = fmt("${1} ${2} ${3}", 10, 20, 30));     TEST_EQUAL(s, "10 20 30");
+        TRY(s = fmt("$3,$3,$2,$2,$1,$1", 10, 20, 30));  TEST_EQUAL(s, "30,30,20,20,10,10");
+        TRY(s = fmt("Hello $1 $$ ${}", 42));            TEST_EQUAL(s, "Hello 42 $ {}");
+
+    }
+
+    void check_string_parsing_functions() {
+
+        TEST_EQUAL(binnum(""), 0);
+        TEST_EQUAL(binnum("0"), 0);
+        TEST_EQUAL(binnum("101010"), 42);
+        TEST_EQUAL(binnum("000000101010"), 42);
+        TEST_EQUAL(binnum("1111111111111111111111111111111111111111111111111111111111111110"), 0xfffffffffffffffeull);
+        TEST_EQUAL(binnum("1111111111111111111111111111111111111111111111111111111111111111"), 0xffffffffffffffffull);
+        TEST_EQUAL(binnum("10000000000000000000000000000000000000000000000000000000000000000"), 0xffffffffffffffffull);
+
+        TEST_EQUAL(decnum(""), 0);
+        TEST_EQUAL(decnum("0"), 0);
+        TEST_EQUAL(decnum("42"), 42);
+        TEST_EQUAL(decnum("0042"), 42);
+        TEST_EQUAL(decnum("+42"), 42);
+        TEST_EQUAL(decnum("-42"), -42);
+        TEST_EQUAL(decnum("9223372036854775806"), 9'223'372'036'854'775'806ll); // 2^63-2
+        TEST_EQUAL(decnum("9223372036854775807"), 9'223'372'036'854'775'807ll); // 2^63-1
+        TEST_EQUAL(decnum("9223372036854775808"), 9'223'372'036'854'775'807ll); // 2^63
+        TEST_EQUAL(decnum("9223372036854775809"), 9'223'372'036'854'775'807ll); // 2^63+1
+        TEST_EQUAL(decnum("-9223372036854775806"), -9'223'372'036'854'775'806ll); // -(2^63-2)
+        TEST_EQUAL(decnum("-9223372036854775807"), -9'223'372'036'854'775'807ll); // -(2^63-1)
+        TEST_EQUAL(decnum("-9223372036854775808"), -9'223'372'036'854'775'807ll-1); // -2^63
+        TEST_EQUAL(decnum("-9223372036854775809"), -9'223'372'036'854'775'807ll-1); // -(2^63+1)
+
+        TEST_EQUAL(hexnum(""), 0);
+        TEST_EQUAL(hexnum("0"), 0);
+        TEST_EQUAL(hexnum("42"), 66);
+        TEST_EQUAL(hexnum("0042"), 66);
+        TEST_EQUAL(hexnum("fffffffffffffffe"), 0xfffffffffffffffeull);
+        TEST_EQUAL(hexnum("ffffffffffffffff"), 0xffffffffffffffffull);
+        TEST_EQUAL(hexnum("10000000000000000"), 0xffffffffffffffffull);
+
+        TEST_EQUAL(fpnum(""), 0);
+        TEST_EQUAL(fpnum("42"), 42);
+        TEST_EQUAL(fpnum("-42"), -42);
+        TEST_EQUAL(fpnum("1.234e5"), 123400);
+        TEST_EQUAL(fpnum("-1.234e5"), -123400);
+        TEST_NEAR(fpnum("1.23e-4"), 0.000123);
+        TEST_NEAR(fpnum("-1.23e-4"), -0.000123);
+        TEST_EQUAL(fpnum("1e9999"), HUGE_VAL);
+        TEST_EQUAL(fpnum("-1e9999"), - HUGE_VAL);
+
+        TEST_EQUAL(si_to_int("0"), 0);
+        TEST_EQUAL(si_to_int("42"), 42);
+        TEST_EQUAL(si_to_int("-42"), -42);
+        TEST_EQUAL(si_to_int("0k"), 0);
+        TEST_EQUAL(si_to_int("123k"), 123'000);
+        TEST_EQUAL(si_to_int("123K"), 123'000);
+        TEST_EQUAL(si_to_int("123 k"), 123'000);
+        TEST_EQUAL(si_to_int("123 K"), 123'000);
+        TEST_EQUAL(si_to_int("123 M"), 123'000'000ll);
+        TEST_EQUAL(si_to_int("123 G"), 123'000'000'000ll);
+        TEST_EQUAL(si_to_int("123 T"), 123'000'000'000'000ll);
+        TEST_EQUAL(si_to_int("123 P"), 123'000'000'000'000'000ll);
+        TEST_THROW(si_to_int("123 E"), std::range_error);
+        TEST_THROW(si_to_int("123 Z"), std::range_error);
+        TEST_THROW(si_to_int("123 Y"), std::range_error);
+        TEST_EQUAL(si_to_int("-123k"), -123'000);
+        TEST_EQUAL(si_to_int("-123K"), -123'000);
+        TEST_EQUAL(si_to_int("-123 k"), -123'000);
+        TEST_EQUAL(si_to_int("-123 K"), -123'000);
+        TEST_THROW(si_to_int(""), std::invalid_argument);
+        TEST_THROW(si_to_int("k9"), std::invalid_argument);
+
+        TEST_EQUAL(si_to_float("0"), 0);
+        TEST_EQUAL(si_to_float("42"), 42);
+        TEST_EQUAL(si_to_float("-42"), -42);
+        TEST_EQUAL(si_to_float("1234.5"), 1234.5);
+        TEST_EQUAL(si_to_float("-1234.5"), -1234.5);
+        TEST_EQUAL(si_to_float("0k"), 0);
+        TEST_EQUAL(si_to_float("12.34k"), 12.34e3);
+        TEST_EQUAL(si_to_float("12.34K"), 12.34e3);
+        TEST_EQUAL(si_to_float("12.34 k"), 12.34e3);
+        TEST_EQUAL(si_to_float("12.34 K"), 12.34e3);
+        TEST_EQUAL(si_to_float("12.34 M"), 12.34e6);
+        TEST_EQUAL(si_to_float("12.34 G"), 12.34e9);
+        TEST_EQUAL(si_to_float("12.34 T"), 12.34e12);
+        TEST_EQUAL(si_to_float("12.34 P"), 12.34e15);
+        TEST_EQUAL(si_to_float("12.34 E"), 12.34e18);
+        TEST_EQUAL(si_to_float("12.34 Z"), 12.34e21);
+        TEST_EQUAL(si_to_float("12.34 Y"), 12.34e24);
+        TEST_NEAR_EPSILON(si_to_float("12.34 m"), 12.34e-3, 1e-9);
+        TEST_NEAR_EPSILON(si_to_float("12.34 u"), 12.34e-6, 1e-12);
+        TEST_NEAR_EPSILON(si_to_float("12.34 n"), 12.34e-9, 1e-15);
+        TEST_NEAR_EPSILON(si_to_float("12.34 p"), 12.34e-12, 1e-18);
+        TEST_NEAR_EPSILON(si_to_float("12.34 f"), 12.34e-15, 1e-21);
+        TEST_NEAR_EPSILON(si_to_float("12.34 a"), 12.34e-18, 1e-24);
+        TEST_NEAR_EPSILON(si_to_float("12.34 z"), 12.34e-21, 1e-27);
+        TEST_NEAR_EPSILON(si_to_float("12.34 y"), 12.34e-24, 1e-30);
+        TEST_EQUAL(si_to_float("-12.34k"), -12.34e3);
+        TEST_EQUAL(si_to_float("-12.34K"), -12.34e3);
+        TEST_EQUAL(si_to_float("-12.34 k"), -12.34e3);
+        TEST_EQUAL(si_to_float("-12.34 K"), -12.34e3);
+        TEST_THROW(si_to_float("1e999999"), std::range_error);
+        TEST_THROW(si_to_float(""), std::invalid_argument);
+        TEST_THROW(si_to_float("k9"), std::invalid_argument);
 
     }
 
@@ -969,8 +976,9 @@ TEST_MODULE(core, string) {
 
     check_character_functions();
     check_general_string_functions();
-    check_string_formatting_and_parsing_functions();
     check_html_xml_tags();
+    check_string_formatting_functions();
+    check_string_parsing_functions();
     check_type_names();
     check_unicode_functions();
 

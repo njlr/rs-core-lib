@@ -125,89 +125,6 @@ Strips off any prefix ending in one of the delimiter characters (e.g.
 original string unchanged if the delimiter string is empty or none of its
 characters are found.
 
-## String formatting and parsing functions ##
-
-* `template <typename T> U8string` **`bin`**`(T x, size_t digits = 8 * sizeof(T))`
-* `template <typename T> U8string` **`dec`**`(T x, size_t digits = 1)`
-* `template <typename T> U8string` **`hex`**`(T x, size_t digits = 2 * sizeof(T))`
-* `unsigned long long` **`binnum`**`(const string& str) noexcept`
-* `long long` **`decnum`**`(const string& str) noexcept`
-* `unsigned long long` **`hexnum`**`(const string& str) noexcept`
-* `double` **`fpnum`**`(const string& str) noexcept`
-
-Simple string and number conversion functions. The `bin()`, `dec()`, and
-`hex()` functions convert an integer to a binary, decimal, or hexadecimal
-string, generating at least the specified number of digits. The `binnum()`,
-`decnum()`, and `hexnum()` functions perform the reverse conversion, while
-`fpnum()` converts a string to a floating point number; these will ignore any
-trailing characters that are not part of a number, and will return zero if the
-string is empty or does not contain a valid number. Results that are out of
-range will be clamped to the nearest end of the return type's range (for
-`fpnum()` this will normally be positive or negative infinity).
-
-* `template <typename... Args> U8string` **`fmt`**`(const U8string& pattern, const Args&... args)`
-
-This performs string interpolation, inserting the variadic arguments
-(formatted with `to_str()`, below) in place of each occurrence of `"$n"` or
-`"${n}"` in the pattern string, where `n` is a decimal integer interpreted as
-a 1-based index into the variadic argument list. An index out of bounds will
-be replaced with an empty string. If a dollar sign is not followed by a bare
-or braced number, the dollar sign is discarded and the next character is
-copied unchanged (so `"$$"` will produce a literal dollar sign).
-
-* `template <typename T> U8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
-
-Simple floating point formatting, by calling `snprintf()`. `T` must be an
-arithmetic type; it will be converted to `double` internally. The additional
-format `'Z/z'` is the same as `'G/g'` except that trailing zeros are not
-stripped. This will throw `std::invalid_argument` if the mode is not one of
-`[EFGZefgz]`; it may throw `std::system_error` under implementation defined
-circumstances.
-
-* `int64_t` **`si_to_int`**`(const U8string& s)`
-* `double` **`si_to_float`**`(const U8string& s)`
-
-These parse a number from a string representation tagged with an SI multiplier
-abbreviation (e.g. `"123k"`). For the integer version, only tags representing
-positive powers of 1000 (starting with`"k"`) are recognised, and are case
-insensitive. For the floating point version, all tags representing powers of
-100 are recognised (`"u"` is used for "micro"), and are case sensitive, except
-that `"K"` is equivalent to `"k"`. For both versions, a space is allowed
-between the number and the tag, and any additional text after the number or
-tag is ignored.
-
-This will throw `std::invalid_argument` if the string does not start with a
-valid number, or `std::range_error` if the result is too big for the return
-type.
-
-* `U8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
-* `U8string` **`hexdump`**`(const string& str, size_t block = 0)`
-
-Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
-line feed is inserted after each block.
-
-* `U8string` **`tf`**`(bool b)`
-* `U8string` **`yn`**`(bool b)`
-
-Convert a boolean to `"true/false"` or `"yes/no"`.
-
-* `template <typename T> U8string` **`to_str`**`(const T& t)`
-
-Formats an object as a string. This uses the following rules for formatting
-various types:
-
-* `std::string`, `char`, character pointers, and anything with an implicit
-conversion to `string` - The string content is simply copied directly without
-using an output stream; a null character pointer is treated as an empty
-string.
-* Integer types - Formatted using `dec()`.
-* Floating point types - Formatted using `fp_format()`.
-* `bool` - Written as `"true"` or `"false"`.
-* Ranges (other than strings) - Serialized in a format similar to a JSON array
-(e.g. `"[1,2,3]"`), or an object (e.g. `"{1:a,2:b,3:c}"`) if the range's value
-type is a pair; `to_str()` is called recursively on each range element.
-* Otherwise, the type's output operator will be called.
-
 ## HTML/XML tags ##
 
 * `class` **`Tag`**
@@ -247,6 +164,99 @@ Example:
 Output:
 
     <p><code>Hello world</code></p>\n
+
+## String formatting functions ##
+
+* `template <typename T> U8string` **`bin`**`(T x, size_t digits = 8 * sizeof(T))`
+* `template <typename T> U8string` **`dec`**`(T x, size_t digits = 1)`
+* `template <typename T> U8string` **`hex`**`(T x, size_t digits = 2 * sizeof(T))`
+
+Simple number formatting functions. These convert an integer to a binary,
+decimal, or hexadecimal string, generating at least the specified number of
+digits.
+
+* `template <typename... Args> U8string` **`fmt`**`(const U8string& pattern, const Args&... args)`
+
+This performs string interpolation, inserting the variadic arguments
+(formatted with `to_str()`, below) in place of each occurrence of `"$n"` or
+`"${n}"` in the pattern string, where `n` is a decimal integer interpreted as
+a 1-based index into the variadic argument list. An index out of bounds will
+be replaced with an empty string. If a dollar sign is not followed by a bare
+or braced number, the dollar sign is discarded and the next character is
+copied unchanged (so `"$$"` will produce a literal dollar sign).
+
+* `template <typename T> U8string` **`fp_format`**`(T t, char mode = 'g', int prec = 6)`
+
+Simple floating point formatting, by calling `snprintf()`. `T` must be an
+arithmetic type; it will be converted to `double` internally. The additional
+format `'Z/z'` is the same as `'G/g'` except that trailing zeros are not
+stripped. This will throw `std::invalid_argument` if the mode is not one of
+`[EFGZefgz]`; it may throw `std::system_error` under implementation defined
+circumstances.
+
+* `U8string` **`roman`**`(unsigned n)`
+
+Formats a number as a Roman numeral. Zero is written as `"0"`; numbers greater
+than 1000 use an arbitrarily long sequence of `"M"`.
+
+* `U8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
+* `U8string` **`hexdump`**`(const string& str, size_t block = 0)`
+
+Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
+line feed is inserted after each block.
+
+* `U8string` **`tf`**`(bool b)`
+* `U8string` **`yn`**`(bool b)`
+
+Convert a boolean to `"true/false"` or `"yes/no"`.
+
+* `template <typename T> U8string` **`to_str`**`(const T& t)`
+
+Formats an object as a string. This uses the following rules for formatting
+various types:
+
+* `std::string`, `char`, character pointers, and anything with an implicit
+conversion to `string` - The string content is simply copied directly without
+using an output stream; a null character pointer is treated as an empty
+string.
+* Integer types - Formatted using `dec()`.
+* Floating point types - Formatted using `fp_format()`.
+* `bool` - Written as `"true"` or `"false"`.
+* Ranges (other than strings) - Serialized in a format similar to a JSON array
+(e.g. `"[1,2,3]"`), or an object (e.g. `"{1:a,2:b,3:c}"`) if the range's value
+type is a pair; `to_str()` is called recursively on each range element.
+* Otherwise, the type's output operator will be called.
+
+## String parsing functions ##
+
+* `unsigned long long` **`binnum`**`(const string& str) noexcept`
+* `long long` **`decnum`**`(const string& str) noexcept`
+* `unsigned long long` **`hexnum`**`(const string& str) noexcept`
+* `double` **`fpnum`**`(const string& str) noexcept`
+
+The `binnum()`, `decnum()`, and `hexnum()` functions convert a binary,
+decimal, or hexadecimal string to a number; `fpnum()` converts a string to a
+floating point number. These will ignore any trailing characters that are not
+part of a number, and will return zero if the string is empty or does not
+contain a valid number. Results that are out of range will be clamped to the
+nearest end of the return type's range (for `fpnum()` this will normally be
+positive or negative infinity).
+
+* `int64_t` **`si_to_int`**`(const U8string& s)`
+* `double` **`si_to_float`**`(const U8string& s)`
+
+These parse a number from a string representation tagged with an SI multiplier
+abbreviation (e.g. `"123k"`). For the integer version, only tags representing
+positive powers of 1000 (starting with`"k"`) are recognised, and are case
+insensitive. For the floating point version, all tags representing powers of
+100 are recognised (`"u"` is used for "micro"), and are case sensitive, except
+that `"K"` is equivalent to `"k"`. For both versions, a space is allowed
+between the number and the tag, and any additional text after the number or
+tag is ignored.
+
+These will throw `std::invalid_argument` if the string does not start with a
+valid number, or `std::range_error` if the result is too big for the return
+type.
 
 ## Type names ##
 

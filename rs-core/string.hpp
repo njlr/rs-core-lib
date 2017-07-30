@@ -493,15 +493,80 @@ namespace RS {
             return str.substr(pos + 1, npos);
     }
 
-    // String formatting and parsing functions
+    // HTML/XML tags
+
+    class Tag {
+    public:
+        Tag() = default;
+        Tag(std::ostream& out, const std::string& element) {
+            std::string content = trim_right(element, "\n");
+            size_t lfs = element.size() - content.size();
+            content = trim(content, "\t\n\f\r <>");
+            if (content.empty())
+                return;
+            std::string start = '<' + content + '>';
+            if (content.back() == '/') {
+                if (lfs)
+                    start += '\n';
+                out << start;
+                return;
+            }
+            auto cut = std::find_if_not(content.begin(), content.end(), ascii_isalnum_w);
+            std::string tag(content.begin(), cut);
+            end = "</" + tag + '>';
+            if (lfs >= 2)
+                start += '\n';
+            if (lfs)
+                end += '\n';
+            out << start;
+            os = &out;
+        }
+        ~Tag() noexcept {
+            if (os)
+                try { *os << end; }
+                    catch (...) {}
+        }
+        Tag(const Tag&) = delete;
+        Tag(Tag&& t) noexcept {
+            if (&t != this) {
+                end = std::move(t.end);
+                os = t.os;
+                t.os = nullptr;
+            }
+        }
+        Tag& operator=(const Tag&) = delete;
+        Tag& operator=(Tag&& t) noexcept {
+            if (&t != this) {
+                if (os)
+                    *os << end;
+                end = std::move(t.end);
+                os = t.os;
+                t.os = nullptr;
+            }
+            return *this;
+        }
+    private:
+        std::string end;
+        std::ostream* os = nullptr;
+    };
+
+    template <typename T>
+    void tagged(std::ostream& out, const std::string& element, const T& t) {
+        Tag html(out, element);
+        out << t;
+    }
+
+    template <typename... Args>
+    void tagged(std::ostream& out, const std::string& element, const Args&... args) {
+        Tag html(out, element);
+        tagged(out, args...);
+    }
+
+    // String formatting functions
 
     template <typename T> U8string bin(T x, size_t digits = 8 * sizeof(T)) { return RS_Detail::int_to_string(x, 2, digits); }
     template <typename T> U8string dec(T x, size_t digits = 1) { return RS_Detail::int_to_string(x, 10, digits); }
     template <typename T> U8string hex(T x, size_t digits = 2 * sizeof(T)) { return RS_Detail::int_to_string(x, 16, digits); }
-    inline unsigned long long binnum(const std::string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
-    inline long long decnum(const std::string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
-    inline unsigned long long hexnum(const std::string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
-    inline double fpnum(const std::string& str) noexcept { return strtod(str.data(), nullptr); }
 
     template <typename T>
     U8string fp_format(T t, char mode = 'g', int prec = 6) {
@@ -547,57 +612,24 @@ namespace RS {
         return buf;
     }
 
-    inline int64_t si_to_int(const U8string& s) {
-        using limits = std::numeric_limits<int64_t>;
-        static constexpr const char* prefixes = "KMGTPEZY";
-        char* endp = nullptr;
-        errno = 0;
-        int64_t n = strtoll(s.data(), &endp, 10);
-        if (errno == ERANGE)
-            throw std::range_error("Out of range: " + quote(s));
-        if (errno || endp == s.data())
-            throw std::invalid_argument("Invalid number: " + quote(s));
-        if (ascii_isspace(*endp))
-            ++endp;
-        if (n && ascii_isalpha(*endp)) {
-            auto pp = strchr(prefixes, ascii_toupper(*endp));
-            if (pp) {
-                int64_t steps = pp - prefixes + 1;
-                double limit = log10(double(limits::max()) / double(std::abs(n))) / 3;
-                if (steps > limit)
-                    throw std::range_error("Out of range: " + quote(s));
-                n *= int_power(int64_t(1000), steps);
-            }
+    inline U8string roman(unsigned n) {
+        struct char_value { const char* str; unsigned num; };
+        static constexpr char_value table[] {
+            { "CM", 900 }, { "D", 500 }, { "CD", 400 }, { "C", 100 },
+            { "XC", 90 }, { "L", 50 }, { "XL", 40 }, { "X", 10 },
+            { "IX", 9 }, { "V", 5 }, { "IV", 4 }, { "I", 1 },
+        };
+        if (n == 0)
+            return "0";
+        U8string s(n / 1000, 'M');
+        n %= 1000;
+        for (auto& t: table) {
+            unsigned q = n / t.num;
+            n %= t.num;
+            for (unsigned i = 0; i < q; ++i)
+                s += t.str;
         }
-        return n;
-    }
-
-    inline double si_to_float(const U8string& s) {
-        using limits = std::numeric_limits<double>;
-        static constexpr const char* prefixes = "yzafpnum kMGTPEZY";
-        char* endp = nullptr;
-        errno = 0;
-        double x = strtod(s.data(), &endp);
-        if (errno == ERANGE)
-            throw std::range_error("Out of range: " + quote(s));
-        if (errno || endp == s.data())
-            throw std::invalid_argument("Invalid number: " + quote(s));
-        if (ascii_isspace(*endp))
-            ++endp;
-        char c = *endp;
-        if (x && ascii_isalpha(c)) {
-            if (c == 'K')
-                c = 'k';
-            auto pp = strchr(prefixes, c);
-            if (pp) {
-                int steps = pp - prefixes - 8;
-                double limit = log10(limits::max() / fabs(x)) / 3;
-                if (steps > limit)
-                    throw std::range_error("Out of range: " + quote(s));
-                x *= pow(1000.0, steps);
-            }
-        }
-        return x;
+        return s;
     }
 
     inline U8string hexdump(const void* ptr, size_t n, size_t block = 0) {
@@ -740,7 +772,7 @@ namespace RS {
                     result += pattern[i++];
                     continue;
                 }
-                size_t a = decnum(pattern.substr(j, k - j));
+                size_t a = std::stoul(pattern.substr(j, k - j));
                 if (a > 0 && a <= argstr.size())
                     result += argstr[a - 1];
                 if (pattern[k] == '}')
@@ -751,73 +783,64 @@ namespace RS {
         return result;
     }
 
-    // HTML/XML tags
+    // String parsing functions
 
-    class Tag {
-    public:
-        Tag() = default;
-        Tag(std::ostream& out, const std::string& element) {
-            std::string content = trim_right(element, "\n");
-            size_t lfs = element.size() - content.size();
-            content = trim(content, "\t\n\f\r <>");
-            if (content.empty())
-                return;
-            std::string start = '<' + content + '>';
-            if (content.back() == '/') {
-                if (lfs)
-                    start += '\n';
-                out << start;
-                return;
-            }
-            auto cut = std::find_if_not(content.begin(), content.end(), ascii_isalnum_w);
-            std::string tag(content.begin(), cut);
-            end = "</" + tag + '>';
-            if (lfs >= 2)
-                start += '\n';
-            if (lfs)
-                end += '\n';
-            out << start;
-            os = &out;
-        }
-        ~Tag() noexcept {
-            if (os)
-                try { *os << end; }
-                    catch (...) {}
-        }
-        Tag(const Tag&) = delete;
-        Tag(Tag&& t) noexcept {
-            if (&t != this) {
-                end = std::move(t.end);
-                os = t.os;
-                t.os = nullptr;
-            }
-        }
-        Tag& operator=(const Tag&) = delete;
-        Tag& operator=(Tag&& t) noexcept {
-            if (&t != this) {
-                if (os)
-                    *os << end;
-                end = std::move(t.end);
-                os = t.os;
-                t.os = nullptr;
-            }
-            return *this;
-        }
-    private:
-        std::string end;
-        std::ostream* os = nullptr;
-    };
+    inline unsigned long long binnum(const std::string& str) noexcept { return strtoull(str.data(), nullptr, 2); }
+    inline long long decnum(const std::string& str) noexcept { return strtoll(str.data(), nullptr, 10); }
+    inline unsigned long long hexnum(const std::string& str) noexcept { return strtoull(str.data(), nullptr, 16); }
+    inline double fpnum(const std::string& str) noexcept { return strtod(str.data(), nullptr); }
 
-    template <typename T>
-    void tagged(std::ostream& out, const std::string& element, const T& t) {
-        Tag html(out, element);
-        out << t;
+    inline int64_t si_to_int(const U8string& s) {
+        using limits = std::numeric_limits<int64_t>;
+        static constexpr const char* prefixes = "KMGTPEZY";
+        char* endp = nullptr;
+        errno = 0;
+        int64_t n = strtoll(s.data(), &endp, 10);
+        if (errno == ERANGE)
+            throw std::range_error("Out of range: " + quote(s));
+        if (errno || endp == s.data())
+            throw std::invalid_argument("Invalid number: " + quote(s));
+        if (ascii_isspace(*endp))
+            ++endp;
+        if (n && ascii_isalpha(*endp)) {
+            auto pp = strchr(prefixes, ascii_toupper(*endp));
+            if (pp) {
+                int64_t steps = pp - prefixes + 1;
+                double limit = log10(double(limits::max()) / double(std::abs(n))) / 3;
+                if (steps > limit)
+                    throw std::range_error("Out of range: " + quote(s));
+                n *= int_power(int64_t(1000), steps);
+            }
+        }
+        return n;
     }
 
-    template <typename... Args>
-    void tagged(std::ostream& out, const std::string& element, const Args&... args) {
-        Tag html(out, element);
-        tagged(out, args...);
+    inline double si_to_float(const U8string& s) {
+        using limits = std::numeric_limits<double>;
+        static constexpr const char* prefixes = "yzafpnum kMGTPEZY";
+        char* endp = nullptr;
+        errno = 0;
+        double x = strtod(s.data(), &endp);
+        if (errno == ERANGE)
+            throw std::range_error("Out of range: " + quote(s));
+        if (errno || endp == s.data())
+            throw std::invalid_argument("Invalid number: " + quote(s));
+        if (ascii_isspace(*endp))
+            ++endp;
+        char c = *endp;
+        if (x && ascii_isalpha(c)) {
+            if (c == 'K')
+                c = 'k';
+            auto pp = strchr(prefixes, c);
+            if (pp) {
+                int steps = pp - prefixes - 8;
+                double limit = log10(limits::max() / fabs(x)) / 3;
+                if (steps > limit)
+                    throw std::range_error("Out of range: " + quote(s));
+                x *= pow(1000.0, steps);
+            }
+        }
+        return x;
     }
 
     // Type names
