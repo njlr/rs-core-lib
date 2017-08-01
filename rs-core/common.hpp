@@ -1154,12 +1154,18 @@ namespace RS {
 
         template <typename T>
         constexpr T rotl_helper(T t, int n) noexcept {
-            return (t << (n % (8 * sizeof(T)))) | (t >> (8 * sizeof(T) - (n % (8 * sizeof(T)))));
+            static_assert(std::is_integral<T>::value);
+            int tbits = 8 * sizeof(T);
+            int nbits = n % tbits;
+            return nbits ? (t << nbits) | (t >> (tbits - nbits)) : t;
         }
 
         template <typename T>
         constexpr T rotr_helper(T t, int n) noexcept {
-            return (t >> (n % (8 * sizeof(T)))) | (t << (8 * sizeof(T) - (n % (8 * sizeof(T)))));
+            static_assert(std::is_integral<T>::value);
+            int tbits = 8 * sizeof(T);
+            int nbits = n % tbits;
+            return nbits ? (t >> nbits) | (t << (tbits - nbits)) : t;
         }
 
     }
@@ -1200,13 +1206,11 @@ namespace RS {
 
     template <typename T>
     constexpr T rotl(T t, int n) noexcept {
-        static_assert(std::is_integral<T>::value);
         return n == 0 ? t : n < 0 ? RS_Detail::rotr_helper(t, - n) : RS_Detail::rotl_helper(t, n);
     }
 
     template <typename T>
     constexpr T rotr(T t, int n) noexcept {
-        static_assert(std::is_integral<T>::value);
         return n == 0 ? t : n < 0 ? RS_Detail::rotl_helper(t, - n) : RS_Detail::rotr_helper(t, n);
     }
 
