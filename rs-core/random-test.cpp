@@ -56,7 +56,7 @@ namespace {
 
     void check_lcg() {
 
-        static constexpr size_t iterations = 10;
+        static constexpr size_t iterations = 1'000'000;
 
         Lcg32 lcgrng32;
         Lcg64 lcgrng64;
