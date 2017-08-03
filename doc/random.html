@@ -16,6 +16,7 @@
 <ul>
 <li><a href="#random-numbers">Random Numbers</a><ul>
 <li><a href="#contents">Contents</a></li>
+<li><a href="#lcg-functions">LCG functions</a></li>
 <li><a href="#random-device-sources">Random device sources</a></li>
 <li><a href="#xoroshiro-generator">Xoroshiro generator</a></li>
 <li><a href="#simple-random-distributions">Simple random distributions</a></li>
@@ -23,6 +24,45 @@
 </ul>
 </li>
 </ul>
+</div>
+<h2 id="lcg-functions">LCG functions</h2>
+<div class="defns">
+<ul>
+<li><code>constexpr uint32_t</code> <strong><code>lcg32</code></strong><code>(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }</code></li>
+<li><code>constexpr uint64_t</code> <strong><code>lcg64</code></strong><code>(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }</code></li>
+</ul>
+<p>Good LCG transformations for 32 and 64 bit integers,
+from Pierre L'Ecuyer (1999),
+<a href="http://www.ams.org/journals/mcom/1999-68-225/S0025-5718-99-00996-5/S0025-5718-99-00996-5.pdf">"Tables of Linear Congruential Generators of Different Sizes and Good Lattice Structure"</a>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Lcg32</code></strong><ul>
+<li><code>using Lcg32::</code><strong><code>result_type</code></strong> <code>= uint32_t</code></li>
+<li><code>constexpr Lcg32::</code><strong><code>Lcg32</code></strong><code>() noexcept</code></li>
+<li><code>explicit constexpr Lcg32::</code><strong><code>Lcg32</code></strong><code>(uint32_t s) noexcept</code></li>
+<li><code>constexpr uint32_t Lcg32::</code><strong><code>operator()</code></strong><code>() noexcept</code></li>
+<li><code>constexpr bool Lcg32::</code><strong><code>operator==</code></strong><code>(const Lcg32&amp; rhs) const noexcept</code></li>
+<li><code>constexpr bool Lcg32::</code><strong><code>operator!=</code></strong><code>(const Lcg32&amp; rhs) const noexcept</code></li>
+<li><code>constexpr void Lcg32::</code><strong><code>seed</code></strong><code>(uint32_t s) noexcept</code></li>
+<li><code>static constexpr uint32_t Lcg32::</code><strong><code>min</code></strong><code>() noexcept</code> <em>= 0</em></li>
+<li><code>static constexpr uint32_t Lcg32::</code><strong><code>max</code></strong><code>() noexcept</code> <em>= 2<sup>32</sup>-1</em></li>
+</ul>
+</li>
+<li><code>class</code> <strong><code>Lcg64</code></strong><ul>
+<li><code>using Lcg64::</code><strong><code>result_type</code></strong> <code>= uint64_t</code></li>
+<li><code>constexpr Lcg64::</code><strong><code>Lcg64</code></strong><code>() noexcept</code></li>
+<li><code>explicit constexpr Lcg64::</code><strong><code>Lcg64</code></strong><code>(uint64_t s) noexcept</code></li>
+<li><code>constexpr uint64_t Lcg64::</code><strong><code>operator()</code></strong><code>() noexcept</code></li>
+<li><code>constexpr bool Lcg64::</code><strong><code>operator==</code></strong><code>(const Lcg64&amp; rhs) const noexcept</code></li>
+<li><code>constexpr bool Lcg64::</code><strong><code>operator!=</code></strong><code>(const Lcg64&amp; rhs) const noexcept</code></li>
+<li><code>constexpr void Lcg64::</code><strong><code>seed</code></strong><code>(uint64_t s) noexcept</code></li>
+<li><code>static constexpr uint64_t Lcg64::</code><strong><code>min</code></strong><code>() noexcept</code> <em>= 0</em></li>
+<li><code>static constexpr uint64_t Lcg64::</code><strong><code>max</code></strong><code>() noexcept</code> <em>= 2<sup>64</sup>-1</em></li>
+</ul>
+</li>
+</ul>
+<p>Random number engine classes based on the above functions.</p>
 </div>
 <h2 id="random-device-sources">Random device sources</h2>
 <div class="defns">

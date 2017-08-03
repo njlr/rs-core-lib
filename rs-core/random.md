@@ -8,6 +8,38 @@ By Ross Smith
 
 [TOC]
 
+## LCG functions ##
+
+* `constexpr uint32_t` **`lcg32`**`(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }`
+* `constexpr uint64_t` **`lcg64`**`(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }`
+
+Good LCG transformations for 32 and 64 bit integers,
+from Pierre L'Ecuyer (1999),
+["Tables of Linear Congruential Generators of Different Sizes and Good Lattice Structure"](http://www.ams.org/journals/mcom/1999-68-225/S0025-5718-99-00996-5/S0025-5718-99-00996-5.pdf).
+
+* `class` **`Lcg32`**
+    * `using Lcg32::`**`result_type`** `= uint32_t`
+    * `constexpr Lcg32::`**`Lcg32`**`() noexcept`
+    * `explicit constexpr Lcg32::`**`Lcg32`**`(uint32_t s) noexcept`
+    * `constexpr uint32_t Lcg32::`**`operator()`**`() noexcept`
+    * `constexpr bool Lcg32::`**`operator==`**`(const Lcg32& rhs) const noexcept`
+    * `constexpr bool Lcg32::`**`operator!=`**`(const Lcg32& rhs) const noexcept`
+    * `constexpr void Lcg32::`**`seed`**`(uint32_t s) noexcept`
+    * `static constexpr uint32_t Lcg32::`**`min`**`() noexcept` _= 0_
+    * `static constexpr uint32_t Lcg32::`**`max`**`() noexcept` _= 2<sup>32</sup>-1_
+* `class` **`Lcg64`**
+    * `using Lcg64::`**`result_type`** `= uint64_t`
+    * `constexpr Lcg64::`**`Lcg64`**`() noexcept`
+    * `explicit constexpr Lcg64::`**`Lcg64`**`(uint64_t s) noexcept`
+    * `constexpr uint64_t Lcg64::`**`operator()`**`() noexcept`
+    * `constexpr bool Lcg64::`**`operator==`**`(const Lcg64& rhs) const noexcept`
+    * `constexpr bool Lcg64::`**`operator!=`**`(const Lcg64& rhs) const noexcept`
+    * `constexpr void Lcg64::`**`seed`**`(uint64_t s) noexcept`
+    * `static constexpr uint64_t Lcg64::`**`min`**`() noexcept` _= 0_
+    * `static constexpr uint64_t Lcg64::`**`max`**`() noexcept` _= 2<sup>64</sup>-1_
+
+Random number engine classes based on the above functions.
+
 ## Random device sources ##
 
 * `template <typename T> class` **`Urandom`**

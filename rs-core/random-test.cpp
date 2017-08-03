@@ -13,7 +13,13 @@ using namespace RS;
 
 namespace {
 
-    constexpr double inf = std::numeric_limits<double>::infinity();
+    const double inf = std::numeric_limits<double>::infinity();
+    const double max32 = ~ uint32_t(0);
+    const double max64 = ~ uint64_t(0);
+    const double mean32 = max32 / 2;
+    const double mean64 = max64 / 2;
+    const double sd32 = sqrt((ldexp(1.0, 64) - 1) / 12);
+    const double sd64 = sqrt((ldexp(1.0, 128) - 1) / 12);
 
     #define CHECK_RANDOM_GENERATOR(gen, xmin, xmax, xmean, xsd) \
         do { \
@@ -48,19 +54,27 @@ namespace {
             TEST_NEAR_EPSILON(s, xsd, epsilon); \
         } while (false)
 
+    void check_lcg() {
+
+        static constexpr size_t iterations = 10;
+
+        Lcg32 lcgrng32;
+        Lcg64 lcgrng64;
+
+        CHECK_RANDOM_GENERATOR(lcgrng32, 0, max32, mean32, sd32);
+        CHECK_RANDOM_GENERATOR(lcgrng64, 0, max64, mean64, sd64);
+
+    }
+
     void check_urandom() {
 
         static constexpr size_t iterations = 10'000;
 
-        static const double max32 = ~ uint32_t(0);
-        static const double max64 = ~ uint64_t(0);
-        static const double mean32 = max32 / 2;
-        static const double mean64 = max64 / 2;
-        static const double sd32 = sqrt((ldexp(1.0, 64) - 1) / 12);
-        static const double sd64 = sqrt((ldexp(1.0, 128) - 1) / 12);
+        Urandom32 urng32;
+        Urandom64 urng64;
 
-        CHECK_RANDOM_GENERATOR(Urandom32(), 0, max32, mean32, sd32);
-        CHECK_RANDOM_GENERATOR(Urandom64(), 0, max64, mean64, sd64);
+        CHECK_RANDOM_GENERATOR(urng32, 0, max32, mean32, sd32);
+        CHECK_RANDOM_GENERATOR(urng64, 0, max64, mean64, sd64);
 
     }
 
@@ -266,6 +280,7 @@ namespace {
 
 TEST_MODULE(core, random) {
 
+    check_lcg();
     check_urandom();
     check_xoroshiro();
     check_simple_random_distributions();

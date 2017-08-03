@@ -21,6 +21,41 @@
 
 namespace RS {
 
+    // LCG functions
+
+    constexpr uint32_t lcg32(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }
+    constexpr uint64_t lcg64(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }
+
+    class Lcg32:
+    public EqualityComparable<Lcg32> {
+    public:
+        using result_type = uint32_t;
+        constexpr Lcg32() noexcept: x(0) {}
+        explicit constexpr Lcg32(uint32_t s) noexcept: x(s) {}
+        constexpr uint32_t operator()() noexcept { x = lcg32(x); return x; }
+        constexpr bool operator==(const Lcg32& rhs) const noexcept { return x == rhs.x; }
+        constexpr void seed(uint32_t s) noexcept { x = s; }
+        static constexpr uint32_t min() noexcept { return 0; }
+        static constexpr uint32_t max() noexcept { return ~ uint32_t(0); }
+    private:
+        uint32_t x;
+    };
+
+    class Lcg64:
+    public EqualityComparable<Lcg64> {
+    public:
+        using result_type = uint64_t;
+        constexpr Lcg64() noexcept: x(0) {}
+        explicit constexpr Lcg64(uint64_t s) noexcept: x(s) {}
+        uint64_t constexpr operator()() noexcept { x = lcg64(x); return x; }
+        bool constexpr operator==(const Lcg64& rhs) const noexcept { return x == rhs.x; }
+        void constexpr seed(uint64_t s) noexcept { x = s; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t x;
+    };
+
     // Random device sources
 
     inline void urandom(void* ptr, size_t n) noexcept {
