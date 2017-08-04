@@ -430,16 +430,26 @@ namespace RS {
             }
             return;
         }
+        bool single = delim.size() == 1;
         size_t i = 0, j = 0, size = src.size();
-        while (j < size) {
-            i = src.find_first_not_of(delim, j);
-            if (i == npos)
-                break;
+        while (i < size) {
             j = src.find_first_of(delim, i);
-            if (j == npos)
-                j = size;
-            *dst = src.substr(i, j - i);
-            ++dst;
+            if (j == npos) {
+                *dst = src.substr(i, npos);
+                break;
+            }
+            if (single) {
+                *dst++ = src.substr(i, j - i);
+                i = j + 1;
+                if (i == size) {
+                    *dst = U8string();
+                    break;
+                }
+            } else {
+                if (j > i)
+                    *dst++ = src.substr(i, j - i);
+                i = src.find_first_not_of(delim, j);
+            }
         }
     }
 
@@ -871,5 +881,40 @@ namespace RS {
     inline std::string type_name(const std::type_index& t) { return demangle(t.name()); }
     template <typename T> std::string type_name() { return type_name(typeid(T)); }
     template <typename T> std::string type_name(const T& t) { return type_name(typeid(t)); }
+
+    // Literals
+
+    namespace Literals {
+
+        inline Strings operator""_csv(const char* p, size_t n) {
+            auto words = splitv(U8string(p, n), ",");
+            for (auto& word: words)
+                word = trim(word);
+            return words;
+        }
+
+        inline U8string operator""_doc(const char* p, size_t n) {
+            auto lines = splitv(U8string(p, n), "\n");
+            for (auto& line: lines)
+                line = trim_right(line);
+            lines.erase(lines.begin(), std::find_if(lines.begin(), lines.end(), [] (auto& s) { return ! s.empty(); }));
+            if (lines.empty())
+                return {};
+            while (lines.back().empty())
+                lines.pop_back();
+            size_t margin = npos;
+            for (auto& line: lines)
+                if (! line.empty())
+                    margin = std::min(margin, line.find_first_not_of(ascii_whitespace));
+            for (auto& line: lines)
+                line.erase(0, margin);
+            return join(lines, "\n", true);
+        }
+
+        inline Strings operator""_qw(const char* p, size_t n) {
+            return splitv(U8string(p, n));
+        }
+
+    }
 
 }

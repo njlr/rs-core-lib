@@ -15,6 +15,54 @@ using namespace std::literals;
 
 namespace {
 
+    void check_string_literals() {
+
+        using namespace RS::Literals;
+
+        U8string s;
+        Strings v;
+
+        TRY(v = ""_csv);                           TEST_EQUAL(v.size(), 0);  TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(v = " "_csv);                          TEST_EQUAL(v.size(), 1);  TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(v = ","_csv);                          TEST_EQUAL(v.size(), 2);  TRY(s = to_str(v));  TEST_EQUAL(s, "[,]");
+        TRY(v = ",,"_csv);                         TEST_EQUAL(v.size(), 3);  TRY(s = to_str(v));  TEST_EQUAL(s, "[,,]");
+        TRY(v = "alpha"_csv);                      TEST_EQUAL(v.size(), 1);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha]");
+        TRY(v = " alpha "_csv);                    TEST_EQUAL(v.size(), 1);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha]");
+        TRY(v = ",,alpha,,"_csv);                  TEST_EQUAL(v.size(), 5);  TRY(s = to_str(v));  TEST_EQUAL(s, "[,,alpha,,]");
+        TRY(v = "alpha,bravo"_csv);                TEST_EQUAL(v.size(), 2);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha,bravo]");
+        TRY(v = "alpha,bravo,charlie"_csv);        TEST_EQUAL(v.size(), 3);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha,bravo,charlie]");
+        TRY(v = " alpha , bravo , charlie "_csv);  TEST_EQUAL(v.size(), 3);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha,bravo,charlie]");
+        TRY(v = ",alpha,bravo,charlie,"_csv);      TEST_EQUAL(v.size(), 5);  TRY(s = to_str(v));  TEST_EQUAL(s, "[,alpha,bravo,charlie,]");
+
+        TRY(v = ""_qw);                        TEST_EQUAL(v.size(), 0);  TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(v = " \n "_qw);                    TEST_EQUAL(v.size(), 0);  TRY(s = to_str(v));  TEST_EQUAL(s, "[]");
+        TRY(v = "alpha"_qw);                   TEST_EQUAL(v.size(), 1);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha]");
+        TRY(v = "alpha bravo"_qw);             TEST_EQUAL(v.size(), 2);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha,bravo]");
+        TRY(v = " \n alpha \n bravo \n "_qw);  TEST_EQUAL(v.size(), 2);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha,bravo]");
+        TRY(v = "alpha bravo charlie"_qw);     TEST_EQUAL(v.size(), 3);  TRY(s = to_str(v));  TEST_EQUAL(s, "[alpha,bravo,charlie]");
+
+        TRY(s = ""_doc);
+        TEST_EQUAL(s, "");
+
+        TRY(s = R"(
+
+            Hello world.
+
+                Hello again.
+
+            Goodbye.
+
+        )"_doc);
+        TEST_EQUAL(s,
+            "Hello world.\n"
+            "\n"
+            "    Hello again.\n"
+            "\n"
+            "Goodbye.\n"
+        );
+
+    }
+
     void check_character_functions() {
 
         TEST(! ascii_isalnum('\0'));
@@ -457,23 +505,31 @@ namespace {
         TRY(s = bquote(u8"åß∂ƒ"s));                TEST_EQUAL(s, "\"\\xc3\\xa5\\xc3\\x9f\\xe2\\x88\\x82\\xc6\\x92\""s);
         TRY(s = bquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
 
-        TRY(split("", overwrite(sv)));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
-        TRY(split("Hello", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join(sv, "/"), "Hello");
-        TRY(split("Hello world", overwrite(sv)));              TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(split("\t Hello \t world \t", overwrite(sv)));     TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(split("**Hello**world**"s, overwrite(sv), "*"));   TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(split("**Hello**world**"s, overwrite(sv), "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(split("*****"s, overwrite(sv), "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
-        TRY(split("*****"s, overwrite(sv), "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
+        TRY(split("", overwrite(sv)));                       TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split(" ", overwrite(sv)));                      TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split("\n\n", overwrite(sv)));                   TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split("Hello", overwrite(sv)));                  TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello]");
+        TRY(split("Hello world", overwrite(sv)));            TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
+        TRY(split("\t Hello \t world \t", overwrite(sv)));   TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
+        TRY(split("", overwrite(sv), "*"));                  TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split(" ", overwrite(sv), "*"));                 TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[ ]");
+        TRY(split("*", overwrite(sv), "*"));                 TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
+        TRY(split("**", overwrite(sv), "*"));                TEST_EQUAL(sv.size(), 3);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,]");
+        TRY(split("**Hello**world**", overwrite(sv), "*"));  TEST_EQUAL(sv.size(), 7);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,Hello,,world,,]");
+        TRY(split("*****", overwrite(sv), "@*"));            TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
 
-        TRY(sv = splitv(""));                         TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
-        TRY(sv = splitv("Hello"));                    TEST_EQUAL(sv.size(), 1);  TEST_EQUAL(join(sv, "/"), "Hello");
-        TRY(sv = splitv("Hello world"));              TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(sv = splitv("\t Hello \t world \t"));     TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(sv = splitv("**Hello**world**"s, "*"));   TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(sv = splitv("**Hello**world**"s, "*"s));  TEST_EQUAL(sv.size(), 2);  TEST_EQUAL(join(sv, "/"), "Hello/world");
-        TRY(sv = splitv("*****"s, "@*"));             TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
-        TRY(sv = splitv("*****"s, "@*"s));            TEST_EQUAL(sv.size(), 0);  TEST_EQUAL(join(sv, "/"), "");
+        TRY(sv = splitv(""));                       TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv(" "));                      TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv("\n\n"));                   TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv("Hello"));                  TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello]");
+        TRY(sv = splitv("Hello world"));            TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
+        TRY(sv = splitv("\t Hello \t world \t"));   TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
+        TRY(sv = splitv("", "*"));                  TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv(" ", "*"));                 TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[ ]");
+        TRY(sv = splitv("*", "*"));                 TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
+        TRY(sv = splitv("**", "*"));                TEST_EQUAL(sv.size(), 3);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,]");
+        TRY(sv = splitv("**Hello**world**", "*"));  TEST_EQUAL(sv.size(), 7);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,Hello,,world,,]");
+        TRY(sv = splitv("*****", "@*"));            TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
 
         TEST(starts_with("", ""));
         TEST(starts_with("Hello world", ""));
@@ -974,6 +1030,7 @@ namespace {
 
 TEST_MODULE(core, string) {
 
+    check_string_literals();
     check_character_functions();
     check_general_string_functions();
     check_html_xml_tags();

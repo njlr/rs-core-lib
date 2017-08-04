@@ -8,6 +8,42 @@ By Ross Smith
 
 [TOC]
 
+## Literals ##
+
+All of these are in `namespace RS::Literals`.
+
+* `Strings` **`operator""_csv`**`(const char* p, size_t n)`
+* `Strings` **`operator""_qw`**`(const char* p, size_t n)`
+
+These split a string into parts. The `""_csv` literal splits the string at
+each comma, trimming whitespace from each element; the `""_qw` literal splits
+the string into words delimited by whitespace.
+
+Examples:
+
+    "abc, def, ghi"_csv => {"abc", "def", "ghi"}
+    " jkl mno pqr "_qw => {"jkl", "mno", "pqr"}
+
+* `U8string` **`operator""_doc`**`(const char* p, size_t n)`
+
+The `""_doc` literal trims leading and trailing empty lines, and removes any
+common leading indentation from all non-empty lines. Results are unspecified
+if the original string contains a mixture of space and tab indentation.
+
+Example:
+
+    R"(
+        Hello world.
+            Hello again.
+        Goodbye.
+    )"_doc
+
+Result:
+
+    "Hello world.\n"
+    "    Hello again.\n"
+    "Goodbye.\n"
+
 ## Character functions ##
 
 * `constexpr bool` **`ascii_isalnum`**`(char c) noexcept`
@@ -72,17 +108,12 @@ everything else alone.
 Returns a string containing `4*depth` spaces, for indentation.
 
 * `template <typename InputRange> string` **`join`**`(const InputRange& range, const string& delim = "", bool term = false)`
-* `template <typename OutputIterator> void` **`split`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
-* `Strings` **`splitv`**`(const string& src, const string& delim = ascii_whitespace)`
 
-Join strings into a single string, using the given delimiter, or split a
-string into substrings, discarding any sequence of delimiter characters. The
-`splitv()` version returns a vector of strings instead of writing to an
-existing container. The value type of the `InputRange` or `OutputIterator`
-must be assignment compatible with `string`. If the `term` argument to
-`join()` is set, an extra delimiter will be added after the last element
-(useful when joining lines to form a text that would be expected to end with a
-line break).
+Join strings into a single string, using the given delimiter. The value type
+of the input range must be assignment compatible with `U8string`. If the
+`term` argument is set, an extra delimiter will be added after the last
+element (useful when joining lines to form a text that would be expected to
+end with a line break).
 
 * `std::string` **`linearize`**`(const std::string& str)`
 
@@ -102,6 +133,19 @@ Return a quoted string; internal quotes, backslashes, and control characters
 are escaped. The `bquote()` function always escapes all non-ASCII bytes;
 `quote()` passes valid UTF-8 unchanged, but will switch to `bquote()` mode if
 the string is not valid UTF-8.
+
+* `template <typename OutputIterator> void` **`split`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
+* `Strings` **`splitv`**`(const string& src, const string& delim = ascii_whitespace)`
+
+Split a string into substrings, discarding any delimiter characters. If the
+delimiter list contains exactly one character, each individual occurrence of
+that character will be treated as a split point; if more than one delimiter
+character is supplied, any contiguous subsequence of those characters will be
+treated as a single delimiter; if the delimiter list is empty, the source
+string will simply be copied unchanged to the output. The value type of the
+output iterator in `split()` must be assignment compatible with `U8string`;
+the `splitv()` version returns a vector of strings instead of writing to an
+existing receiver.
 
 * `bool` **`starts_with`**`(const string& str, const string& prefix) noexcept`
 * `bool` **`ends_with`**`(const string& str, const string& suffix) noexcept`
