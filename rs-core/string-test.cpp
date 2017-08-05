@@ -458,6 +458,13 @@ namespace {
         TEST_EQUAL(ascii_sentencecase("hello world\n\ngoodbye\n\nhello again"), "Hello world\n\nGoodbye\n\nHello again");
         TEST_EQUAL(ascii_sentencecase("hello world\r\n\r\ngoodbye\r\n\r\nhello again"), "Hello world\r\n\r\nGoodbye\r\n\r\nHello again");
 
+        TRY(s = indent("", 2));
+        TEST_EQUAL(s, "");
+        TRY(s = indent("\n\n", 2));
+        TEST_EQUAL(s, "\n\n");
+        TRY(s = indent("Hello world\n    Hello again\nGoodbye", 2));
+        TEST_EQUAL(s, "        Hello world\n            Hello again\n        Goodbye\n");
+
         sv.clear();                      TEST_EQUAL(join(sv), "");
         sv = {"Hello"};                  TEST_EQUAL(join(sv), "Hello");
         sv = {"Hello","world"};          TEST_EQUAL(join(sv), "Helloworld");

@@ -107,6 +107,10 @@ everything else alone.
 
 Returns a string containing `4*depth` spaces, for indentation.
 
+* `U8string` **`indent`**`(const U8string& str, size_t depth)`
+
+Inserts `4*depth` spaces of indentation on every non-empty line.
+
 * `template <typename InputRange> string` **`join`**`(const InputRange& range, const string& delim = "", bool term = false)`
 
 Join strings into a single string, using the given delimiter. The value type

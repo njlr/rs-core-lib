@@ -140,6 +140,12 @@ everything else alone.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>U8string</code> <strong><code>indent</code></strong><code>(const U8string&amp; str, size_t depth)</code></li>
+</ul>
+<p>Inserts <code>4*depth</code> spaces of indentation on every non-empty line.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename InputRange&gt; string</code> <strong><code>join</code></strong><code>(const InputRange&amp; range, const string&amp; delim = "", bool term = false)</code></li>
 </ul>
 <p>Join strings into a single string, using the given delimiter. The value type

@@ -382,6 +382,23 @@ namespace RS {
 
     inline U8string dent(size_t depth) { return U8string(4 * depth, ' '); }
 
+    inline U8string indent(const U8string& str, size_t depth) {
+        U8string result;
+        size_t i = 0, j = 0, size = str.size();
+        while (i < size) {
+            j = str.find('\n', i);
+            if (j == npos)
+                j = size;
+            if (j > i) {
+                result.append(4 * depth, ' ');
+                result.append(str, i, j - i);
+            }
+            result += '\n';
+            i = j + 1;
+        }
+        return result;
+    }
+
     template <typename InputRange>
     std::string join(const InputRange& range, const std::string& delim = {}, bool term = false) {
         std::string result;
