@@ -597,14 +597,6 @@ overwrite iterator.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename Range, typename... Ranges&gt; std::vector&lt;[value type]&gt;</code> <strong><code>concatenate</code></strong><code>(const Range&amp; range, const Ranges&amp;... ranges)</code></li>
-</ul>
-<p>Returns a vector composed by concatenating all of the argument ranges. The
-value type is that of the first argument range. If any subsequent argument has
-a different value type, it must be assignment compatible with the first.</p>
-</div>
-<div class="defns">
-<ul>
 <li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>con_remove</code></strong><code>(Container&amp; con, const T&amp; t)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if</code></strong><code>(Container&amp; con, Predicate p)</code></li>
 <li><code>template &lt;typename Container, typename Predicate&gt; void</code> <strong><code>con_remove_if_not</code></strong><code>(Container&amp; con, Predicate p)</code></li>
@@ -622,12 +614,30 @@ of <code>std::unique()</code>, has equality semantics).</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>template &lt;typename Range, typename... Ranges&gt; std::vector&lt;[value type]&gt;</code> <strong><code>concatenate</code></strong><code>(const Range&amp; range, const Ranges&amp;... ranges)</code></li>
+</ul>
+<p>Returns a vector composed by concatenating all of the argument ranges. The
+value type is that of the first argument range. If any subsequent argument has
+a different value type, it must be assignment compatible with the first.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename F&gt; void</code> <strong><code>do_n</code></strong><code>(size_t n, F f)</code></li>
 <li><code>template &lt;typename F&gt; void</code> <strong><code>for_n</code></strong><code>(size_t n, F f)</code></li>
 </ul>
 <p>These simply call the function <code>n</code> times. The <code>do_n()</code> loop expects a function
 that takes no arguments, while <code>for_n()</code> passes the iteration count (zero to
 <code>n-1</code>) as an argument.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Container&gt; void</code> <strong><code>ensure_min</code></strong><code>(Container&amp; con, size_t n)</code></li>
+<li><code>template &lt;typename Container, typename T&gt; void</code> <strong><code>ensure_min</code></strong><code>(Container&amp; con, size_t n, const T&amp; t)</code></li>
+<li><code>template &lt;typename Container&gt; void</code> <strong><code>ensure_max</code></strong><code>(Container&amp; con, size_t n)</code></li>
+</ul>
+<p>If <code>con.size()&lt;n</code>, <code>ensure_min()</code> calls <code>con.resize(n[,t])</code>; otherwise, it
+does nothing. If <code>con.size()&gt;n</code>, <code>ensure_max()</code> calls <code>con.resize(n)</code>;
+otherwise, it does nothing.</p>
 </div>
 <div class="defns">
 <ul>

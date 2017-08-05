@@ -721,6 +721,24 @@ namespace RS {
         return v;
     }
 
+    template <typename Container>
+    void ensure_min(Container& con, size_t n) {
+        if (con.size() < n)
+            con.resize(n);
+    }
+
+    template <typename Container, typename T>
+    void ensure_min(Container& con, size_t n, const T& t) {
+        if (con.size() < n)
+            con.resize(n, t);
+    }
+
+    template <typename Container>
+    void ensure_max(Container& con, size_t n) {
+        if (con.size() > n)
+            con.resize(n);
+    }
+
     template <typename F>
     void do_n(size_t n, F f) {
         for (; n != 0; --n)

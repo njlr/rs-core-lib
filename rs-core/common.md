@@ -439,12 +439,6 @@ zero if they are equal, and +1 if the first range is greater.
 These are just shorthand for a `std::copy()` from a range to an append or
 overwrite iterator.
 
-* `template <typename Range, typename... Ranges> std::vector<[value type]>` **`concatenate`**`(const Range& range, const Ranges&... ranges)`
-
-Returns a vector composed by concatenating all of the argument ranges. The
-value type is that of the first argument range. If any subsequent argument has
-a different value type, it must be assignment compatible with the first.
-
 * `template <typename Container, typename T> void` **`con_remove`**`(Container& con, const T& t)`
 * `template <typename Container, typename Predicate> void` **`con_remove_if`**`(Container& con, Predicate p)`
 * `template <typename Container, typename Predicate> void` **`con_remove_if_not`**`(Container& con, Predicate p)`
@@ -460,12 +454,26 @@ by removing equivalent elements from the container; like `std::sort()`, its
 predicate has less-than semantics (whereas that of `con_unique()`, like that
 of `std::unique()`, has equality semantics).
 
+* `template <typename Range, typename... Ranges> std::vector<[value type]>` **`concatenate`**`(const Range& range, const Ranges&... ranges)`
+
+Returns a vector composed by concatenating all of the argument ranges. The
+value type is that of the first argument range. If any subsequent argument has
+a different value type, it must be assignment compatible with the first.
+
 * `template <typename F> void` **`do_n`**`(size_t n, F f)`
 * `template <typename F> void` **`for_n`**`(size_t n, F f)`
 
 These simply call the function `n` times. The `do_n()` loop expects a function
 that takes no arguments, while `for_n()` passes the iteration count (zero to
 `n-1`) as an argument.
+
+* `template <typename Container> void` **`ensure_min`**`(Container& con, size_t n)`
+* `template <typename Container, typename T> void` **`ensure_min`**`(Container& con, size_t n, const T& t)`
+* `template <typename Container> void` **`ensure_max`**`(Container& con, size_t n)`
+
+If `con.size()<n`, `ensure_min()` calls `con.resize(n[,t])`; otherwise, it
+does nothing. If `con.size()>n`, `ensure_max()` calls `con.resize(n)`;
+otherwise, it does nothing.
 
 * `template <typename M, typename K> M::mapped_type` **`find_in_map`**`(const M& map, const K& key)`
 * `template <typename M, typename K, typename T> M::mapped_type` **`find_in_map`**`(const M& map, const K& key, const T& def)`
