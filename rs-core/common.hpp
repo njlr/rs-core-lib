@@ -519,32 +519,44 @@ namespace RS {
     namespace RS_Detail {
 
         template <typename T, int Def, bool Conv = std::is_constructible<T, int>::value>
-        struct DefaultTo;
+        class DefaultTo;
 
         template <typename T, int Def>
-        struct DefaultTo<T, Def, true> {
-            T defval() const { return static_cast<T>(Def); }
+        class DefaultTo<T, Def, true> {
+        public:
+            static T default_value() { return static_cast<T>(Def); }
         };
 
         template <typename T>
-        struct DefaultTo<T, 0, false> {
-            T defval() const { return T(); }
+        class DefaultTo<T, 0, false> {
+        public:
+            static T default_value() { return T(); }
         };
 
     }
 
     template <typename T, int Def = 0>
-    struct Movable:
-    private RS_Detail::DefaultTo<T, Def> {
+    class Movable:
+    public RS_Detail::DefaultTo<T, Def> {
+    public:
         using value_type = T;
-        T value;
-        Movable(): value(this->defval()) {}
-        Movable(const T& t): value(t) {}
+        Movable(): value(this->default_value()) {}
         ~Movable() = default;
         Movable(const Movable& m) = default;
-        Movable(Movable&& m) noexcept: value(std::move(m.value)) { m.value = this->defval(); }
+        Movable(Movable&& m) noexcept: value(std::exchange(m.value, this->default_value())) {}
+        Movable(const T& t): value(t) {}
+        Movable(T&& t): value(std::exchange(t, this->default_value())) {}
         Movable& operator=(const Movable& m) = default;
-        Movable& operator=(Movable&& m) noexcept { if (&m != this) { value = std::move(m.value); m.value = this->defval(); } return *this; }
+        Movable& operator=(Movable&& m) noexcept { if (&m != this) { value = std::exchange(m.value, this->default_value()); } return *this; }
+        Movable& operator=(const T& t) { value = t; return *this; }
+        Movable& operator=(T&& t) noexcept { value = std::exchange(t, this->default_value()); return *this; }
+        T& operator*() noexcept { return value; }
+        const T& operator*() const noexcept { return value; }
+        T* operator->() noexcept { return &value; }
+        const T* operator->() const noexcept { return &value; }
+        operator T() const { return value; }
+    private:
+        T value;
     };
 
     // Type related functions

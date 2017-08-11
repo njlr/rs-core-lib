@@ -265,16 +265,24 @@ Shorthand for `make_shared/unique<T>(t)`.
 
 ### Type adapters ###
 
-* `template <typename T, int Def = 0> struct` **`Movable`**
+* `template <typename T, int Def = 0> class` **`Movable`**
     * `using Movable::`**`value_type`** `= T`
-    * `T Movable::`**`value`**
     * `Movable::`**`Movable`**`()`
-    * `Movable::`**`Movable`**`(const T& t)`
-    * `Movable::`**`~Movable`**`() noexcept`
+    * `Movable::`**`~Movable`**`()`
     * `Movable::`**`Movable`**`(const Movable& m)`
     * `Movable::`**`Movable`**`(Movable&& m) noexcept`
+    * `Movable::`**`Movable`**`(const T& t)`
+    * `Movable::`**`Movable`**`(T&& t)`
     * `Movable& Movable::`**`operator=`**`(const Movable& m)`
     * `Movable& Movable::`**`operator=`**`(Movable&& m) noexcept`
+    * `Movable& Movable::`**`operator=`**`(const T& t)`
+    * `Movable& Movable::`**`operator=`**`(T&& t) noexcept`
+    * `T& Movable::`**`operator*`**`() noexcept`
+    * `const T& Movable::`**`operator*`**`() const noexcept`
+    * `T* Movable::`**`operator->`**`() noexcept`
+    * `const T* Movable::`**`operator->`**`() const noexcept`
+    * `Movable::`**`operator T`**`() const`
+    * `static T Movable::`**`default_value`**`()`
 
 This wraps a `T` object and provides reset-on-move behaviour: `Movable<T>`'s
 move constructor and move assignment operator set the value in the moved-from

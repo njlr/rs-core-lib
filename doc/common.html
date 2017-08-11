@@ -401,16 +401,24 @@ supply the standard member types:</p>
 <h3 id="type-adapters">Type adapters</h3>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T, int Def = 0&gt; struct</code> <strong><code>Movable</code></strong><ul>
+<li><code>template &lt;typename T, int Def = 0&gt; class</code> <strong><code>Movable</code></strong><ul>
 <li><code>using Movable::</code><strong><code>value_type</code></strong> <code>= T</code></li>
-<li><code>T Movable::</code><strong><code>value</code></strong></li>
 <li><code>Movable::</code><strong><code>Movable</code></strong><code>()</code></li>
-<li><code>Movable::</code><strong><code>Movable</code></strong><code>(const T&amp; t)</code></li>
-<li><code>Movable::</code><strong><code>~Movable</code></strong><code>() noexcept</code></li>
+<li><code>Movable::</code><strong><code>~Movable</code></strong><code>()</code></li>
 <li><code>Movable::</code><strong><code>Movable</code></strong><code>(const Movable&amp; m)</code></li>
 <li><code>Movable::</code><strong><code>Movable</code></strong><code>(Movable&amp;&amp; m) noexcept</code></li>
+<li><code>Movable::</code><strong><code>Movable</code></strong><code>(const T&amp; t)</code></li>
+<li><code>Movable::</code><strong><code>Movable</code></strong><code>(T&amp;&amp; t)</code></li>
 <li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(const Movable&amp; m)</code></li>
 <li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(Movable&amp;&amp; m) noexcept</code></li>
+<li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(const T&amp; t)</code></li>
+<li><code>Movable&amp; Movable::</code><strong><code>operator=</code></strong><code>(T&amp;&amp; t) noexcept</code></li>
+<li><code>T&amp; Movable::</code><strong><code>operator*</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Movable::</code><strong><code>operator*</code></strong><code>() const noexcept</code></li>
+<li><code>T* Movable::</code><strong><code>operator-&gt;</code></strong><code>() noexcept</code></li>
+<li><code>const T* Movable::</code><strong><code>operator-&gt;</code></strong><code>() const noexcept</code></li>
+<li><code>Movable::</code><strong><code>operator T</code></strong><code>() const</code></li>
+<li><code>static T Movable::</code><strong><code>default_value</code></strong><code>()</code></li>
 </ul>
 </li>
 </ul>

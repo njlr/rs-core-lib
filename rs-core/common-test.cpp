@@ -451,38 +451,38 @@ namespace {
 
     struct Adapt {
         Movable<U8string> s;
-        Movable<int> x;
-        Movable<int, 10> y;
-        int z = 20;
+        Movable<int> i;
+        Movable<int, 10> j;
+        int k = 20;
     };
 
     void check_type_adapters() {
 
         Adapt a, b;
 
-        TEST_EQUAL(a.s.value, "");
-        TEST_EQUAL(a.x.value, 0);
-        TEST_EQUAL(a.y.value, 10);
-        TEST_EQUAL(a.z, 20);
+        TEST_EQUAL(*a.s, "");
+        TEST_EQUAL(*a.i, 0);
+        TEST_EQUAL(*a.j, 10);
+        TEST_EQUAL(a.k, 20);
 
         TRY((b = {"Hello"s, 100, 200, 300}));
 
-        TEST_EQUAL(b.s.value, "Hello");
-        TEST_EQUAL(b.x.value, 100);
-        TEST_EQUAL(b.y.value, 200);
-        TEST_EQUAL(b.z, 300);
+        TEST_EQUAL(*b.s, "Hello");
+        TEST_EQUAL(*b.i, 100);
+        TEST_EQUAL(*b.j, 200);
+        TEST_EQUAL(b.k, 300);
 
         TRY(a = std::move(b));
 
-        TEST_EQUAL(a.s.value, "Hello");
-        TEST_EQUAL(a.x.value, 100);
-        TEST_EQUAL(a.y.value, 200);
-        TEST_EQUAL(a.z, 300);
+        TEST_EQUAL(*a.s, "Hello");
+        TEST_EQUAL(*a.i, 100);
+        TEST_EQUAL(*a.j, 200);
+        TEST_EQUAL(a.k, 300);
 
-        TEST_EQUAL(b.s.value, "");
-        TEST_EQUAL(b.x.value, 0);
-        TEST_EQUAL(b.y.value, 10);
-        TEST_EQUAL(b.z, 300);
+        TEST_EQUAL(*b.s, "");
+        TEST_EQUAL(*b.i, 0);
+        TEST_EQUAL(*b.j, 10);
+        TEST_EQUAL(b.k, 300);
 
     }
 
