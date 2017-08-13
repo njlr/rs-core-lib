@@ -21,102 +21,7 @@
 
 namespace RS {
 
-    // LCG functions
-
-    constexpr uint32_t lcg32(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }
-    constexpr uint64_t lcg64(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }
-
-    class Lcg32:
-    public EqualityComparable<Lcg32> {
-    public:
-        using result_type = uint32_t;
-        constexpr Lcg32() noexcept: x(0) {}
-        explicit constexpr Lcg32(uint32_t s) noexcept: x(s) {}
-        constexpr uint32_t operator()() noexcept { x = lcg32(x); return x; }
-        constexpr bool operator==(const Lcg32& rhs) const noexcept { return x == rhs.x; }
-        constexpr void seed(uint32_t s) noexcept { x = s; }
-        static constexpr uint32_t min() noexcept { return 0; }
-        static constexpr uint32_t max() noexcept { return ~ uint32_t(0); }
-    private:
-        uint32_t x;
-    };
-
-    class Lcg64:
-    public EqualityComparable<Lcg64> {
-    public:
-        using result_type = uint64_t;
-        constexpr Lcg64() noexcept: x(0) {}
-        explicit constexpr Lcg64(uint64_t s) noexcept: x(s) {}
-        uint64_t constexpr operator()() noexcept { x = lcg64(x); return x; }
-        bool constexpr operator==(const Lcg64& rhs) const noexcept { return x == rhs.x; }
-        void constexpr seed(uint64_t s) noexcept { x = s; }
-        static constexpr uint64_t min() noexcept { return 0; }
-        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
-    private:
-        uint64_t x;
-    };
-
-    // Random device sources
-
-    inline void urandom(void* ptr, size_t n) noexcept {
-        if (! ptr || ! n)
-            return;
-        #ifdef _XOPEN_SOURCE
-            int fd = ::open("/dev/urandom", O_RDONLY);
-            ::read(fd, ptr, n);
-            ::close(fd);
-        #else
-            HCRYPTPROV handle = 0;
-            CryptAcquireContext(&handle, nullptr, nullptr, PROV_RSA_FULL, CRYPT_SILENT | CRYPT_VERIFYCONTEXT);
-            CryptGenRandom(handle, n, static_cast<uint8_t*>(ptr));
-            CryptReleaseContext(handle, 0);
-        #endif
-    }
-
-    template <typename T>
-    class Urandom {
-    public:
-        static_assert(std::is_integral<T>::value);
-        using result_type = T;
-        T operator()() noexcept { T u = 0; urandom(&u, sizeof(u)); return u; }
-        static constexpr T min() noexcept { return std::numeric_limits<T>::min(); }
-        static constexpr T max() noexcept { return std::numeric_limits<T>::max(); }
-    };
-
-    using Urandom32 = Urandom<uint32_t>;
-    using Urandom64 = Urandom<uint64_t>;
-
-    // Xoroshiro generator
-
-    class Xoroshiro:
-    public EqualityComparable<Xoroshiro> {
-    public:
-        using result_type = uint64_t;
-        Xoroshiro() noexcept { seed(0); }
-        explicit Xoroshiro(uint64_t s) noexcept { seed(s); }
-        Xoroshiro(uint64_t s1, uint64_t s2) noexcept { seed(s1, s2); }
-        uint64_t operator()() noexcept {
-            y ^= x;
-            x = rotl(x, 55) ^ y ^ (y << 14);
-            y = rotl(y, 36);
-            return x + y;
-        }
-        bool operator==(const Xoroshiro& rhs) const noexcept { return x == rhs.x && y == rhs.y; }
-        void seed(uint64_t s) noexcept {
-            x = s + 0x9e3779b97f4a7c15ull;
-            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
-            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
-            x ^= (x >> 31);
-            y = s;
-        }
-        void seed(uint64_t s1, uint64_t s2) noexcept { x = s1; y = s2; }
-        static constexpr uint64_t min() noexcept { return 0; }
-        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
-    private:
-        uint64_t x, y;
-    };
-
-    // Simple random distributions
+    // Generic random integer generator
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T min, T max) {
@@ -173,6 +78,56 @@ namespace RS {
         else
             return random_integer(rng, T(0), t - T(1));
     }
+
+    // Random algorithms
+
+    template <typename RNG>
+    void random_bytes(RNG& rng, void* ptr, size_t n) {
+        static constexpr auto max64 = ~ uint64_t(0);
+        if (! ptr || ! n)
+            return;
+        auto range_m1 = uint64_t(std::min(uintmax_t(RNG::max()) - uintmax_t(RNG::min()), uintmax_t(max64)));
+        size_t block;
+        if (range_m1 == max64)
+            block = 8;
+        else
+            block = (ilog2p1(range_m1) - 1) / 8;
+        auto bp = static_cast<uint8_t*>(ptr);
+        if (block) {
+            while (n >= block) {
+                auto x = rng() - RNG::min();
+                memcpy(bp, &x, block);
+                bp += block;
+                n -= block;
+            }
+            if (n) {
+                auto x = rng() - RNG::min();
+                memcpy(bp, &x, n);
+            }
+        } else {
+            for (size_t i = 0; i < n; ++i)
+                bp[i] = uint8_t(random_integer(rng, 256));
+        }
+    }
+
+    template <typename RNG, typename RandomAccessIterator>
+    void shuffle(RNG& rng, RandomAccessIterator i, RandomAccessIterator j) {
+        size_t n = std::distance(i, j);
+        for (size_t a = 0; a + 1 < n; ++a) {
+            size_t b = random_integer(rng, a, n - 1);
+            if (a != b)
+                std::swap(i[a], i[b]);
+        }
+    }
+
+    template <typename RNG, typename RandomAccessRange>
+    void shuffle(RNG& rng, RandomAccessRange& range) {
+        using std::begin;
+        using std::end;
+        shuffle(begin(range), end(range), rng);
+    }
+
+    // Basic random distributions
 
     template <typename T, typename RNG>
     T random_dice(RNG& rng, T n = T(1), T faces = T(6)) {
@@ -271,52 +226,352 @@ namespace RS {
         return sample;
     }
 
-    // Other random functions
+    // Random distribution properties
 
-    template <typename RNG>
-    void random_bytes(RNG& rng, void* ptr, size_t n) {
-        static constexpr auto max64 = ~ uint64_t(0);
+    class UniformIntegerProperties {
+    public:
+        explicit UniformIntegerProperties(int n) noexcept: UniformIntegerProperties(0, std::max(n, 1) - 1) {}
+        explicit UniformIntegerProperties(int a, int b) noexcept: lo(std::min(a, b)), hi(std::max(a, b)) {}
+        int min() const noexcept { return lo; }
+        int max() const noexcept { return hi; }
+        double mean() const noexcept { return (double(lo) + double(hi)) / 2; }
+        double sd() const noexcept { return sqrt(variance()); }
+        double variance() const noexcept { double r = hi - lo + 1; return (r * r - 1) / 12; }
+        double pdf(int x) const noexcept;
+        double cdf(int x) const noexcept;
+        double ccdf(int x) const noexcept;
+    private:
+        int lo, hi;
+    };
+
+        inline double UniformIntegerProperties::pdf(int x) const noexcept {
+            if (x >= lo && x <= hi)
+                return 1.0 / (hi - lo + 1);
+            else
+                return 0;
+        }
+
+        inline double UniformIntegerProperties::cdf(int x) const noexcept {
+            if (x < lo)
+                return 0;
+            else if (x < hi)
+                return double(x - lo + 1) / (hi - lo + 1);
+            else
+                return 1;
+        }
+
+        inline double UniformIntegerProperties::ccdf(int x) const noexcept {
+            if (x <= lo)
+                return 1;
+            else if (x <= hi)
+                return double(hi - x + 1) / (hi - lo + 1);
+            else
+                return 0;
+        }
+
+    class BinomialDistributionProperties {
+    public:
+        BinomialDistributionProperties(int t, double p) noexcept: tests(t), prob(p) {}
+        int t() const noexcept { return tests; }
+        double p() const noexcept { return prob; }
+        int min() const noexcept { return 0; }
+        int max() const noexcept { return tests; }
+        double mean() const noexcept { return t() * p(); }
+        double sd() const noexcept { return sqrt(variance()); }
+        double variance() const noexcept { return t() * p() * (1 - p()); }
+        double pdf(int x) const noexcept;
+        double cdf(int x) const noexcept;
+        double ccdf(int x) const noexcept;
+    private:
+        int tests;
+        double prob;
+    };
+
+        inline double BinomialDistributionProperties::pdf(int x) const noexcept {
+            if (x >= 0 && x <= tests)
+                return xbinomial(tests, x) * pow(prob, x) * pow(1 - prob, tests - x);
+            else
+                return 0;
+        }
+
+        inline double BinomialDistributionProperties::cdf(int x) const noexcept {
+            if (x < 0)
+                return 0;
+            else if (x >= tests)
+                return 1;
+            double c = 0;
+            for (int y = 0; y <= x; ++y)
+                c += pdf(y);
+            return c;
+        }
+
+        inline double BinomialDistributionProperties::ccdf(int x) const noexcept {
+            if (x <= 0)
+                return 1;
+            else if (x > tests)
+                return 0;
+            double c = 0;
+            for (int y = tests; y >= x; --y)
+                c += pdf(y);
+            return c;
+        }
+
+    class DiceProperties {
+    public:
+        DiceProperties() = default;
+        explicit DiceProperties(int number, int faces = 6) noexcept: num(number), fac(faces) {}
+        int number() const noexcept { return num; }
+        int faces() const noexcept { return fac; }
+        int min() const noexcept { return num; }
+        int max() const noexcept { return num * fac; }
+        double mean() const noexcept { return num * (double(fac) + 1) / 2; }
+        double sd() const noexcept { return sqrt(variance()); }
+        double variance() const noexcept { double f = fac; return num * (f * f - 1) / 12; }
+        double pdf(int x) const noexcept;
+        double cdf(int x) const noexcept { return ccdf(num * (fac + 1) - x); }
+        double ccdf(int x) const noexcept;
+    private:
+        int num = 1, fac = 6;
+    };
+
+        inline double DiceProperties::pdf(int x) const noexcept {
+            if (x < num || x > max())
+                return 0;
+            double s = 1, t = 0;
+            for (int i = 0, j = x - 1; i < num; ++i, j -= fac, s = - s)
+                t += s * xbinomial(j, num - 1) * xbinomial(num, i);
+            return t * pow(double(fac), - num);
+        }
+
+        inline double DiceProperties::ccdf(int x) const noexcept {
+            if (x <= num)
+                return 1;
+            if (x > max())
+                return 0;
+            double s = 1, t = 0;
+            for (int i = 0, j = num * (fac + 1) - x; i < num; ++i, j -= fac, s = - s)
+                t += s * xbinomial(j, num) * xbinomial(num, i);
+            return t * pow(double(fac), - num);
+        }
+
+    class UniformRealProperties {
+    public:
+        UniformRealProperties() = default;
+        explicit UniformRealProperties(double a, double b = 0) noexcept: lo(std::min(a, b)), hi(std::max(a, b)) {}
+        double min() const noexcept { return lo; }
+        double max() const noexcept { return hi; }
+        double mean() const noexcept { return (lo + hi) / 2; }
+        double sd() const noexcept;
+        double variance() const noexcept { double r = hi - lo; return r * r / 12; }
+        double pdf(double x) const noexcept;
+        double cdf(double x) const noexcept;
+        double ccdf(double x) const noexcept;
+        double quantile(double p) const noexcept { return lo + p * (hi - lo); }
+        double cquantile(double q) const noexcept { return hi - q * (hi - lo); }
+    private:
+        double lo = 0, hi = 1;
+    };
+
+        inline double UniformRealProperties::sd() const noexcept {
+            static const double inv_sqrt12 = sqrt(1.0 / 12.0);
+            return inv_sqrt12 * (hi - lo);
+        }
+
+        inline double UniformRealProperties::pdf(double x) const noexcept {
+            if (x > lo && x < hi)
+                return 1 / (hi - lo);
+            else
+                return 0;
+        }
+
+        inline double UniformRealProperties::cdf(double x) const noexcept {
+            if (x <= lo)
+                return 0;
+            else if (x < hi)
+                return (x - lo) / (hi - lo);
+            else
+                return 1;
+        }
+
+        inline double UniformRealProperties::ccdf(double x) const noexcept {
+            if (x <= lo)
+                return 1;
+            else if (x < hi)
+                return (hi - x) / (hi - lo);
+            else
+                return 0;
+        }
+
+    class NormalDistributionProperties {
+    public:
+        NormalDistributionProperties() = default;
+        explicit NormalDistributionProperties(double m, double s) noexcept: xm(m), xs(std::abs(s)) {}
+        double min() const noexcept { return {}; }
+        double max() const noexcept { return {}; }
+        double mean() const noexcept { return xm; }
+        double sd() const noexcept { return xs; }
+        double variance() const noexcept { return xs * xs; }
+        double pdf(double x) const noexcept { return pdf_z((x - xm) / xs); }
+        double cdf(double x) const noexcept { return cdf_z((x - xm) / xs); }
+        double ccdf(double x) const noexcept { return cdf_z((xm - x) / xs); }
+        double quantile(double p) const noexcept;
+        double cquantile(double q) const noexcept;
+    private:
+        double xm = 0, xs = 1;
+        double pdf_z(double z) const noexcept;
+        double cdf_z(double z) const noexcept;
+        double cquantile_z(double q) const noexcept;
+    };
+
+        inline double NormalDistributionProperties::quantile(double p) const noexcept {
+            if (p < 0.5)
+                return xm - xs * cquantile_z(p);
+            else if (p == 0.5)
+                return xm;
+            else
+                return xm + xs * cquantile_z(1 - p);
+        }
+
+        inline double NormalDistributionProperties::cquantile(double q) const noexcept {
+            if (q < 0.5)
+                return xm + xs * cquantile_z(q);
+            else if (q == 0.5)
+                return xm;
+            else
+                return xm - xs * cquantile_z(1 - q);
+        }
+
+        inline double NormalDistributionProperties::pdf_z(double z) const noexcept {
+            return exp(- z * z / 2) / sqrt2pi_d;
+        }
+
+        inline double NormalDistributionProperties::cdf_z(double z) const noexcept {
+            return (erf(z / sqrt2_d) + 1) / 2;
+        }
+
+        inline double NormalDistributionProperties::cquantile_z(double q) const noexcept {
+            // Beasley-Springer approximation
+            // For |z|<3.75, absolute error <1e-6, relative error <2.5e-7
+            // For |z|<7.5, absolute error <5e-4, relative error <5e-5
+            // This will always be called with 0<q<1/2
+            static constexpr double threshold = 0.08;
+            static constexpr double a1 = 2.321213;
+            static constexpr double a2 = 4.850141;
+            static constexpr double a3 = -2.297965;
+            static constexpr double a4 = -2.787189;
+            static constexpr double b1 = 1.637068;
+            static constexpr double b2 = 3.543889;
+            static constexpr double c1 = -25.44106;
+            static constexpr double c2 = 41.3912;
+            static constexpr double c3 = -18.615;
+            static constexpr double c4 = 2.506628;
+            static constexpr double d1 = 3.130829;
+            static constexpr double d2 = -21.06224;
+            static constexpr double d3 = 23.08337;
+            static constexpr double d4 = -8.473511;
+            if (q < threshold) {
+                double r = sqrt(- log(q));
+                return (((a1 * r + a2) * r + a3) * r + a4) / ((b1 * r + b2) * r + 1);
+            } else {
+                double q1 = 0.5 - q;
+                double r = q1 * q1;
+                return q1 * (((c1 * r + c2) * r + c3) * r + c4) / ((((d1 * r + d2) * r + d3) * r + d4) * r + 1);
+            }
+        }
+
+    // LCG functions
+
+    constexpr uint32_t lcg32(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }
+    constexpr uint64_t lcg64(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }
+
+    class Lcg32:
+    public EqualityComparable<Lcg32> {
+    public:
+        using result_type = uint32_t;
+        constexpr Lcg32() noexcept: x(0) {}
+        explicit constexpr Lcg32(uint32_t s) noexcept: x(s) {}
+        constexpr uint32_t operator()() noexcept { x = lcg32(x); return x; }
+        constexpr bool operator==(const Lcg32& rhs) const noexcept { return x == rhs.x; }
+        constexpr void seed(uint32_t s) noexcept { x = s; }
+        static constexpr uint32_t min() noexcept { return 0; }
+        static constexpr uint32_t max() noexcept { return ~ uint32_t(0); }
+    private:
+        uint32_t x;
+    };
+
+    class Lcg64:
+    public EqualityComparable<Lcg64> {
+    public:
+        using result_type = uint64_t;
+        constexpr Lcg64() noexcept: x(0) {}
+        explicit constexpr Lcg64(uint64_t s) noexcept: x(s) {}
+        uint64_t constexpr operator()() noexcept { x = lcg64(x); return x; }
+        bool constexpr operator==(const Lcg64& rhs) const noexcept { return x == rhs.x; }
+        void constexpr seed(uint64_t s) noexcept { x = s; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t x;
+    };
+
+    // Random device sources
+
+    inline void urandom(void* ptr, size_t n) noexcept {
         if (! ptr || ! n)
             return;
-        auto range_m1 = uint64_t(std::min(uintmax_t(RNG::max()) - uintmax_t(RNG::min()), uintmax_t(max64)));
-        size_t block;
-        if (range_m1 == max64)
-            block = 8;
-        else
-            block = (ilog2p1(range_m1) - 1) / 8;
-        auto bp = static_cast<uint8_t*>(ptr);
-        if (block) {
-            while (n >= block) {
-                auto x = rng() - RNG::min();
-                memcpy(bp, &x, block);
-                bp += block;
-                n -= block;
-            }
-            if (n) {
-                auto x = rng() - RNG::min();
-                memcpy(bp, &x, n);
-            }
-        } else {
-            for (size_t i = 0; i < n; ++i)
-                bp[i] = uint8_t(random_integer(rng, 256));
-        }
+        #ifdef _XOPEN_SOURCE
+            int fd = ::open("/dev/urandom", O_RDONLY);
+            ::read(fd, ptr, n);
+            ::close(fd);
+        #else
+            HCRYPTPROV handle = 0;
+            CryptAcquireContext(&handle, nullptr, nullptr, PROV_RSA_FULL, CRYPT_SILENT | CRYPT_VERIFYCONTEXT);
+            CryptGenRandom(handle, n, static_cast<uint8_t*>(ptr));
+            CryptReleaseContext(handle, 0);
+        #endif
     }
 
-    template <typename RNG, typename RandomAccessIterator>
-    void shuffle(RNG& rng, RandomAccessIterator i, RandomAccessIterator j) {
-        size_t n = std::distance(i, j);
-        for (size_t a = 0; a + 1 < n; ++a) {
-            size_t b = random_integer(rng, a, n - 1);
-            if (a != b)
-                std::swap(i[a], i[b]);
-        }
-    }
+    template <typename T>
+    class Urandom {
+    public:
+        static_assert(std::is_integral<T>::value);
+        using result_type = T;
+        T operator()() noexcept { T u = 0; urandom(&u, sizeof(u)); return u; }
+        static constexpr T min() noexcept { return std::numeric_limits<T>::min(); }
+        static constexpr T max() noexcept { return std::numeric_limits<T>::max(); }
+    };
 
-    template <typename RNG, typename RandomAccessRange>
-    void shuffle(RNG& rng, RandomAccessRange& range) {
-        using std::begin;
-        using std::end;
-        shuffle(begin(range), end(range), rng);
-    }
+    using Urandom32 = Urandom<uint32_t>;
+    using Urandom64 = Urandom<uint64_t>;
+
+    // Xoroshiro generator
+
+    class Xoroshiro:
+    public EqualityComparable<Xoroshiro> {
+    public:
+        using result_type = uint64_t;
+        Xoroshiro() noexcept { seed(0); }
+        explicit Xoroshiro(uint64_t s) noexcept { seed(s); }
+        Xoroshiro(uint64_t s1, uint64_t s2) noexcept { seed(s1, s2); }
+        uint64_t operator()() noexcept {
+            y ^= x;
+            x = rotl(x, 55) ^ y ^ (y << 14);
+            y = rotl(y, 36);
+            return x + y;
+        }
+        bool operator==(const Xoroshiro& rhs) const noexcept { return x == rhs.x && y == rhs.y; }
+        void seed(uint64_t s) noexcept {
+            x = s + 0x9e3779b97f4a7c15ull;
+            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+            x ^= (x >> 31);
+            y = s;
+        }
+        void seed(uint64_t s1, uint64_t s2) noexcept { x = s1; y = s2; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t x, y;
+    };
 
 }
