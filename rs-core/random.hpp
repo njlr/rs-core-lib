@@ -2,13 +2,20 @@
 
 #include "rs-core/common.hpp"
 #include "rs-core/float.hpp"
+#include "rs-core/string.hpp"
+#include "rs-core/vector.hpp"
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
+#include <map>
+#include <random>
+#include <set>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #ifdef _XOPEN_SOURCE
@@ -21,7 +28,102 @@
 
 namespace RS {
 
-    // Generic random integer generator
+    // LCG functions
+
+    constexpr uint32_t lcg32(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }
+    constexpr uint64_t lcg64(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }
+
+    class Lcg32:
+    public EqualityComparable<Lcg32> {
+    public:
+        using result_type = uint32_t;
+        constexpr Lcg32() noexcept: x(0) {}
+        explicit constexpr Lcg32(uint32_t s) noexcept: x(s) {}
+        constexpr uint32_t operator()() noexcept { x = lcg32(x); return x; }
+        constexpr bool operator==(const Lcg32& rhs) const noexcept { return x == rhs.x; }
+        constexpr void seed(uint32_t s) noexcept { x = s; }
+        static constexpr uint32_t min() noexcept { return 0; }
+        static constexpr uint32_t max() noexcept { return ~ uint32_t(0); }
+    private:
+        uint32_t x;
+    };
+
+    class Lcg64:
+    public EqualityComparable<Lcg64> {
+    public:
+        using result_type = uint64_t;
+        constexpr Lcg64() noexcept: x(0) {}
+        explicit constexpr Lcg64(uint64_t s) noexcept: x(s) {}
+        uint64_t constexpr operator()() noexcept { x = lcg64(x); return x; }
+        bool constexpr operator==(const Lcg64& rhs) const noexcept { return x == rhs.x; }
+        void constexpr seed(uint64_t s) noexcept { x = s; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t x;
+    };
+
+    // Random device sources
+
+    inline void urandom(void* ptr, size_t n) noexcept {
+        if (! ptr || ! n)
+            return;
+        #ifdef _XOPEN_SOURCE
+            int fd = ::open("/dev/urandom", O_RDONLY);
+            ::read(fd, ptr, n);
+            ::close(fd);
+        #else
+            HCRYPTPROV handle = 0;
+            CryptAcquireContext(&handle, nullptr, nullptr, PROV_RSA_FULL, CRYPT_SILENT | CRYPT_VERIFYCONTEXT);
+            CryptGenRandom(handle, n, static_cast<uint8_t*>(ptr));
+            CryptReleaseContext(handle, 0);
+        #endif
+    }
+
+    template <typename T>
+    class Urandom {
+    public:
+        static_assert(std::is_integral<T>::value);
+        using result_type = T;
+        T operator()() noexcept { T u = 0; urandom(&u, sizeof(u)); return u; }
+        static constexpr T min() noexcept { return std::numeric_limits<T>::min(); }
+        static constexpr T max() noexcept { return std::numeric_limits<T>::max(); }
+    };
+
+    using Urandom32 = Urandom<uint32_t>;
+    using Urandom64 = Urandom<uint64_t>;
+
+    // Xoroshiro generator
+
+    class Xoroshiro:
+    public EqualityComparable<Xoroshiro> {
+    public:
+        using result_type = uint64_t;
+        Xoroshiro() noexcept { seed(0); }
+        explicit Xoroshiro(uint64_t s) noexcept { seed(s); }
+        Xoroshiro(uint64_t s1, uint64_t s2) noexcept { seed(s1, s2); }
+        uint64_t operator()() noexcept {
+            y ^= x;
+            x = rotl(x, 55) ^ y ^ (y << 14);
+            y = rotl(y, 36);
+            return x + y;
+        }
+        bool operator==(const Xoroshiro& rhs) const noexcept { return x == rhs.x && y == rhs.y; }
+        void seed(uint64_t s) noexcept {
+            x = s + 0x9e3779b97f4a7c15ull;
+            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
+            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
+            x ^= (x >> 31);
+            y = s;
+        }
+        void seed(uint64_t s1, uint64_t s2) noexcept { x = s1; y = s2; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t x, y;
+    };
+
+    // Basic random distributions
 
     template <typename T, typename RNG>
     T random_integer(RNG& rng, T min, T max) {
@@ -78,56 +180,6 @@ namespace RS {
         else
             return random_integer(rng, T(0), t - T(1));
     }
-
-    // Random algorithms
-
-    template <typename RNG>
-    void random_bytes(RNG& rng, void* ptr, size_t n) {
-        static constexpr auto max64 = ~ uint64_t(0);
-        if (! ptr || ! n)
-            return;
-        auto range_m1 = uint64_t(std::min(uintmax_t(RNG::max()) - uintmax_t(RNG::min()), uintmax_t(max64)));
-        size_t block;
-        if (range_m1 == max64)
-            block = 8;
-        else
-            block = (ilog2p1(range_m1) - 1) / 8;
-        auto bp = static_cast<uint8_t*>(ptr);
-        if (block) {
-            while (n >= block) {
-                auto x = rng() - RNG::min();
-                memcpy(bp, &x, block);
-                bp += block;
-                n -= block;
-            }
-            if (n) {
-                auto x = rng() - RNG::min();
-                memcpy(bp, &x, n);
-            }
-        } else {
-            for (size_t i = 0; i < n; ++i)
-                bp[i] = uint8_t(random_integer(rng, 256));
-        }
-    }
-
-    template <typename RNG, typename RandomAccessIterator>
-    void shuffle(RNG& rng, RandomAccessIterator i, RandomAccessIterator j) {
-        size_t n = std::distance(i, j);
-        for (size_t a = 0; a + 1 < n; ++a) {
-            size_t b = random_integer(rng, a, n - 1);
-            if (a != b)
-                std::swap(i[a], i[b]);
-        }
-    }
-
-    template <typename RNG, typename RandomAccessRange>
-    void shuffle(RNG& rng, RandomAccessRange& range) {
-        using std::begin;
-        using std::end;
-        shuffle(begin(range), end(range), rng);
-    }
-
-    // Basic random distributions
 
     template <typename T, typename RNG>
     T random_dice(RNG& rng, T n = T(1), T faces = T(6)) {
@@ -479,99 +531,371 @@ namespace RS {
             }
         }
 
-    // LCG functions
+        // Spatial distributions
 
-    constexpr uint32_t lcg32(uint32_t x) noexcept { return 32310901ul * x + 850757001ul; }
-    constexpr uint64_t lcg64(uint64_t x) noexcept { return 3935559000370003845ull * x + 8831144850135198739ull; }
+        template <typename T, size_t N>
+        class RandomVector {
+        public:
+            using result_type = Vector<T, N>;
+            using scalar_type = T;
+            static constexpr size_t dim = N;
+            RandomVector(): vec(T(1)) {}
+            explicit RandomVector(T t): vec(t) {}
+            explicit RandomVector(const Vector<T, N>& v): vec(v) {}
+            template <typename RNG> Vector<T, N> operator()(RNG& rng) const;
+            Vector<T, N> scale() const { return vec; }
+        private:
+            result_type vec;
+        };
 
-    class Lcg32:
-    public EqualityComparable<Lcg32> {
-    public:
-        using result_type = uint32_t;
-        constexpr Lcg32() noexcept: x(0) {}
-        explicit constexpr Lcg32(uint32_t s) noexcept: x(s) {}
-        constexpr uint32_t operator()() noexcept { x = lcg32(x); return x; }
-        constexpr bool operator==(const Lcg32& rhs) const noexcept { return x == rhs.x; }
-        constexpr void seed(uint32_t s) noexcept { x = s; }
-        static constexpr uint32_t min() noexcept { return 0; }
-        static constexpr uint32_t max() noexcept { return ~ uint32_t(0); }
-    private:
-        uint32_t x;
-    };
+            template <typename T, size_t N>
+            template <typename RNG>
+            Vector<T, N> RandomVector<T, N>::operator()(RNG& rng) const {
+                Vector<T, N> v;
+                for (size_t i = 0; i < N; ++i)
+                    v[i] = random_float(rng, T(0), vec[i]);
+                return v;
+            }
 
-    class Lcg64:
-    public EqualityComparable<Lcg64> {
-    public:
-        using result_type = uint64_t;
-        constexpr Lcg64() noexcept: x(0) {}
-        explicit constexpr Lcg64(uint64_t s) noexcept: x(s) {}
-        uint64_t constexpr operator()() noexcept { x = lcg64(x); return x; }
-        bool constexpr operator==(const Lcg64& rhs) const noexcept { return x == rhs.x; }
-        void constexpr seed(uint64_t s) noexcept { x = s; }
-        static constexpr uint64_t min() noexcept { return 0; }
-        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
-    private:
-        uint64_t x;
-    };
+        template <typename T, size_t N>
+        class SymmetricRandomVector {
+        public:
+            using result_type = Vector<T, N>;
+            using scalar_type = T;
+            static constexpr size_t dim = N;
+            SymmetricRandomVector(): vec(T(1)) {}
+            explicit SymmetricRandomVector(T t): vec(t) {}
+            explicit SymmetricRandomVector(const Vector<T, N>& v): vec(v) {}
+            template <typename RNG> Vector<T, N> operator()(RNG& rng) const;
+            Vector<T, N> scale() const { return vec; }
+        private:
+            result_type vec;
+        };
 
-    // Random device sources
+            template <typename T, size_t N>
+            template <typename RNG>
+            Vector<T, N> SymmetricRandomVector<T, N>::operator()(RNG& rng) const {
+                Vector<T, N> v;
+                for (size_t i = 0; i < N; ++i)
+                    v[i] = random_float(rng, - vec[i], vec[i]);
+                return v;
+            }
 
-    inline void urandom(void* ptr, size_t n) noexcept {
-        if (! ptr || ! n)
-            return;
-        #ifdef _XOPEN_SOURCE
-            int fd = ::open("/dev/urandom", O_RDONLY);
-            ::read(fd, ptr, n);
-            ::close(fd);
-        #else
-            HCRYPTPROV handle = 0;
-            CryptAcquireContext(&handle, nullptr, nullptr, PROV_RSA_FULL, CRYPT_SILENT | CRYPT_VERIFYCONTEXT);
-            CryptGenRandom(handle, n, static_cast<uint8_t*>(ptr));
-            CryptReleaseContext(handle, 0);
-        #endif
-    }
+        namespace RS_Detail {
+
+            template <typename T, size_t N>
+            struct RandomInSphere {
+                template <typename RNG> Vector<T, N> generate(RNG& rng) const {
+                    Vector<T, N> v;
+                    do std::generate(v.begin(), v.end(), [&] { return random_float<T>(rng, -1, 1); });
+                        while (v.r2() > T(1));
+                    return v;
+                }
+            };
+
+            template <typename T>
+            struct RandomInSphere<T, 2> {
+                template <typename RNG> Vector<T, 2> generate(RNG& rng) const {
+                    using std::sin;
+                    using std::cos;
+                    Vector<T, 2> v;
+                    do {
+                        T phi = random_float<T>(rng, 0, 2 * pi_c<T>);
+                        T r = random_float<T>(rng) + random_float<T>(rng);
+                        if (r > T(1))
+                            r = T(2) - r;
+                        v = {r * cos(phi), r * sin(phi)};
+                    } while (v.r2() > T(1));
+                    return v;
+                }
+            };
+
+            template <typename T, size_t N>
+            struct RandomOnSphere {
+                template <typename RNG> Vector<T, N> generate(RNG& rng) const {
+                    Vector<T, N> v;
+                    do v = RandomInSphere<T, N>().generate(rng);
+                        while (v == Vector<T, N>());
+                    return v.dir();
+                }
+            };
+
+            template <typename T>
+            struct RandomOnSphere<T, 2> {
+                template <typename RNG> Vector<T, 2> generate(RNG& rng) const {
+                    using std::cos;
+                    using std::sin;
+                    T phi = random_float<T>(rng, 0, 2 * pi_c<T>);
+                    return Vector<T, 2>(cos(phi), sin(phi));
+                }
+            };
+
+            template <typename T>
+            struct RandomOnSphere<T, 3> {
+                template <typename RNG> Vector<T, 3> generate(RNG& rng) const {
+                    using std::cos;
+                    using std::sin;
+                    using std::sqrt;
+                    T phi = random_float<T>(rng, 0, 2 * pi_c<T>);
+                    T z = random_float<T>(rng, -1, 1);
+                    T r = sqrt(T(1) - z * z);
+                    T x = r * cos(phi);
+                    T y = r * sin(phi);
+                    return {x, y, z};
+                }
+            };
+
+        }
+
+        template <typename T, size_t N>
+        class RandomInSphere:
+        private RS_Detail::RandomInSphere<T, N> {
+        public:
+            using result_type = Vector<T, N>;
+            using scalar_type = T;
+            static constexpr size_t dim = N;
+            RandomInSphere(): rad{T(1)} {}
+            explicit RandomInSphere(T r): rad{std::fabs(r)} {}
+            template <typename RNG> Vector<T, N> operator()(RNG& rng) const { return rad * this->generate(rng); }
+            T radius() const noexcept { return rad; }
+        private:
+            T rad;
+        };
+
+        template <typename T, size_t N>
+        class RandomOnSphere:
+        private RS_Detail::RandomOnSphere<T, N> {
+        public:
+            using result_type = Vector<T, N>;
+            using scalar_type = T;
+            static constexpr size_t dim = N;
+            RandomOnSphere(): rad{T(1)} {}
+            explicit RandomOnSphere(T r): rad{std::fabs(r)} {}
+            template <typename RNG> Vector<T, N> operator()(RNG& rng) const { return rad * this->generate(rng); }
+            T radius() const noexcept { return rad; }
+        private:
+            T rad;
+        };
+
+    // Unique distribution
 
     template <typename T>
-    class Urandom {
+    struct UniqueDistribution {
     public:
-        static_assert(std::is_integral<T>::value);
-        using result_type = T;
-        T operator()() noexcept { T u = 0; urandom(&u, sizeof(u)); return u; }
-        static constexpr T min() noexcept { return std::numeric_limits<T>::min(); }
-        static constexpr T max() noexcept { return std::numeric_limits<T>::max(); }
-    };
-
-    using Urandom32 = Urandom<uint32_t>;
-    using Urandom64 = Urandom<uint64_t>;
-
-    // Xoroshiro generator
-
-    class Xoroshiro:
-    public EqualityComparable<Xoroshiro> {
-    public:
-        using result_type = uint64_t;
-        Xoroshiro() noexcept { seed(0); }
-        explicit Xoroshiro(uint64_t s) noexcept { seed(s); }
-        Xoroshiro(uint64_t s1, uint64_t s2) noexcept { seed(s1, s2); }
-        uint64_t operator()() noexcept {
-            y ^= x;
-            x = rotl(x, 55) ^ y ^ (y << 14);
-            y = rotl(y, 36);
-            return x + y;
-        }
-        bool operator==(const Xoroshiro& rhs) const noexcept { return x == rhs.x && y == rhs.y; }
-        void seed(uint64_t s) noexcept {
-            x = s + 0x9e3779b97f4a7c15ull;
-            x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ull;
-            x = (x ^ (x >> 27)) * 0x94d049bb133111ebull;
-            x ^= (x >> 31);
-            y = s;
-        }
-        void seed(uint64_t s1, uint64_t s2) noexcept { x = s1; y = s2; }
-        static constexpr uint64_t min() noexcept { return 0; }
-        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+        using distribution_type = T;
+        using result_type = decltype(std::declval<T>()(std::declval<std::minstd_rand&>()));
+        explicit UniqueDistribution(T& t): base(&t), log() {}
+        template <typename RNG> result_type operator()(RNG& rng);
+        void clear() noexcept { log.clear(); }
+        bool empty() const noexcept { return log.empty(); }
+        result_type min() const { return base->min(); }
+        result_type max() const { return base->max(); }
+        size_t size() const noexcept { return log.size(); }
     private:
-        uint64_t x, y;
+        T* base;
+        std::set<result_type> log;
     };
+
+        template <typename T>
+        template <typename RNG>
+        typename UniqueDistribution<T>::result_type UniqueDistribution<T>::operator()(RNG& rng) {
+            result_type x;
+            do x = (*base)(rng);
+                while (log.count(x));
+            log.insert(x);
+            return x;
+        }
+
+    template <typename T> inline UniqueDistribution<T> unique_distribution(T& t) { return UniqueDistribution<T>(t); }
+
+    // Weighted choice distribution
+
+    namespace RS_Detail {
+
+        template <typename F, bool Int = std::is_integral<F>::value>
+        struct WeightRange;
+
+        template <typename F>
+        struct WeightRange<F, true> {
+            template <typename RNG> F operator()(RNG& rng, F range) const { return random_integer(rng, range); }
+        };
+
+        template <typename F>
+        struct WeightRange<F, false> {
+            template <typename RNG> F operator()(RNG& rng, F range) const { return random_float(rng, range); }
+        };
+
+    }
+
+    template <typename T, typename F = double>
+    class WeightedChoice {
+    public:
+        using frequency_type = F;
+        using result_type = T;
+        WeightedChoice() = default;
+        WeightedChoice(std::initializer_list<std::pair<T, F>> pairs) { append(pairs); }
+        template <typename Range> explicit WeightedChoice(const Range& pairs) { append(pairs); }
+        template <typename RNG> T operator()(RNG& rng) const;
+        void add(const T& t, F f);
+        void append(std::initializer_list<std::pair<T, F>> pairs);
+        template <typename Range> void append(const Range& pairs);
+        bool empty() const noexcept { return total() <= F(0); }
+    private:
+        static_assert(std::is_arithmetic<F>::value);
+        using weight_range = RS_Detail::WeightRange<F>;
+        std::map<F, T> table;
+        F total() const { return table.empty() ? F() : std::prev(table.end())->first; }
+    };
+
+        template <typename T, typename F>
+        template <typename RNG>
+        T WeightedChoice<T, F>::operator()(RNG& rng) const {
+            if (empty())
+                return T();
+            else
+                return table.upper_bound(weight_range()(rng, total()))->second;
+        }
+
+        template <typename T, typename F>
+        void WeightedChoice<T, F>::add(const T& t, F f) {
+            if (f > F(0))
+                table.insert(table.end(), {total() + f, t});
+        }
+
+        template <typename T, typename F>
+        void WeightedChoice<T, F>::append(std::initializer_list<std::pair<T, F>> pairs) {
+            std::vector<std::pair<T, F>> vfs{pairs};
+            auto sum = total();
+            for (auto& vf: vfs) {
+                if (vf.second > F(0)) {
+                    sum += vf.second;
+                    table.insert(table.end(), {sum, vf.first});
+                }
+            }
+        }
+
+        template <typename T, typename F>
+        template <typename Range>
+        void WeightedChoice<T, F>::append(const Range& pairs) {
+            auto sum = total();
+            for (auto& p: pairs) {
+                if (p.second > F(0)) {
+                    sum += p.second;
+                    table.insert(table.end(), {sum, p.first});
+                }
+            }
+        }
+
+    // Other random algorithms
+
+    template <typename RNG>
+    void random_bytes(RNG& rng, void* ptr, size_t n) {
+        static constexpr auto max64 = ~ uint64_t(0);
+        if (! ptr || ! n)
+            return;
+        auto range_m1 = uint64_t(std::min(uintmax_t(RNG::max()) - uintmax_t(RNG::min()), uintmax_t(max64)));
+        size_t block;
+        if (range_m1 == max64)
+            block = 8;
+        else
+            block = (ilog2p1(range_m1) - 1) / 8;
+        auto bp = static_cast<uint8_t*>(ptr);
+        if (block) {
+            while (n >= block) {
+                auto x = rng() - RNG::min();
+                memcpy(bp, &x, block);
+                bp += block;
+                n -= block;
+            }
+            if (n) {
+                auto x = rng() - RNG::min();
+                memcpy(bp, &x, n);
+            }
+        } else {
+            for (size_t i = 0; i < n; ++i)
+                bp[i] = uint8_t(random_integer(rng, 256));
+        }
+    }
+
+    template <typename Rng2, typename Rng1>
+    Rng2 seed_from(Rng1& src) {
+        typename Rng1::result_type random_data[Rng2::state_size];
+        std::generate(std::begin(random_data), std::end(random_data), std::ref(src));
+        std::seed_seq seq(std::begin(random_data), std::end(random_data));
+        return Rng2(seq);
+    }
+
+    template <typename Rng1, typename Rng2>
+    void seed_from(Rng1& src, Rng2& dst) {
+        typename Rng1::result_type random_data[Rng2::state_size];
+        std::generate(std::begin(random_data), std::end(random_data), std::ref(src));
+        std::seed_seq seq(std::begin(random_data), std::end(random_data));
+        dst.seed(seq);
+    }
+
+    template <typename RNG, typename RandomAccessIterator>
+    void shuffle(RNG& rng, RandomAccessIterator i, RandomAccessIterator j) {
+        size_t n = std::distance(i, j);
+        for (size_t a = 0; a + 1 < n; ++a) {
+            size_t b = random_integer(rng, a, n - 1);
+            if (a != b)
+                std::swap(i[a], i[b]);
+        }
+    }
+
+    template <typename RNG, typename RandomAccessRange>
+    void shuffle(RNG& rng, RandomAccessRange& range) {
+        using std::begin;
+        using std::end;
+        shuffle(begin(range), end(range), rng);
+    }
+
+    // Text generators
+
+    namespace RS_Detail {
+
+        struct LoremGenerator {
+            void operator()(Xoroshiro& rng, U8string& dst, size_t bytes, bool paras) const {
+                static constexpr const char* classic[] = {
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ",
+                    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. ",
+                    "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. ",
+                };
+                static constexpr size_t n_lines = sizeof(classic) / sizeof(classic[0]);
+                if (bytes == 0)
+                    return;
+                dst.reserve(bytes + 20);
+                for (size_t i = 0; i < n_lines && dst.size() <= bytes; ++i)
+                    dst += classic[i];
+                if (paras)
+                    dst.replace(dst.size() - 1, 1, "\n\n");
+                while (dst.size() <= bytes) {
+                    size_t n_para = paras ? rng() % 7 + 1 : npos;
+                    for (size_t i = 0; i < n_para && dst.size() <= bytes; ++i)
+                        dst += classic[rng() % n_lines];
+                    if (paras)
+                        dst.replace(dst.size() - 1, 1, "\n\n");
+                }
+                size_t cut = dst.find_first_of("\n .,", bytes);
+                if (cut != npos)
+                    dst.resize(cut);
+                while (! ascii_isalpha(dst.back()))
+                    dst.pop_back();
+                dst += '.';
+                if (paras)
+                    dst += '\n';
+            }
+        };
+
+    }
+
+    inline U8string lorem_ipsum(uint64_t seed, size_t bytes, bool paras = true) {
+        RS_Detail::LoremGenerator gen;
+        Xoroshiro rng(seed, 0x05b6b84c03ae03d2ull);
+        U8string text;
+        gen(rng, text, bytes, paras);
+        return text;
+    }
 
 }
