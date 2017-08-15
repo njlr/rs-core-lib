@@ -791,12 +791,12 @@ C-style arrays and is <code>constexpr</code>.</p>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>quo</code></strong><code>(T x, T y) noexcept</code></li>
 <li><code>template &lt;typename T&gt; T</code> <strong><code>rem</code></strong><code>(T x, T y) noexcept</code></li>
 </ul>
-<p>These perform floor division operations: if the division is not exact, the
-remainder is always positive (regardless of the signs of the arguments), and
-the quotient is the integer that satisfies <code>x=q*y+r</code> (apart from rounding
-errors). The pair returned by <code>divide()</code> contains the quotient and remainder.
-For all three functions, behaviour is undefined if <code>y=0</code> or the quotient is
-out of <code>T</code>'s representable range.</p>
+<p>These perform Euclidean division: if the division is not exact, the remainder
+is always positive (regardless of the signs of the arguments), and the
+quotient is the integer that satisfies <code>x=q*y+r</code> (apart from rounding errors).
+The pair returned by <code>divide()</code> contains the quotient and remainder. For all
+three functions, behaviour is undefined if <code>y=0</code> or the quotient is out of
+<code>T</code>'s representable range.</p>
 </div>
 <div class="defns">
 <ul>

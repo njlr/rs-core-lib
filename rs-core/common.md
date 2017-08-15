@@ -605,12 +605,12 @@ Clamps a value to a fixed range. This returns `static_cast<T>(min)` if
 * `template <typename T> T` **`quo`**`(T x, T y) noexcept`
 * `template <typename T> T` **`rem`**`(T x, T y) noexcept`
 
-These perform floor division operations: if the division is not exact, the
-remainder is always positive (regardless of the signs of the arguments), and
-the quotient is the integer that satisfies `x=q*y+r` (apart from rounding
-errors). The pair returned by `divide()` contains the quotient and remainder.
-For all three functions, behaviour is undefined if `y=0` or the quotient is
-out of `T`'s representable range.
+These perform Euclidean division: if the division is not exact, the remainder
+is always positive (regardless of the signs of the arguments), and the
+quotient is the integer that satisfies `x=q*y+r` (apart from rounding errors).
+The pair returned by `divide()` contains the quotient and remainder. For all
+three functions, behaviour is undefined if `y=0` or the quotient is out of
+`T`'s representable range.
 
 * `template <typename T> std::pair<T, T>` **`symmetric_divide`**`(T x, T y) noexcept`
 * `template <typename T> T` **`symmetric_quotient`**`(T x, T y) noexcept`
