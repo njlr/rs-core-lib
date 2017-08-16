@@ -9,11 +9,13 @@
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities.
     * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments.
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming.
+    * [`"rs-core/optional.hpp"`](optional.html) - Optinal type.
     * [`"rs-core/random.hpp"`](random.html) - Random numbers.
     * [`"rs-core/string.hpp"`](string.html) - String algorithms.
     * [`"rs-core/thread.hpp"`](thread.html) - Threads.
     * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms.
     * [`"rs-core/uuid.hpp"`](uuid.html) - UUID.
+    * [`"rs-core/variant.hpp"`](variant.html) - Variant type.
     * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions.
 * _Testing modules_
     * [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing.

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Variant Type</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="variant-type">Variant Type</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/variant.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#variant-type">Variant Type</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#exceptions">Exceptions</a></li>
+<li><a href="#class-variant">Class Variant</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="exceptions">Exceptions</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>VariantError</code></strong><code>: public std::runtime_error</code><ul>
+<li><code>VariantError::</code><strong><code>VariantError</code></strong><code>()</code></li>
+</ul>
+</li>
+</ul>
+<p>Thrown when a variant is accessed through a type that does not match its
+current branch.</p>
+</div>
+<h2 id="class-variant">Class Variant</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... TS&gt; class</code> <strong><code>Variant</code></strong></li>
+</ul>
+<p>A variant that can take values of any of its branch types. Requirements on the
+branch types are:</p>
+<ul>
+<li>The type list must not be empty.</li>
+<li>The same type must not appear more than once.</li>
+<li>If <code>Nil</code> is a branch type, it must be the first branch.</li>
+<li>All types must be default constructible and movable.</li>
+</ul>
+<p>These requirements are checked by <code>static_assert</code>. If the variant's copy
+constructor, copy assignment operator, hash function, output operator, or any
+comparison operator is called, the corresponding operation must be defined for
+all branch types. (All of these operations are defined for <code>Nil</code>.)</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Variant::</code><strong><code>typelist</code></strong> <code>= Typelist&lt;TS...&gt;</code></li>
+<li><code>using Variant::</code><strong><code>head</code></strong> <code>= Head&lt;typelist&gt;</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr bool Variant::</code><strong><code>is_nullable</code></strong></li>
+</ul>
+<p>True if the first type is <code>Nil</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Variant::</code><strong><code>Variant</code></strong><code>()</code></li>
+<li><code>template &lt;typename T&gt; Variant::</code><strong><code>Variant</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename T&gt; Variant::</code><strong><code>Variant</code></strong><code>(T&amp;&amp; t) noexcept</code></li>
+<li><code>Variant::</code><strong><code>~Variant</code></strong><code>() noexcept</code></li>
+<li><code>Variant::</code><strong><code>Variant</code></strong><code>(const Variant&amp; v)</code></li>
+<li><code>Variant::</code><strong><code>Variant</code></strong><code>(Variant&amp;&amp; v) noexcept</code></li>
+<li><code>Variant&amp; Variant::</code><strong><code>operator=</code></strong><code>(const Variant&amp; v)</code></li>
+<li><code>Variant&amp; Variant::</code><strong><code>operator=</code></strong><code>(Variant&amp;&amp; v) noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor sets the variant to a default
+constructed value of the first branch type. If the variant is nullable, the
+source object of move construction or move assignment is reset to <code>Nil</code>;
+otherwise, its current branch is left in its normal moved-from state.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>explicit Variant::</code><strong><code>operator bool</code></strong><code>() const</code></li>
+</ul>
+<p>This calls the corresponding operator on the current branch; it will return
+false if the current branch is <code>Nil</code>. This will fail to compile if any branch
+type is not implicitly or explicitly convertible to <code>bool</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; T&amp; Variant::</code><strong><code>as</code></strong><code>()</code></li>
+<li><code>template &lt;typename T&gt; const T&amp; Variant::</code><strong><code>as</code></strong><code>() const</code></li>
+<li><code>template &lt;int Index&gt; [type at index]&amp; Variant::</code><strong><code>at</code></strong><code>()</code></li>
+<li><code>template &lt;int Index&gt; const [type at index]&amp; Variant::</code><strong><code>at</code></strong><code>() const</code></li>
+<li><code>template &lt;typename T&gt; T Variant::</code><strong><code>get_as</code></strong><code>(const T&amp; def = {}) const</code></li>
+<li><code>template &lt;int Index&gt; [type at index] Variant::</code><strong><code>get_at</code></strong><code>(const [type at index]&amp; def = {}) const</code></li>
+<li><code>template &lt;typename T&gt; T&amp; Variant::</code><strong><code>ref_as</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename T&gt; const T&amp; Variant::</code><strong><code>ref_as</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;int Index&gt; [type at index]&amp; Variant::</code><strong><code>ref_at</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;int Index&gt; const [type at index]&amp; Variant::</code><strong><code>ref_at</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Return a reference to the variant's current value. These will fail to compile
+if <code>T</code> is not a branch of the variant, or the index is out of bounds. The
+three sets of functions differ in how they behave when the requested type or
+index does not match the current branch: the <code>as()/at()</code> versions will throw
+<code>VariantError</code>; the <code>get_as()/get_at()</code> versions return the default value; the
+<code>ref_as()/ref_at()</code> versions do not check the current branch type, and
+behaviour is undefined if it does not match.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Variant::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the current branch is <code>Nil</code>. If <code>is_nullable</code> is false, <code>empty()</code> will
+always be false.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Variant::</code><strong><code>hash</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename... TS&gt; struct std::</code><strong><code>hash</code></strong><code>&lt;Variant&lt;TS...&gt;&gt;</code></li>
+</ul>
+<p>Hash function. This will call the hash function of the current branch; it will
+fail to compile if any branch type does not have an instantiation of
+<code>std::hash</code> (one is supplied for <code>Nil</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>int Variant::</code><strong><code>index</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the zero-based index of the current branch. The return value will
+always be greater than or equal to zero and less than the number of types in
+the <code>Variant</code> template argument list.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; bool Variant::</code><strong><code>is</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if <code>T</code> is the current branch type. This will fail to compile if <code>T</code> is
+not one of the variant's branches.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Variant::</code><strong><code>is_equal</code></strong><code>(const Variant&amp; v) const noexcept</code></li>
+<li><code>bool Variant::</code><strong><code>is_greater</code></strong><code>(const Variant&amp; v) const noexcept</code></li>
+<li><code>bool Variant::</code><strong><code>is_less</code></strong><code>(const Variant&amp; v) const noexcept</code></li>
+<li><code>template &lt;typename T&gt; bool Variant::</code><strong><code>is_equal</code></strong><code>(const T&amp; t) const noexcept</code></li>
+<li><code>template &lt;typename T&gt; bool Variant::</code><strong><code>is_greater</code></strong><code>(const T&amp; t) const noexcept</code></li>
+<li><code>template &lt;typename T&gt; bool Variant::</code><strong><code>is_less</code></strong><code>(const T&amp; t) const noexcept</code></li>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Variant&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Variant&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>bool</code> <strong><code>operator&lt;</code></strong><code>(const Variant&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>bool</code> <strong><code>operator&gt;</code></strong><code>(const Variant&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>bool</code> <strong><code>operator&lt;=</code></strong><code>(const Variant&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>bool</code> <strong><code>operator&gt;=</code></strong><code>(const Variant&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator==</code></strong><code>(const Variant&amp; lhs, const T&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator!=</code></strong><code>(const Variant&amp; lhs, const T&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&lt;</code></strong><code>(const Variant&amp; lhs, const T&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&gt;</code></strong><code>(const Variant&amp; lhs, const T&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&lt;=</code></strong><code>(const Variant&amp; lhs, const T&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&gt;=</code></strong><code>(const Variant&amp; lhs, const T&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator==</code></strong><code>(const T&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator!=</code></strong><code>(const T&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&lt;</code></strong><code>(const T&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&gt;</code></strong><code>(const T&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&lt;=</code></strong><code>(const T&amp; lhs, const Variant&amp; rhs)</code></li>
+<li><code>template &lt;typename T&gt; bool</code> <strong><code>operator&gt;=</code></strong><code>(const T&amp; lhs, const Variant&amp; rhs)</code></li>
+</ul>
+<p>Comparison functions. If both arguments are the same type, that type's
+equality operator or <code>std::less</code> will be called. Otherwise, the side with the
+lower branch index is considered less than the other. The versions that take
+an argument of a different type will fail to compile if <code>T</code> is not a branch of
+the variant.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Variant::</code><strong><code>reset</code></strong><code>()</code></li>
+</ul>
+<p>Resets the variant to a default constructed instance of its first branch type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>std::string Variant::</code><strong><code>str</code></strong><code>() const</code></li>
+<li><code>std::string</code> <strong><code>to_str</code></strong><code>(const Variant&amp; v)</code></li>
+<li><code>void Variant::</code><strong><code>write</code></strong><code>(std::ostream&amp; out) const</code></li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Variant&amp; v)</code></li>
+</ul>
+<p>Formatting functions. These call <code>to_str()</code> or the output operator on the
+current branch type, and will fail to compile if this is not defined for all
+branches. An empty variant (one whose current branch is <code>Nil</code>) will be written
+as <code>"nil"</code>.</p>
+<ul>
+<li><code>template &lt;typename V, int Index&gt; using</code> <strong><code>VariantTypeAt</code></strong> <em>[type at the given index, or <code>Nil</code> if out of bounds]</em></li>
+<li><code>template &lt;typename V&gt; struct</code> <strong><code>IsVariant</code></strong> <em>[true if <code>V</code> is a variant]</em></li>
+<li><code>template &lt;typename V&gt; constexpr bool</code> <strong><code>is_variant</code></strong></li>
+<li><code>template &lt;typename V, typename T&gt; struct</code> <strong><code>VariantHasType</code></strong> <em>[true if <code>T</code> is one of the variant's types]</em></li>
+<li><code>template &lt;typename V, typename T&gt; constexpr bool</code> <strong><code>variant_has_type</code></strong></li>
+<li><code>template &lt;typename V, typename T&gt; struct</code> <strong><code>VariantIndexOf</code></strong> <em>[index of <code>T</code> in the variant, or -1 if not found]</em></li>
+<li><code>template &lt;typename V, typename T&gt; constexpr int</code> <strong><code>variant_index_of</code></strong></li>
+<li><code>template &lt;typename V&gt; struct</code> <strong><code>VariantLength</code></strong> <em>[number of types in the variant]</em></li>
+<li><code>template &lt;typename V&gt; constexpr int</code> <strong><code>variant_length</code></strong></li>
+</ul>
+<p>Variant metafunctions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename V, typename T&gt; constexpr void</code> <strong><code>static_check_variant_type</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename V, int Index&gt; constexpr void</code> <strong><code>static_check_variant_index</code></strong><code>() noexcept</code></li>
+</ul>
+<p>These are wrappers around <code>static_assert</code> checks that <code>V</code> is a variant type
+and that the branch type or index is valid. These only perform static checks
+that the arguments are legal as far as the type system is concerned; they do
+not check the actual status of a variant object.</p></body>
+</html>
