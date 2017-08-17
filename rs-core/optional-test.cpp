@@ -169,23 +169,23 @@ namespace {
 
         Optional<U8string> a, b;
 
-        TRY(a = "Hello"s);    TRY(b = "Hello"s);    TEST_COMPARE(a, ==, b);  TEST_COMPARE(a, <=, b);  TEST_COMPARE(a, >=, b);
-        TRY(a = "Hello"s);    TRY(b = "Goodbye"s);  TEST_COMPARE(a, >, b);   TEST_COMPARE(a, >=, b);  TEST_COMPARE(a, !=, b);
-        TRY(a = "Goodbye"s);  TRY(b = "Hello"s);    TEST_COMPARE(a, <, b);   TEST_COMPARE(a, <=, b);  TEST_COMPARE(a, !=, b);
-        TRY(a.reset());       TRY(b.reset());       TEST_COMPARE(a, ==, b);  TEST_COMPARE(a, <=, b);  TEST_COMPARE(a, >=, b);
-        TRY(a = "Hello"s);    TRY(b.reset());       TEST_COMPARE(a, >, b);   TEST_COMPARE(a, >=, b);  TEST_COMPARE(a, !=, b);
-        TRY(a.reset());       TRY(b = "Hello"s);    TEST_COMPARE(a, <, b);   TEST_COMPARE(a, <=, b);  TEST_COMPARE(a, !=, b);
+        TRY(a = "Hello"s);    TRY(b = "Hello"s);    TEST(a == b);  TEST(a <= b);  TEST(a >= b);
+        TRY(a = "Hello"s);    TRY(b = "Goodbye"s);  TEST(a > b);   TEST(a >= b);  TEST(a != b);
+        TRY(a = "Goodbye"s);  TRY(b = "Hello"s);    TEST(a < b);   TEST(a <= b);  TEST(a != b);
+        TRY(a.reset());       TRY(b.reset());       TEST(a == b);  TEST(a <= b);  TEST(a >= b);
+        TRY(a = "Hello"s);    TRY(b.reset());       TEST(a > b);   TEST(a >= b);  TEST(a != b);
+        TRY(a.reset());       TRY(b = "Hello"s);    TEST(a < b);   TEST(a <= b);  TEST(a != b);
 
-        TRY(a = "Hello"s);    TEST_COMPARE(a, ==, "Hello"s);  TEST_COMPARE(a, <=, "Hello"s);  TEST_COMPARE(a, >=, "Hello"s);
-        TRY(a = "Hello"s);    TEST_COMPARE("Hello"s, ==, a);  TEST_COMPARE("Hello"s, <=, a);  TEST_COMPARE("Hello"s, >=, a);
-        TRY(a = "Goodbye"s);  TEST_COMPARE(a, <, "Hello"s);   TEST_COMPARE(a, <=, "Hello"s);  TEST_COMPARE(a, !=, "Hello"s);
-        TRY(a = "Goodbye"s);  TEST_COMPARE("Hello"s, >, a);   TEST_COMPARE("Hello"s, >=, a);  TEST_COMPARE("Hello"s, !=, a);
-        TRY(a.reset());       TEST_COMPARE(a, <, "Hello"s);   TEST_COMPARE(a, <=, "Hello"s);  TEST_COMPARE(a, !=, "Hello"s);
-        TRY(a.reset());       TEST_COMPARE("Hello"s, >, a);   TEST_COMPARE("Hello"s, >=, a);  TEST_COMPARE("Hello"s, !=, a);
-        TRY(a = "Hello"s);    TEST_COMPARE(a, >, nullptr);    TEST_COMPARE(a, >=, nullptr);   TEST_COMPARE(a, !=, nullptr);
-        TRY(a = "Hello"s);    TEST_COMPARE(nullptr, <, a);    TEST_COMPARE(nullptr, <=, a);   TEST_COMPARE(nullptr, !=, a);
-        TRY(a.reset());       TEST_COMPARE(a, ==, nullptr);   TEST_COMPARE(a, <=, nullptr);   TEST_COMPARE(a, >=, nullptr);
-        TRY(a.reset());       TEST_COMPARE(nullptr, ==, a);   TEST_COMPARE(nullptr, <=, a);   TEST_COMPARE(nullptr, >=, a);
+        TRY(a = "Hello"s);    TEST(a == "Hello"s);  TEST(a <= "Hello"s);  TEST(a >= "Hello"s);
+        TRY(a = "Hello"s);    TEST("Hello"s == a);  TEST("Hello"s <= a);  TEST("Hello"s >= a);
+        TRY(a = "Goodbye"s);  TEST(a < "Hello"s);   TEST(a <= "Hello"s);  TEST(a != "Hello"s);
+        TRY(a = "Goodbye"s);  TEST("Hello"s > a);   TEST("Hello"s >= a);  TEST("Hello"s != a);
+        TRY(a.reset());       TEST(a < "Hello"s);   TEST(a <= "Hello"s);  TEST(a != "Hello"s);
+        TRY(a.reset());       TEST("Hello"s > a);   TEST("Hello"s >= a);  TEST("Hello"s != a);
+        TRY(a = "Hello"s);    TEST(a > nullptr);    TEST(a >= nullptr);   TEST(a != nullptr);
+        TRY(a = "Hello"s);    TEST(nullptr < a);    TEST(nullptr <= a);   TEST(nullptr != a);
+        TRY(a.reset());       TEST(a == nullptr);   TEST(a <= nullptr);   TEST(a >= nullptr);
+        TRY(a.reset());       TEST(nullptr == a);   TEST(nullptr <= a);   TEST(nullptr >= a);
 
     }
 
