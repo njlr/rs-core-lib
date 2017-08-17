@@ -27,7 +27,7 @@
 
 #define TEST_MODULE(project, module) \
     void test_##project##_##module(); \
-    void test_##project##_##module##_setup() __attribute__((constructor)); \
+    void test_##project##_##module##_setup() __attribute__((__constructor__)); \
     void test_##project##_##module##_setup() \
         { RS::UnitTest::register_test(test_##project##_##module, #project, #module); } \
     void test_##project##_##module()

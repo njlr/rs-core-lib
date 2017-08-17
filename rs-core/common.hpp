@@ -129,14 +129,14 @@
 
 #define RS_ENUM_IMPLEMENTATION(EnumType, IntType, class_tag, name_prefix, first_value, first_name, ...) \
     enum class_tag EnumType: IntType { first_name = first_value, __VA_ARGS__, RS_enum_sentinel }; \
-    inline __attribute__((unused)) std::ostream& operator<<(std::ostream& out, EnumType t) { \
+    inline __attribute__((__unused__)) std::ostream& operator<<(std::ostream& out, EnumType t) { \
         ::RS::RS_Detail::write_enum(out, t, first_value, name_prefix, #first_name "," #__VA_ARGS__); \
         return out; \
     } \
-    constexpr __attribute__((unused)) bool enum_is_valid(EnumType t) noexcept { \
+    constexpr __attribute__((__unused__)) bool enum_is_valid(EnumType t) noexcept { \
         return IntType(t) >= IntType(first_value) && IntType(t) < IntType(EnumType::RS_enum_sentinel); \
     } \
-    inline __attribute__((unused)) std::vector<EnumType> RS_enum_values(EnumType) { \
+    inline __attribute__((__unused__)) std::vector<EnumType> RS_enum_values(EnumType) { \
         IntType n = IntType(EnumType::RS_enum_sentinel) - IntType(first_value); \
         std::vector<EnumType> v(n); \
         for (IntType i = 0; i < n; ++i) \

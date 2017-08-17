@@ -13,9 +13,9 @@ using namespace RS;
 
 // Used in introspection tests
 // (global to work around unused function warning bug in gcc)
-int foo() __attribute__((unused));
-int foo(int) __attribute__((unused));
-int foo(int, int) __attribute__((unused));
+int foo() __attribute__((__unused__));
+int foo(int) __attribute__((__unused__));
+int foo(int, int) __attribute__((__unused__));
 
 namespace {
 
