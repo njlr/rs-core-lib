@@ -197,14 +197,12 @@ namespace RS {
     using NativeString = std::basic_string<NativeCharacter>;
     using WstringEquivalent = std::basic_string<WcharEquivalent>;
 
-    #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    #if defined(_WIN32) || (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
         constexpr bool big_endian_target = false;
         constexpr bool little_endian_target = true;
-    #elif defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    #else
         constexpr bool big_endian_target = true;
         constexpr bool little_endian_target = false;
-    #else
-        #error Unknown byte order
     #endif
 
     template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
