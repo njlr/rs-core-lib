@@ -629,6 +629,10 @@ Multiply or divide `t` by <code>2<sup>n</sup></code>. `T` may be an integer or
 floating point type. Results are unspecified if the correct result would be
 out of `T`'s representable range.
 
+* `template <typename T> int` **`sign_of`**`(T t) noexcept`
+
+Returns 1 if the argument is positive, 0 if zero, and -1 if negative.
+
 ### Integer arithmetic functions ###
 
 * `template <typename T> constexpr std::make_signed_t<T>` **`as_signed`**`(T t) noexcept`

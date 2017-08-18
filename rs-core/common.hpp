@@ -1100,6 +1100,7 @@ namespace RS {
     template <typename T> T symmetric_remainder(T x, T y) noexcept { return symmetric_divide(x, y).second; }
     template <typename T> T shift_left(T t, int n) noexcept { return RS_Detail::ShiftLeft<T>()(t, n); }
     template <typename T> T shift_right(T t, int n) noexcept { return RS_Detail::ShiftLeft<T>()(t, - n); }
+    template <typename T> int sign_of(T t) noexcept { return RS_Detail::SignOf<T>()(t); }
 
     // Integer arithmetic functions
 

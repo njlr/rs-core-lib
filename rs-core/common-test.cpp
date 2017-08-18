@@ -1313,6 +1313,19 @@ namespace {
         TEST_EQUAL(shift_left(42.0, -6), 0.65625);   TEST_EQUAL(shift_right(42.0, -6), 2688.0);
         TEST_EQUAL(shift_left(42.0, -7), 0.328125);  TEST_EQUAL(shift_right(42.0, -7), 5376.0);
 
+        TEST_EQUAL(sign_of(0), 0);
+        TEST_EQUAL(sign_of(42), 1);
+        TEST_EQUAL(sign_of(-42), -1);
+        TEST_EQUAL(sign_of(0u), 0);
+        TEST_EQUAL(sign_of(42u), 1);
+        TEST_EQUAL(sign_of(0.0), 0);
+        TEST_EQUAL(sign_of(0.1), 1);
+        TEST_EQUAL(sign_of(42.0), 1);
+        TEST_EQUAL(sign_of(1.234e56), 1);
+        TEST_EQUAL(sign_of(-0.1), -1);
+        TEST_EQUAL(sign_of(-42.0), -1);
+        TEST_EQUAL(sign_of(-1.234e56), -1);
+
     }
 
     void check_integer_arithmetic_functions() {
