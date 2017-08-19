@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rs-core/algorithm.hpp"
 #include "rs-core/common.hpp"
 #include "rs-core/container.hpp"
 #include "rs-core/float.hpp"

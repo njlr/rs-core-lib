@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Core Alorithms</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="core-alorithms">Core Alorithms</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/algorithm.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#core-alorithms">Core Alorithms</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#general-algorithms">General algorithms</a><ul>
+<li><a href="#difference-algorithm">Difference algorithm</a></li>
+<li><a href="#edit-distance">Edit distance</a></li>
+<li><a href="#find-optimum">Find optimum</a></li>
+</ul>
+</li>
+<li><a href="#paired-range-operations">Paired range operations</a><ul>
+<li><a href="#paired-for-each">Paired for each</a></li>
+<li><a href="#paired-sort">Paired sort</a></li>
+<li><a href="#paired-transform">Paired transform</a></li>
+</ul>
+</li>
+<li><a href="#topological-order">Topological order</a><ul>
+<li><a href="#exceptions">Exceptions</a></li>
+<li><a href="#class-topologicalorder">Class TopologicalOrder</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="general-algorithms">General algorithms</h2>
+<h3 id="difference-algorithm">Difference algorithm</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename RandomAccessRange&gt; struct</code> <strong><code>DiffEntry</code></strong><ul>
+<li><code>using DiffEntry::</code><strong><code>iterator</code></strong> <code>= RangeIterator&lt;const RandomAccessRange&gt;</code></li>
+<li><code>using DiffEntry::</code><strong><code>subrange</code></strong> <code>= Irange&lt;iterator&gt;</code></li>
+<li><code>DiffEntry::subrange DiffEntry::</code><strong><code>del</code></strong></li>
+<li><code>DiffEntry::subrange DiffEntry::</code><strong><code>ins</code></strong></li>
+</ul>
+</li>
+<li><code>template &lt;typename RandomAccessRange&gt; using</code> <strong><code>DiffList</code></strong> <code>= std::vector&lt;DiffEntry&lt;RandomAccessRange&gt;&gt;</code></li>
+<li><code>template &lt;typename RandomAccessRange&gt; DiffList&lt;RandomAccessRange&gt;</code> <strong><code>diff</code></strong><code>(const RandomAccessRange&amp; lhs, const RandomAccessRange&amp; rhs)</code></li>
+<li><code>template &lt;typename RandomAccessRange, typename EqualityPredicate&gt; DiffList&lt;RandomAccessRange&gt;</code> <strong><code>diff</code></strong><code>(const RandomAccessRange&amp; lhs, const RandomAccessRange&amp; rhs, EqualityPredicate eq)</code></li>
+</ul>
+<p>This is an implementation of the algorithm described in <a href="http://xmailserver.org/diff2.pdf">Eugene Myers' 1986
+paper</a>. The return value is a list of diffs,
+each consisting of two pairs of iterators: the <code>del</code> member is a subrange of
+<code>lhs</code> indicating which elements have been removed, and the <code>ins</code> member is a
+subrange of <code>rhs</code> indicating which elements have been inserted in the same
+location; at least one subrange in each diff entry will be non-empty.</p>
+<p>Complexity: <code>O((n1+n2)d)</code>, where <code>n1</code> and <code>n2</code> are the lengths of the input
+ranges and <code>d</code> is the number of differences.</p>
+</div>
+<h3 id="edit-distance">Edit distance</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename ForwardRange1, typename ForwardRange2&gt; size_t</code> <strong><code>edit_distance</code></strong><code>(const ForwardRange1&amp; range1, const ForwardRange2&amp; range2)</code></li>
+<li><code>template &lt;typename ForwardRange1, typename ForwardRange2, typename T&gt; T</code> <strong><code>edit_distance</code></strong><code>(const ForwardRange1&amp; range1, const ForwardRange2&amp; range2, T ins, T del, T sub)</code></li>
+</ul>
+<p>These return the edit distance (Levenshtein distance) between two ranges,
+based on the number of insertions, deletions, and substitutions required to
+transform one range into the other. By default, each operation is given a
+weight of 1; optionally, explicit weights can be given to each operation. The
+weight type (<code>T</code>) must be an arithmetic type. Behaviour is undefined if any of
+the weights are negative.</p>
+<p>Complexity: Quadratic.</p>
+</div>
+<h3 id="find-optimum">Find optimum</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename ForwardRange, typename UnaryFunction&gt; [range iterator]</code> <strong><code>find_optimum</code></strong><code>(ForwardRange&amp; range, UnaryFunction f)</code></li>
+<li><code>template &lt;typename ForwardRange, typename UnaryFunction, typename Compare&gt; [range iterator]</code> <strong><code>find_optimum</code></strong><code>(ForwardRange&amp; range, UnaryFunction f, Compare c)</code></li>
+</ul>
+<p>These return an iterator identifying the range element for which <code>f(x)</code> has
+the minimum value, according to the given comparison function. The comparison
+function is expected to have less-than semantics, and defaults to
+<code>std::less&lt;&gt;()</code>; use <code>std::greater&lt;&gt;()</code> to get the maximum value of <code>f(x)</code>
+instead of the minimum. If there is more than one optimum element, the first
+one will be returned. These will return an end iterator only if the range is
+empty.</p>
+<p>Complexity: Linear.</p>
+</div>
+<h2 id="paired-range-operations">Paired range operations</h2>
+<p>For all of these algorithms, if the two ranges supplied have different
+lengths, the length of the shorter range is used; the excess elements in the
+longer range are ignored.</p>
+<h3 id="paired-for-each">Paired for each</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename InputRange1, typename InputRange2, typename BinaryFunction&gt; void</code> <strong><code>paired_for_each</code></strong><code>(InputRange1&amp; range1, InputRange2&amp; range2, BinaryFunction f)</code></li>
+</ul>
+<p>Calls <code>f(x,y)</code> for each pair of corresponding elements in the two ranges.</p>
+</div>
+<h3 id="paired-sort">Paired sort</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename RandomAccessRange1, typename RandomAccessRange2&gt; void</code> <strong><code>paired_sort</code></strong><code>(RandomAccessRange1&amp; range1, RandomAccessRange2&amp; range2)</code></li>
+<li><code>template &lt;typename RandomAccessRange1, typename RandomAccessRange2, typename Compare&gt; void</code> <strong><code>paired_sort</code></strong><code>(RandomAccessRange1&amp; range1, RandomAccessRange2&amp; range2, Compare comp)</code></li>
+<li><code>template &lt;typename RandomAccessRange1, typename RandomAccessRange2&gt; void</code> <strong><code>paired_stable_sort</code></strong><code>(RandomAccessRange1&amp; range1, RandomAccessRange2&amp; range2)</code></li>
+<li><code>template &lt;typename RandomAccessRange1, typename RandomAccessRange2, typename Compare&gt; void</code> <strong><code>paired_stable_sort</code></strong><code>(RandomAccessRange1&amp; range1, RandomAccessRange2&amp; range2, Compare comp)</code></li>
+</ul>
+<p>Sort <code>range1</code> according to the comparison function (with the usual <code>std::less</code>
+default), also reordering <code>range2</code> in the same way (that is, each element in
+<code>range2</code> goes into the same position as the corresponding element of
+<code>range1</code>).</p>
+</div>
+<h3 id="paired-transform">Paired transform</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename InputRange1, typename InputRange2, typename OutputIterator, typename BinaryFunction&gt; void</code> <strong><code>paired_transform</code></strong><code>(const InputRange1&amp; range1, const InputRange2&amp; range2, OutputIterator out, BinaryFunction f)</code></li>
+</ul>
+<p>For each pair of corresponding elements in the two ranges, this calls <code>f(x,y)</code>
+and appends the result to the output range.</p>
+</div>
+<h2 id="topological-order">Topological order</h2>
+<h3 id="exceptions">Exceptions</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>TopologicalOrderError</code></strong><code>: public std::runtime_error</code><ul>
+<li><code>class</code> <strong><code>TopologicalOrderCycle</code></strong><code>: public TopologicalOrderError</code></li>
+<li><code>class</code> <strong><code>TopologicalOrderEmpty</code></strong><code>: public TopologicalOrderError</code></li>
+</ul>
+</li>
+</ul>
+<p>Exceptions reporting errors in topological order operations.</p>
+</div>
+<h3 id="class-topologicalorder">Class TopologicalOrder</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, typename Compare = std::less&lt;T&gt;&gt; class</code> <strong><code>TopologicalOrder</code></strong></li>
+</ul>
+<p>A container that sorts its elements according to a defined topological order,
+given a set of <em>(before,after)</em> relations. The comparison object is used only
+to sort elements within a subset; it does not participate in the topological
+relation.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using TopologicalOrder::</code><strong><code>compare_type</code></strong> <code>= Compare</code></li>
+<li><code>using TopologicalOrder::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>TopologicalOrder::</code><strong><code>TopologicalOrder</code></strong><code>()</code></li>
+<li><code>explicit TopologicalOrder::</code><strong><code>TopologicalOrder</code></strong><code>(Compare c)</code></li>
+<li><code>TopologicalOrder::</code><strong><code>~TopologicalOrder</code></strong><code>() noexcept</code></li>
+<li><code>TopologicalOrder::</code><strong><code>TopologicalOrder</code></strong><code>(const TopologicalOrder&amp; t)</code></li>
+<li><code>TopologicalOrder::</code><strong><code>TopologicalOrder</code></strong><code>(TopologicalOrder&amp;&amp; t) noexcept</code></li>
+<li><code>TopologicalOrder&amp; TopologicalOrder::</code><strong><code>operator=</code></strong><code>(const TopologicalOrder&amp; t)</code></li>
+<li><code>TopologicalOrder&amp; TopologicalOrder::</code><strong><code>operator=</code></strong><code>(TopologicalOrder&amp;&amp; t) noexcept</code></li>
+</ul>
+<p>Life cycle functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void TopologicalOrder::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Remove all elements from the container.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Compare TopologicalOrder::</code><strong><code>comp</code></strong><code>() const</code></li>
+</ul>
+<p>Returns a copy of the comparison predicate.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool TopologicalOrder::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the container is empty.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool TopologicalOrder::</code><strong><code>erase</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Erase a specific element from the container. This will do nothing if the
+element was not present.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T TopologicalOrder::</code><strong><code>front</code></strong><code>() const</code></li>
+<li><code>std::vector&lt;T&gt; TopologicalOrder::</code><strong><code>front_set</code></strong><code>() const</code></li>
+<li><code>T TopologicalOrder::</code><strong><code>back</code></strong><code>() const</code></li>
+<li><code>std::vector&lt;T&gt; TopologicalOrder::</code><strong><code>back_set</code></strong><code>() const</code></li>
+</ul>
+<p>Query the current front set (elements that never appear on the right of an
+ordering relation) or back set (elements that never appear on the left), or
+the first element in each set. The elements in each returned list will be
+ordered according to the container's comparison predicate. An element that has
+no ordering relations with any other element will appear in both sets. The
+<code>front()</code> and <code>back()</code> functions will throw <code>TopologicalOrderEmpty</code> if the
+container is empty, or <code>TopologicalOrderCycle</code> if a cycle is detected; the set
+functions will throw if a cycle is detected but will simply return an empty
+set if the container is empty. Not all cycles will be detected by these
+functions (a cycle that involves only interior elements, while still leaving
+well defined front and back sets, will not be detected here).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool TopologicalOrder::</code><strong><code>has</code></strong><code>(const T&amp; t) const</code></li>
+</ul>
+<p>True if the element is in the container.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; void TopologicalOrder::</code><strong><code>insert</code></strong><code>(const T&amp; t, const Args&amp;... args)</code></li>
+</ul>
+<p>Insert one or more elements. If only one element is inserted, it has no
+implied ordering relations with any other elements. If multiple elements are
+listed, an ordering relation is implied between each element and all elements
+after it in the list. In all insert functions, implied relations between an
+element and itself are ignored.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename Range&gt; void TopologicalOrder::</code><strong><code>insert_1n</code></strong><code>(const T&amp; t1, const Range&amp; r2)</code></li>
+<li><code>void TopologicalOrder::</code><strong><code>insert_1n</code></strong><code>(const T&amp; t1, std::initializer_list&lt;T&gt; r2)</code></li>
+<li><code>template &lt;typename Range&gt; void TopologicalOrder::</code><strong><code>insert_n1</code></strong><code>(const Range&amp; r1, const T&amp; t2)</code></li>
+<li><code>void TopologicalOrder::</code><strong><code>insert_n1</code></strong><code>(std::initializer_list&lt;T&gt; r1, const T&amp; t2)</code></li>
+<li><code>template &lt;typename Range1, typename Range2&gt; void TopologicalOrder::</code><strong><code>insert_mn</code></strong><code>(const Range1&amp; r1, const Range2&amp; r2)</code></li>
+<li><code>void TopologicalOrder::</code><strong><code>insert_mn</code></strong><code>(std::initializer_list&lt;T&gt; r1, std::initializer_list&lt;T&gt; r2)</code></li>
+</ul>
+<p>Insert one or more pairs of elements, with ordering relations between the left
+and right arguments. The <code>insert_1n()</code> function creates an ordering relation
+between the first argument and every element of the second range;
+<code>insert_n1()</code> creates an ordering relation between every element of the first
+range and the second element; <code>insert_mn()</code> creates an ordering relation
+between every pair in the cross product of the two ranges.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool TopologicalOrder::</code><strong><code>is_front</code></strong><code>(const T&amp; t) const</code></li>
+<li><code>bool TopologicalOrder::</code><strong><code>is_back</code></strong><code>(const T&amp; t) const</code></li>
+</ul>
+<p>True if the give element is part of the current front or back set.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T TopologicalOrder::</code><strong><code>pop_front</code></strong><code>()</code></li>
+<li><code>std::vector&lt;T&gt; TopologicalOrder::</code><strong><code>pop_front_set</code></strong><code>()</code></li>
+<li><code>T TopologicalOrder::</code><strong><code>pop_back</code></strong><code>()</code></li>
+<li><code>std::vector&lt;T&gt; TopologicalOrder::</code><strong><code>pop_back_set</code></strong><code>()</code></li>
+</ul>
+<p>Remove one or all elements of the current front or back set. These will throw
+<code>TopologicalOrderCycle</code> or <code>TopologicalOrderEmpty</code> under the same
+circumstances as the corresponding front or back element or set functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t TopologicalOrder::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the number of elements in the container.</p></body>
+</html>

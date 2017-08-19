@@ -4,6 +4,7 @@
 
 * _Utility modules_
     * [`"rs-core/common.hpp"`](common.html) - Common utilities.
+    * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms.
     * [`"rs-core/container.hpp"`](container.html) - Containers.
     * [`"rs-core/float.hpp"`](float.html) - Floating point utilities.
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities.
