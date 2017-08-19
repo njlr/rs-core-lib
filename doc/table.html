@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Simple Table Layout</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="simple-table-layout">Simple Table Layout</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/table.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#simple-table-layout">Simple Table Layout</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#table-class">Table class</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="table-class">Table class</h2>
+<p><strong><code>Table</code></strong> is a utility class for simple table layout in fixed width text, a
+task often useful in formatting the output from command line programs and
+similar utilities.</p>
+<p>Example:</p>
+<pre><code>Table tab;
+tab &lt;&lt; "Name" &lt;&lt; "Number" &lt;&lt; "Car" &lt;&lt; '\n';
+tab.rule();
+tab &lt;&lt; "Patrick McGoohan" &lt;&lt; 6 &lt;&lt; "Lotus 7" &lt;&lt; '\n';
+tab &lt;&lt; "James Bond" &lt;&lt; 007 &lt;&lt; "Aston Martin" &lt;&lt; '\n';
+tab &lt;&lt; "Douglas Adams" &lt;&lt; 42 &lt;&lt; "Ford Prefect" &lt;&lt; '\n';
+tab &lt;&lt; "Maxwell Smart" &lt;&lt; 86 &lt;&lt; "Sunbeam Tiger" &lt;&lt; '\n';
+std::cout &lt;&lt; tab;
+</code></pre>
+<p>Output:</p>
+<pre><code>Name              Number  Car
+================  ======  =============
+Patrick McGoohan  6       Lotus 7
+James Bond        7       Aston Martin
+Douglas Adams     42      Ford Prefect
+Maxwell Smart     86      Sunbeam Tiger
+</code></pre>
+<div class="defns">
+<ul>
+<li><code>Table::</code><strong><code>Table</code></strong><code>()</code></li>
+<li><code>Table::</code><strong><code>Table</code></strong><code>(const Table&amp; t)</code></li>
+<li><code>Table::</code><strong><code>Table</code></strong><code>(Table&amp;&amp; t) noexcept</code></li>
+<li><code>Table::</code><strong><code>~Table</code></strong><code>() noexcept</code></li>
+<li><code>Table&amp; Table::</code><strong><code>operator=</code></strong><code>(const Table&amp; t)</code></li>
+<li><code>Table&amp; Table::</code><strong><code>operator=</code></strong><code>(Table&amp;&amp; t) noexcept</code></li>
+</ul>
+<p>Life cycle functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; Table&amp; Table::</code><strong><code>operator&lt;&lt;</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Adds a data cell to the table. The value is converted to a string using
+<code>to_str()</code>. There is one special case: entering a single line feed character
+(or a string containing only a line feed) ends the current row and starts a
+new one.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Table::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Clears all cell data and settings from the table (i.e. resets the table to its
+default constructed state).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Table::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the table contains no cell data.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Table::</code><strong><code>rule</code></strong><code>(char c = [see below])</code></li>
+</ul>
+<p>Writes a horizontal rule across the table, by repeating the character to match
+the width of each column. If no character is supplied, <code>'='</code> is used for the
+first rule, <code>'-'</code> for subsequent ones.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Table::</code><strong><code>show_repeats</code></strong><code>(bool flag = true) noexcept</code></li>
+</ul>
+<p>If this is set, any cell identical to the one immediately above it will be
+replaced with <code>"''"</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>U8string</code> <strong><code>to_str</code></strong><code>(cons Table&amp; tab)</code></li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Table&amp; tab)</code></li>
+</ul>
+<p>Format the table as text. Two spaces will be inserted between columns; empty
+cells will be written as <code>"--"</code>.</p></body>
+</html>

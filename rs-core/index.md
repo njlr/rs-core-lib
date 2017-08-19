@@ -24,6 +24,7 @@
     * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities
     * [`"rs-core/string.hpp"`](string.html) - String algorithms
+    * [`"rs-core/table.hpp"`](table.html) - Simple table layout
     * [`"rs-core/uuid.hpp"`](uuid.html) - UUID
 * _Time and date_
     * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms
