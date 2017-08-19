@@ -2,28 +2,32 @@
 
 ### Common utilities library by Ross Smith ###
 
-* _Utility modules_
+* _General utilities_
     * [`"rs-core/common.hpp"`](common.html) - Common utilities
+    * [`"rs-core/container.hpp"`](container.html) - Containers
+    * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments
+    * [`"rs-core/optional.hpp"`](optional.html) - Optional type
+    * [`"rs-core/variant.hpp"`](variant.html) - Variant type
+* _Concurrency_
+    * [`"rs-core/thread.hpp"`](thread.html) - Threads
+* _Functional programming_
     * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms
     * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization
-    * [`"rs-core/container.hpp"`](container.html) - Containers
-    * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
-    * [`"rs-core/float.hpp"`](float.html) - Floating point utilities
-    * [`"rs-core/io.hpp"`](io.html) - I/O utilities
-    * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
-    * [`"rs-core/optional.hpp"`](optional.html) - Optional type
-    * [`"rs-core/progress.hpp"`](progress.html) -- Progress bar
+* _Numerics_
+    * [`"rs-core/float.hpp"`](float.html) - Floating point utilities
     * [`"rs-core/random.hpp"`](random.html) - Random numbers
     * [`"rs-core/rational.hpp"`](rational.html) -- Rational numbers
     * [`"rs-core/statistics.hpp"`](statistics.html) -- Statistics
-    * [`"rs-core/string.hpp"`](string.html) - String algorithms
-    * [`"rs-core/thread.hpp"`](thread.html) - Threads
-    * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms
-    * [`"rs-core/uuid.hpp"`](uuid.html) - UUID
-    * [`"rs-core/variant.hpp"`](variant.html) - Variant type
     * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions
-* _Testing modules_
+* _Text and I/O_
+    * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
+    * [`"rs-core/io.hpp"`](io.html) - I/O utilities
+    * [`"rs-core/string.hpp"`](string.html) - String algorithms
+    * [`"rs-core/uuid.hpp"`](uuid.html) - UUID
+* _Time and date_
+    * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms
+* _Unit testing_
     * [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing
 
 This is a header-only library that contains the utilities that I've found a
