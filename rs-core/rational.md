@@ -2,7 +2,7 @@
 
 By Ross Smith
 
-* `#include "rs-extra/rational.hpp"`
+* `#include "rs-core/rational.hpp"`
 
 ## Contents ##
 

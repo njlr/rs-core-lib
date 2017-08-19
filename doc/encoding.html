@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Binary and Text Encodings</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="binary-and-text-encodings">Binary and Text Encodings</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/encoding.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#binary-and-text-encodings">Binary and Text Encodings</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#encoding-base-class">Encoding base class</a></li>
+<li><a href="#escape-encoding">Escape encoding</a></li>
+<li><a href="#quote-encoding">Quote encoding</a></li>
+<li><a href="#hex-encoding">Hex encoding</a></li>
+<li><a href="#base-64-encoding">Base 64 encoding</a></li>
+<li><a href="#ascii85-encoding">Ascii85 encoding</a></li>
+<li><a href="#z85-encoding">Z85 encoding</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="encoding-base-class">Encoding base class</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Encoding</code></strong><ul>
+<li><code>virtual Encoding::</code><strong><code>~Encoding</code></strong><code>() noexcept</code></li>
+<li><code>virtual void Encoding::</code><strong><code>encode_bytes</code></strong><code>(const void* src, size_t len, U8string&amp; dst, size_t width = npos) const = 0</code></li>
+<li><code>virtual size_t Encoding::</code><strong><code>decode_bytes</code></strong><code>(const char* src, size_t len, string&amp; dst) const = 0</code></li>
+<li><code>void Encoding::</code><strong><code>encode</code></strong><code>(const string&amp; src, U8string&amp; dst, size_t width = npos) const</code></li>
+<li><code>U8string Encoding::</code><strong><code>encode</code></strong><code>(const string&amp; src, size_t width = npos) const</code></li>
+<li><code>size_t Encoding::</code><strong><code>decode</code></strong><code>(const U8string&amp; src, string&amp; dst) const</code></li>
+<li><code>string Encoding::</code><strong><code>decode</code></strong><code>(const U8string&amp; src) const</code></li>
+</ul>
+</li>
+</ul>
+<p>Common abstract base class for binary-to-text encodings. The <code>encode_bytes()</code>
+and <code>decode_bytes()</code> virtual functions contain the actual transformation code;
+the <code>encode()</code> and <code>decode()</code> functions call them, providing a more convenient
+interface for some purposes.</p>
+<p>The <code>encode_bytes()</code> function reads <code>len</code> bytes from <code>src</code>, appending the
+encoded form to the <code>dst</code> string (existing content in <code>dst</code> will not be
+erased). If the <code>width</code> argument is set, line feeds will be inserted every
+<code>width</code> bytes (or as close to it as the output format allows).</p>
+<p>The <code>decode_bytes()</code> function reads <code>len</code> bytes from <code>src</code>, appending the
+decoded form to the <code>dst</code> string (existing content in <code>dst</code> will not be
+erased). Bytes in the input that cannot be part of an encoded string are
+skipped; output is unspecified if the input string is invalid in some other
+way. The return value is the number of bytes read from the input string; this
+may be less than <code>len</code> if the encoded format includes a termination marker.</p>
+<p>Behaviour of <code>encode_bytes()</code> and <code>decode_bytes()</code> is undefined if <code>src</code> is
+null.</p>
+</div>
+<h2 id="escape-encoding">Escape encoding</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>EscapeEncoding</code></strong><code>: public Encoding</code></li>
+</ul>
+<p>Bytes outside the printable ASCII range (32-126) are represented by escape
+codes; those inside the range are copied unchanged, apart from the backslash.</p>
+</div>
+<h2 id="quote-encoding">Quote encoding</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>QuoteEncoding</code></strong><code>: public Encoding</code></li>
+</ul>
+<p>The same encoding as <code>EscapeEncoding</code>, with the output enclosed in quote marks
+(and embedded quotes also escaped). The decoder will do nothing if the input
+does not start with a quote; otherwise, decoding will stop with the next
+unescaped quote.</p>
+</div>
+<h2 id="hex-encoding">Hex encoding</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>HexEncoding</code></strong><code>: public Encoding</code></li>
+</ul>
+<p>Each byte is encoded as two hexadecimal digits.</p>
+</div>
+<h2 id="base-64-encoding">Base 64 encoding</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Base64Encoding</code></strong><code>: public Encoding</code></li>
+</ul>
+<p><a href="https://en.wikipedia.org/wiki/Base64">Base 64 encoding</a>. Encoding uses the
+<code>'+'</code> and <code>'/'</code> characters for index 62 and 63, and will always append padding
+characters. Decoding will accept either <code>'+'</code> or <code>'-'</code> for 62, <code>'/'</code> or <code>'_'</code>
+for 63, and will work with or without padding characters at the end; embedded
+padding characters, resulting from concatenation of multiple encoded strings,
+will be handled correctly, and will not be treated as a terminator.</p>
+</div>
+<h2 id="ascii85-encoding">Ascii85 encoding</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Ascii85Encoding</code></strong><code>: public Encoding</code></li>
+</ul>
+<p>Adobe variant of <a href="https://en.wikipedia.org/wiki/Ascii85">base 85 encoding</a>.
+Leading <code>"&lt;~"</code> and trailing <code>"~&gt;"</code> will be generated when encoding, and
+recognized but not required when decoding.</p>
+</div>
+<h2 id="z85-encoding">Z85 encoding</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Z85Encoding</code></strong><code>: public Encoding</code></li>
+</ul>
+<p>ZeroMQ variant of <a href="https://en.wikipedia.org/wiki/Ascii85">base 85 encoding</a>.
+Leading <code>"&lt;~"</code> and trailing <code>"~&gt;"</code> will be generated when encoding, and
+recognized but not required when decoding.</p></body>
+</html>

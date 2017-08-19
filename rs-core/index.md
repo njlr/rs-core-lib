@@ -22,6 +22,7 @@
     * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions
 * _Text and I/O_
     * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
+    * [`"rs-core/encoding.hpp"`](encoding.html) -- Binary and text encodings
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities
     * [`"rs-core/string.hpp"`](string.html) - String algorithms
     * [`"rs-core/table.hpp"`](table.html) - Simple table layout

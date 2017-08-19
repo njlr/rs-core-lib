@@ -5,6 +5,7 @@
 #include "rs-core/common.hpp"
 #include "rs-core/container.hpp"
 #include "rs-core/digest.hpp"
+#include "rs-core/encoding.hpp"
 #include "rs-core/float.hpp"
 #include "rs-core/io.hpp"
 #include "rs-core/kwargs.hpp"
