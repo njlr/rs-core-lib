@@ -18,6 +18,9 @@
 <li><a href="#contents">Contents</a></li>
 <li><a href="#file-io-operations">File I/O operations</a><ul>
 <li><a href="#process-io-operations">Process I/O operations</a></li>
+</ul>
+</li>
+<li><a href="#progress-bar">Progress bar</a><ul>
 <li><a href="#terminal-io-operations">Terminal I/O operations</a></li>
 </ul>
 </li>
@@ -63,6 +66,30 @@ the file.</p>
 capturing standard output. No error indication is returned; standard error
 still goes to its usual destination, unless explicitly redirected in the
 command line.</p>
+</div>
+<h2 id="progress-bar">Progress bar</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>ProgressBar</code></strong><ul>
+<li><code>explicit ProgressBar::</code><strong><code>ProgressBar</code></strong><code>(const U8string&amp; label, size_t length = 0, std::ostream&amp; out = std::cout)</code></li>
+<li><code>ProgressBar::</code><strong><code>~ProgressBar</code></strong><code>() noexcept</code></li>
+<li><code>void ProgressBar::</code><strong><code>operator()</code></strong><code>(double x)</code></li>
+</ul>
+</li>
+</ul>
+<p>This class draws a progress bar on the terminal, and updates it every time the
+function call operator is called.</p>
+<p>Constructor arguments are the label to print on the left of the progress bar,
+the length of the bar in characters (calculated from the terminal width by
+default), and the output stream to write it to. If an explicit length is
+supplied, it is trusted to work with the available terminal dimensions; it is
+up to the caller to ensure that the resulting output will not be too long
+(allow for at least 16 characters in addition to the label and bar lengths).</p>
+<p>The function call operator updates the progress bar to reflect the value
+passed to it, and adds an estimated remaining time on the right. The value is
+clamped to the unit range. Progress will never go backwards; a call with a
+value less than the previous value will not update the bar, although it will
+be taken into account in estimating the run time.</p>
 </div>
 <h3 id="terminal-io-operations">Terminal I/O operations</h3>
 <div class="defns">

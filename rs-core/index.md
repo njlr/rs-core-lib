@@ -13,6 +13,7 @@
     * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments.
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming.
     * [`"rs-core/optional.hpp"`](optional.html) - Optinal type.
+    * [`"rs-core/progress.hpp"`](progress.html) -- Progress bar.
     * [`"rs-core/random.hpp"`](random.html) - Random numbers.
     * [`"rs-core/string.hpp"`](string.html) - String algorithms.
     * [`"rs-core/thread.hpp"`](thread.html) - Threads.

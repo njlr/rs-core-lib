@@ -4,7 +4,7 @@ $(BUILD)/common-test.o: rs-core/common-test.cpp rs-core/common.hpp rs-core/unit-
 $(BUILD)/container-test.o: rs-core/container-test.cpp rs-core/common.hpp rs-core/container.hpp rs-core/float.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/vector.hpp
 $(BUILD)/digest-test.o: rs-core/digest-test.cpp rs-core/common.hpp rs-core/digest.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/float-test.o: rs-core/float-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/unit-test.hpp
-$(BUILD)/io-test.o: rs-core/io-test.cpp rs-core/common.hpp rs-core/io.hpp rs-core/string.hpp rs-core/unit-test.hpp
+$(BUILD)/io-test.o: rs-core/io-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/io.hpp rs-core/string.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/kwargs-test.o: rs-core/kwargs-test.cpp rs-core/common.hpp rs-core/kwargs.hpp rs-core/unit-test.hpp
 $(BUILD)/meta-test.o: rs-core/meta-test.cpp rs-core/common.hpp rs-core/meta.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/optional-test.o: rs-core/optional-test.cpp rs-core/common.hpp rs-core/optional.hpp rs-core/string.hpp rs-core/unit-test.hpp

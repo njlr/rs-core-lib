@@ -44,6 +44,29 @@ capturing standard output. No error indication is returned; standard error
 still goes to its usual destination, unless explicitly redirected in the
 command line.
 
+## Progress bar ##
+
+* `class` **`ProgressBar`**
+    * `explicit ProgressBar::`**`ProgressBar`**`(const U8string& label, size_t length = 0, std::ostream& out = std::cout)`
+    * `ProgressBar::`**`~ProgressBar`**`() noexcept`
+    * `void ProgressBar::`**`operator()`**`(double x)`
+
+This class draws a progress bar on the terminal, and updates it every time the
+function call operator is called.
+
+Constructor arguments are the label to print on the left of the progress bar,
+the length of the bar in characters (calculated from the terminal width by
+default), and the output stream to write it to. If an explicit length is
+supplied, it is trusted to work with the available terminal dimensions; it is
+up to the caller to ensure that the resulting output will not be too long
+(allow for at least 16 characters in addition to the label and bar lengths).
+
+The function call operator updates the progress bar to reflect the value
+passed to it, and adds an estimated remaining time on the right. The value is
+clamped to the unit range. Progress will never go backwards; a call with a
+value less than the previous value will not update the bar, although it will
+be taken into account in estimating the run time.
+
 ### Terminal I/O operations ###
 
 * `bool` **`is_stdout_redirected`**`() noexcept`

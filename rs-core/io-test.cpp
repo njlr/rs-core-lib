@@ -1,10 +1,14 @@
 #include "rs-core/io.hpp"
 #include "rs-core/string.hpp"
+#include "rs-core/time.hpp"
 #include "rs-core/unit-test.hpp"
+#include <chrono>
+#include <cstdlib>
 #include <set>
 #include <string>
 
 using namespace RS;
+using namespace std::chrono;
 using namespace std::literals;
 
 namespace {
@@ -87,6 +91,19 @@ namespace {
 
     }
 
+    void check_progres_bar() {
+
+        // double scale = 100;
+        // auto runtime = 2s;
+        // auto interval = runtime / scale;
+        // ProgressBar bar("Hello");
+        // for (int i = 0; i <= 100; ++i) {
+        //     bar(i / scale);
+        //     sleep_for(interval);
+        // }
+
+    }
+
     void check_terminal_io_operations() {
 
         U8string s;
@@ -147,6 +164,7 @@ TEST_MODULE(core, io) {
 
     check_file_io_operations();
     check_process_io_operations();
+    check_progres_bar();
     check_terminal_io_operations();
 
 }

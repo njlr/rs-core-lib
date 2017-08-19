@@ -1,10 +1,16 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include "rs-core/float.hpp"
 #include "rs-core/string.hpp"
+#include "rs-core/time.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
+#include <cstdlib>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <string>
 
 namespace RS {
@@ -184,5 +190,75 @@ namespace RS {
     inline std::string xt_colour_bg(int r, int g, int b) { return "\x1b[48;5;" + RS_Detail::decfmt(RS_Detail::xt_encode_rgb(r, g, b)) + 'm'; }  // Set bg colour to an RGB value (0-5)
     inline std::string xt_grey(int grey) { return "\x1b[38;5;" + RS_Detail::decfmt(RS_Detail::xt_encode_grey(grey)) + 'm'; }                    // Set fg colour to a grey level (1-24)
     inline std::string xt_grey_bg(int grey) { return "\x1b[48;5;" + RS_Detail::decfmt(RS_Detail::xt_encode_grey(grey)) + 'm'; }                 // Set bg colour to a grey level (1-24)
+
+    // Progress bar
+
+    class ProgressBar {
+    public:
+        RS_NO_COPY_MOVE(ProgressBar);
+        explicit ProgressBar(const U8string& label, size_t length = 0, std::ostream& out = std::cout);
+        ~ProgressBar() noexcept;
+        void operator()(double x);
+    private:
+        static constexpr size_t tail_length = 10;
+        size_t bar_length;
+        size_t current_pos;
+        size_t bar_offset;
+        std::ostream* out_ptr;
+        std::chrono::system_clock::time_point start_time;
+    };
+
+    inline ProgressBar::ProgressBar(const U8string& label, size_t length, std::ostream& out):
+    bar_length(length), current_pos(0), bar_offset(label.empty() ? 1 : label.size() + 1), out_ptr(&out) {
+        using namespace std::chrono;
+        if (bar_length == 0) {
+            auto w = getenv("WIDTH");
+            if (w && *w)
+                bar_length = std::strtoul(w, nullptr, 10);
+            if (bar_length == 0)
+                bar_length = 80;
+            bar_length -= bar_offset + tail_length + 4;
+        }
+        if (! label.empty())
+            *out_ptr << xt_yellow << label << " ";
+        *out_ptr << U8string(xt_cyan) << "[" << xt_blue << U8string(bar_length, '-') << xt_cyan << "] " << U8string(tail_length, ' ') << xt_reset << std::flush;
+        start_time = system_clock::now();
+    }
+
+    inline ProgressBar::~ProgressBar() noexcept {
+        try { *out_ptr << (xt_move_left(tail_length) + xt_erase_right) << std::endl; }
+            catch (...) {}
+    }
+
+    inline void ProgressBar::operator()(double x) {
+        using namespace std::chrono;
+        x = clamp(x, 0, 1);
+        U8string message;
+        auto now = system_clock::now();
+        if (x > 0 && x < 1 && now > start_time) {
+            auto elapsed = duration_cast<Dseconds>(now - start_time);
+            auto estimate = elapsed * ((1 - x) / x);
+            double count = estimate.count();
+            char unit = 's';
+            if (count >= 86400) {
+                count /= 86400;
+                unit = 'd';
+            } else if (count >= 3600) {
+                count /= 3600;
+                unit = 'h';
+            } else if (count >= 60) {
+                count /= 60;
+                unit = 'm';
+            }
+            message = "ETA " + fp_format(count, 'g', 2) + unit;
+        }
+        message.resize(tail_length, ' ');
+        size_t new_pos = std::max(iround<size_t>(x * bar_length), current_pos);
+        size_t n_left = bar_length - current_pos + tail_length + 2;
+        size_t n_advance = new_pos - current_pos;
+        size_t n_right = bar_length - new_pos + 2;
+        *out_ptr << xt_move_left(n_left) << xt_green << U8string(n_advance, '+') << xt_move_right(n_right) << xt_yellow << message << xt_reset << std::flush;
+        current_pos = new_pos;
+    }
 
 }
