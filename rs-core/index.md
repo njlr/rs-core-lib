@@ -15,6 +15,7 @@
     * [`"rs-core/optional.hpp"`](optional.html) - Optinal type.
     * [`"rs-core/progress.hpp"`](progress.html) -- Progress bar.
     * [`"rs-core/random.hpp"`](random.html) - Random numbers.
+    * [`"rs-core/statistics.hpp"`](statistics.html) -- Statistics.
     * [`"rs-core/string.hpp"`](string.html) - String algorithms.
     * [`"rs-core/thread.hpp"`](thread.html) - Threads.
     * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms.
