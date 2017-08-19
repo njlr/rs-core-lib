@@ -12,7 +12,7 @@
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities
     * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
-    * [`"rs-core/optional.hpp"`](optional.html) - Optinal type
+    * [`"rs-core/optional.hpp"`](optional.html) - Optional type
     * [`"rs-core/progress.hpp"`](progress.html) -- Progress bar
     * [`"rs-core/random.hpp"`](random.html) - Random numbers
     * [`"rs-core/rational.hpp"`](rational.html) -- Rational numbers
