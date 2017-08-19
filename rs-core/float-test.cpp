@@ -245,6 +245,32 @@ namespace {
 
     }
 
+    void check_pseudo_newton_raphson() {
+
+        PseudoNewtonRaphson<double> algo;
+        double x = 0;
+
+        TRY(x = algo(F{1}, 1));
+        TEST_NEAR(x, root);
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = i;
+            TRY(x = algo(F{k}, 1));
+            // logx("PNR k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR(x, root / i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = 1.0 / i;
+            TRY(x = algo(F{k}, 1));
+            // logx("PNR 1/k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR_EPSILON(x, root * i, 1e-6 * i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+    }
+
 }
 
 TEST_MODULE(core, float) {
@@ -257,5 +283,6 @@ TEST_MODULE(core, float) {
     check_bisection();
     check_false_position();
     check_newton_raphson();
+    check_pseudo_newton_raphson();
 
 }

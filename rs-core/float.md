@@ -199,3 +199,17 @@ algorithm to find a root of a function. The function call operator takes the
 function to be solved, the derivative of this function, and an initial value.
 Results are unpredictable if `df()` is not a good approximation to the
 derivative of `f()`.
+
+* `template <typename T> struct` **`PseudoNewtonRaphson`**
+    * `T PseudoNewtonRaphson::`**`epsilon`** `= [see above]`
+    * `T PseudoNewtonRaphson::`**`delta`** `= [same as default epsilon]`
+    * `size_t PseudoNewtonRaphson::`**`limit`** `= 100`
+    * `size_t PseudoNewtonRaphson::`**`count`**
+    * `T PseudoNewtonRaphson::`**`error`**
+    * `template <typename F> T PseudoNewtonRaphson::`**`operator()`**`(F f, T a = 0)`
+
+This uses the Newton-Raphson algorithm, but calculates an approximation to the
+derivative by evaluating `f()` at a nearby point(`f(x+delta)`), instead of
+taking the derivative as a separate function. Results are unpredictable if the
+function exhibits significant irregularities on a scale smaller than `delta`.
+Behaviour is undefined if `delta` is zero.

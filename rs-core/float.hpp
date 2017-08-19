@@ -274,4 +274,31 @@ namespace RS {
         }
     };
 
+    template <typename T>
+    struct PseudoNewtonRaphson {
+        static_assert(std::is_floating_point<T>::value);
+        T epsilon = RS_Detail::default_epsilon<T>();
+        T delta = RS_Detail::default_epsilon<T>();
+        size_t limit = 100;
+        size_t count = 0;
+        T error = {};
+        template <typename F> T operator()(F f, T a = {}) {
+            using std::abs;
+            T x = a, y = f(a);
+            error = abs(y);
+            for (count = 0; count < limit; ++count) {
+                if (error <= epsilon)
+                    break;
+                T dy = (f(x + delta) - y) / delta;
+                if (dy != 0)
+                    x -= y / dy;
+                else
+                    x += 100 * epsilon;
+                y = f(x);
+                error = abs(y);
+            }
+            return x;
+        }
+    };
+
 }

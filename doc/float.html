@@ -248,5 +248,23 @@ ensure are on opposite sides of the root.</p>
 algorithm to find a root of a function. The function call operator takes the
 function to be solved, the derivative of this function, and an initial value.
 Results are unpredictable if <code>df()</code> is not a good approximation to the
-derivative of <code>f()</code>.</p></body>
+derivative of <code>f()</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; struct</code> <strong><code>PseudoNewtonRaphson</code></strong><ul>
+<li><code>T PseudoNewtonRaphson::</code><strong><code>epsilon</code></strong> <code>= [see above]</code></li>
+<li><code>T PseudoNewtonRaphson::</code><strong><code>delta</code></strong> <code>= [same as default epsilon]</code></li>
+<li><code>size_t PseudoNewtonRaphson::</code><strong><code>limit</code></strong> <code>= 100</code></li>
+<li><code>size_t PseudoNewtonRaphson::</code><strong><code>count</code></strong></li>
+<li><code>T PseudoNewtonRaphson::</code><strong><code>error</code></strong></li>
+<li><code>template &lt;typename F&gt; T PseudoNewtonRaphson::</code><strong><code>operator()</code></strong><code>(F f, T a = 0)</code></li>
+</ul>
+</li>
+</ul>
+<p>This uses the Newton-Raphson algorithm, but calculates an approximation to the
+derivative by evaluating <code>f()</code> at a nearby point(<code>f(x+delta)</code>), instead of
+taking the derivative as a separate function. Results are unpredictable if the
+function exhibits significant irregularities on a scale smaller than <code>delta</code>.
+Behaviour is undefined if <code>delta</code> is zero.</p></body>
 </html>
