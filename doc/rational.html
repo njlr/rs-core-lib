@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Rational Numbers</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="rational-numbers">Rational Numbers</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-extra/rational.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<ul>
+<div class="toc">
+<ul>
+<li><a href="#rational-numbers">Rational Numbers</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#rational-numbers_1">Rational numbers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</ul>
+<h2 id="rational-numbers_1">Rational numbers</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Rational</code></strong></li>
+</ul>
+<p>The <code>Rational</code> template implements rational numbers over an integer type.</p>
+<p>Constructors and arithmetic operators will always reduce the result to its
+lowest terms; the denominator will always be positive. If the underlying type
+is a fixed precision integer, results are unspecified if a calculation would
+overflow the integer type's range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using</code> <strong><code>Rat</code></strong> <code>= Rational&lt;int&gt;</code></li>
+<li><code>using</code> <strong><code>Urat</code></strong> <code>= Rational&lt;unsigned&gt;</code></li>
+<li><code>using</code> <strong><code>Rat16</code></strong> <code>= Rational&lt;int16_t&gt;</code></li>
+<li><code>using</code> <strong><code>Rat32</code></strong> <code>= Rational&lt;int32_t&gt;</code></li>
+<li><code>using</code> <strong><code>Rat64</code></strong> <code>= Rational&lt;int64_t&gt;</code></li>
+<li><code>using</code> <strong><code>Urat16</code></strong> <code>= Rational&lt;uint16_t&gt;</code></li>
+<li><code>using</code> <strong><code>Urat32</code></strong> <code>= Rational&lt;uint32_t&gt;</code></li>
+<li><code>using</code> <strong><code>Urat64</code></strong> <code>= Rational&lt;uint64_t&gt;</code></li>
+<li><code>using</code> <strong><code>Ratmp</code></strong> <code>= Rational&lt;Int&gt;</code></li>
+<li><code>using</code> <strong><code>Uratmp</code></strong> <code>= Rational&lt;Nat&gt;</code></li>
+</ul>
+<p>Named instantiations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Rational::</code><strong><code>integer_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Rational::</code><strong><code>Rational</code></strong><code>()</code></li>
+<li><code>template &lt;typename T2&gt; Rational::</code><strong><code>Rational</code></strong><code>(T2 t)</code></li>
+<li><code>template &lt;typename T2, typename T3&gt; Rational::</code><strong><code>Rational</code></strong><code>(T2 n, T3 d)</code></li>
+<li><code>explicit Rational::</code><strong><code>Rational</code></strong><code>(const U8string&amp; s)</code></li>
+<li><code>explicit Rational::</code><strong><code>Rational</code></strong><code>(const char* s)</code></li>
+<li><code>Rational::</code><strong><code>~Rational() noexcept</code></strong></li>
+<li><code>Rational::</code><strong><code>Rational</code></strong><code>(const Rational&amp; r)</code></li>
+<li><code>Rational::</code><strong><code>Rational</code></strong><code>(Rational&amp;&amp; r) noexcept</code></li>
+<li><code>Rational&amp; Rational::</code><strong><code>operator=</code></strong><code>(const Rational&amp; r)</code></li>
+<li><code>Rational&amp; Rational::</code><strong><code>operator=</code></strong><code>(Rational&amp;&amp; r) noexcept</code></li>
+<li><code>template &lt;typename T2&gt; Rational&amp; Rational::</code><strong><code>operator=</code></strong><code>(T2 t)</code></li>
+</ul>
+<p>Life cycle functions. The first constructor sets the number to zero; the
+second sets it to an integer; the third to the ratio of two integers. <code>T2</code> and
+<code>T3</code> must be implicitly convertible to <code>T</code>. The constructors from a string can
+read an integer or rational number in simple or mixed form, with whitespace
+between any of the elements.</p>
+<p>The string constructors will throw <code>std::invalid_argument</code> if the string does
+not contain a valid value; any constructor that can take a numerator and
+denominator will throw <code>std::domain_error</code> if the denominator is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>explicit Rational::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
+<li><code>bool Rational::</code><strong><code>operator!</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename T2&gt; explicit Rational::</code><strong><code>operator T2</code></strong><code>() const</code></li>
+</ul>
+<p>Conversion operators. <code>T2</code> may be any type to which <code>T</code> can be explicitly
+converted and that has a division operator.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Rational Rational::</code><strong><code>operator+</code></strong><code>() const</code></li>
+<li><code>Rational Rational::</code><strong><code>operator-</code></strong><code>() const</code></li>
+<li><code>Rational&amp; Rational::</code><strong><code>operator+=</code></strong><code>(const Rational&amp; rhs)</code></li>
+<li><code>Rational&amp; Rational::</code><strong><code>operator-=</code></strong><code>(const Rational&amp; rhs)</code></li>
+<li><code>Rational&amp; Rational::</code><strong><code>operator*=</code></strong><code>(const Rational&amp; rhs)</code></li>
+<li><code>Rational&amp; Rational::</code><strong><code>operator/=</code></strong><code>(const Rational&amp; rhs)</code></li>
+<li><code>Rational</code> <strong><code>operator+</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs)</code></li>
+<li><code>Rational</code> <strong><code>operator-</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs)</code></li>
+<li><code>Rational</code> <strong><code>operator*</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs)</code></li>
+<li><code>Rational</code> <strong><code>operator/</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs)</code></li>
+</ul>
+<p>Arithmetic operators. Division by zero will throw <code>std::domain_error</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;=</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;=</code></strong><code>(const Rational&amp; lhs, const Rational&amp; rhs) noexcept</code></li>
+</ul>
+<p>Comparison operators. Mixed mode comparisons between rationals and integers
+are also defined.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Rational::</code><strong><code>num</code></strong><code>() const</code></li>
+<li><code>T Rational::</code><strong><code>den</code></strong><code>() const</code></li>
+</ul>
+<p>Query the numerator and denominator.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Rational Rational::</code><strong><code>abs</code></strong><code>() const</code></li>
+<li><code>Rational</code> <strong><code>abs</code></strong><code>(const Rational&amp; r)</code></li>
+</ul>
+<p>Return the absolute value of a rational number.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Rational::</code><strong><code>floor</code></strong><code>() const</code></li>
+<li><code>T Rational::</code><strong><code>ceil</code></strong><code>() const</code></li>
+<li><code>T Rational::</code><strong><code>round</code></strong><code>() const</code></li>
+</ul>
+<p>Convert a rational to an integer. These follow the rules implied by the names
+of the functions; <code>round()</code> rounds halves toward positive infinity.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Rational::</code><strong><code>is_integer</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the rational is an exact integer (equivalent to <code>den()==1</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Rational Rational::</code><strong><code>reciprocal</code></strong><code>() const</code></li>
+</ul>
+<p>Returns the reciprocal of the rational number. This will throw
+<code>std::domain_error</code> if the original value is zero.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>int Rational::</code><strong><code>sign</code></strong><code>() const noexcept</code></li>
+<li><code>int</code> <strong><code>sign_of</code></strong><code>(const Rational&amp; r) noexcept</code></li>
+</ul>
+<p>Return the sign of a rational number (-1 if negative, 0 if zero, 1 if
+positive).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T Rational::</code><strong><code>whole</code></strong><code>() const</code></li>
+<li><code>Rational Rational::</code><strong><code>frac</code></strong><code>() const</code></li>
+</ul>
+<p>Return the whole and fractional parts of a rational number. The whole part is
+truncated toward zero; the fractional part will have the same sign as the
+original number if it is not an exact integer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>U8string Rational::</code><strong><code>str</code></strong><code>() const</code></li>
+<li><code>U8string Rational::</code><strong><code>mixed</code></strong><code>() const</code></li>
+<li><code>U8string Rational::</code><strong><code>simple</code></strong><code>() const</code></li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; o, const Rational&amp; r)</code></li>
+</ul>
+<p>Convert a rational number to a string. The <code>mixed()</code> format expresses the
+rational as an integer and a fraction (e.g. <code>"2 3/5"</code>); the <code>simple()</code> format
+expresses it as a pure ratio (e.g. <code>"13/5"</code>). The <code>str()</code> format and the
+output operator will write the rational as a simple integer if it has no
+fractional part, otherwise they use the <code>simple()</code> format. All of these call
+<code>to_str(T)</code>.</p></body>
+</html>

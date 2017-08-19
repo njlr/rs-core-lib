@@ -11,6 +11,7 @@
 #include "rs-core/meta.hpp"
 #include "rs-core/optional.hpp"
 #include "rs-core/random.hpp"
+#include "rs-core/rational.hpp"
 #include "rs-core/statistics.hpp"
 #include "rs-core/string.hpp"
 #include "rs-core/thread.hpp"

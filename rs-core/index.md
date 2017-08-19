@@ -3,27 +3,28 @@
 ### Common utilities library by Ross Smith ###
 
 * _Utility modules_
-    * [`"rs-core/common.hpp"`](common.html) - Common utilities.
-    * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms.
-    * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization.
-    * [`"rs-core/container.hpp"`](container.html) - Containers.
-    * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms.
-    * [`"rs-core/float.hpp"`](float.html) - Floating point utilities.
-    * [`"rs-core/io.hpp"`](io.html) - I/O utilities.
-    * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments.
-    * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming.
-    * [`"rs-core/optional.hpp"`](optional.html) - Optinal type.
-    * [`"rs-core/progress.hpp"`](progress.html) -- Progress bar.
-    * [`"rs-core/random.hpp"`](random.html) - Random numbers.
-    * [`"rs-core/statistics.hpp"`](statistics.html) -- Statistics.
-    * [`"rs-core/string.hpp"`](string.html) - String algorithms.
-    * [`"rs-core/thread.hpp"`](thread.html) - Threads.
-    * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms.
-    * [`"rs-core/uuid.hpp"`](uuid.html) - UUID.
-    * [`"rs-core/variant.hpp"`](variant.html) - Variant type.
-    * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions.
+    * [`"rs-core/common.hpp"`](common.html) - Common utilities
+    * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms
+    * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization
+    * [`"rs-core/container.hpp"`](container.html) - Containers
+    * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
+    * [`"rs-core/float.hpp"`](float.html) - Floating point utilities
+    * [`"rs-core/io.hpp"`](io.html) - I/O utilities
+    * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments
+    * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
+    * [`"rs-core/optional.hpp"`](optional.html) - Optinal type
+    * [`"rs-core/progress.hpp"`](progress.html) -- Progress bar
+    * [`"rs-core/random.hpp"`](random.html) - Random numbers
+    * [`"rs-core/rational.hpp"`](rational.html) -- Rational numbers
+    * [`"rs-core/statistics.hpp"`](statistics.html) -- Statistics
+    * [`"rs-core/string.hpp"`](string.html) - String algorithms
+    * [`"rs-core/thread.hpp"`](thread.html) - Threads
+    * [`"rs-core/time.hpp"`](time.html) - Time and date algorithms
+    * [`"rs-core/uuid.hpp"`](uuid.html) - UUID
+    * [`"rs-core/variant.hpp"`](variant.html) - Variant type
+    * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions
 * _Testing modules_
-    * [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing.
+    * [`"rs-core/unit-test.hpp"`](unit-test.html) - Unit testing
 
 This is a header-only library that contains the utilities that I've found a
 common need for in multiple projects.
