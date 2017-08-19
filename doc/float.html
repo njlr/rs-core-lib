@@ -19,6 +19,11 @@
 <li><a href="#arithmetic-constants">Arithmetic constants</a></li>
 <li><a href="#arithmetic-functions">Arithmetic functions</a></li>
 <li><a href="#arithmetic-literals">Arithmetic literals</a></li>
+<li><a href="#numerical-algorithms">Numerical algorithms</a><ul>
+<li><a href="#precision-sum">Precision sum</a></li>
+<li><a href="#root-finding">Root finding</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -167,5 +172,81 @@ rules apply if the result is not representable by the return type.</p>
 </ul>
 </li>
 </ul>
-<p>Angle literals, converting degrees to radians.</p></body>
+<p>Angle literals, converting degrees to radians.</p>
+</div>
+<h2 id="numerical-algorithms">Numerical algorithms</h2>
+<h3 id="precision-sum">Precision sum</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename SinglePassRange&gt; [value type]</code> <strong><code>precision_sum</code></strong><code>(const SinglePassRange&amp; range)</code></li>
+</ul>
+<p>Calculates the sum of a sequence of numbers using the high precision algorithm from
+<a href="http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps">Shewchuk</a>
+and <a href="http://code.activestate.com/recipes/393090/">Hettinger</a>.
+The range's value type must be a floating point arithmetic type. This is
+always much more accurate than simple addition, and is guaranteed to give the
+correct answer (the exact sum correctly rounded) if the value type implements
+IEEE arithmetic (on GCC this requires the <code>-ffloat-store</code> option).</p>
+</div>
+<h3 id="root-finding">Root finding</h3>
+<p>For all of these algorithms, <code>T</code> must be a floating point arithmetic type, <code>F</code>
+(and <code>DF</code> if it is used) must be a function from <code>T</code> to <code>T</code>.</p>
+<p>The structure members specify the tolerance and the maximum number of
+iterations; iteration will stop when the absolute value of <code>f()</code> is less than
+or equal to <code>epsilon</code>, or the maximum number of iterations is reached. The
+<code>count</code> and <code>error</code> members are filled with the actual iteration count and
+absolute error. If the function has multiple roots, the one closest to the
+initial values will typically be found, but the nature of the algorithms means
+that this cannot be promised.</p>
+<p>The default epsilon is arbitrarily set to 10<sup>-4</sup> for <code>float</code>,
+10<sup>-8</sup> for <code>double</code> and <code>long double</code>. Behaviour is undefined if
+<code>epsilon</code> is not positive, if the function has no root, or for the algorithms
+that take two initial values, if <code>f(a)</code> and <code>f(b)</code> have the same sign.</p>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; struct</code> <strong><code>Bisection</code></strong><ul>
+<li><code>T Bisection::</code><strong><code>epsilon</code></strong> <code>= [see above]</code></li>
+<li><code>size_t Bisection::</code><strong><code>limit</code></strong> <code>= 100</code></li>
+<li><code>size_t Bisection::</code><strong><code>count</code></strong></li>
+<li><code>T Bisection::</code><strong><code>error</code></strong></li>
+<li><code>template &lt;typename F&gt; T Bisection::</code><strong><code>operator()</code></strong><code>(F f, T a, T b)</code></li>
+</ul>
+</li>
+</ul>
+<p>Use the bisection algorithm to find a root of a function. The function call
+operator takes the function to be solved and two initial values, which the
+caller is expected to ensure are on opposite sides of the root.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; struct</code> <strong><code>FalsePosition</code></strong><ul>
+<li><code>T FalsePosition::</code><strong><code>epsilon</code></strong> <code>= [see above]</code></li>
+<li><code>size_t FalsePosition::</code><strong><code>limit</code></strong> <code>= 100</code></li>
+<li><code>size_t FalsePosition::</code><strong><code>count</code></strong></li>
+<li><code>T FalsePosition::</code><strong><code>error</code></strong></li>
+<li><code>template &lt;typename F&gt; T FalsePosition::</code><strong><code>operator()</code></strong><code>(F f, T a, T b)</code></li>
+</ul>
+</li>
+</ul>
+<p>Use the <a href="http://en.wikipedia.org/wiki/False_position_method">false position</a>
+algorithm to find a root of a function. The function call operator takes the
+function to be solved and two initial values, which the caller is expected to
+ensure are on opposite sides of the root.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; struct</code> <strong><code>NewtonRaphson</code></strong><ul>
+<li><code>T NewtonRaphson::</code><strong><code>epsilon</code></strong> <code>= [see above]</code></li>
+<li><code>size_t NewtonRaphson::</code><strong><code>limit</code></strong> <code>= 100</code></li>
+<li><code>size_t NewtonRaphson::</code><strong><code>count</code></strong></li>
+<li><code>T NewtonRaphson::</code><strong><code>error</code></strong></li>
+<li><code>template &lt;typename F, typename DF&gt; T NewtonRaphson::</code><strong><code>operator()</code></strong><code>(F f, DF df, T a = 0)</code></li>
+</ul>
+</li>
+</ul>
+<p>Use the <a href="http://en.wikipedia.org/wiki/Newton%27s_method">Newton-Raphson</a>
+algorithm to find a root of a function. The function call operator takes the
+function to be solved, the derivative of this function, and an initial value.
+Results are unpredictable if <code>df()</code> is not a good approximation to the
+derivative of <code>f()</code>.</p></body>
 </html>

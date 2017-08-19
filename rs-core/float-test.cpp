@@ -1,5 +1,10 @@
 #include "rs-core/float.hpp"
 #include "rs-core/unit-test.hpp"
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <random>
+#include <vector>
 
 using namespace RS;
 using namespace RS::Literals;
@@ -109,6 +114,137 @@ namespace {
 
     }
 
+    template <typename T, typename RNG>
+    void precision_sum_test(size_t copies, size_t cycles, T highval, RNG& rng) {
+        std::vector<T> values;
+        values.reserve(4 * copies);
+        for (size_t i = 0; i < copies; ++i) {
+            values.push_back(1);
+            values.push_back(highval);
+            values.push_back(1);
+            values.push_back(- highval);
+        }
+        for (size_t i = 0; i < cycles; ++i) {
+            T sum = 0;
+            std::shuffle(values.begin(), values.end(), rng);
+            TRY(sum = precision_sum(values));
+            TEST_EQUAL(sum, static_cast<T>(2 * copies));
+        }
+    }
+
+    void check_precision_sum() {
+
+        std::mt19937 rng(42);
+        precision_sum_test<float>(1000, 100, 1e20f, rng);
+        precision_sum_test<double>(1000, 100, 1e100, rng);
+        precision_sum_test<long double>(1000, 100, 1e100l, rng);
+
+    }
+
+    void check_root_finding_parameters() {
+
+        using namespace RS_Detail;
+
+        float fe = default_epsilon<float>();
+        double de = default_epsilon<double>();
+        long double lde = default_epsilon<long double>();
+
+        TEST_NEAR_EPSILON(fe, 1e-4, 1e-8);
+        TEST_NEAR_EPSILON(de, 1e-8, 1e-16);
+        TEST_NEAR_EPSILON(lde, 1e-8, 1e-16);
+
+    }
+
+    struct F {
+        double k = 1;
+        double operator()(double x) const { return cos(k * x) - pow(k * x, 3); };
+    };
+
+    struct DF {
+        double k = 1;
+        double operator()(double x) const { return - k * (3 * pow(k * x, 2) + sin(k * x)); };
+    };
+
+    constexpr double root = 0.8654740331;
+
+    void check_bisection() {
+
+        Bisection<double> algo;
+        double x = 0;
+
+        TRY(x = algo(F{1}, 0, 1));
+        TEST_NEAR(x, root);
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = i;
+            TRY(x = algo(F{k}, 0.5 / i, 1.0 / i));
+            // logx("BI k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR(x, root / i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = 1.0 / i;
+            TRY(x = algo(F{k}, 0.5, i));
+            // logx("BI 1/k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR_EPSILON(x, root * i, 1e-6 * i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+    }
+
+    void check_false_position() {
+
+        FalsePosition<double> algo;
+        double x = 0;
+
+        TRY(x = algo(F{1}, 0, 1));
+        TEST_NEAR(x, root);
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = i;
+            TRY(x = algo(F{k}, 0.5 / i, 1.0 / i));
+            // logx("FP k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR(x, root / i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = 1.0 / i;
+            TRY(x = algo(F{k}, 0.5, i));
+            // logx("FP 1/k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR_EPSILON(x, root * i, 1e-6 * i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+    }
+
+    void check_newton_raphson() {
+
+        NewtonRaphson<double> algo;
+        double x = 0;
+
+        TRY(x = algo(F{1}, DF{1}, 1));
+        TEST_NEAR(x, root);
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = i;
+            TRY(x = algo(F{k}, DF{k}, 1));
+            // logx("NR k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR(x, root / i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+        for (int i = 1; i <= 1024; i *= 2) {
+            double k = 1.0 / i;
+            TRY(x = algo(F{k}, DF{k}, 1));
+            // logx("NR 1/k", i, "x", x, "e", algo.error, "c", algo.count);
+            TEST_NEAR_EPSILON(x, root * i, 1e-6 * i);
+            TEST_COMPARE(algo.count, <, 50);
+        }
+
+    }
+
 }
 
 TEST_MODULE(core, float) {
@@ -116,5 +252,10 @@ TEST_MODULE(core, float) {
     check_arithmetic_constants();
     check_arithmetic_functions();
     check_arithmetic_literals();
+    check_precision_sum();
+    check_root_finding_parameters();
+    check_bisection();
+    check_false_position();
+    check_newton_raphson();
 
 }

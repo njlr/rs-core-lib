@@ -131,3 +131,71 @@ rules apply if the result is not representable by the return type.
     * `constexpr long double` **`operator""_degl`**`(unsigned long long x) noexcept`
 
 Angle literals, converting degrees to radians.
+
+## Numerical algorithms ##
+
+### Precision sum ###
+
+* `template <typename SinglePassRange> [value type]` **`precision_sum`**`(const SinglePassRange& range)`
+
+Calculates the sum of a sequence of numbers using the high precision algorithm from
+[Shewchuk](http://www-2.cs.cmu.edu/afs/cs/project/quake/public/papers/robust-arithmetic.ps)
+and [Hettinger](http://code.activestate.com/recipes/393090/).
+The range's value type must be a floating point arithmetic type. This is
+always much more accurate than simple addition, and is guaranteed to give the
+correct answer (the exact sum correctly rounded) if the value type implements
+IEEE arithmetic (on GCC this requires the `-ffloat-store` option).
+
+### Root finding ###
+
+For all of these algorithms, `T` must be a floating point arithmetic type, `F`
+(and `DF` if it is used) must be a function from `T` to `T`.
+
+The structure members specify the tolerance and the maximum number of
+iterations; iteration will stop when the absolute value of `f()` is less than
+or equal to `epsilon`, or the maximum number of iterations is reached. The
+`count` and `error` members are filled with the actual iteration count and
+absolute error. If the function has multiple roots, the one closest to the
+initial values will typically be found, but the nature of the algorithms means
+that this cannot be promised.
+
+The default epsilon is arbitrarily set to 10<sup>-4</sup> for `float`,
+10<sup>-8</sup> for `double` and `long double`. Behaviour is undefined if
+`epsilon` is not positive, if the function has no root, or for the algorithms
+that take two initial values, if `f(a)` and `f(b)` have the same sign.
+
+* `template <typename T> struct` **`Bisection`**
+    * `T Bisection::`**`epsilon`** `= [see above]`
+    * `size_t Bisection::`**`limit`** `= 100`
+    * `size_t Bisection::`**`count`**
+    * `T Bisection::`**`error`**
+    * `template <typename F> T Bisection::`**`operator()`**`(F f, T a, T b)`
+
+Use the bisection algorithm to find a root of a function. The function call
+operator takes the function to be solved and two initial values, which the
+caller is expected to ensure are on opposite sides of the root.
+
+* `template <typename T> struct` **`FalsePosition`**
+    * `T FalsePosition::`**`epsilon`** `= [see above]`
+    * `size_t FalsePosition::`**`limit`** `= 100`
+    * `size_t FalsePosition::`**`count`**
+    * `T FalsePosition::`**`error`**
+    * `template <typename F> T FalsePosition::`**`operator()`**`(F f, T a, T b)`
+
+Use the [false position](http://en.wikipedia.org/wiki/False_position_method)
+algorithm to find a root of a function. The function call operator takes the
+function to be solved and two initial values, which the caller is expected to
+ensure are on opposite sides of the root.
+
+* `template <typename T> struct` **`NewtonRaphson`**
+    * `T NewtonRaphson::`**`epsilon`** `= [see above]`
+    * `size_t NewtonRaphson::`**`limit`** `= 100`
+    * `size_t NewtonRaphson::`**`count`**
+    * `T NewtonRaphson::`**`error`**
+    * `template <typename F, typename DF> T NewtonRaphson::`**`operator()`**`(F f, DF df, T a = 0)`
+
+Use the [Newton-Raphson](http://en.wikipedia.org/wiki/Newton%27s_method)
+algorithm to find a root of a function. The function call operator takes the
+function to be solved, the derivative of this function, and an initial value.
+Results are unpredictable if `df()` is not a good approximation to the
+derivative of `f()`.

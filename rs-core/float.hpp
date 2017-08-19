@@ -1,9 +1,13 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <numeric>
+#include <stdexcept>
 #include <type_traits>
+#include <vector>
 
 namespace RS {
 
@@ -134,5 +138,140 @@ namespace RS {
         constexpr long double operator""_degl(unsigned long long x) noexcept { return radians((long double)x); }
 
     }
+
+    // Precision sum
+
+    template <typename SinglePassRange>
+    RangeValue<SinglePassRange> precision_sum(const SinglePassRange& range) {
+        using std::abs;
+        using value_type = RangeValue<SinglePassRange>;
+        static_assert(std::is_floating_point<value_type>::value);
+        std::vector<value_type> partials;
+        for (auto x: range) {
+            size_t i = 0;
+            for (auto y: partials) {
+                if (abs(x) < abs(y))
+                    std::swap(x, y);
+                auto sum = x + y;
+                y -= sum - x;
+                x = sum;
+                if (y != value_type(0))
+                    partials[i++] = y;
+            }
+            partials.erase(partials.begin() + i, partials.end());
+            partials.push_back(x);
+        }
+        return std::accumulate(partials.begin(), partials.end(), value_type(0));
+    }
+
+    // Root finding
+
+    namespace RS_Detail {
+
+        template <typename T>
+        T default_epsilon() noexcept {
+            static_assert(std::is_floating_point<T>::value);
+            return std::pow(T(10), - std::min(int(sizeof(T)), 8));
+        }
+
+    }
+
+    template <typename T>
+    struct Bisection {
+        static_assert(std::is_floating_point<T>::value);
+        T epsilon = RS_Detail::default_epsilon<T>();
+        size_t limit = 100;
+        size_t count = 0;
+        T error = {};
+        template <typename F> T operator()(F f, T a, T b) {
+            using std::abs;
+            T x1 = a, x2 = b, x3 = a, y1 = f(a), y2 = f(b), y3 = 0;
+            count = 0;
+            error = abs(y1);
+            if (error <= epsilon || limit == 0)
+                return a;
+            error = abs(y2);
+            if (error <= epsilon)
+                return b;
+            for (; count < limit; ++count) {
+                x3 = (x1 + x2) / 2;
+                y3 = f(x3);
+                error = abs(y3);
+                if (error <= epsilon)
+                    break;
+                if ((y1 > 0) != (y3 > 0)) {
+                    x2 = x3;
+                    y2 = y3;
+                } else {
+                    x1 = x3;
+                    y1 = y3;
+                }
+            }
+            return x3;
+        }
+        template <typename F> T operator()(F f, T a = {}) { return (*this)(f, a, a); }
+    };
+
+    template <typename T>
+    struct FalsePosition {
+        static_assert(std::is_floating_point<T>::value);
+        T epsilon = RS_Detail::default_epsilon<T>();
+        size_t limit = 100;
+        size_t count = 0;
+        T error = {};
+        template <typename F> T operator()(F f, T a, T b) {
+            using std::abs;
+            T x1 = a, x2 = b, x3 = a, y1 = f(a), y2 = f(b), y3 = 0;
+            count = 0;
+            error = abs(y1);
+            if (error <= epsilon || limit == 0)
+                return a;
+            error = abs(y2);
+            if (error <= epsilon)
+                return b;
+            for (; count < limit; ++count) {
+                x3 = (x1 * y2 - x2 * y1) / (y2 - y1);
+                y3 = f(x3);
+                error = abs(y3);
+                if (error <= epsilon)
+                    break;
+                if ((y1 > 0) != (y3 > 0)) {
+                    x2 = x3;
+                    y2 = y3;
+                } else {
+                    x1 = x3;
+                    y1 = y3;
+                }
+            }
+            return x3;
+        }
+        template <typename F> T operator()(F f, T a = {}) { return (*this)(f, a, a); }
+    };
+
+    template <typename T>
+    struct NewtonRaphson {
+        static_assert(std::is_floating_point<T>::value);
+        T epsilon = RS_Detail::default_epsilon<T>();
+        size_t limit = 100;
+        size_t count = 0;
+        T error = {};
+        template <typename F, typename DF> T operator()(F f, DF df, T a = {}) {
+            using std::abs;
+            T x = a, y = f(a);
+            error = abs(y);
+            for (count = 0; count < limit; ++count) {
+                if (error <= epsilon)
+                    break;
+                T dy = df(x);
+                if (dy != 0)
+                    x -= y / dy;
+                else
+                    x += 100 * epsilon;
+                y = f(x);
+                error = abs(y);
+            }
+            return x;
+        }
+    };
 
 }
