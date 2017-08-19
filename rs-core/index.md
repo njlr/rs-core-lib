@@ -5,7 +5,9 @@
 * _Utility modules_
     * [`"rs-core/common.hpp"`](common.html) - Common utilities.
     * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms.
+    * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization.
     * [`"rs-core/container.hpp"`](container.html) - Containers.
+    * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms.
     * [`"rs-core/float.hpp"`](float.html) - Floating point utilities.
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities.
     * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments.

@@ -1,4 +1,4 @@
-# Core Alorithms #
+# Algorithms #
 
 By Ross Smith
 

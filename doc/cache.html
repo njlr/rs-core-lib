@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Function Memoization</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="function-memoization">Function Memoization</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/cache.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#function-memoization">Function Memoization</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#function-cache">Function cache</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="function-cache">Function cache</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename&gt; class</code> <strong><code>Cache</code></strong></li>
+<li><code>template &lt;typename Result, typename... Args&gt; class</code> <strong><code>Cache</code></strong><code>&lt;Result(Args...)&gt;</code><ul>
+<li><code>using Cache::</code><strong><code>argument_tuple</code></strong> <code>= tuple&lt;Args...&gt;</code></li>
+<li><code>using Cache::</code><strong><code>function_type</code></strong> <code>= function&lt;Result(Args...)&gt;</code></li>
+<li><code>using Cache::</code><strong><code>result_type</code></strong> <code>= Result</code></li>
+<li><code>Cache::</code><strong><code>Cache</code></strong><code>()</code></li>
+<li><code>template &lt;typename F&gt; explicit Cache::</code><strong><code>Cache</code></strong><code>(F f, size_t n = npos)</code></li>
+<li><code>Cache::</code><strong><code>Cache</code></strong><code>(const Cache&amp; c)</code></li>
+<li><code>Cache::</code><strong><code>Cache</code></strong><code>(Cache&amp;&amp; c) noexcept</code></li>
+<li><code>Cache::</code><strong><code>~Cache</code></strong><code>() noexcept</code></li>
+<li><code>Cache&amp; Cache::</code><strong><code>operator=</code></strong><code>(const Cache&amp; c)</code></li>
+<li><code>Cache&amp; Cache::</code><strong><code>operator=</code></strong><code>(Cache&amp;&amp; c) noexcept</code></li>
+<li><code>Result Cache::</code><strong><code>operator()</code></strong><code>(Args... args)</code></li>
+<li><code>void Cache::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename F&gt; Cache&lt;...&gt;</code> <strong><code>memoize</code></strong><code>(F f, size_t n = npos)</code></li>
+</ul>
+<p>A <code>Cache</code> function object wraps the original function, calling it
+transparently when necessary, but saving the <code>n</code> most recently requested
+results, returning cached results instead of calling the function again.</p></body>
+</html>
