@@ -1,6 +1,6 @@
 $(BUILD)/algorithm-test.o: rs-core/algorithm-test.cpp rs-core/algorithm.hpp rs-core/common.hpp rs-core/meta.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/common-test.o: rs-core/common-test.cpp rs-core/common.hpp rs-core/unit-test.hpp
-$(BUILD)/container-test.o: rs-core/container-test.cpp rs-core/common.hpp rs-core/container.hpp rs-core/string.hpp rs-core/unit-test.hpp
+$(BUILD)/container-test.o: rs-core/container-test.cpp rs-core/common.hpp rs-core/container.hpp rs-core/float.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/vector.hpp
 $(BUILD)/float-test.o: rs-core/float-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/unit-test.hpp
 $(BUILD)/io-test.o: rs-core/io-test.cpp rs-core/common.hpp rs-core/io.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/kwargs-test.o: rs-core/kwargs-test.cpp rs-core/common.hpp rs-core/kwargs.hpp rs-core/unit-test.hpp

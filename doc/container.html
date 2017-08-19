@@ -16,13 +16,64 @@
 <ul>
 <li><a href="#core-containers">Core Containers</a><ul>
 <li><a href="#contents">Contents</a></li>
-<li><a href="#blob">Blob</a></li>
-<li><a href="#stack">Stack</a></li>
+<li><a href="#arraymap-sequence-based-associative-array">ArrayMap - sequence based associative array</a></li>
+<li><a href="#blob-binary-large-object">Blob - binary large object</a></li>
+<li><a href="#grid-multidimensional-array">Grid - multidimensional array</a></li>
+<li><a href="#indextable-associative-array-with-multiple-indexing">IndexTable - associative array with multiple indexing</a><ul>
+<li><a href="#supporting-definitions">Supporting definitions</a></li>
+<li><a href="#index-table-class">Index table class</a></li>
+<li><a href="#index-class">Index class</a></li>
+</ul>
+</li>
+<li><a href="#interpolatedmap-associative-array-with-interpolation">InterpolatedMap - associative array with interpolation</a></li>
+<li><a href="#stack-stack-with-reverse-destruction-order">Stack - stack with reverse destruction order</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<h2 id="blob">Blob</h2>
+<h2 id="arraymap-sequence-based-associative-array">ArrayMap - sequence based associative array</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename K, typename T&gt; class</code> <strong><code>ArrayMap</code></strong><ul>
+<li><code>using ArrayMap::</code><strong><code>const_iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using ArrayMap::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using ArrayMap::</code><strong><code>key_type</code></strong> <code>= K</code></li>
+<li><code>using ArrayMap::</code><strong><code>mapped_type</code></strong> <code>= T</code></li>
+<li><code>using ArrayMap::</code><strong><code>value_type</code></strong> <code>= [K if T is void, otherwise std::pair&lt;K, T&gt;]</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>() noexcept</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>(std::initializer_list&lt;value_type&gt; list)</code></li>
+<li><code>ArrayMap::</code><strong><code>~ArrayMap</code></strong><code>() noexcept</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>(const ArrayMap&amp; a)</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>(ArrayMap&amp;&amp; a) noexcept</code></li>
+<li><code>ArrayMap&amp; ArrayMap::</code><strong><code>operator=</code></strong><code>(const ArrayMap&amp; a)</code></li>
+<li><code>ArrayMap&amp; ArrayMap::</code><strong><code>operator=</code></strong><code>(ArrayMap&amp;&amp; a) noexcept</code></li>
+<li><code>T&amp; ArrayMap::</code><strong><code>operator[]</code></strong><code>(const K&amp; k) [only defined if T is not void]</code></li>
+<li><code>iterator ArrayMap::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator ArrayMap::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>iterator ArrayMap::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator ArrayMap::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+<li><code>size_t ArrayMap::</code><strong><code>capacity</code></strong><code>() const noexcept</code></li>
+<li><code>void ArrayMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool ArrayMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>bool ArrayMap::</code><strong><code>erase</code></strong><code>(const K&amp; k) noexcept</code></li>
+<li><code>void ArrayMap::</code><strong><code>erase</code></strong><code>(const_iterator i) noexcept</code></li>
+<li><code>iterator ArrayMap::</code><strong><code>find</code></strong><code>(const K&amp; k) noexcept</code></li>
+<li><code>const_iterator ArrayMap::</code><strong><code>find</code></strong><code>(const K&amp; k) const noexcept</code></li>
+<li><code>bool ArrayMap::</code><strong><code>has</code></strong><code>(const K&amp; k) const noexcept</code></li>
+<li><code>std::pair&lt;iterator, bool&gt; ArrayMap::</code><strong><code>insert</code></strong><code>(const value_type&amp; v)</code></li>
+<li><code>void ArrayMap::</code><strong><code>reserve</code></strong><code>(size_t n)</code></li>
+<li><code>size_t ArrayMap::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename K&gt; using</code> <strong><code>ArraySet</code></strong> <code>= ArrayMap&lt;K, void&gt;</code></li>
+</ul>
+<p>An associative array that uses a simple sequential container internally,
+finding keys by linear search (using equality comparison). This can be more
+efficient than a tree or hash based container for small element counts; it can
+also be useful when the element type has no natural ordering or hash function.
+Member functions have their usual meaning for associative containers.</p>
+</div>
+<h2 id="blob-binary-large-object">Blob - binary large object</h2>
 <div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Blob</code></strong><ul>
@@ -97,7 +148,518 @@ size is supplied, a line feed will be inserted after each block.</p>
 <p>The <code>str()</code> function copies the entire blob into a string.</p>
 <p>The comparison operators perform bytewise comparison by calling <code>memcmp()</code>.</p>
 </div>
-<h2 id="stack">Stack</h2>
+<h2 id="grid-multidimensional-array">Grid - multidimensional array</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, size_t N&gt; class</code> <strong><code>Grid</code></strong></li>
+</ul>
+<p>The <code>Grid</code> class represents an <code>N</code>-dimensional array. The grid is indexed by a
+fixed-size vector of integers (<code>Vector&lt;ptrdiff_t, N&gt;</code>). The element type (<code>T</code>)
+can be any type that can be default constructed, copied, and moved.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class Grid::</code><strong><code>iterator</code></strong><ul>
+<li><code>using iterator::</code><strong><code>iterator_category</code></strong> <code>= std::forward_iterator_tag</code></li>
+<li><code>using iterator::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>void iterator::</code><strong><code>move</code></strong><code>(size_t axis, ptrdiff_t delta) noexcept</code></li>
+<li><code>Grid::index_type iterator::</code><strong><code>pos</code></strong><code>() const</code></li>
+<li><em>[standard forward iterator features]</em></li>
+</ul>
+</li>
+<li><code>class Grid::</code><strong><code>const_iterator</code></strong><ul>
+<li><code>using const_iterator::</code><strong><code>iterator_category</code></strong> <code>= std::forward_iterator_tag</code></li>
+<li><code>using const_iterator::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>void const_iterator::</code><strong><code>move</code></strong><code>(size_t axis, ptrdiff_t delta) noexcept</code></li>
+<li><code>Grid::index_type const_iterator::</code><strong><code>pos</code></strong><code>() const</code></li>
+<li><em>[standard forward iterator features]</em></li>
+</ul>
+</li>
+</ul>
+<p>Iterators over the grid's elements. If an iterator is simply incremented from
+<code>begin()</code> to <code>end()</code> in the normal way, it will visit every element of the
+grid; the order is unspecified except that it will start with the element at
+the origin (all indices zero).</p>
+<p>In addition to the normal iterator functions, grid iterators have two extra
+functions, <code>move()</code> and <code>pos()</code>. The <code>move()</code> function accepts an index
+indicating which axis to move on, and a delta to indicate how far to move;
+behaviour is undefined if the axis index is out of range (<code>0&lt;=axis&lt;N</code>). Moving
+an iterator outside the bounds of the grid is legal, and safe provided it is
+not dereferenced or compared to any other iterator while outside the grid (and
+the coordinate arithmetic involved does not overflow). An iterator outside the
+grid can be moved back onto a valid element and then used normally.</p>
+<p>The <code>pos()</code> function returns the iterator's current location in the grid, as a
+coordinate vector. Behaviour is undefined if <code>pos()</code> is called on an out of
+bounds iterator (including <code>end()</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Grid::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
+<li><code>using Grid::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using Grid::</code><strong><code>index_type</code></strong> <code>= Vector&lt;ptrdiff_t, N&gt;</code></li>
+<li><code>using Grid::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
+<li><code>using Grid::</code><strong><code>size_type</code></strong> <code>= size_t</code></li>
+<li><code>using Grid::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Other member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr size_t Grid::</code><strong><code>dim</code></strong> <code>= N</code></li>
+</ul>
+<p>Member constant.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>()</code></li>
+<li><code>explicit Grid::</code><strong><code>Grid</code></strong><code>(const index_type&amp; shape)</code></li>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>(const index_type&amp; shape, const T&amp; t)</code></li>
+<li><code>template &lt;typename... Args&gt; explicit Grid::</code><strong><code>Grid</code></strong><code>(Args... shape)</code></li>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>(const Grid&amp; g)</code></li>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>(Grid&amp;&amp; g) noexcept</code></li>
+<li><code>Grid::</code><strong><code>~Grid</code></strong><code>() noexcept</code></li>
+<li><code>Grid&amp; Grid::</code><strong><code>operator=</code></strong><code>(const Grid&amp; g)</code></li>
+<li><code>Grid&amp; Grid::</code><strong><code>operator=</code></strong><code>(Grid&amp;&amp; g) noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor creates an empty grid (all
+dimensions are zero). The next three constructors create a grid with a
+specified shape and size; the dimensions can be supplied either as an
+<code>index_type</code> vector or as an explicit list of integers. The third constructor
+will set all elements to the given value; the other two will set all elements
+to <code>T</code>'s default constructor. Dimensions of zero are allowed, but behaviour is
+undefined if any dimension is negative, or if the total number of elements
+would be out of range for a <code>ptrdiff_t</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T&amp; Grid::</code><strong><code>operator[]</code></strong><code>(const index_type&amp; pos) noexcept</code></li>
+<li><code>const T&amp; Grid::</code><strong><code>operator[]</code></strong><code>(const index_type&amp; pos) const noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; T&amp; Grid::</code><strong><code>operator</code></strong><code>()(Args... pos) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; const T&amp; Grid::</code><strong><code>operator</code></strong><code>()(Args... pos) const noexcept</code></li>
+<li><code>T&amp; Grid::</code><strong><code>at</code></strong><code>(const index_type&amp; pos)</code></li>
+<li><code>const T&amp; Grid::</code><strong><code>at</code></strong><code>(const index_type&amp; pos) const</code></li>
+<li><code>template &lt;typename... Args&gt; T&amp; Grid::</code><strong><code>at</code></strong><code>(Args... pos)</code></li>
+<li><code>template &lt;typename... Args&gt; const T&amp; Grid::</code><strong><code>at</code></strong><code>(Args... pos) const</code></li>
+</ul>
+<p>Element access functions. An element can be addressed either with an
+<code>index_type</code> vector (in <code>operator[]</code> and the first two versions of <code>at()</code>), or
+an explicit list of coordinates (in <code>operator()</code> and the last two versions of
+<code>at()</code>). If any coordinate is out of bounds, behaviour is undefined for
+<code>operator[]</code> and <code>operator()</code>; <code>at()</code> will throw <code>std::out_of_range</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::iterator Grid::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>Grid::const_iterator Grid::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>Grid::iterator Grid::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>Grid::const_iterator Grid::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Standard container iterator functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Discards the grid's contents and sets all dimensions to zero. All iterators
+over the grid are invalidated.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Grid::</code><strong><code>contains</code></strong><code>(const index_type&amp; pos) const noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; bool Grid::</code><strong><code>contains</code></strong><code>(Args... pos) const noexcept</code></li>
+</ul>
+<p>True if the specified position is inside the grid (i.e. if <code>pos[i]&gt;=0</code> and
+<code>pos[i]&lt;shape()[i]</code> for all <code>i&lt;N</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Grid::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the grid contains no elements (i.e. if any dimension is zero).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>fill</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Sets all elements to the given value.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::iterator Grid::</code><strong><code>locate</code></strong><code>(const index_type&amp; pos) noexcept</code></li>
+<li><code>Grid::const_iterator Grid::</code><strong><code>locate</code></strong><code>(const index_type&amp; pos) const noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; Grid::iterator Grid::</code><strong><code>locate</code></strong><code>(Args... pos) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; Grid::const_iterator Grid::</code><strong><code>locate</code></strong><code>(Args... pos) const noexcept</code></li>
+</ul>
+<p>These return an iterator pointing to the element at the given coordinates.
+Behaviour is undefined if any coordinate is out of range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>reset</code></strong><code>(const index_type&amp; shape, const T&amp; t = T())</code></li>
+<li><code>template &lt;typename... Args&gt; void Grid::</code><strong><code>reset</code></strong><code>(Args... shape)</code></li>
+</ul>
+<p>These replace the grid with a new one, constructed with the given dimensions
+and element value. Behaviour is undefined if any dimension is negative, or if
+the total number of elements would be out of range for a <code>ptrdiff_t</code>. These
+are equivalent to assignment from a newly constructed grid. After calling
+<code>reset()</code>, all iterators over the grid are invalidated.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>reshape</code></strong><code>(const index_type&amp; shape, const T&amp; t = T())</code></li>
+<li><code>template &lt;typename... Args&gt; void Grid::</code><strong><code>reshape</code></strong><code>(Args... shape)</code></li>
+</ul>
+<p>These change the grid's shape, as in <code>reset()</code>, but differ from <code>reset()</code> in
+that any elements that the old and new grids have in common will retain their
+value. The supplied element value (defaulting to <code>T</code>'s default constructor)
+will only be used to fill in any newly created cells. After calling
+<code>reshape()</code>, all iterators over the grid are invalidated.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::index_type Grid::</code><strong><code>shape</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the grid's dimensions, as supplied to the constructor or the last call
+to <code>reset()</code> or <code>reshape()</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Grid::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the total number of elements in the grid (the product of its
+dimensions).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Grid&amp; lhs, const Grid&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Grid&amp; lhs, const Grid&amp; rhs) noexcept</code></li>
+</ul>
+<p>Element-wise comparison operators.</p>
+</div>
+<h2 id="indextable-associative-array-with-multiple-indexing">IndexTable - associative array with multiple indexing</h2>
+<p>The <code>IndexTable</code> and <code>Index</code> classes provide a collection over which an
+arbitrary set of associative indexes can be created.</p>
+<p><code>IndexTable</code> is the actual data collection. This does not in itself provide
+any associative semantics; it simply acts as a collection over which an index
+can be built. The second class, <code>Index</code>, maintains an index over a table. The
+index is generated when the <code>Index</code> object is constructed, and automatically
+kept up to date as elements are inserted or erased from the underlying table.</p>
+<p>An index may be unique keyed (no two keys may be equivalent, according to the
+comparison function) or duplicate keyed (equivalent keys are allowed). This
+choice is controlled by a template argument to the <code>Index</code> class. An attempt
+to create a duplicate key in a unique index will throw an exception. A single
+<code>IndexTable</code> can have separate unique and non-unique indexes at the same time.</p>
+<p>The only requirement on the data type (<code>T</code>) and the key type (<code>K</code>) is that
+they must be copyable. Functions must be provided to extract a key from a data
+value, and to compare keys; these default to <code>static_cast&lt;K&gt;(T)</code> and
+<code>std::less&lt;K&gt;</code> respectively.</p>
+<p>All <code>IndexTable</code> and <code>Index</code> iterators are bidirectional iterators, with <code>T</code>
+as their value type. Inserting an element does not invalidate any iterators;
+erasing an element only invalidates any iterators that were pointing to that
+element. Although the non-<code>const</code> iterators over an <code>IndexTable</code> or <code>Index</code>
+provide a reference through which data elements may be updated, behaviour is
+undefined if any operation on an element (other than insertion or deletion)
+would change the key associated with it in any currently existing index.</p>
+<p>In the complexity specifications, <code>n</code> is the total number of elements in the
+table, and <code>k</code> is the number involved in a single operation (e.g. the number
+inserted or erased).</p>
+<h3 id="supporting-definitions">Supporting definitions</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>IndexCollision</code></strong><code>: public std::runtime_error</code></li>
+</ul>
+<p>An <code>IndexCollision</code> exception is thrown if a duplicate key is inserted into a
+unique index.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>enum class</code> <strong><code>IndexMode</code></strong><ul>
+<li><code>IndexMode::</code><strong><code>unique</code></strong></li>
+<li><code>IndexMode::</code><strong><code>duplicate</code></strong></li>
+</ul>
+</li>
+</ul>
+<p>Flags used in the <code>Index</code> class template to indicate whether duplicates are
+allowed.</p>
+</div>
+<h3 id="index-table-class">Index table class</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>IndexTable</code></strong></li>
+</ul>
+<p>The basic data table class.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using IndexTable::</code><strong><code>const_iterator</code></strong> <code>= [bidirectional iterator]</code></li>
+<li><code>using IndexTable::</code><strong><code>iterator</code></strong> <code>= [bidirectional iterator]</code></li>
+<li><code>using IndexTable::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
+<li><code>using IndexTable::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using IndexTable::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
+<li><code>using IndexTable::</code><strong><code>size_type</code></strong> <code>= size_t</code></li>
+<li><code>using IndexTable::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>IndexTable::</code><strong><code>IndexTable</code></strong><code>()</code></li>
+<li><code>template &lt;typename Range&gt; explicit IndexTable::</code><strong><code>IndexTable</code></strong><code>(const Range&amp; src)</code></li>
+<li><code>template &lt;typename Iterator&gt; IndexTable::</code><strong><code>IndexTable</code></strong><code>(Iterator i1, Iterator i2)</code></li>
+<li><code>IndexTable::</code><strong><code>~IndexTable</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor creates an empty table; the
+second and third constructors copy elements from the range into the table.
+<em>(Complexity: Amortised constant for the default constructor, otherwise
+<code>O(n)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>iterator IndexTable::</code><strong><code>begin</code></strong><code>()</code></li>
+<li><code>const_iterator IndexTable::</code><strong><code>begin</code></strong><code>() const</code></li>
+<li><code>iterator IndexTable::</code><strong><code>end</code></strong><code>()</code></li>
+<li><code>const_iterator IndexTable::</code><strong><code>end</code></strong><code>() const</code></li>
+</ul>
+<p>Iterators over the elements of the table, in the order in which they were
+inserted. <em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IndexTable::</code><strong><code>clear</code></strong><code>()</code></li>
+</ul>
+<p>Deletes all elements. <em>(Complexity: <code>O(n)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool IndexTable::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the table is empty. <em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IndexTable::</code><strong><code>erase</code></strong><code>(iterator i)</code></li>
+<li><code>void IndexTable::</code><strong><code>erase</code></strong><code>(iterator i1, iterator i2)</code></li>
+</ul>
+<p>Remove elements from the table. <em>(Complexity: Amortised constant for the first
+version, <code>O(k)</code> for the second.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IndexTable::</code><strong><code>insert</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename Range&gt; void IndexTable::</code><strong><code>insert</code></strong><code>(const Range&amp; src)</code></li>
+<li><code>template &lt;typename Iterator&gt; void IndexTable::</code><strong><code>insert</code></strong><code>(Iterator i1, Iterator i2)</code></li>
+<li><code>void IndexTable::</code><strong><code>push_back</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>These insert items into the table. The first version of <code>insert()</code> is a
+synonym for <code>push_back()</code>. All of these will throw <code>IndexCollision</code> if it
+would create a duplicate key in an index that does not allow duplicates.
+<em>(Complexity: <code>O(k)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t IndexTable::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the number of items in the table. <em>(Complexity: Amortised constant.)</em></p>
+</div>
+<h3 id="index-class">Index class</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename K, typename T, IndexMode M = IndexMode::unique&gt; class</code> <strong><code>Index</code></strong></li>
+</ul>
+<p>The index type. The template arguments are the key type, the data type, and a
+flag indicating whether duplicate keys will be allowed.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Index::</code><strong><code>iterator</code></strong> <code>= [bidirectional iterator]</code><ul>
+<li><code>const K&amp; iterator::</code><strong><code>key</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>using Index::</code><strong><code>const_iterator</code></strong> <code>= [bidirectional iterator]</code><ul>
+<li><code>const K&amp; const_iterator::</code><strong><code>key</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>using Index::</code><strong><code>compare_function</code></strong> <code>= function&lt;bool(const K&amp;, const K&amp;)&gt;</code></li>
+<li><code>using Index::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
+<li><code>using Index::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using Index::</code><strong><code>extract_function</code></strong> <code>= function&lt;K(const T&amp;)&gt;</code></li>
+<li><code>using Index::</code><strong><code>key_type</code></strong> <code>= K</code></li>
+<li><code>using Index::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
+<li><code>using Index::</code><strong><code>size_type</code></strong> <code>= size_t</code></li>
+<li><code>using Index::</code><strong><code>table_type</code></strong> <code>= IndexTable&lt;T&gt;</code></li>
+<li><code>using Index::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types. In addition to the normal bidirectional iterator operations, the
+iterators have a <code>key()</code> member function that returns the element's key
+(behaviour is undefined if this is called on a non-dereferenceable iterator).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr IndexMode Index::</code><strong><code>mode</code></strong> <code>= M</code></li>
+</ul>
+<p>Member constants.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Index::</code><strong><code>Index</code></strong><code>()</code></li>
+<li><code>explicit Index::</code><strong><code>Index</code></strong><code>(table_type&amp; table)</code></li>
+<li><code>Index::</code><strong><code>Index</code></strong><code>(table_type&amp; table, extract_function extract)</code></li>
+<li><code>Index::</code><strong><code>Index</code></strong><code>(table_type&amp; table, extract_function extract, compare_function compare)</code></li>
+<li><code>Index::</code><strong><code>~Index</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Life cycle functions. The constructors take a reference to the table to be
+indexed, and optionally a key extraction function (used to obtain the key from
+a data value) and a comparison function (used to compare keys). The default
+extraction function simply performs a <code>static_cast&lt;K&gt;(T)</code>; the default
+comparison function is <code>std::less&lt;K&gt;</code>. A default constructed index is not
+associated with any table and is always empty.</p>
+<p>The constructors will build an index over the existing elements in the table;
+they will throw <code>IndexCollision</code> if the table contains values with duplicate
+keys but the index does not allow duplicates. An index may be destroyed before
+or after its associated table. If the table is destroyed first, the index will
+become empty. <em>(Complexity: Constant for the default constructor, <code>O(n)</code> for
+the other constructors, amortised constant for the destructor.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>iterator Index::</code><strong><code>begin</code></strong><code>()</code></li>
+<li><code>const_iterator Index::</code><strong><code>begin</code></strong><code>() const</code></li>
+<li><code>iterator Index::</code><strong><code>end</code></strong><code>()</code></li>
+<li><code>const_iterator Index::</code><strong><code>end</code></strong><code>() const</code></li>
+</ul>
+<p>Iterators over the table, in the order defined by the keys. If duplicates are
+allowed, elements with duplicate keys are visited in order of insertion.
+<em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>compare_function Index::</code><strong><code>compare</code></strong><code>() const</code></li>
+<li><code>extract_function Index::</code><strong><code>extract</code></strong><code>() const</code></li>
+</ul>
+<p>These return copies of the key comparison and extraction functions supplied to
+the constructor. <em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Index::</code><strong><code>count</code></strong><code>(const K&amp; k) const noexcept</code></li>
+</ul>
+<p>Returns the number of items in the table with the specified key. <em>(Complexity:
+<code>O(log n)+O(k)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Index::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the table is empty. This is equivalent to <code>table().empty()</code>, except
+that it will return true if the table has been destroyed. <em>(Complexity:
+Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Irange&lt;iterator&gt; Index::</code><strong><code>equal_range</code></strong><code>(const K&amp; k)</code></li>
+<li><code>Irange&lt;const_iterator&gt; Index::</code><strong><code>equal_range</code></strong><code>(const K&amp; k) const</code></li>
+<li><code>iterator Index::</code><strong><code>find</code></strong><code>(const K&amp; k)</code> <em>(unique keys only)</em></li>
+<li><code>const_iterator Index::</code><strong><code>find</code></strong><code>(const K&amp; k) const</code> <em>(unique keys only)</em></li>
+<li><code>iterator Index::</code><strong><code>lower_bound</code></strong><code>(const K&amp; k)</code></li>
+<li><code>const_iterator Index::</code><strong><code>lower_bound</code></strong><code>(const K&amp; k) const</code></li>
+<li><code>iterator Index::</code><strong><code>upper_bound</code></strong><code>(const K&amp; k)</code></li>
+<li><code>const_iterator Index::</code><strong><code>upper_bound</code></strong><code>(const K&amp; k) const</code></li>
+</ul>
+<p>These find elements or subranges matching the specified key (following the
+usual associative container semantics). The <code>find()</code> functions are not defined
+for indices that allow duplicate keys. <em>(Complexity: <code>O(log n)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Index::</code><strong><code>erase</code></strong><code>(iterator i)</code></li>
+<li><code>void Index::</code><strong><code>erase</code></strong><code>(iterator i1, iterator i2)</code></li>
+<li><code>void Index::</code><strong><code>erase</code></strong><code>(const K&amp; k)</code></li>
+</ul>
+<p>These erase elements from the table, identified either by iterators or a key.
+Erasing a nonexistent key is harmless. If the index allows duplicates, the
+third version of <code>erase()</code> will erase all matching elements. <em>(Complexity:
+Amortised constant for the first version; <code>O(log n)+O(k)</code> for the others.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Index::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the number of items in the table. This is equivalent to
+<code>table().size()</code>, except that it will return zero if the table has been
+destroyed. <em>(Complexity: Amortised constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>table_type&amp; Index::</code><strong><code>table</code></strong><code>() noexcept</code></li>
+<li><code>const table_type&amp; Index::</code><strong><code>table</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>These return references to the associated table. Behaviour is undefined if
+the table has been destroyed or the index was default constructed.
+<em>(Complexity: Constant.)</em></p>
+</div>
+<h2 id="interpolatedmap-associative-array-with-interpolation">InterpolatedMap - associative array with interpolation</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename X, typename Y = X&gt; class</code> <strong><code>InterpolatedMap</code></strong><ul>
+<li><code>using InterpolatedMap::</code><strong><code>key_type</code></strong> <code>= X</code></li>
+<li><code>using InterpolatedMap::</code><strong><code>mapped_type</code></strong> <code>= Y</code></li>
+<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>()</code></li>
+<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>(std::initializer_list&lt;...&gt; list)</code></li>
+<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>(const InterpolatedMap&amp; m)</code></li>
+<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>(InterpolatedMap&amp;&amp; m)</code></li>
+<li><code>InterpolatedMap::</code><strong><code>~InterpolatedMap</code></strong><code>()</code></li>
+<li><code>InterpolatedMap&amp; InterpolatedMap::</code><strong><code>operator=</code></strong><code>(const InterpolatedMap&amp; m)</code></li>
+<li><code>InterpolatedMap&amp; InterpolatedMap::</code><strong><code>operator=</code></strong><code>(InterpolatedMap&amp;&amp; m)</code></li>
+<li><code>Y InterpolatedMap::</code><strong><code>operator()</code></strong><code>(X x) const</code></li>
+<li><code>void InterpolatedMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool InterpolatedMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>void InterpolatedMap::</code><strong><code>erase</code></strong><code>(X x) noexcept</code></li>
+<li><code>void InterpolatedMap::</code><strong><code>erase</code></strong><code>(X x1, X x2) noexcept</code></li>
+<li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y y)</code></li>
+<li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y yr)</code></li>
+<li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y y, Y yr)</code></li>
+</ul>
+</li>
+</ul>
+<p>An <code>InterpolatedMap</code> holds a list of <code>(x,y)</code> pairs, returning an interpolated
+<code>y</code> value for arbitrary <code>x</code>. The input type, <code>X</code>, must be a floating point
+arithmetic type; the output type, <code>Y</code>, is the same type as <code>X</code> by default, but
+will work with any other floating point type, or any other type for which the
+<code>interpolate()</code> function from the core library will work, or a similar
+function that can be found by argument dependent lookup:</p>
+<ul>
+<li><code>Y interpolate(X x1, Y y1, X x2, Y y2, X x)</code></li>
+</ul>
+<p>Legal output types include <a href="vector.html"><code>Vector</code></a> (if the scalar type is
+floating point) and <code>Graphics::Colour</code>.</p>
+<p>The constructor that takes an initializer list expects a list of braced
+tuples, each containing one <code>X</code> value and one to three <code>Y</code> values, interpreted
+in the same way as the <code>insert()</code> functions described below. If an <code>X</code> value
+is repeated, later entries overwrite earlier ones. Example:</p>
+<pre><code>InterpolatedMap&lt;float&gt; imap = {
+    {10, 100},            // equivalent to insert(10, 100)
+    {20, 200, 300, 400},  // equivalent to insert(20, 200, 300, 400)
+    {30, 500, 600},       // equivalent to insert(30, 500, 600)
+};
+</code></pre>
+<p>The function call operator returns the interpolated <code>y</code> value corresponding to
+the given <code>x</code>. If the map is empty (no <code>(x,y)</code> pairs have been supplied since
+default construction or the last call to <code>clear()</code>), a default constructed <code>Y</code>
+will be returned. If the <code>x</code> value is out of range (less than the smallest
+value supplied so far, or greater than the largest), the <code>y</code> value from the
+nearest end of the range will be returned.</p>
+<p>The first version of <code>insert()</code> adds a simple <code>(x,y)</code> pair (overwriting an
+existing pair if there was one with the exact same value of <code>x</code>). The second
+and third versions allow a stepwise change in the output; <code>yl</code> will be used as
+the <code>y</code> for interpolation on the left of the given value, <code>yr</code> on the right.
+Optionally a third value can be supplied to be used for this exact value of
+<code>x</code>; otherwise, the average of the two <code>y</code> values will be used.</p>
+<p>The first version of <code>erase()</code> deletes only an entry with this exact <code>x</code>
+value, otherwise doing nothing; the second version erases all entries with <code>x</code>
+values in the closed interval <code>[x1,x2]</code> (the arguments can be supplied in
+either order).</p>
+</div>
+<h2 id="stack-stack-with-reverse-destruction-order">Stack - stack with reverse destruction order</h2>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>Stack</code></strong><ul>
