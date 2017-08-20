@@ -10,6 +10,7 @@
 #include "rs-core/io.hpp"
 #include "rs-core/kwargs.hpp"
 #include "rs-core/meta.hpp"
+#include "rs-core/mp-integer.hpp"
 #include "rs-core/optional.hpp"
 #include "rs-core/random.hpp"
 #include "rs-core/rational.hpp"

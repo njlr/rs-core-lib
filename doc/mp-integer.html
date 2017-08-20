@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Multiple Precision Integers</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="multiple-precision-integers">Multiple Precision Integers</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/mp-integer.hpp"</code></li>
+</ul>
+<p>The <code>Nat</code> and <code>Int</code> classes are simple arbitrary precision integer
+implementations. Multiplication and division are less efficient than they
+could be.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<div class="toc">
+<ul>
+<li><a href="#multiple-precision-integers">Multiple Precision Integers</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#unsigned-integers">Unsigned integers</a></li>
+<li><a href="#signed-integers">Signed integers</a></li>
+<li><a href="#random-number-generators">Random number generators</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</ul>
+<h2 id="unsigned-integers">Unsigned integers</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Nat</code></strong><ul>
+<li><code>Nat::</code><strong><code>Nat</code></strong><code>()</code></li>
+<li><code>Nat::</code><strong><code>Nat</code></strong><code>(uint64_t x)</code></li>
+<li><code>explicit Nat::</code><strong><code>Nat</code></strong><code>(const U8string&amp; s, int base = 0)</code></li>
+<li><code>Nat::</code><strong><code>~Nat</code></strong><code>() noexcept</code></li>
+<li><code>Nat::</code><strong><code>Nat</code></strong><code>(const Nat&amp; n)</code></li>
+<li><code>Nat::</code><strong><code>Nat</code></strong><code>(Nat&amp;&amp; n) noexcept</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator=</code></strong><code>(const Nat&amp; n)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator=</code></strong><code>(Nat&amp;&amp; n) noexcept</code></li>
+<li><code>template &lt;typename T&gt; explicit Nat::</code><strong><code>operator T</code></strong><code>() const</code></li>
+<li><code>explicit Nat::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
+<li><code>bool Nat::</code><strong><code>operator!</code></strong><code>() const noexcept</code></li>
+<li><code>Nat Nat::</code><strong><code>operator+</code></strong><code>() const</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator++</code></strong><code>()</code></li>
+<li><code>Nat Nat::</code><strong><code>operator++</code></strong><code>(int)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator--</code></strong><code>()</code></li>
+<li><code>Nat Nat::</code><strong><code>operator--</code></strong><code>(int)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator+=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator-=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator*=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator/=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator%=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator&amp;=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator|=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator^=</code></strong><code>(const Nat&amp; rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator&lt;&lt;=</code></strong><code>(ptrdiff_t rhs)</code></li>
+<li><code>Nat&amp; Nat::</code><strong><code>operator&gt;&gt;=</code></strong><code>(ptrdiff_t rhs)</code></li>
+<li><code>size_t Nat::</code><strong><code>bits</code></strong><code>() const noexcept</code></li>
+<li><code>size_t Nat::</code><strong><code>bits_set</code></strong><code>() const noexcept</code></li>
+<li><code>size_t Nat::</code><strong><code>bytes</code></strong><code>() const noexcept</code></li>
+<li><code>int Nat::</code><strong><code>compare</code></strong><code>(const Nat&amp; rhs) const noexcept</code></li>
+<li><code>bool Nat::</code><strong><code>get_bit</code></strong><code>(size_t i) const noexcept</code></li>
+<li><code>uint8_t Nat::</code><strong><code>get_byte</code></strong><code>(size_t i) const noexcept</code></li>
+<li><code>void Nat::</code><strong><code>set_bit</code></strong><code>(size_t i, bool b = true)</code></li>
+<li><code>void Nat::</code><strong><code>set_byte</code></strong><code>(size_t i, uint8_t b)</code></li>
+<li><code>void Nat::</code><strong><code>flip_bit</code></strong><code>(size_t i)</code></li>
+<li><code>bool Nat::</code><strong><code>is_even</code></strong><code>() const noexcept</code></li>
+<li><code>bool Nat::</code><strong><code>is_odd</code></strong><code>() const noexcept</code></li>
+<li><code>Nat Nat::</code><strong><code>pow</code></strong><code>(const Nat&amp; n) const</code></li>
+<li><code>int Nat::</code><strong><code>sign</code></strong><code>() const noexcept</code></li>
+<li><code>U8string Nat::</code><strong><code>str</code></strong><code>(int base = 10, size_t digits = 1) const</code></li>
+<li><code>void Nat::</code><strong><code>write_be</code></strong><code>(void* ptr, size_t n) const noexcept</code></li>
+<li><code>void Nat::</code><strong><code>write_le</code></strong><code>(void* ptr, size_t n) const noexcept</code></li>
+<li><code>static Nat Nat::</code><strong><code>from_double</code></strong><code>(double x)</code></li>
+<li><code>template &lt;typename RNG&gt; static Nat Nat::</code><strong><code>random</code></strong><code>(RNG&amp; rng, const Nat&amp; n)</code></li>
+<li><code>static Nat Nat::</code><strong><code>read_be</code></strong><code>(const void* ptr, size_t n)</code></li>
+<li><code>static Nat Nat::</code><strong><code>read_le</code></strong><code>(const void* ptr, size_t n)</code></li>
+</ul>
+</li>
+<li><code>Nat</code> <strong><code>operator+</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator-</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator*</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator/</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator%</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>pair&lt;Nat, Nat&gt;</code> <strong><code>divide</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>quo</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>rem</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator&amp;</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator|</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator^</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator&lt;&lt;</code></strong><code>(const Nat&amp; lhs, size_t rhs)</code></li>
+<li><code>Nat</code> <strong><code>operator&gt;&gt;</code></strong><code>(const Nat&amp; lhs, size_t rhs)</code></li>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;=</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;=</code></strong><code>(const Nat&amp; lhs, const Nat&amp; rhs) noexcept</code></li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Nat&amp; x)</code></li>
+<li><code>Nat</code> <strong><code>abs</code></strong><code>(const Nat&amp; x)</code></li>
+<li><code>int</code> <strong><code>sign_of</code></strong><code>(const Nat&amp; x) noexcept</code></li>
+<li><code>U8string</code> <strong><code>bin</code></strong><code>(const Nat&amp; x, size_t digits = 1)</code></li>
+<li><code>U8string</code> <strong><code>dec</code></strong><code>(const Nat&amp; x, size_t digits = 1)</code></li>
+<li><code>U8string</code> <strong><code>hex</code></strong><code>(const Nat&amp; x, size_t digits = 1)</code></li>
+</ul>
+<p>An arbitrary precision unsigned integer (natural number). Most of its
+operations should be self explanatory.</p>
+<p>The explicit cast template returns the value converted to <code>T</code>, if possible.
+<code>T</code> must be a primitive integer or floating point arithmetic type. Results are
+unspecified if the value is outside the return type's representable range.</p>
+<p>Division operations will throw <code>std::domain_error</code> if the divisor is zero.</p>
+<p>The <code>bits()</code> function returns the number of bits in the number's binary
+representation, starting with the highest 1 bit; <code>bits_set()</code> returns the
+number of 1 bits.</p>
+<p>The <code>bytes()</code> function returns the number of bytes needed to hold the number.</p>
+<p>The <code>compare()</code> function returns a three way comparison of <code>*this</code> and <code>rhs</code>,
+returning -1 if <code>*this&lt;rhs</code>, 0 if <code>*this=rhs</code>, and 1 if <code>*this&gt;rhs</code>.</p>
+<p>The <code>get_bit/byte()</code>, <code>set_bit/byte()</code>, and <code>flip_bit()</code> functions read or
+write a specific bit or byte, selected by zero based index from the least
+significant end. If the index is too big for the stored value,
+<code>get_bit/byte()</code> will return zero or false, while <code>set_bit/byte()</code> and
+<code>flip_bit()</code> will extend the value to include any bits newly set to 1.</p>
+<p>The <code>str()</code> function will throw <code>std::invalid_argument</code> if the base is less
+than 2 or greater than 36.</p>
+<p>The <code>read_be/le()</code> and <code>write_be/le()</code> functions read and write an integer
+from a block of bytes, in big or little endian order. The write functions will
+truncate the integer if it is too big to fit in the specified number of bytes.</p>
+<p>The <code>random()</code> function returns a random integer from zero to <code>n-1</code>; behaviour
+is undefined if <code>n&lt;1</code>.</p>
+</div>
+<h2 id="signed-integers">Signed integers</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Int</code></strong><ul>
+<li><code>Int::</code><strong><code>Int</code></strong><code>()</code></li>
+<li><code>Int::</code><strong><code>Int</code></strong><code>(int64_t x)</code></li>
+<li><code>Int::</code><strong><code>Int</code></strong><code>(const Nat&amp; x)</code></li>
+<li><code>explicit Int::</code><strong><code>Int</code></strong><code>(const U8string&amp; s, int base = 0)</code></li>
+<li><code>Int::</code><strong><code>~Int</code></strong><code>() noexcept</code></li>
+<li><code>Int::</code><strong><code>Int</code></strong><code>(const Int&amp; n)</code></li>
+<li><code>Int::</code><strong><code>Int</code></strong><code>(Int&amp;&amp; n) noexcept</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator=</code></strong><code>(const Int&amp; n)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator=</code></strong><code>(Int&amp;&amp; n) noexcept</code></li>
+<li><code>template &lt;typename T&gt; explicit Int::</code><strong><code>operator T</code></strong><code>() const</code></li>
+<li><code>explicit Int::</code><strong><code>operator Nat</code></strong><code>() const</code></li>
+<li><code>explicit Int::</code><strong><code>operator bool</code></strong><code>() const noexcept</code></li>
+<li><code>bool Int::</code><strong><code>operator!</code></strong><code>() const noexcept</code></li>
+<li><code>Int Int::</code><strong><code>operator+</code></strong><code>() const</code></li>
+<li><code>Int Int::</code><strong><code>operator-</code></strong><code>() const</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator++</code></strong><code>()</code></li>
+<li><code>Int Int::</code><strong><code>operator++</code></strong><code>(int)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator--</code></strong><code>()</code></li>
+<li><code>Int Int::</code><strong><code>operator--</code></strong><code>(int)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator+=</code></strong><code>(const Int&amp; rhs)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator-=</code></strong><code>(const Int&amp; rhs)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator*=</code></strong><code>(const Int&amp; rhs)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator/=</code></strong><code>(const Int&amp; rhs)</code></li>
+<li><code>Int&amp; Int::</code><strong><code>operator%=</code></strong><code>(const Int&amp; rhs)</code></li>
+<li><code>Nat Int::</code><strong><code>abs</code></strong><code>() const</code></li>
+<li><code>int Int::</code><strong><code>compare</code></strong><code>(const Int&amp; rhs) const noexcept</code></li>
+<li><code>bool Int::</code><strong><code>is_even</code></strong><code>() const noexcept</code></li>
+<li><code>bool Int::</code><strong><code>is_odd</code></strong><code>() const noexcept</code></li>
+<li><code>Int Int::</code><strong><code>pow</code></strong><code>(const Int&amp; n) const</code></li>
+<li><code>int Int::</code><strong><code>sign</code></strong><code>() const noexcept</code></li>
+<li><code>U8string Int::</code><strong><code>str</code></strong><code>(int base = 10, size_t digits = 1, bool sign = false) const</code></li>
+<li><code>static Int Int::</code><strong><code>from_double</code></strong><code>(double x)</code></li>
+<li><code>template &lt;typename RNG&gt; static Int Int::</code><strong><code>random</code></strong><code>(RNG&amp; rng, const Int&amp; n)</code></li>
+</ul>
+</li>
+<li><code>Int</code> <strong><code>operator+</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>Int</code> <strong><code>operator-</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>Int</code> <strong><code>operator*</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>Int</code> <strong><code>operator/</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>Int</code> <strong><code>operator%</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>pair&lt;Int, Int&gt;</code> <strong><code>divide</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>Int</code> <strong><code>quo</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>Int</code> <strong><code>rem</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs)</code></li>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&lt;=</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator&gt;=</code></strong><code>(const Int&amp; lhs, const Int&amp; rhs) noexcept</code></li>
+<li><code>std::ostream&amp;</code> <strong><code>operator&lt;&lt;</code></strong><code>(std::ostream&amp; out, const Int&amp; x)</code></li>
+<li><code>Int</code> <strong><code>abs</code></strong><code>(const Int&amp; x)</code></li>
+<li><code>int</code> <strong><code>sign_of</code></strong><code>(const Int&amp; x) noexcept</code></li>
+<li><code>U8string</code> <strong><code>bin</code></strong><code>(const Int&amp; x, size_t digits = 1)</code></li>
+<li><code>U8string</code> <strong><code>dec</code></strong><code>(const Int&amp; x, size_t digits = 1)</code></li>
+<li><code>U8string</code> <strong><code>hex</code></strong><code>(const Int&amp; x, size_t digits = 1)</code></li>
+</ul>
+<p>An arbitrary precision unsigned integer (natural number). Most of its
+operations do the same thing as the corresponding functions on <code>Nat</code> or plain
+<code>int</code>.</p>
+<p>The explicit conversion to <code>Nat</code> returns the absolute value of the number. The
+<code>pow()</code> function will throw <code>std::domain_error</code> if the exponent is negative.</p>
+</div>
+<h2 id="random-number-generators">Random number generators</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>RandomNat</code></strong><ul>
+<li><code>using RandomNat::</code><strong><code>result_type</code></strong> <code>= Nat</code></li>
+<li><code>RandomNat::</code><strong><code>RandomNat</code></strong><code>()</code></li>
+<li><code>explicit RandomNat::</code><strong><code>RandomNat</code></strong><code>(Nat a, Nat b = 0)</code></li>
+<li><code>RandomNat::</code><strong><code>~RandomNat</code></strong><code>() noexcept</code></li>
+<li><code>RandomNat::</code><strong><code>RandomNat</code></strong><code>(const RandomNat&amp; n)</code></li>
+<li><code>RandomNat::</code><strong><code>RandomNat</code></strong><code>(RandomNat&amp;&amp; n) noexcept</code></li>
+<li><code>RandomNat&amp; RandomNat::</code><strong><code>operator=</code></strong><code>(const RandomNat&amp; n)</code></li>
+<li><code>RandomNat&amp; RandomNat::</code><strong><code>operator=</code></strong><code>(RandomNat&amp;&amp; n) noexcept</code></li>
+<li><code>template &lt;typename RNG&gt; Nat RandomNat::</code><strong><code>operator()</code></strong><code>(RNG&amp; rng)</code></li>
+<li><code>Nat RandomNat::</code><strong><code>min</code></strong><code>() const</code></li>
+<li><code>Nat RandomNat::</code><strong><code>max</code></strong><code>() const</code></li>
+</ul>
+</li>
+<li><code>class</code> <strong><code>RandomInt</code></strong><ul>
+<li><code>using RandomInt::</code><strong><code>result_type</code></strong> <code>= Int</code></li>
+<li><code>RandomInt::</code><strong><code>RandomInt</code></strong><code>()</code></li>
+<li><code>explicit RandomInt::</code><strong><code>RandomInt</code></strong><code>(Int a, Int b = 0)</code></li>
+<li><code>RandomInt::</code><strong><code>~RandomInt</code></strong><code>() noexcept</code></li>
+<li><code>RandomInt::</code><strong><code>RandomInt</code></strong><code>(const RandomInt&amp; n)</code></li>
+<li><code>RandomInt::</code><strong><code>RandomInt</code></strong><code>(RandomInt&amp;&amp; n) noexcept</code></li>
+<li><code>RandomInt&amp; RandomInt::</code><strong><code>operator=</code></strong><code>(const RandomInt&amp; n)</code></li>
+<li><code>RandomInt&amp; RandomInt::</code><strong><code>operator=</code></strong><code>(RandomInt&amp;&amp; n) noexcept</code></li>
+<li><code>template &lt;typename RNG&gt; Int RandomInt::</code><strong><code>operator()</code></strong><code>(RNG&amp; rng)</code></li>
+<li><code>Int RandomInt::</code><strong><code>min</code></strong><code>() const</code></li>
+<li><code>Int RandomInt::</code><strong><code>max</code></strong><code>() const</code></li>
+</ul>
+</li>
+</ul>
+<p>These generate random integers within the specified range (<code>a</code> to <code>b</code>,
+inclusive). The bounds can be supplied in either order. The default
+constructor creates a generator that always returns zero.</p></body>
+</html>

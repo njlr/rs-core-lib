@@ -16,6 +16,7 @@
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
 * _Numerics_
     * [`"rs-core/float.hpp"`](float.html) - Floating point utilities
+    * [`"rs-core/mp-integer.hpp"`](mp-integer.html) -- Multiple precision integers
     * [`"rs-core/random.hpp"`](random.html) - Random numbers
     * [`"rs-core/rational.hpp"`](rational.html) -- Rational numbers
     * [`"rs-core/statistics.hpp"`](statistics.html) -- Statistics
