@@ -68,6 +68,16 @@ performs the equivalent operation on <code>T</code>.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>T* Optional::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const T* Optional::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>T* Optional::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const T* Optional::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Begin and end iterators, treating the <code>Optional</code> as a container that may hold
+zero or one element.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>void Optional::</code><strong><code>check</code></strong><code>() const</code></li>
 </ul>
 <p>Throws <code>NullOption</code> if the object is empty; otherwise does nothing.</p>

@@ -38,6 +38,10 @@ namespace RS {
         T* operator->() { return &value(); }
         const T* operator->() const { return &value(); }
         explicit operator bool() const noexcept { return state; }
+        T* begin() noexcept { return &val; }
+        const T* begin() const noexcept { return &val; }
+        T* end() noexcept { return begin() + size_t(state); }
+        const T* end() const noexcept { return begin() + size_t(state); }
         void check() const { if (! state) throw NullOption(); }
         template <typename... Args> void emplace(Args&&... args);
         bool has_value() const noexcept { return state; }

@@ -46,6 +46,14 @@ the object empty. Move construction or assignment from another `Optional`
 leaves the RHS empty; copy or move construction or assignment from a `T`
 performs the equivalent operation on `T`.
 
+* `T* Optional::`**`begin`**`() noexcept`
+* `const T* Optional::`**`begin`**`() const noexcept`
+* `T* Optional::`**`end`**`() noexcept`
+* `const T* Optional::`**`end`**`() const noexcept`
+
+Begin and end iterators, treating the `Optional` as a container that may hold
+zero or one element.
+
 * `void Optional::`**`check`**`() const`
 
 Throws `NullOption` if the object is empty; otherwise does nothing.
