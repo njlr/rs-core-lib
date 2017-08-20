@@ -59,7 +59,7 @@ namespace RS {
                 } else if (c >= row.size() || row[c].empty()) {
                     text += "--";
                     width = 2;
-                } else if (tab.repeats && prev && row[c] == (*prev)[c]) {
+                } else if (tab.repeats && prev && c < prev->size() && row[c] == (*prev)[c]) {
                     text += "''";
                     width = 2;
                 } else {
