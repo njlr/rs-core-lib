@@ -27,8 +27,8 @@ Examples:
 * `U8string` **`operator""_doc`**`(const char* p, size_t n)`
 
 The `""_doc` literal trims leading and trailing empty lines, and removes any
-common leading indentation from all non-empty lines. Results are unspecified
-if the original string contains a mixture of space and tab indentation.
+common leading indentation from all non-empty lines. Tab indentation is
+converted to 4 spaces.
 
 Example:
 

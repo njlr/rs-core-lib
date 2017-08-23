@@ -61,6 +61,16 @@ namespace {
             "Goodbye.\n"
         );
 
+        TRY(s =
+            "\t\tHello world.\n"
+            "\t\t\tHello again.\n"
+            "\t\t\t\tGoodbye.\n"
+            ""_doc);
+        TEST_EQUAL(s,
+            "Hello world.\n"
+            "    Hello again.\n"
+            "        Goodbye.\n"
+        );
     }
 
     void check_character_functions() {

@@ -901,6 +901,25 @@ namespace RS {
 
     // Literals
 
+    namespace RS_Detail {
+
+        inline auto find_leading_spaces(const U8string& s, size_t limit = npos) noexcept {
+            size_t n = 0;
+            auto i = s.begin(), e = s.end();
+            while (i != e && n < limit) {
+                if (*i == ' ')
+                    ++n;
+                else if (*i == '\t')
+                    n += 4;
+                else
+                    break;
+                ++i;
+            }
+            return std::make_pair(i, n);
+        }
+
+    }
+
     namespace Literals {
 
         inline Strings operator""_csv(const char* p, size_t n) {
@@ -911,6 +930,7 @@ namespace RS {
         }
 
         inline U8string operator""_doc(const char* p, size_t n) {
+            using namespace RS_Detail;
             auto lines = splitv(U8string(p, n), "\n");
             for (auto& line: lines)
                 line = trim_right(line);
@@ -920,11 +940,18 @@ namespace RS {
             while (lines.back().empty())
                 lines.pop_back();
             size_t margin = npos;
-            for (auto& line: lines)
-                if (! line.empty())
-                    margin = std::min(margin, line.find_first_not_of(ascii_whitespace));
-            for (auto& line: lines)
-                line.erase(0, margin);
+            for (auto& line: lines) {
+                if (! line.empty()) {
+                    size_t spaces = find_leading_spaces(line).second;
+                    margin = std::min(margin, spaces);
+                }
+            }
+            for (auto& line: lines) {
+                auto i = find_leading_spaces(line, margin).first;
+                line.erase(line.begin(), i);
+                auto ls = find_leading_spaces(line);
+                line.replace(line.begin(), ls.first, ls.second, ' ');
+            }
             return join(lines, "\n", true);
         }
 
