@@ -86,3 +86,9 @@ TODO - Not fully implemented yet, multiple calls to operator() will not work
 * `class` **`Sha512`**
     * `using Md5::`**`result_type`** `= std::array<uint8_t, 64>`
     * `static constexpr size_t Sha512::`**`result_size`** `= 64`
+
+## Utility functions ##
+
+* `template <size_t N> U8string` **`hex`**`(const std::array<uint8_t, N>& bytes)`
+
+Convenience function to convert an array of bytes into a hexadecimal string.

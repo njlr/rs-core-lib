@@ -2,12 +2,24 @@
 #include "rs-core/string.hpp"
 #include "rs-core/unit-test.hpp"
 #include <algorithm>
+#include <array>
 #include <numeric>
 #include <vector>
 
 using namespace RS;
 
 namespace {
+
+    void check_utility_functions() {
+
+        std::array<uint8_t, 4> a = {{10,20,30,40}};
+        std::array<uint8_t, 8> b = {{10,20,30,40,50,60,70,80}};
+        U8string s;
+
+        TRY(s = hex(a));  TEST_EQUAL(s, "0a141e28");
+        TRY(s = hex(b));  TEST_EQUAL(s, "0a141e28323c4650");
+
+    }
 
     const U8string sample1 = "";
     const U8string sample2 = "Hello world";
@@ -72,14 +84,14 @@ namespace {
         using RT = Md5::result_type;
 
         RT result;
-        U8string hex;
+        U8string hexstr;
 
         TRY(result = Md5()(sample1.data(), sample1.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "d4 1d 8c d9 8f 00 b2 04 e9 80 09 98 ec f8 42 7e");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "d41d8cd98f00b204e9800998ecf8427e");
         TRY(result = Md5()(sample2.data(), sample2.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "3e 25 96 0a 79 db c6 9b 67 4c d4 ec 67 a7 2c 62");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "3e25960a79dbc69b674cd4ec67a72c62");
 
     }
 
@@ -88,14 +100,14 @@ namespace {
         using RT = Sha1::result_type;
 
         RT result;
-        U8string hex;
+        U8string hexstr;
 
         TRY(result = Sha1()(sample1.data(), sample1.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "da 39 a3 ee 5e 6b 4b 0d 32 55 bf ef 95 60 18 90 af d8 07 09");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
         TRY(result = Sha1()(sample2.data(), sample2.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "7b 50 2c 3a 1f 48 c8 60 9a e2 12 cd fb 63 9d ee 39 67 3f 5e");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "7b502c3a1f48c8609ae212cdfb639dee39673f5e");
 
     }
 
@@ -104,16 +116,14 @@ namespace {
         using RT = Sha256::result_type;
 
         RT result;
-        U8string hex;
+        U8string hexstr;
 
         TRY(result = Sha256()(sample1.data(), sample1.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "e3 b0 c4 42 98 fc 1c 14 9a fb f4 c8 99 6f b9 24 "
-                        "27 ae 41 e4 64 9b 93 4c a4 95 99 1b 78 52 b8 55");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
         TRY(result = Sha256()(sample2.data(), sample2.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "64 ec 88 ca 00 b2 68 e5 ba 1a 35 67 8a 1b 53 16 "
-                        "d2 12 f4 f3 66 b2 47 72 32 53 4a 8a ec a3 7f 3c");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c");
 
     }
 
@@ -122,20 +132,14 @@ namespace {
         using RT = Sha512::result_type;
 
         RT result;
-        U8string hex;
+        U8string hexstr;
 
         TRY(result = Sha512()(sample1.data(), sample1.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "cf 83 e1 35 7e ef b8 bd f1 54 28 50 d6 6d 80 07 "
-                        "d6 20 e4 05 0b 57 15 dc 83 f4 a9 21 d3 6c e9 ce "
-                        "47 d0 d1 3c 5d 85 f2 b0 ff 83 18 d2 87 7e ec 2f "
-                        "63 b9 31 bd 47 41 7a 81 a5 38 32 7a f9 27 da 3e");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e");
         TRY(result = Sha512()(sample2.data(), sample2.size()));
-        TRY(hex = hexdump(result.data(), result.size()));
-        TEST_EQUAL(hex, "b7 f7 83 ba ed 82 97 f0 db 91 74 62 18 4f f4 f0 "
-                        "8e 69 c2 d5 e5 f7 9a 94 26 00 f9 72 5f 58 ce 1f "
-                        "29 c1 81 39 bf 80 b0 6c 0f ff 2b dd 34 73 84 52 "
-                        "ec f4 0c 48 8c 22 a7 e3 d8 0c df 6f 9c 1c 0d 47");
+        TRY(hexstr = hex(result));
+        TEST_EQUAL(hexstr, "b7f783baed8297f0db917462184ff4f08e69c2d5e5f79a942600f9725f58ce1f29c18139bf80b06c0fff2bdd34738452ecf40c488c22a7e3d80cdf6f9c1c0d47");
 
     }
 
@@ -143,6 +147,7 @@ namespace {
 
 TEST_MODULE(core, digest) {
 
+    check_utility_functions();
     check_adler32();
     check_crc32();
     check_siphash24();

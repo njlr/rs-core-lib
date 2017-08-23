@@ -202,4 +202,15 @@ namespace RS {
     RS_DIGEST_CLASS(Sha256, 32, SHA256, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CALG_SHA_256);
     RS_DIGEST_CLASS(Sha512, 64, SHA512, MS_ENH_RSA_AES_PROV, PROV_RSA_AES, CALG_SHA_512);
 
+    // Utility functions
+
+    template <size_t N>
+    U8string hex(const std::array<uint8_t, N>& bytes) {
+        using namespace RS_Detail;
+        U8string s;
+        for (auto b: bytes)
+            append_hex_byte(b, s);
+        return s;
+    }
+
 }
