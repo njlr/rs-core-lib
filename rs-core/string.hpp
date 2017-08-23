@@ -948,9 +948,9 @@ namespace RS {
             }
             for (auto& line: lines) {
                 auto i = find_leading_spaces(line, margin).first;
-                line.erase(line.begin(), i);
+                line.erase(0, i - line.begin());
                 auto ls = find_leading_spaces(line);
-                line.replace(line.begin(), ls.first, ls.second, ' ');
+                line.replace(0, ls.first - line.begin(), ls.second, ' ');
             }
             return join(lines, "\n", true);
         }
