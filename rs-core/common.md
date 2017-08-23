@@ -679,7 +679,7 @@ fail to compile if the argument is not an integer.
 
 * `template <typename T> constexpr int` **`ibits`**`(T t) noexcept`
 
-Returns the umber of 1 bits in the argument.
+Returns the number of 1 bits in the argument.
 
 * `template <typename T> constexpr T` **`ifloor2`**`(T t) noexcept`
 * `template <typename T> constexpr T` **`iceil2`**`(T t) noexcept`
