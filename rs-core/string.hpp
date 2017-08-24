@@ -282,7 +282,41 @@ namespace RS {
         return uvalid(s, n);
     }
 
-    // General string functions
+    // String property functions
+
+    inline bool ascii_icase_equal(const std::string& lhs, const std::string& rhs) noexcept {
+        if (lhs.size() != rhs.size())
+            return false;
+        for (size_t i = 0, n = lhs.size(); i < n; ++i)
+            if (ascii_toupper(lhs[i]) != ascii_toupper(rhs[i]))
+                return false;
+        return true;
+    }
+
+    inline bool ascii_icase_less(const std::string& lhs, const std::string& rhs) noexcept {
+        for (size_t i = 0, n = std::min(lhs.size(), rhs.size()); i < n; ++i) {
+            char a = ascii_toupper(lhs[i]), b = ascii_toupper(rhs[i]);
+            if (a != b)
+                return uint8_t(a) < uint8_t(b);
+        }
+        return lhs.size() < rhs.size();
+    }
+
+    inline bool starts_with(const std::string& str, const std::string& prefix) noexcept {
+        return str.size() >= prefix.size()
+            && memcmp(str.data(), prefix.data(), prefix.size()) == 0;
+    }
+
+    inline bool ends_with(const std::string& str, const std::string& suffix) noexcept {
+        return str.size() >= suffix.size()
+            && memcmp(str.data() + str.size() - suffix.size(), suffix.data(), suffix.size()) == 0;
+    }
+
+    inline bool string_is_ascii(const std::string& str) noexcept {
+        return std::find_if(str.begin(), str.end(), [] (char c) { return c & 0x80; }) == str.end();
+    }
+
+    // String manipulation functions
 
     namespace RS_Detail {
 
@@ -314,24 +348,6 @@ namespace RS {
             return result;
         }
 
-    }
-
-    inline bool ascii_icase_equal(const std::string& lhs, const std::string& rhs) noexcept {
-        if (lhs.size() != rhs.size())
-            return false;
-        for (size_t i = 0, n = lhs.size(); i < n; ++i)
-            if (ascii_toupper(lhs[i]) != ascii_toupper(rhs[i]))
-                return false;
-        return true;
-    }
-
-    inline bool ascii_icase_less(const std::string& lhs, const std::string& rhs) noexcept {
-        for (size_t i = 0, n = std::min(lhs.size(), rhs.size()); i < n; ++i) {
-            char a = ascii_toupper(lhs[i]), b = ascii_toupper(rhs[i]);
-            if (a != b)
-                return uint8_t(a) < uint8_t(b);
-        }
-        return lhs.size() < rhs.size();
     }
 
     inline std::string ascii_lowercase(const std::string& s) {
@@ -438,6 +454,20 @@ namespace RS {
     inline U8string quote(const std::string& str) { return RS_Detail::quote_string(str, true); }
     inline U8string bquote(const std::string& str) { return RS_Detail::quote_string(str, false); }
 
+    inline std::string repeat(const std::string& s, size_t n) {
+        if (n == 0)
+            return {};
+        else if (n == 1)
+            return s;
+        std::string r = s;
+        r.reserve(n * s.size());
+        size_t reps = 1, half = n / 2;
+        for (; reps <= half; reps *= 2)
+            r += r;
+        r += repeat(s, n - reps);
+        return r;
+    }
+
     template <typename OutputIterator>
     void split(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace) {
         if (delim.empty()) {
@@ -474,20 +504,6 @@ namespace RS {
         Strings v;
         split(src, append(v), delim);
         return v;
-    }
-
-    inline bool starts_with(const std::string& str, const std::string& prefix) noexcept {
-        return str.size() >= prefix.size()
-            && memcmp(str.data(), prefix.data(), prefix.size()) == 0;
-    }
-
-    inline bool ends_with(const std::string& str, const std::string& suffix) noexcept {
-        return str.size() >= suffix.size()
-            && memcmp(str.data() + str.size() - suffix.size(), suffix.data(), suffix.size()) == 0;
-    }
-
-    inline bool string_is_ascii(const std::string& str) noexcept {
-        return std::find_if(str.begin(), str.end(), [] (char c) { return c & 0x80; }) == str.end();
     }
 
     inline std::string trim(const std::string& str, const std::string& chars = ascii_whitespace) {
@@ -899,7 +915,7 @@ namespace RS {
     template <typename T> std::string type_name() { return type_name(typeid(T)); }
     template <typename T> std::string type_name(const T& t) { return type_name(typeid(t)); }
 
-    // Literals
+    // String literals
 
     namespace RS_Detail {
 

@@ -16,9 +16,10 @@
 <ul>
 <li><a href="#core-string-algorithms">Core String Algorithms</a><ul>
 <li><a href="#contents">Contents</a></li>
-<li><a href="#literals">Literals</a></li>
+<li><a href="#string-literals">String literals</a></li>
 <li><a href="#character-functions">Character functions</a></li>
-<li><a href="#general-string-functions">General string functions</a></li>
+<li><a href="#string-property-functions">String property functions</a></li>
+<li><a href="#string-manipulation-functions">String manipulation functions</a></li>
 <li><a href="#htmlxml-tags">HTML/XML tags</a></li>
 <li><a href="#string-formatting-functions">String formatting functions</a></li>
 <li><a href="#string-parsing-functions">String parsing functions</a></li>
@@ -28,7 +29,7 @@
 </li>
 </ul>
 </div>
-<h2 id="literals">Literals</h2>
+<h2 id="string-literals">String literals</h2>
 <p>All of these are in <code>namespace RS::Literals</code>.</p>
 <div class="defns">
 <ul>
@@ -110,11 +111,11 @@ first passing it through <code>unsigned char</code>, to ensure that characters w
 high bit set end up as integers in the 128-255 range, and not as negative or
 extremely high values.</p>
 </div>
-<h2 id="general-string-functions">General string functions</h2>
+<h2 id="string-property-functions">String property functions</h2>
 <div class="defns">
 <ul>
-<li><code>bool</code> <strong><code>ascii_icase_equal</code></strong><code>(const string&amp; lhs, const string&amp; rhs) noexcept</code></li>
-<li><code>bool</code> <strong><code>ascii_icase_less</code></strong><code>(const string&amp; lhs, const string&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>ascii_icase_equal</code></strong><code>(const std::string&amp; lhs, const std::string&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>ascii_icase_less</code></strong><code>(const std::string&amp; lhs, const std::string&amp; rhs) noexcept</code></li>
 </ul>
 <p>Comparison functions that treat upper and lower case ASCII letters as
 equivalent (comparison between letters and non-letters uses the upper case
@@ -122,10 +123,24 @@ code points).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>string</code> <strong><code>ascii_lowercase</code></strong><code>(const string&amp; s)</code></li>
-<li><code>string</code> <strong><code>ascii_uppercase</code></strong><code>(const string&amp; s)</code></li>
-<li><code>string</code> <strong><code>ascii_titlecase</code></strong><code>(const string&amp; s)</code></li>
-<li><code>string</code> <strong><code>ascii_sentencecase</code></strong><code>(const string&amp; s)</code></li>
+<li><code>bool</code> <strong><code>starts_with</code></strong><code>(const std::string&amp; str, const std::string&amp; prefix) noexcept</code></li>
+<li><code>bool</code> <strong><code>ends_with</code></strong><code>(const std::string&amp; str, const std::string&amp; suffix) noexcept</code></li>
+</ul>
+<p>True if the string starts or ends with the specified substring.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>string_is_ascii</code></strong><code>(const std::string&amp; str) noexcept</code></li>
+</ul>
+<p>True if the string contains no 8-bit bytes.</p>
+</div>
+<h2 id="string-manipulation-functions">String manipulation functions</h2>
+<div class="defns">
+<ul>
+<li><code>std::string</code> <strong><code>ascii_lowercase</code></strong><code>(const std::string&amp; s)</code></li>
+<li><code>std::string</code> <strong><code>ascii_uppercase</code></strong><code>(const std::string&amp; s)</code></li>
+<li><code>std::string</code> <strong><code>ascii_titlecase</code></strong><code>(const std::string&amp; s)</code></li>
+<li><code>std::string</code> <strong><code>ascii_sentencecase</code></strong><code>(const std::string&amp; s)</code></li>
 </ul>
 <p>Simple ASCII-only case conversion functions. All non-ASCII characters are left
 unchanged. The sentence case function capitalizes the first letter of every
@@ -146,7 +161,7 @@ everything else alone.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename InputRange&gt; string</code> <strong><code>join</code></strong><code>(const InputRange&amp; range, const string&amp; delim = "", bool term = false)</code></li>
+<li><code>template &lt;typename InputRange&gt; std::string</code> <strong><code>join</code></strong><code>(const InputRange&amp; range, const std::string&amp; delim = "", bool term = false)</code></li>
 </ul>
 <p>Join strings into a single string, using the given delimiter. The value type
 of the input range must be assignment compatible with <code>U8string</code>. If the
@@ -171,8 +186,8 @@ been used as an output buffer by some C APIs).</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>U8string</code> <strong><code>quote</code></strong><code>(const string&amp; str)</code></li>
-<li><code>U8string</code> <strong><code>bquote</code></strong><code>(const string&amp; str)</code></li>
+<li><code>U8string</code> <strong><code>quote</code></strong><code>(const std::string&amp; str)</code></li>
+<li><code>U8string</code> <strong><code>bquote</code></strong><code>(const std::string&amp; str)</code></li>
 </ul>
 <p>Return a quoted string; internal quotes, backslashes, and control characters
 are escaped. The <code>bquote()</code> function always escapes all non-ASCII bytes;
@@ -181,8 +196,14 @@ the string is not valid UTF-8.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const string&amp; src, OutputIterator dst, const string&amp; delim = ascii_whitespace)</code></li>
-<li><code>Strings</code> <strong><code>splitv</code></strong><code>(const string&amp; src, const string&amp; delim = ascii_whitespace)</code></li>
+<li><code>std::string</code> <strong><code>repeat</code></strong><code>(const std::string&amp; s, size_t n)</code></li>
+</ul>
+<p>Returns a string containing <code>n</code> copies of <code>s</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const std::string&amp; src, OutputIterator dst, const std::string&amp; delim = ascii_whitespace)</code></li>
+<li><code>Strings</code> <strong><code>splitv</code></strong><code>(const std::string&amp; src, const std::string&amp; delim = ascii_whitespace)</code></li>
 </ul>
 <p>Split a string into substrings, discarding any delimiter characters. If the
 delimiter list contains exactly one character, each individual occurrence of
@@ -196,28 +217,15 @@ existing receiver.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>bool</code> <strong><code>starts_with</code></strong><code>(const string&amp; str, const string&amp; prefix) noexcept</code></li>
-<li><code>bool</code> <strong><code>ends_with</code></strong><code>(const string&amp; str, const string&amp; suffix) noexcept</code></li>
-</ul>
-<p>True if the string starts or ends with the specified substring.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>bool</code> <strong><code>string_is_ascii</code></strong><code>(const string&amp; str) noexcept</code></li>
-</ul>
-<p>True if the string contains no 8-bit bytes.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>string</code> <strong><code>trim</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
-<li><code>string</code> <strong><code>trim_left</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
-<li><code>string</code> <strong><code>trim_right</code></strong><code>(const string&amp; str, const string&amp; chars = ascii_whitespace)</code></li>
+<li><code>std::string</code> <strong><code>trim</code></strong><code>(const std::string&amp; str, const std::string&amp; chars = ascii_whitespace)</code></li>
+<li><code>std::string</code> <strong><code>trim_left</code></strong><code>(const std::string&amp; str, const std::string&amp; chars = ascii_whitespace)</code></li>
+<li><code>std::string</code> <strong><code>trim_right</code></strong><code>(const std::string&amp; str, const std::string&amp; chars = ascii_whitespace)</code></li>
 </ul>
 <p>Trim unwanted bytes from the ends of a string.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>string</code> <strong><code>unqualify</code></strong><code>(const string&amp; str, const string&amp; delims = ".:")</code></li>
+<li><code>std::string</code> <strong><code>unqualify</code></strong><code>(const std::string&amp; str, const std::string&amp; delims = ".:")</code></li>
 </ul>
 <p>Strips off any prefix ending in one of the delimiter characters (e.g.
 <code>unqualify("RS::unqualify()")</code> returns <code>"unqualify()"</code>). This will return the
@@ -309,7 +317,7 @@ than 1000 use an arbitrarily long sequence of <code>"M"</code>.</p>
 <div class="defns">
 <ul>
 <li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const void* ptr, size_t n, size_t block = 0)</code></li>
-<li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const string&amp; str, size_t block = 0)</code></li>
+<li><code>U8string</code> <strong><code>hexdump</code></strong><code>(const std::string&amp; str, size_t block = 0)</code></li>
 </ul>
 <p>Converts a block of raw data into hexadecimal bytes. If <code>block</code> is not zero, a
 line feed is inserted after each block.</p>
@@ -329,9 +337,9 @@ line feed is inserted after each block.</p>
 various types:</p>
 <ul>
 <li><code>std::string</code>, <code>char</code>, character pointers, and anything with an implicit
-conversion to <code>string</code> - The string content is simply copied directly without
-using an output stream; a null character pointer is treated as an empty
-string.</li>
+conversion to <code>std::string</code> - The string content is simply copied directly
+without using an output stream; a null character pointer is treated as an
+empty string.</li>
 <li>Integer types - Formatted using <code>dec()</code>.</li>
 <li>Floating point types - Formatted using <code>fp_format()</code>.</li>
 <li><code>bool</code> - Written as <code>"true"</code> or <code>"false"</code>.</li>
@@ -344,10 +352,10 @@ type is a pair; <code>to_str()</code> is called recursively on each range elemen
 <h2 id="string-parsing-functions">String parsing functions</h2>
 <div class="defns">
 <ul>
-<li><code>unsigned long long</code> <strong><code>binnum</code></strong><code>(const string&amp; str) noexcept</code></li>
-<li><code>long long</code> <strong><code>decnum</code></strong><code>(const string&amp; str) noexcept</code></li>
-<li><code>unsigned long long</code> <strong><code>hexnum</code></strong><code>(const string&amp; str) noexcept</code></li>
-<li><code>double</code> <strong><code>fpnum</code></strong><code>(const string&amp; str) noexcept</code></li>
+<li><code>unsigned long long</code> <strong><code>binnum</code></strong><code>(const std::string&amp; str) noexcept</code></li>
+<li><code>long long</code> <strong><code>decnum</code></strong><code>(const std::string&amp; str) noexcept</code></li>
+<li><code>unsigned long long</code> <strong><code>hexnum</code></strong><code>(const std::string&amp; str) noexcept</code></li>
+<li><code>double</code> <strong><code>fpnum</code></strong><code>(const std::string&amp; str) noexcept</code></li>
 </ul>
 <p>The <code>binnum()</code>, <code>decnum()</code>, and <code>hexnum()</code> functions convert a binary,
 decimal, or hexadecimal string to a number; <code>fpnum()</code> converts a string to a

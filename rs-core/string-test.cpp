@@ -431,11 +431,7 @@ namespace {
 
     }
 
-    void check_general_string_functions() {
-
-        std::string s;
-        std::wstring ws;
-        Strings sv;
+    void check_string_property_functions() {
 
         TEST(ascii_icase_equal("", ""));                          TEST(! ascii_icase_less("", ""));
         TEST(! ascii_icase_equal("", "hello"));                   TEST(ascii_icase_less("", "hello"));
@@ -455,6 +451,33 @@ namespace {
         TEST(! ascii_icase_equal("hello world", "hello there"));  TEST(! ascii_icase_less("hello world", "hello there"));
         TEST(! ascii_icase_equal("hello world", "HELLO THERE"));  TEST(! ascii_icase_less("hello world", "HELLO THERE"));
         TEST(! ascii_icase_equal("HELLO WORLD", "hello there"));  TEST(! ascii_icase_less("HELLO WORLD", "hello there"));
+
+        TEST(starts_with("", ""));
+        TEST(starts_with("Hello world", ""));
+        TEST(starts_with("Hello world", "Hello"));
+        TEST(! starts_with("Hello world", "hello"));
+        TEST(! starts_with("Hello world", "world"));
+        TEST(! starts_with("Hello", "Hello world"));
+
+        TEST(ends_with("", ""));
+        TEST(ends_with("Hello world", ""));
+        TEST(ends_with("Hello world", "world"));
+        TEST(! ends_with("Hello world", "World"));
+        TEST(! ends_with("Hello world", "Hello"));
+        TEST(! ends_with("world", "Hello world"));
+
+        TEST(string_is_ascii(""));
+        TEST(string_is_ascii("Hello world"));
+        TEST(! string_is_ascii("Hello world\xff"));
+        TEST(! string_is_ascii(u8"åß∂"));
+
+    }
+
+    void check_string_manipulation_functions() {
+
+        std::string s;
+        std::wstring ws;
+        Strings sv;
 
         TEST_EQUAL(ascii_lowercase("Hello World"s), "hello world");
         TEST_EQUAL(ascii_uppercase("Hello World"s), "HELLO WORLD");
@@ -522,6 +545,16 @@ namespace {
         TRY(s = bquote(u8"åß∂ƒ"s));                TEST_EQUAL(s, "\"\\xc3\\xa5\\xc3\\x9f\\xe2\\x88\\x82\\xc6\\x92\""s);
         TRY(s = bquote("\x00\x01\x7f\x80\xff"s));  TEST_EQUAL(s, "\"\\0\\x01\\x7f\\x80\\xff\""s);
 
+        TRY(s = repeat("", 0));       TEST_EQUAL(s, "");
+        TRY(s = repeat("", 1));       TEST_EQUAL(s, "");
+        TRY(s = repeat("", 2));       TEST_EQUAL(s, "");
+        TRY(s = repeat("Hello", 0));  TEST_EQUAL(s, "");
+        TRY(s = repeat("Hello", 1));  TEST_EQUAL(s, "Hello");
+        TRY(s = repeat("Hello", 2));  TEST_EQUAL(s, "HelloHello");
+        TRY(s = repeat("Hello", 3));  TEST_EQUAL(s, "HelloHelloHello");
+        TRY(s = repeat("Hello", 4));  TEST_EQUAL(s, "HelloHelloHelloHello");
+        TRY(s = repeat("Hello", 5));  TEST_EQUAL(s, "HelloHelloHelloHelloHello");
+
         TRY(split("", overwrite(sv)));                       TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
         TRY(split(" ", overwrite(sv)));                      TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
         TRY(split("\n\n", overwrite(sv)));                   TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
@@ -547,25 +580,6 @@ namespace {
         TRY(sv = splitv("**", "*"));                TEST_EQUAL(sv.size(), 3);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,]");
         TRY(sv = splitv("**Hello**world**", "*"));  TEST_EQUAL(sv.size(), 7);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,Hello,,world,,]");
         TRY(sv = splitv("*****", "@*"));            TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
-
-        TEST(starts_with("", ""));
-        TEST(starts_with("Hello world", ""));
-        TEST(starts_with("Hello world", "Hello"));
-        TEST(! starts_with("Hello world", "hello"));
-        TEST(! starts_with("Hello world", "world"));
-        TEST(! starts_with("Hello", "Hello world"));
-
-        TEST(ends_with("", ""));
-        TEST(ends_with("Hello world", ""));
-        TEST(ends_with("Hello world", "world"));
-        TEST(! ends_with("Hello world", "World"));
-        TEST(! ends_with("Hello world", "Hello"));
-        TEST(! ends_with("world", "Hello world"));
-
-        TEST(string_is_ascii(""));
-        TEST(string_is_ascii("Hello world"));
-        TEST(! string_is_ascii("Hello world\xff"));
-        TEST(! string_is_ascii(u8"åß∂"));
 
         TEST_EQUAL(trim(""), "");
         TEST_EQUAL(trim("Hello"), "Hello");
@@ -1049,7 +1063,8 @@ TEST_MODULE(core, string) {
 
     check_string_literals();
     check_character_functions();
-    check_general_string_functions();
+    check_string_property_functions();
+    check_string_manipulation_functions();
     check_html_xml_tags();
     check_string_formatting_functions();
     check_string_parsing_functions();

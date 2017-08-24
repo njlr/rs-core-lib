@@ -8,7 +8,7 @@ By Ross Smith
 
 [TOC]
 
-## Literals ##
+## String literals ##
 
 All of these are in `namespace RS::Literals`.
 
@@ -84,19 +84,30 @@ first passing it through `unsigned char`, to ensure that characters with the
 high bit set end up as integers in the 128-255 range, and not as negative or
 extremely high values.
 
-## General string functions ##
+## String property functions ##
 
-* `bool` **`ascii_icase_equal`**`(const string& lhs, const string& rhs) noexcept`
-* `bool` **`ascii_icase_less`**`(const string& lhs, const string& rhs) noexcept`
+* `bool` **`ascii_icase_equal`**`(const std::string& lhs, const std::string& rhs) noexcept`
+* `bool` **`ascii_icase_less`**`(const std::string& lhs, const std::string& rhs) noexcept`
 
 Comparison functions that treat upper and lower case ASCII letters as
 equivalent (comparison between letters and non-letters uses the upper case
 code points).
 
-* `string` **`ascii_lowercase`**`(const string& s)`
-* `string` **`ascii_uppercase`**`(const string& s)`
-* `string` **`ascii_titlecase`**`(const string& s)`
-* `string` **`ascii_sentencecase`**`(const string& s)`
+* `bool` **`starts_with`**`(const std::string& str, const std::string& prefix) noexcept`
+* `bool` **`ends_with`**`(const std::string& str, const std::string& suffix) noexcept`
+
+True if the string starts or ends with the specified substring.
+
+* `bool` **`string_is_ascii`**`(const std::string& str) noexcept`
+
+True if the string contains no 8-bit bytes.
+
+## String manipulation functions ##
+
+* `std::string` **`ascii_lowercase`**`(const std::string& s)`
+* `std::string` **`ascii_uppercase`**`(const std::string& s)`
+* `std::string` **`ascii_titlecase`**`(const std::string& s)`
+* `std::string` **`ascii_sentencecase`**`(const std::string& s)`
 
 Simple ASCII-only case conversion functions. All non-ASCII characters are left
 unchanged. The sentence case function capitalizes the first letter of every
@@ -111,7 +122,7 @@ Returns a string containing `4*depth` spaces, for indentation.
 
 Inserts `4*depth` spaces of indentation on every non-empty line.
 
-* `template <typename InputRange> string` **`join`**`(const InputRange& range, const string& delim = "", bool term = false)`
+* `template <typename InputRange> std::string` **`join`**`(const InputRange& range, const std::string& delim = "", bool term = false)`
 
 Join strings into a single string, using the given delimiter. The value type
 of the input range must be assignment compatible with `U8string`. If the
@@ -130,16 +141,20 @@ characters.
 Cuts off a string at the first null character (useful after the string has
 been used as an output buffer by some C APIs).
 
-* `U8string` **`quote`**`(const string& str)`
-* `U8string` **`bquote`**`(const string& str)`
+* `U8string` **`quote`**`(const std::string& str)`
+* `U8string` **`bquote`**`(const std::string& str)`
 
 Return a quoted string; internal quotes, backslashes, and control characters
 are escaped. The `bquote()` function always escapes all non-ASCII bytes;
 `quote()` passes valid UTF-8 unchanged, but will switch to `bquote()` mode if
 the string is not valid UTF-8.
 
-* `template <typename OutputIterator> void` **`split`**`(const string& src, OutputIterator dst, const string& delim = ascii_whitespace)`
-* `Strings` **`splitv`**`(const string& src, const string& delim = ascii_whitespace)`
+* `std::string` **`repeat`**`(const std::string& s, size_t n)`
+
+Returns a string containing `n` copies of `s`.
+
+* `template <typename OutputIterator> void` **`split`**`(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace)`
+* `Strings` **`splitv`**`(const std::string& src, const std::string& delim = ascii_whitespace)`
 
 Split a string into substrings, discarding any delimiter characters. If the
 delimiter list contains exactly one character, each individual occurrence of
@@ -151,22 +166,13 @@ output iterator in `split()` must be assignment compatible with `U8string`;
 the `splitv()` version returns a vector of strings instead of writing to an
 existing receiver.
 
-* `bool` **`starts_with`**`(const string& str, const string& prefix) noexcept`
-* `bool` **`ends_with`**`(const string& str, const string& suffix) noexcept`
-
-True if the string starts or ends with the specified substring.
-
-* `bool` **`string_is_ascii`**`(const string& str) noexcept`
-
-True if the string contains no 8-bit bytes.
-
-* `string` **`trim`**`(const string& str, const string& chars = ascii_whitespace)`
-* `string` **`trim_left`**`(const string& str, const string& chars = ascii_whitespace)`
-* `string` **`trim_right`**`(const string& str, const string& chars = ascii_whitespace)`
+* `std::string` **`trim`**`(const std::string& str, const std::string& chars = ascii_whitespace)`
+* `std::string` **`trim_left`**`(const std::string& str, const std::string& chars = ascii_whitespace)`
+* `std::string` **`trim_right`**`(const std::string& str, const std::string& chars = ascii_whitespace)`
 
 Trim unwanted bytes from the ends of a string.
 
-* `string` **`unqualify`**`(const string& str, const string& delims = ".:")`
+* `std::string` **`unqualify`**`(const std::string& str, const std::string& delims = ".:")`
 
 Strips off any prefix ending in one of the delimiter characters (e.g.
 `unqualify("RS::unqualify()")` returns `"unqualify()"`). This will return the
@@ -248,7 +254,7 @@ Formats a number as a Roman numeral. Zero is written as `"0"`; numbers greater
 than 1000 use an arbitrarily long sequence of `"M"`.
 
 * `U8string` **`hexdump`**`(const void* ptr, size_t n, size_t block = 0)`
-* `U8string` **`hexdump`**`(const string& str, size_t block = 0)`
+* `U8string` **`hexdump`**`(const std::string& str, size_t block = 0)`
 
 Converts a block of raw data into hexadecimal bytes. If `block` is not zero, a
 line feed is inserted after each block.
@@ -264,9 +270,9 @@ Formats an object as a string. This uses the following rules for formatting
 various types:
 
 * `std::string`, `char`, character pointers, and anything with an implicit
-conversion to `string` - The string content is simply copied directly without
-using an output stream; a null character pointer is treated as an empty
-string.
+conversion to `std::string` - The string content is simply copied directly
+without using an output stream; a null character pointer is treated as an
+empty string.
 * Integer types - Formatted using `dec()`.
 * Floating point types - Formatted using `fp_format()`.
 * `bool` - Written as `"true"` or `"false"`.
@@ -277,10 +283,10 @@ type is a pair; `to_str()` is called recursively on each range element.
 
 ## String parsing functions ##
 
-* `unsigned long long` **`binnum`**`(const string& str) noexcept`
-* `long long` **`decnum`**`(const string& str) noexcept`
-* `unsigned long long` **`hexnum`**`(const string& str) noexcept`
-* `double` **`fpnum`**`(const string& str) noexcept`
+* `unsigned long long` **`binnum`**`(const std::string& str) noexcept`
+* `long long` **`decnum`**`(const std::string& str) noexcept`
+* `unsigned long long` **`hexnum`**`(const std::string& str) noexcept`
+* `double` **`fpnum`**`(const std::string& str) noexcept`
 
 The `binnum()`, `decnum()`, and `hexnum()` functions convert a binary,
 decimal, or hexadecimal string to a number; `fpnum()` converts a string to a
