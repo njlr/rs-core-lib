@@ -520,6 +520,8 @@ _(Complexity: Constant.)_
     * `void InterpolatedMap::`**`insert`**`(X x, Y y)`
     * `void InterpolatedMap::`**`insert`**`(X x, Y yl, Y yr)`
     * `void InterpolatedMap::`**`insert`**`(X x, Y yl, Y y, Y yr)`
+    * `X InterpolatedMap::`**`min`**`() const noexcept`
+    * `X InterpolatedMap::`**`max`**`() const noexcept`
 
 An `InterpolatedMap` holds a list of `(x,y)` pairs, returning an interpolated
 `y` value for arbitrary `x`. The input type, `X`, must be a floating point
@@ -562,6 +564,9 @@ The first version of `erase()` deletes only an entry with this exact `x`
 value, otherwise doing nothing; the second version erases all entries with `x`
 values in the closed interval `[x1,x2]` (the arguments can be supplied in
 either order).
+
+The `min()` and `max()` functions return the range of `x` values for which a
+mapping has been defined; they will return zero if the map is empty.
 
 ## Stack - stack with reverse destruction order ##
 

@@ -618,6 +618,8 @@ the table has been destroyed or the index was default constructed.
 <li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y y)</code></li>
 <li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y yr)</code></li>
 <li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y y, Y yr)</code></li>
+<li><code>X InterpolatedMap::</code><strong><code>min</code></strong><code>() const noexcept</code></li>
+<li><code>X InterpolatedMap::</code><strong><code>max</code></strong><code>() const noexcept</code></li>
 </ul>
 </li>
 </ul>
@@ -658,6 +660,8 @@ Optionally a third value can be supplied to be used for this exact value of
 value, otherwise doing nothing; the second version erases all entries with <code>x</code>
 values in the closed interval <code>[x1,x2]</code> (the arguments can be supplied in
 either order).</p>
+<p>The <code>min()</code> and <code>max()</code> functions return the range of <code>x</code> values for which a
+mapping has been defined; they will return zero if the map is empty.</p>
 </div>
 <h2 id="stack-stack-with-reverse-destruction-order">Stack - stack with reverse destruction order</h2>
 <div class="defns">

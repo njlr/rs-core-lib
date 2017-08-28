@@ -576,16 +576,22 @@ namespace {
         InterpolatedMap<double> imap;
 
         TEST(imap.empty());
+        TEST_EQUAL(imap.min(), 0);
+        TEST_EQUAL(imap.max(), 0);
         TEST_EQUAL(imap(0), 0);
         TEST_EQUAL(imap(10), 0);
 
         TRY(imap.insert(5, 10));
         TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 5);
+        TEST_EQUAL(imap.max(), 5);
         TEST_EQUAL(imap(0), 10);
         TEST_EQUAL(imap(5), 10);
         TEST_EQUAL(imap(10), 10);
 
         TRY(imap.insert(10, 20));
+        TEST_EQUAL(imap.min(), 5);
+        TEST_EQUAL(imap.max(), 10);
         TEST_EQUAL(imap(4), 10);
         TEST_EQUAL(imap(5), 10);
         TEST_EQUAL(imap(6), 12);
@@ -597,6 +603,8 @@ namespace {
 
         TRY(imap.insert(15, 100, 10));
         TRY(imap.insert(20, -10));
+        TEST_EQUAL(imap.min(), 5);
+        TEST_EQUAL(imap.max(), 20);
         TEST_EQUAL(imap(4), 10);
         TEST_EQUAL(imap(5), 10);
         TEST_EQUAL(imap(6), 12);
@@ -617,6 +625,8 @@ namespace {
         TEST_EQUAL(imap(21), -10);
 
         TRY(imap.erase(10));
+        TEST_EQUAL(imap.min(), 5);
+        TEST_EQUAL(imap.max(), 20);
         TEST_EQUAL(imap(4), 10);
         TEST_EQUAL(imap(5), 10);
         TEST_EQUAL(imap(6), 19);
@@ -637,6 +647,8 @@ namespace {
         TEST_EQUAL(imap(21), -10);
 
         TRY(imap.erase(5, 15));
+        TEST_EQUAL(imap.min(), 20);
+        TEST_EQUAL(imap.max(), 20);
         TEST_EQUAL(imap(4), -10);
         TEST_EQUAL(imap(5), -10);
         TEST_EQUAL(imap(6), -10);
@@ -658,6 +670,8 @@ namespace {
 
         TRY(imap.erase(0, 100));
         TEST(imap.empty());
+        TEST_EQUAL(imap.min(), 0);
+        TEST_EQUAL(imap.max(), 0);
         TEST_EQUAL(imap(0), 0);
         TEST_EQUAL(imap(10), 0);
 
@@ -667,6 +681,8 @@ namespace {
             {30, 500, 600},
         }));
         TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 10);
+        TEST_EQUAL(imap.max(), 30);
         TEST_EQUAL(imap(5), 100);
         TEST_EQUAL(imap(10), 100);
         TEST_EQUAL(imap(15), 150);
@@ -674,6 +690,81 @@ namespace {
         TEST_EQUAL(imap(25), 450);
         TEST_EQUAL(imap(30), 550);
         TEST_EQUAL(imap(35), 600);
+
+        TRY(imap.scale_x(2, 100));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 120);
+        TEST_EQUAL(imap.max(), 160);
+        TEST_EQUAL(imap(110), 100);
+        TEST_EQUAL(imap(120), 100);
+        TEST_EQUAL(imap(130), 150);
+        TEST_EQUAL(imap(140), 300);
+        TEST_EQUAL(imap(150), 450);
+        TEST_EQUAL(imap(160), 550);
+        TEST_EQUAL(imap(170), 600);
+
+        TRY(imap.scale_x(-0.5, 100));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 20);
+        TEST_EQUAL(imap.max(), 40);
+        TEST_EQUAL(imap(15), 600);
+        TEST_EQUAL(imap(20), 550);
+        TEST_EQUAL(imap(25), 450);
+        TEST_EQUAL(imap(30), 300);
+        TEST_EQUAL(imap(35), 150);
+        TEST_EQUAL(imap(40), 100);
+        TEST_EQUAL(imap(45), 100);
+
+        TRY(imap.scale_y(0.5, 1000));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 20);
+        TEST_EQUAL(imap.max(), 40);
+        TEST_EQUAL(imap(15), 1300);
+        TEST_EQUAL(imap(20), 1275);
+        TEST_EQUAL(imap(25), 1225);
+        TEST_EQUAL(imap(30), 1150);
+        TEST_EQUAL(imap(35), 1075);
+        TEST_EQUAL(imap(40), 1050);
+        TEST_EQUAL(imap(45), 1050);
+
+        TRY(imap.scale_x(0));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 0);
+        TEST_EQUAL(imap.max(), 0);
+        TEST_EQUAL(imap(-5), 1300);
+        TEST_EQUAL(imap(0), 1175);
+        TEST_EQUAL(imap(5), 1050);
+
+        TRY(imap.clear());
+        TEST(imap.empty());
+        TEST_EQUAL(imap.min(), 0);
+        TEST_EQUAL(imap.max(), 0);
+        TEST_EQUAL(imap(0), 0);
+        TEST_EQUAL(imap(10), 0);
+
+        TRY(imap.insert(20, 25, 75, 100));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 20);
+        TEST_EQUAL(imap.max(), 20);
+        TEST_EQUAL(imap(15), 25);
+        TEST_EQUAL(imap(20), 75);
+        TEST_EQUAL(imap(25), 100);
+
+        TRY(imap.scale_x(2));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), 40);
+        TEST_EQUAL(imap.max(), 40);
+        TEST_EQUAL(imap(35), 25);
+        TEST_EQUAL(imap(40), 75);
+        TEST_EQUAL(imap(45), 100);
+
+        TRY(imap.scale_x(-2));
+        TEST(! imap.empty());
+        TEST_EQUAL(imap.min(), -80);
+        TEST_EQUAL(imap.max(), -80);
+        TEST_EQUAL(imap(-85), 100);
+        TEST_EQUAL(imap(-80), 75);
+        TEST_EQUAL(imap(-75), 25);
 
     }
 
