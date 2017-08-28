@@ -30,6 +30,8 @@ By Ross Smith
     * `void ScaleMap::`**`insert`**`(X x, Y yl, Y y, Y yr)`
     * `X ScaleMap::`**`min`**`() const noexcept`
     * `X ScaleMap::`**`max`**`() const noexcept`
+    * `template <typename T> void ScaleMap::`**`scale_x`**`(T a, X b = 0)`
+    * `template <typename T> void ScaleMap::`**`scale_y`**`(T a, Y b = Y())`
 
 A `ScaleMap` holds a list of `(x,y)` pairs, returning an interpolated `y`
 value for arbitrary `x`. The input type, `X`, must be a floating point
@@ -75,3 +77,7 @@ either order).
 
 The `min()` and `max()` functions return the range of `x` values for which a
 mapping has been defined; they will return zero if the map is empty.
+
+The `scale_x()` and `scale_y()` functions transform all of the `x` or `y`
+values in the map by `ax+b` or `ay+b`; `T` must be an arithmetic type with a
+suitable multiplication operator with `X` or `Y`.

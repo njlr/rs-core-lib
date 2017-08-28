@@ -44,6 +44,8 @@
 <li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y y, Y yr)</code></li>
 <li><code>X ScaleMap::</code><strong><code>min</code></strong><code>() const noexcept</code></li>
 <li><code>X ScaleMap::</code><strong><code>max</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename T&gt; void ScaleMap::</code><strong><code>scale_x</code></strong><code>(T a, X b = 0)</code></li>
+<li><code>template &lt;typename T&gt; void ScaleMap::</code><strong><code>scale_y</code></strong><code>(T a, Y b = Y())</code></li>
 </ul>
 </li>
 </ul>
@@ -85,5 +87,8 @@ value, otherwise doing nothing; the second version erases all entries with <code
 values in the closed interval <code>[x1,x2]</code> (the arguments can be supplied in
 either order).</p>
 <p>The <code>min()</code> and <code>max()</code> functions return the range of <code>x</code> values for which a
-mapping has been defined; they will return zero if the map is empty.</p></body>
+mapping has been defined; they will return zero if the map is empty.</p>
+<p>The <code>scale_x()</code> and <code>scale_y()</code> functions transform all of the <code>x</code> or <code>y</code>
+values in the map by <code>ax+b</code> or <code>ay+b</code>; <code>T</code> must be an arithmetic type with a
+suitable multiplication operator with <code>X</code> or <code>Y</code>.</p></body>
 </html>
