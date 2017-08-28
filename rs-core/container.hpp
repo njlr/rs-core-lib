@@ -621,10 +621,10 @@ namespace RS {
         tab->indices[this] = std::make_shared<ref_type>(*this);
     }
 
-    // InterpolatedMap
+    // ScaleMap
 
     template <typename X, typename Y = X>
-    class InterpolatedMap {
+    class ScaleMap {
     private:
         static_assert(std::is_floating_point<X>::value);
         struct init_type {
@@ -641,8 +641,8 @@ namespace RS {
     public:
         using key_type = X;
         using mapped_type = Y;
-        InterpolatedMap() = default;
-        InterpolatedMap(std::initializer_list<init_type> list);
+        ScaleMap() = default;
+        ScaleMap(std::initializer_list<init_type> list);
         Y operator()(X x) const;
         void clear() noexcept { map.clear(); }
         bool empty() const noexcept { return map.empty(); }
@@ -658,13 +658,13 @@ namespace RS {
     };
 
     template <typename X, typename Y>
-    InterpolatedMap<X, Y>::InterpolatedMap(std::initializer_list<init_type> list) {
+    ScaleMap<X, Y>::ScaleMap(std::initializer_list<init_type> list) {
         for (auto& in: list)
             map.insert({in.x0, {in.y1, in.y2, in.y3}});
     }
 
     template <typename X, typename Y>
-    Y InterpolatedMap<X, Y>::operator()(X x) const {
+    Y ScaleMap<X, Y>::operator()(X x) const {
         if (map.empty())
             return Y();
         auto i = map.lower_bound(x);
@@ -679,7 +679,7 @@ namespace RS {
     }
 
     template <typename X, typename Y>
-    void InterpolatedMap<X, Y>::erase(X x1, X x2) noexcept {
+    void ScaleMap<X, Y>::erase(X x1, X x2) noexcept {
         if (x1 > x2)
             std::swap(x1, x2);
         auto i = map.lower_bound(x1);
@@ -689,7 +689,7 @@ namespace RS {
 
     template <typename X, typename Y>
     template <typename T>
-    void InterpolatedMap<X, Y>::scale_x(T a, X b) {
+    void ScaleMap<X, Y>::scale_x(T a, X b) {
         static_assert(std::is_arithmetic<T>::value);
         if (map.empty()) {
             // do nothing
@@ -717,7 +717,7 @@ namespace RS {
 
     template <typename X, typename Y>
     template <typename T>
-    void InterpolatedMap<X, Y>::scale_y(T a, Y b) {
+    void ScaleMap<X, Y>::scale_y(T a, Y b) {
         static_assert(std::is_arithmetic<T>::value);
         for (auto& xy: map) {
             xy.second.left = a * xy.second.left + b;

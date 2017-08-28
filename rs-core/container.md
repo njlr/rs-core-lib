@@ -500,31 +500,31 @@ These return references to the associated table. Behaviour is undefined if
 the table has been destroyed or the index was default constructed.
 _(Complexity: Constant.)_
 
-## InterpolatedMap - associative array with interpolation ##
+## ScaleMap - associative array with interpolation ##
 
-* `template <typename X, typename Y = X> class` **`InterpolatedMap`**
-    * `using InterpolatedMap::`**`key_type`** `= X`
-    * `using InterpolatedMap::`**`mapped_type`** `= Y`
-    * `InterpolatedMap::`**`InterpolatedMap`**`()`
-    * `InterpolatedMap::`**`InterpolatedMap`**`(std::initializer_list<...> list)`
-    * `InterpolatedMap::`**`InterpolatedMap`**`(const InterpolatedMap& m)`
-    * `InterpolatedMap::`**`InterpolatedMap`**`(InterpolatedMap&& m)`
-    * `InterpolatedMap::`**`~InterpolatedMap`**`()`
-    * `InterpolatedMap& InterpolatedMap::`**`operator=`**`(const InterpolatedMap& m)`
-    * `InterpolatedMap& InterpolatedMap::`**`operator=`**`(InterpolatedMap&& m)`
-    * `Y InterpolatedMap::`**`operator()`**`(X x) const`
-    * `void InterpolatedMap::`**`clear`**`() noexcept`
-    * `bool InterpolatedMap::`**`empty`**`() const noexcept`
-    * `void InterpolatedMap::`**`erase`**`(X x) noexcept`
-    * `void InterpolatedMap::`**`erase`**`(X x1, X x2) noexcept`
-    * `void InterpolatedMap::`**`insert`**`(X x, Y y)`
-    * `void InterpolatedMap::`**`insert`**`(X x, Y yl, Y yr)`
-    * `void InterpolatedMap::`**`insert`**`(X x, Y yl, Y y, Y yr)`
-    * `X InterpolatedMap::`**`min`**`() const noexcept`
-    * `X InterpolatedMap::`**`max`**`() const noexcept`
+* `template <typename X, typename Y = X> class` **`ScaleMap`**
+    * `using ScaleMap::`**`key_type`** `= X`
+    * `using ScaleMap::`**`mapped_type`** `= Y`
+    * `ScaleMap::`**`ScaleMap`**`()`
+    * `ScaleMap::`**`ScaleMap`**`(std::initializer_list<...> list)`
+    * `ScaleMap::`**`ScaleMap`**`(const ScaleMap& m)`
+    * `ScaleMap::`**`ScaleMap`**`(ScaleMap&& m)`
+    * `ScaleMap::`**`~ScaleMap`**`()`
+    * `ScaleMap& ScaleMap::`**`operator=`**`(const ScaleMap& m)`
+    * `ScaleMap& ScaleMap::`**`operator=`**`(ScaleMap&& m)`
+    * `Y ScaleMap::`**`operator()`**`(X x) const`
+    * `void ScaleMap::`**`clear`**`() noexcept`
+    * `bool ScaleMap::`**`empty`**`() const noexcept`
+    * `void ScaleMap::`**`erase`**`(X x) noexcept`
+    * `void ScaleMap::`**`erase`**`(X x1, X x2) noexcept`
+    * `void ScaleMap::`**`insert`**`(X x, Y y)`
+    * `void ScaleMap::`**`insert`**`(X x, Y yl, Y yr)`
+    * `void ScaleMap::`**`insert`**`(X x, Y yl, Y y, Y yr)`
+    * `X ScaleMap::`**`min`**`() const noexcept`
+    * `X ScaleMap::`**`max`**`() const noexcept`
 
-An `InterpolatedMap` holds a list of `(x,y)` pairs, returning an interpolated
-`y` value for arbitrary `x`. The input type, `X`, must be a floating point
+A `ScaleMap` holds a list of `(x,y)` pairs, returning an interpolated `y`
+value for arbitrary `x`. The input type, `X`, must be a floating point
 arithmetic type; the output type, `Y`, is the same type as `X` by default, but
 will work with any other floating point type, or any other type for which the
 `interpolate()` function from the core library will work, or a similar
@@ -532,15 +532,15 @@ function that can be found by argument dependent lookup:
 
 * `Y interpolate(X x1, Y y1, X x2, Y y2, X x)`
 
-Legal output types include [`Vector`](vector.html) (if the scalar type is
-floating point) and `Graphics::Colour`.
+Legal output types include [`Vector` and `Matrix`](vector.html), if the scalar
+type is floating point.
 
 The constructor that takes an initializer list expects a list of braced
 tuples, each containing one `X` value and one to three `Y` values, interpreted
 in the same way as the `insert()` functions described below. If an `X` value
 is repeated, later entries overwrite earlier ones. Example:
 
-    InterpolatedMap<float> imap = {
+    ScaleMap<float> imap = {
         {10, 100},            // equivalent to insert(10, 100)
         {20, 200, 300, 400},  // equivalent to insert(20, 200, 300, 400)
         {30, 500, 600},       // equivalent to insert(30, 500, 600)

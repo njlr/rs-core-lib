@@ -25,7 +25,7 @@
 <li><a href="#index-class">Index class</a></li>
 </ul>
 </li>
-<li><a href="#interpolatedmap-associative-array-with-interpolation">InterpolatedMap - associative array with interpolation</a></li>
+<li><a href="#scalemap-associative-array-with-interpolation">ScaleMap - associative array with interpolation</a></li>
 <li><a href="#stack-stack-with-reverse-destruction-order">Stack - stack with reverse destruction order</a></li>
 </ul>
 </li>
@@ -597,34 +597,34 @@ destroyed. <em>(Complexity: Amortised constant.)</em></p>
 the table has been destroyed or the index was default constructed.
 <em>(Complexity: Constant.)</em></p>
 </div>
-<h2 id="interpolatedmap-associative-array-with-interpolation">InterpolatedMap - associative array with interpolation</h2>
+<h2 id="scalemap-associative-array-with-interpolation">ScaleMap - associative array with interpolation</h2>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename X, typename Y = X&gt; class</code> <strong><code>InterpolatedMap</code></strong><ul>
-<li><code>using InterpolatedMap::</code><strong><code>key_type</code></strong> <code>= X</code></li>
-<li><code>using InterpolatedMap::</code><strong><code>mapped_type</code></strong> <code>= Y</code></li>
-<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>()</code></li>
-<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>(std::initializer_list&lt;...&gt; list)</code></li>
-<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>(const InterpolatedMap&amp; m)</code></li>
-<li><code>InterpolatedMap::</code><strong><code>InterpolatedMap</code></strong><code>(InterpolatedMap&amp;&amp; m)</code></li>
-<li><code>InterpolatedMap::</code><strong><code>~InterpolatedMap</code></strong><code>()</code></li>
-<li><code>InterpolatedMap&amp; InterpolatedMap::</code><strong><code>operator=</code></strong><code>(const InterpolatedMap&amp; m)</code></li>
-<li><code>InterpolatedMap&amp; InterpolatedMap::</code><strong><code>operator=</code></strong><code>(InterpolatedMap&amp;&amp; m)</code></li>
-<li><code>Y InterpolatedMap::</code><strong><code>operator()</code></strong><code>(X x) const</code></li>
-<li><code>void InterpolatedMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
-<li><code>bool InterpolatedMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
-<li><code>void InterpolatedMap::</code><strong><code>erase</code></strong><code>(X x) noexcept</code></li>
-<li><code>void InterpolatedMap::</code><strong><code>erase</code></strong><code>(X x1, X x2) noexcept</code></li>
-<li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y y)</code></li>
-<li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y yr)</code></li>
-<li><code>void InterpolatedMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y y, Y yr)</code></li>
-<li><code>X InterpolatedMap::</code><strong><code>min</code></strong><code>() const noexcept</code></li>
-<li><code>X InterpolatedMap::</code><strong><code>max</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename X, typename Y = X&gt; class</code> <strong><code>ScaleMap</code></strong><ul>
+<li><code>using ScaleMap::</code><strong><code>key_type</code></strong> <code>= X</code></li>
+<li><code>using ScaleMap::</code><strong><code>mapped_type</code></strong> <code>= Y</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>()</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>(std::initializer_list&lt;...&gt; list)</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>(const ScaleMap&amp; m)</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>(ScaleMap&amp;&amp; m)</code></li>
+<li><code>ScaleMap::</code><strong><code>~ScaleMap</code></strong><code>()</code></li>
+<li><code>ScaleMap&amp; ScaleMap::</code><strong><code>operator=</code></strong><code>(const ScaleMap&amp; m)</code></li>
+<li><code>ScaleMap&amp; ScaleMap::</code><strong><code>operator=</code></strong><code>(ScaleMap&amp;&amp; m)</code></li>
+<li><code>Y ScaleMap::</code><strong><code>operator()</code></strong><code>(X x) const</code></li>
+<li><code>void ScaleMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool ScaleMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>void ScaleMap::</code><strong><code>erase</code></strong><code>(X x) noexcept</code></li>
+<li><code>void ScaleMap::</code><strong><code>erase</code></strong><code>(X x1, X x2) noexcept</code></li>
+<li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y y)</code></li>
+<li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y yr)</code></li>
+<li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y y, Y yr)</code></li>
+<li><code>X ScaleMap::</code><strong><code>min</code></strong><code>() const noexcept</code></li>
+<li><code>X ScaleMap::</code><strong><code>max</code></strong><code>() const noexcept</code></li>
 </ul>
 </li>
 </ul>
-<p>An <code>InterpolatedMap</code> holds a list of <code>(x,y)</code> pairs, returning an interpolated
-<code>y</code> value for arbitrary <code>x</code>. The input type, <code>X</code>, must be a floating point
+<p>A <code>ScaleMap</code> holds a list of <code>(x,y)</code> pairs, returning an interpolated <code>y</code>
+value for arbitrary <code>x</code>. The input type, <code>X</code>, must be a floating point
 arithmetic type; the output type, <code>Y</code>, is the same type as <code>X</code> by default, but
 will work with any other floating point type, or any other type for which the
 <code>interpolate()</code> function from the core library will work, or a similar
@@ -632,13 +632,13 @@ function that can be found by argument dependent lookup:</p>
 <ul>
 <li><code>Y interpolate(X x1, Y y1, X x2, Y y2, X x)</code></li>
 </ul>
-<p>Legal output types include <a href="vector.html"><code>Vector</code></a> (if the scalar type is
-floating point) and <code>Graphics::Colour</code>.</p>
+<p>Legal output types include <a href="vector.html"><code>Vector</code> and <code>Matrix</code></a>, if the scalar
+type is floating point.</p>
 <p>The constructor that takes an initializer list expects a list of braced
 tuples, each containing one <code>X</code> value and one to three <code>Y</code> values, interpreted
 in the same way as the <code>insert()</code> functions described below. If an <code>X</code> value
 is repeated, later entries overwrite earlier ones. Example:</p>
-<pre><code>InterpolatedMap&lt;float&gt; imap = {
+<pre><code>ScaleMap&lt;float&gt; imap = {
     {10, 100},            // equivalent to insert(10, 100)
     {20, 200, 300, 400},  // equivalent to insert(20, 200, 300, 400)
     {30, 500, 600},       // equivalent to insert(30, 500, 600)

@@ -358,7 +358,7 @@ namespace {
 
     std::ostream& operator<<(std::ostream& out, const Neddie& x) { return out << x.num() << ":" << x.str(); }
 
-    void check_index_table() {
+    void check_index() {
 
         using table_type = IndexTable<Neddie>;
         using int_index = Index<int, Neddie, IndexMode::duplicate>;
@@ -571,200 +571,200 @@ namespace {
 
     }
 
-    void check_interpolated_map() {
+    void check_scale_map() {
 
-        InterpolatedMap<double> imap;
+        ScaleMap<double> sm;
 
-        TEST(imap.empty());
-        TEST_EQUAL(imap.min(), 0);
-        TEST_EQUAL(imap.max(), 0);
-        TEST_EQUAL(imap(0), 0);
-        TEST_EQUAL(imap(10), 0);
+        TEST(sm.empty());
+        TEST_EQUAL(sm.min(), 0);
+        TEST_EQUAL(sm.max(), 0);
+        TEST_EQUAL(sm(0), 0);
+        TEST_EQUAL(sm(10), 0);
 
-        TRY(imap.insert(5, 10));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 5);
-        TEST_EQUAL(imap.max(), 5);
-        TEST_EQUAL(imap(0), 10);
-        TEST_EQUAL(imap(5), 10);
-        TEST_EQUAL(imap(10), 10);
+        TRY(sm.insert(5, 10));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 5);
+        TEST_EQUAL(sm.max(), 5);
+        TEST_EQUAL(sm(0), 10);
+        TEST_EQUAL(sm(5), 10);
+        TEST_EQUAL(sm(10), 10);
 
-        TRY(imap.insert(10, 20));
-        TEST_EQUAL(imap.min(), 5);
-        TEST_EQUAL(imap.max(), 10);
-        TEST_EQUAL(imap(4), 10);
-        TEST_EQUAL(imap(5), 10);
-        TEST_EQUAL(imap(6), 12);
-        TEST_EQUAL(imap(7), 14);
-        TEST_EQUAL(imap(8), 16);
-        TEST_EQUAL(imap(9), 18);
-        TEST_EQUAL(imap(10), 20);
-        TEST_EQUAL(imap(11), 20);
+        TRY(sm.insert(10, 20));
+        TEST_EQUAL(sm.min(), 5);
+        TEST_EQUAL(sm.max(), 10);
+        TEST_EQUAL(sm(4), 10);
+        TEST_EQUAL(sm(5), 10);
+        TEST_EQUAL(sm(6), 12);
+        TEST_EQUAL(sm(7), 14);
+        TEST_EQUAL(sm(8), 16);
+        TEST_EQUAL(sm(9), 18);
+        TEST_EQUAL(sm(10), 20);
+        TEST_EQUAL(sm(11), 20);
 
-        TRY(imap.insert(15, 100, 10));
-        TRY(imap.insert(20, -10));
-        TEST_EQUAL(imap.min(), 5);
-        TEST_EQUAL(imap.max(), 20);
-        TEST_EQUAL(imap(4), 10);
-        TEST_EQUAL(imap(5), 10);
-        TEST_EQUAL(imap(6), 12);
-        TEST_EQUAL(imap(7), 14);
-        TEST_EQUAL(imap(8), 16);
-        TEST_EQUAL(imap(9), 18);
-        TEST_EQUAL(imap(10), 20);
-        TEST_EQUAL(imap(11), 36);
-        TEST_EQUAL(imap(12), 52);
-        TEST_EQUAL(imap(13), 68);
-        TEST_EQUAL(imap(14), 84);
-        TEST_EQUAL(imap(15), 55);
-        TEST_EQUAL(imap(16), 6);
-        TEST_EQUAL(imap(17), 2);
-        TEST_EQUAL(imap(18), -2);
-        TEST_EQUAL(imap(19), -6);
-        TEST_EQUAL(imap(20), -10);
-        TEST_EQUAL(imap(21), -10);
+        TRY(sm.insert(15, 100, 10));
+        TRY(sm.insert(20, -10));
+        TEST_EQUAL(sm.min(), 5);
+        TEST_EQUAL(sm.max(), 20);
+        TEST_EQUAL(sm(4), 10);
+        TEST_EQUAL(sm(5), 10);
+        TEST_EQUAL(sm(6), 12);
+        TEST_EQUAL(sm(7), 14);
+        TEST_EQUAL(sm(8), 16);
+        TEST_EQUAL(sm(9), 18);
+        TEST_EQUAL(sm(10), 20);
+        TEST_EQUAL(sm(11), 36);
+        TEST_EQUAL(sm(12), 52);
+        TEST_EQUAL(sm(13), 68);
+        TEST_EQUAL(sm(14), 84);
+        TEST_EQUAL(sm(15), 55);
+        TEST_EQUAL(sm(16), 6);
+        TEST_EQUAL(sm(17), 2);
+        TEST_EQUAL(sm(18), -2);
+        TEST_EQUAL(sm(19), -6);
+        TEST_EQUAL(sm(20), -10);
+        TEST_EQUAL(sm(21), -10);
 
-        TRY(imap.erase(10));
-        TEST_EQUAL(imap.min(), 5);
-        TEST_EQUAL(imap.max(), 20);
-        TEST_EQUAL(imap(4), 10);
-        TEST_EQUAL(imap(5), 10);
-        TEST_EQUAL(imap(6), 19);
-        TEST_EQUAL(imap(7), 28);
-        TEST_EQUAL(imap(8), 37);
-        TEST_EQUAL(imap(9), 46);
-        TEST_EQUAL(imap(10), 55);
-        TEST_EQUAL(imap(11), 64);
-        TEST_EQUAL(imap(12), 73);
-        TEST_EQUAL(imap(13), 82);
-        TEST_EQUAL(imap(14), 91);
-        TEST_EQUAL(imap(15), 55);
-        TEST_EQUAL(imap(16), 6);
-        TEST_EQUAL(imap(17), 2);
-        TEST_EQUAL(imap(18), -2);
-        TEST_EQUAL(imap(19), -6);
-        TEST_EQUAL(imap(20), -10);
-        TEST_EQUAL(imap(21), -10);
+        TRY(sm.erase(10));
+        TEST_EQUAL(sm.min(), 5);
+        TEST_EQUAL(sm.max(), 20);
+        TEST_EQUAL(sm(4), 10);
+        TEST_EQUAL(sm(5), 10);
+        TEST_EQUAL(sm(6), 19);
+        TEST_EQUAL(sm(7), 28);
+        TEST_EQUAL(sm(8), 37);
+        TEST_EQUAL(sm(9), 46);
+        TEST_EQUAL(sm(10), 55);
+        TEST_EQUAL(sm(11), 64);
+        TEST_EQUAL(sm(12), 73);
+        TEST_EQUAL(sm(13), 82);
+        TEST_EQUAL(sm(14), 91);
+        TEST_EQUAL(sm(15), 55);
+        TEST_EQUAL(sm(16), 6);
+        TEST_EQUAL(sm(17), 2);
+        TEST_EQUAL(sm(18), -2);
+        TEST_EQUAL(sm(19), -6);
+        TEST_EQUAL(sm(20), -10);
+        TEST_EQUAL(sm(21), -10);
 
-        TRY(imap.erase(5, 15));
-        TEST_EQUAL(imap.min(), 20);
-        TEST_EQUAL(imap.max(), 20);
-        TEST_EQUAL(imap(4), -10);
-        TEST_EQUAL(imap(5), -10);
-        TEST_EQUAL(imap(6), -10);
-        TEST_EQUAL(imap(7), -10);
-        TEST_EQUAL(imap(8), -10);
-        TEST_EQUAL(imap(9), -10);
-        TEST_EQUAL(imap(10), -10);
-        TEST_EQUAL(imap(11), -10);
-        TEST_EQUAL(imap(12), -10);
-        TEST_EQUAL(imap(13), -10);
-        TEST_EQUAL(imap(14), -10);
-        TEST_EQUAL(imap(15), -10);
-        TEST_EQUAL(imap(16), -10);
-        TEST_EQUAL(imap(17), -10);
-        TEST_EQUAL(imap(18), -10);
-        TEST_EQUAL(imap(19), -10);
-        TEST_EQUAL(imap(20), -10);
-        TEST_EQUAL(imap(21), -10);
+        TRY(sm.erase(5, 15));
+        TEST_EQUAL(sm.min(), 20);
+        TEST_EQUAL(sm.max(), 20);
+        TEST_EQUAL(sm(4), -10);
+        TEST_EQUAL(sm(5), -10);
+        TEST_EQUAL(sm(6), -10);
+        TEST_EQUAL(sm(7), -10);
+        TEST_EQUAL(sm(8), -10);
+        TEST_EQUAL(sm(9), -10);
+        TEST_EQUAL(sm(10), -10);
+        TEST_EQUAL(sm(11), -10);
+        TEST_EQUAL(sm(12), -10);
+        TEST_EQUAL(sm(13), -10);
+        TEST_EQUAL(sm(14), -10);
+        TEST_EQUAL(sm(15), -10);
+        TEST_EQUAL(sm(16), -10);
+        TEST_EQUAL(sm(17), -10);
+        TEST_EQUAL(sm(18), -10);
+        TEST_EQUAL(sm(19), -10);
+        TEST_EQUAL(sm(20), -10);
+        TEST_EQUAL(sm(21), -10);
 
-        TRY(imap.erase(0, 100));
-        TEST(imap.empty());
-        TEST_EQUAL(imap.min(), 0);
-        TEST_EQUAL(imap.max(), 0);
-        TEST_EQUAL(imap(0), 0);
-        TEST_EQUAL(imap(10), 0);
+        TRY(sm.erase(0, 100));
+        TEST(sm.empty());
+        TEST_EQUAL(sm.min(), 0);
+        TEST_EQUAL(sm.max(), 0);
+        TEST_EQUAL(sm(0), 0);
+        TEST_EQUAL(sm(10), 0);
 
-        TRY((imap = {
+        TRY((sm = {
             {10, 100},
             {20, 200, 300, 400},
             {30, 500, 600},
         }));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 10);
-        TEST_EQUAL(imap.max(), 30);
-        TEST_EQUAL(imap(5), 100);
-        TEST_EQUAL(imap(10), 100);
-        TEST_EQUAL(imap(15), 150);
-        TEST_EQUAL(imap(20), 300);
-        TEST_EQUAL(imap(25), 450);
-        TEST_EQUAL(imap(30), 550);
-        TEST_EQUAL(imap(35), 600);
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 10);
+        TEST_EQUAL(sm.max(), 30);
+        TEST_EQUAL(sm(5), 100);
+        TEST_EQUAL(sm(10), 100);
+        TEST_EQUAL(sm(15), 150);
+        TEST_EQUAL(sm(20), 300);
+        TEST_EQUAL(sm(25), 450);
+        TEST_EQUAL(sm(30), 550);
+        TEST_EQUAL(sm(35), 600);
 
-        TRY(imap.scale_x(2, 100));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 120);
-        TEST_EQUAL(imap.max(), 160);
-        TEST_EQUAL(imap(110), 100);
-        TEST_EQUAL(imap(120), 100);
-        TEST_EQUAL(imap(130), 150);
-        TEST_EQUAL(imap(140), 300);
-        TEST_EQUAL(imap(150), 450);
-        TEST_EQUAL(imap(160), 550);
-        TEST_EQUAL(imap(170), 600);
+        TRY(sm.scale_x(2, 100));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 120);
+        TEST_EQUAL(sm.max(), 160);
+        TEST_EQUAL(sm(110), 100);
+        TEST_EQUAL(sm(120), 100);
+        TEST_EQUAL(sm(130), 150);
+        TEST_EQUAL(sm(140), 300);
+        TEST_EQUAL(sm(150), 450);
+        TEST_EQUAL(sm(160), 550);
+        TEST_EQUAL(sm(170), 600);
 
-        TRY(imap.scale_x(-0.5, 100));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 20);
-        TEST_EQUAL(imap.max(), 40);
-        TEST_EQUAL(imap(15), 600);
-        TEST_EQUAL(imap(20), 550);
-        TEST_EQUAL(imap(25), 450);
-        TEST_EQUAL(imap(30), 300);
-        TEST_EQUAL(imap(35), 150);
-        TEST_EQUAL(imap(40), 100);
-        TEST_EQUAL(imap(45), 100);
+        TRY(sm.scale_x(-0.5, 100));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 20);
+        TEST_EQUAL(sm.max(), 40);
+        TEST_EQUAL(sm(15), 600);
+        TEST_EQUAL(sm(20), 550);
+        TEST_EQUAL(sm(25), 450);
+        TEST_EQUAL(sm(30), 300);
+        TEST_EQUAL(sm(35), 150);
+        TEST_EQUAL(sm(40), 100);
+        TEST_EQUAL(sm(45), 100);
 
-        TRY(imap.scale_y(0.5, 1000));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 20);
-        TEST_EQUAL(imap.max(), 40);
-        TEST_EQUAL(imap(15), 1300);
-        TEST_EQUAL(imap(20), 1275);
-        TEST_EQUAL(imap(25), 1225);
-        TEST_EQUAL(imap(30), 1150);
-        TEST_EQUAL(imap(35), 1075);
-        TEST_EQUAL(imap(40), 1050);
-        TEST_EQUAL(imap(45), 1050);
+        TRY(sm.scale_y(0.5, 1000));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 20);
+        TEST_EQUAL(sm.max(), 40);
+        TEST_EQUAL(sm(15), 1300);
+        TEST_EQUAL(sm(20), 1275);
+        TEST_EQUAL(sm(25), 1225);
+        TEST_EQUAL(sm(30), 1150);
+        TEST_EQUAL(sm(35), 1075);
+        TEST_EQUAL(sm(40), 1050);
+        TEST_EQUAL(sm(45), 1050);
 
-        TRY(imap.scale_x(0));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 0);
-        TEST_EQUAL(imap.max(), 0);
-        TEST_EQUAL(imap(-5), 1300);
-        TEST_EQUAL(imap(0), 1175);
-        TEST_EQUAL(imap(5), 1050);
+        TRY(sm.scale_x(0));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 0);
+        TEST_EQUAL(sm.max(), 0);
+        TEST_EQUAL(sm(-5), 1300);
+        TEST_EQUAL(sm(0), 1175);
+        TEST_EQUAL(sm(5), 1050);
 
-        TRY(imap.clear());
-        TEST(imap.empty());
-        TEST_EQUAL(imap.min(), 0);
-        TEST_EQUAL(imap.max(), 0);
-        TEST_EQUAL(imap(0), 0);
-        TEST_EQUAL(imap(10), 0);
+        TRY(sm.clear());
+        TEST(sm.empty());
+        TEST_EQUAL(sm.min(), 0);
+        TEST_EQUAL(sm.max(), 0);
+        TEST_EQUAL(sm(0), 0);
+        TEST_EQUAL(sm(10), 0);
 
-        TRY(imap.insert(20, 25, 75, 100));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 20);
-        TEST_EQUAL(imap.max(), 20);
-        TEST_EQUAL(imap(15), 25);
-        TEST_EQUAL(imap(20), 75);
-        TEST_EQUAL(imap(25), 100);
+        TRY(sm.insert(20, 25, 75, 100));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 20);
+        TEST_EQUAL(sm.max(), 20);
+        TEST_EQUAL(sm(15), 25);
+        TEST_EQUAL(sm(20), 75);
+        TEST_EQUAL(sm(25), 100);
 
-        TRY(imap.scale_x(2));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), 40);
-        TEST_EQUAL(imap.max(), 40);
-        TEST_EQUAL(imap(35), 25);
-        TEST_EQUAL(imap(40), 75);
-        TEST_EQUAL(imap(45), 100);
+        TRY(sm.scale_x(2));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), 40);
+        TEST_EQUAL(sm.max(), 40);
+        TEST_EQUAL(sm(35), 25);
+        TEST_EQUAL(sm(40), 75);
+        TEST_EQUAL(sm(45), 100);
 
-        TRY(imap.scale_x(-2));
-        TEST(! imap.empty());
-        TEST_EQUAL(imap.min(), -80);
-        TEST_EQUAL(imap.max(), -80);
-        TEST_EQUAL(imap(-85), 100);
-        TEST_EQUAL(imap(-80), 75);
-        TEST_EQUAL(imap(-75), 25);
+        TRY(sm.scale_x(-2));
+        TEST(! sm.empty());
+        TEST_EQUAL(sm.min(), -80);
+        TEST_EQUAL(sm.max(), -80);
+        TEST_EQUAL(sm(-85), 100);
+        TEST_EQUAL(sm(-80), 75);
+        TEST_EQUAL(sm(-75), 25);
 
     }
 
@@ -822,8 +822,8 @@ TEST_MODULE(core, container) {
     check_array_set();
     check_blob();
     check_grid();
-    check_index_table();
-    check_interpolated_map();
+    check_index();
+    check_scale_map();
     check_stack();
 
 }
