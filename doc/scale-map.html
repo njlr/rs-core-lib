@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Interpolating Associative Array</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="interpolating-associative-array">Interpolating Associative Array</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/scale-map.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#interpolating-associative-array">Interpolating Associative Array</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#class-scalemap">Class ScaleMap</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="class-scalemap">Class ScaleMap</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename X, typename Y = X&gt; class</code> <strong><code>ScaleMap</code></strong><ul>
+<li><code>using ScaleMap::</code><strong><code>key_type</code></strong> <code>= X</code></li>
+<li><code>using ScaleMap::</code><strong><code>mapped_type</code></strong> <code>= Y</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>()</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>(std::initializer_list&lt;...&gt; list)</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>(const ScaleMap&amp; m)</code></li>
+<li><code>ScaleMap::</code><strong><code>ScaleMap</code></strong><code>(ScaleMap&amp;&amp; m)</code></li>
+<li><code>ScaleMap::</code><strong><code>~ScaleMap</code></strong><code>()</code></li>
+<li><code>ScaleMap&amp; ScaleMap::</code><strong><code>operator=</code></strong><code>(const ScaleMap&amp; m)</code></li>
+<li><code>ScaleMap&amp; ScaleMap::</code><strong><code>operator=</code></strong><code>(ScaleMap&amp;&amp; m)</code></li>
+<li><code>Y ScaleMap::</code><strong><code>operator()</code></strong><code>(X x) const</code></li>
+<li><code>void ScaleMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool ScaleMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>void ScaleMap::</code><strong><code>erase</code></strong><code>(X x) noexcept</code></li>
+<li><code>void ScaleMap::</code><strong><code>erase</code></strong><code>(X x1, X x2) noexcept</code></li>
+<li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y y)</code></li>
+<li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y yr)</code></li>
+<li><code>void ScaleMap::</code><strong><code>insert</code></strong><code>(X x, Y yl, Y y, Y yr)</code></li>
+<li><code>X ScaleMap::</code><strong><code>min</code></strong><code>() const noexcept</code></li>
+<li><code>X ScaleMap::</code><strong><code>max</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>A <code>ScaleMap</code> holds a list of <code>(x,y)</code> pairs, returning an interpolated <code>y</code>
+value for arbitrary <code>x</code>. The input type, <code>X</code>, must be a floating point
+arithmetic type; the output type, <code>Y</code>, is the same type as <code>X</code> by default, but
+will work with any other floating point type, or any other type for which the
+<code>interpolate()</code> function from the core library will work, or a similar
+function that can be found by argument dependent lookup:</p>
+<ul>
+<li><code>Y interpolate(X x1, Y y1, X x2, Y y2, X x)</code></li>
+</ul>
+<p>Legal output types include <a href="vector.html"><code>Vector</code> and <code>Matrix</code></a>, if the scalar
+type is floating point.</p>
+<p>The constructor that takes an initializer list expects a list of braced
+tuples, each containing one <code>X</code> value and one to three <code>Y</code> values, interpreted
+in the same way as the <code>insert()</code> functions described below. If an <code>X</code> value
+is repeated, later entries overwrite earlier ones. Example:</p>
+<pre><code>ScaleMap&lt;float&gt; imap = {
+    {10, 100},            // equivalent to insert(10, 100)
+    {20, 200, 300, 400},  // equivalent to insert(20, 200, 300, 400)
+    {30, 500, 600},       // equivalent to insert(30, 500, 600)
+};
+</code></pre>
+<p>The function call operator returns the interpolated <code>y</code> value corresponding to
+the given <code>x</code>. If the map is empty (no <code>(x,y)</code> pairs have been supplied since
+default construction or the last call to <code>clear()</code>), a default constructed <code>Y</code>
+will be returned. If the <code>x</code> value is out of range (less than the smallest
+value supplied so far, or greater than the largest), the <code>y</code> value from the
+nearest end of the range will be returned.</p>
+<p>The first version of <code>insert()</code> adds a simple <code>(x,y)</code> pair (overwriting an
+existing pair if there was one with the exact same value of <code>x</code>). The second
+and third versions allow a stepwise change in the output; <code>yl</code> will be used as
+the <code>y</code> for interpolation on the left of the given value, <code>yr</code> on the right.
+Optionally a third value can be supplied to be used for this exact value of
+<code>x</code>; otherwise, the average of the two <code>y</code> values will be used.</p>
+<p>The first version of <code>erase()</code> deletes only an entry with this exact <code>x</code>
+value, otherwise doing nothing; the second version erases all entries with <code>x</code>
+values in the closed interval <code>[x1,x2]</code> (the arguments can be supplied in
+either order).</p>
+<p>The <code>min()</code> and <code>max()</code> functions return the range of <code>x</code> values for which a
+mapping has been defined; they will return zero if the map is empty.</p></body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Deterministic Stack</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="deterministic-stack">Deterministic Stack</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/stack.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#deterministic-stack">Deterministic Stack</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#class-stack">Class Stack</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="class-stack">Class Stack</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>Stack</code></strong><ul>
+<li><code>using Stack::</code><strong><code>const_iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using Stack::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using Stack::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>Stack::</code><strong><code>Stack</code></strong><code>()</code></li>
+<li><code>Stack::</code><strong><code>~Stack</code></strong><code>() noexcept</code></li>
+<li><code>Stack::</code><strong><code>Stack</code></strong><code>(Stack&amp;&amp; s)</code></li>
+<li><code>Stack&amp; Stack::</code><strong><code>operator=</code></strong><code>(Stack&amp;&amp; s)</code></li>
+<li><code>iterator Stack::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator Stack::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>iterator Stack::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator Stack::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+<li><code>void Stack::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; void Stack::</code><strong><code>emplace</code></strong><code>(Args&amp;&amp;... args)</code></li>
+<li><code>bool Stack::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>void Stack::</code><strong><code>pop</code></strong><code>() noexcept</code></li>
+<li><code>void Stack::</code><strong><code>push</code></strong><code>(const T&amp; t)</code></li>
+<li><code>void Stack::</code><strong><code>push</code></strong><code>(T&amp;&amp; t)</code></li>
+<li><code>size_t Stack::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+<li><code>T&amp; Stack::</code><strong><code>top</code></strong><code>() noexcept</code></li>
+<li><code>const T&amp; Stack::</code><strong><code>top</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>A simple LIFO container, whose main function is to ensure that its elements
+are destroyed in reverse order of insertion (this is not guaranteed by any
+standard container, but is often useful for RAII). Behaviour is undefined if
+<code>pop()</code> or <code>top()</code> is called on an empty stack.</p></body>
+</html>

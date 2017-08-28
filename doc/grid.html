@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Multidimensional Array</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="multidimensional-array">Multidimensional Array</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/grid.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#multidimensional-array">Multidimensional Array</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#class-grid">Class Grid</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="class-grid">Class Grid</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, size_t N&gt; class</code> <strong><code>Grid</code></strong></li>
+</ul>
+<p>The <code>Grid</code> class represents an <code>N</code>-dimensional array. The grid is indexed by a
+fixed-size vector of integers (<code>Vector&lt;ptrdiff_t, N&gt;</code>). The element type (<code>T</code>)
+can be any type that can be default constructed, copied, and moved.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>class Grid::</code><strong><code>iterator</code></strong><ul>
+<li><code>using iterator::</code><strong><code>iterator_category</code></strong> <code>= std::forward_iterator_tag</code></li>
+<li><code>using iterator::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>void iterator::</code><strong><code>move</code></strong><code>(size_t axis, ptrdiff_t delta) noexcept</code></li>
+<li><code>Grid::index_type iterator::</code><strong><code>pos</code></strong><code>() const</code></li>
+<li><em>[standard forward iterator features]</em></li>
+</ul>
+</li>
+<li><code>class Grid::</code><strong><code>const_iterator</code></strong><ul>
+<li><code>using const_iterator::</code><strong><code>iterator_category</code></strong> <code>= std::forward_iterator_tag</code></li>
+<li><code>using const_iterator::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>void const_iterator::</code><strong><code>move</code></strong><code>(size_t axis, ptrdiff_t delta) noexcept</code></li>
+<li><code>Grid::index_type const_iterator::</code><strong><code>pos</code></strong><code>() const</code></li>
+<li><em>[standard forward iterator features]</em></li>
+</ul>
+</li>
+</ul>
+<p>Iterators over the grid's elements. If an iterator is simply incremented from
+<code>begin()</code> to <code>end()</code> in the normal way, it will visit every element of the
+grid; the order is unspecified except that it will start with the element at
+the origin (all indices zero).</p>
+<p>In addition to the normal iterator functions, grid iterators have two extra
+functions, <code>move()</code> and <code>pos()</code>. The <code>move()</code> function accepts an index
+indicating which axis to move on, and a delta to indicate how far to move;
+behaviour is undefined if the axis index is out of range (<code>0&lt;=axis&lt;N</code>). Moving
+an iterator outside the bounds of the grid is legal, and safe provided it is
+not dereferenced or compared to any other iterator while outside the grid (and
+the coordinate arithmetic involved does not overflow). An iterator outside the
+grid can be moved back onto a valid element and then used normally.</p>
+<p>The <code>pos()</code> function returns the iterator's current location in the grid, as a
+coordinate vector. Behaviour is undefined if <code>pos()</code> is called on an out of
+bounds iterator (including <code>end()</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Grid::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
+<li><code>using Grid::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using Grid::</code><strong><code>index_type</code></strong> <code>= Vector&lt;ptrdiff_t, N&gt;</code></li>
+<li><code>using Grid::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
+<li><code>using Grid::</code><strong><code>size_type</code></strong> <code>= size_t</code></li>
+<li><code>using Grid::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Other member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr size_t Grid::</code><strong><code>dim</code></strong> <code>= N</code></li>
+</ul>
+<p>Member constant.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>()</code></li>
+<li><code>explicit Grid::</code><strong><code>Grid</code></strong><code>(const index_type&amp; shape)</code></li>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>(const index_type&amp; shape, const T&amp; t)</code></li>
+<li><code>template &lt;typename... Args&gt; explicit Grid::</code><strong><code>Grid</code></strong><code>(Args... shape)</code></li>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>(const Grid&amp; g)</code></li>
+<li><code>Grid::</code><strong><code>Grid</code></strong><code>(Grid&amp;&amp; g) noexcept</code></li>
+<li><code>Grid::</code><strong><code>~Grid</code></strong><code>() noexcept</code></li>
+<li><code>Grid&amp; Grid::</code><strong><code>operator=</code></strong><code>(const Grid&amp; g)</code></li>
+<li><code>Grid&amp; Grid::</code><strong><code>operator=</code></strong><code>(Grid&amp;&amp; g) noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor creates an empty grid (all
+dimensions are zero). The next three constructors create a grid with a
+specified shape and size; the dimensions can be supplied either as an
+<code>index_type</code> vector or as an explicit list of integers. The third constructor
+will set all elements to the given value; the other two will set all elements
+to <code>T</code>'s default constructor. Dimensions of zero are allowed, but behaviour is
+undefined if any dimension is negative, or if the total number of elements
+would be out of range for a <code>ptrdiff_t</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>T&amp; Grid::</code><strong><code>operator[]</code></strong><code>(const index_type&amp; pos) noexcept</code></li>
+<li><code>const T&amp; Grid::</code><strong><code>operator[]</code></strong><code>(const index_type&amp; pos) const noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; T&amp; Grid::</code><strong><code>operator</code></strong><code>()(Args... pos) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; const T&amp; Grid::</code><strong><code>operator</code></strong><code>()(Args... pos) const noexcept</code></li>
+<li><code>T&amp; Grid::</code><strong><code>at</code></strong><code>(const index_type&amp; pos)</code></li>
+<li><code>const T&amp; Grid::</code><strong><code>at</code></strong><code>(const index_type&amp; pos) const</code></li>
+<li><code>template &lt;typename... Args&gt; T&amp; Grid::</code><strong><code>at</code></strong><code>(Args... pos)</code></li>
+<li><code>template &lt;typename... Args&gt; const T&amp; Grid::</code><strong><code>at</code></strong><code>(Args... pos) const</code></li>
+</ul>
+<p>Element access functions. An element can be addressed either with an
+<code>index_type</code> vector (in <code>operator[]</code> and the first two versions of <code>at()</code>), or
+an explicit list of coordinates (in <code>operator()</code> and the last two versions of
+<code>at()</code>). If any coordinate is out of bounds, behaviour is undefined for
+<code>operator[]</code> and <code>operator()</code>; <code>at()</code> will throw <code>std::out_of_range</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::iterator Grid::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>Grid::const_iterator Grid::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>Grid::iterator Grid::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>Grid::const_iterator Grid::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Standard container iterator functions.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Discards the grid's contents and sets all dimensions to zero. All iterators
+over the grid are invalidated.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Grid::</code><strong><code>contains</code></strong><code>(const index_type&amp; pos) const noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; bool Grid::</code><strong><code>contains</code></strong><code>(Args... pos) const noexcept</code></li>
+</ul>
+<p>True if the specified position is inside the grid (i.e. if <code>pos[i]&gt;=0</code> and
+<code>pos[i]&lt;shape()[i]</code> for all <code>i&lt;N</code>).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Grid::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the grid contains no elements (i.e. if any dimension is zero).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>fill</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>Sets all elements to the given value.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::iterator Grid::</code><strong><code>locate</code></strong><code>(const index_type&amp; pos) noexcept</code></li>
+<li><code>Grid::const_iterator Grid::</code><strong><code>locate</code></strong><code>(const index_type&amp; pos) const noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; Grid::iterator Grid::</code><strong><code>locate</code></strong><code>(Args... pos) noexcept</code></li>
+<li><code>template &lt;typename... Args&gt; Grid::const_iterator Grid::</code><strong><code>locate</code></strong><code>(Args... pos) const noexcept</code></li>
+</ul>
+<p>These return an iterator pointing to the element at the given coordinates.
+Behaviour is undefined if any coordinate is out of range.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>reset</code></strong><code>(const index_type&amp; shape, const T&amp; t = T())</code></li>
+<li><code>template &lt;typename... Args&gt; void Grid::</code><strong><code>reset</code></strong><code>(Args... shape)</code></li>
+</ul>
+<p>These replace the grid with a new one, constructed with the given dimensions
+and element value. Behaviour is undefined if any dimension is negative, or if
+the total number of elements would be out of range for a <code>ptrdiff_t</code>. These
+are equivalent to assignment from a newly constructed grid. After calling
+<code>reset()</code>, all iterators over the grid are invalidated.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Grid::</code><strong><code>reshape</code></strong><code>(const index_type&amp; shape, const T&amp; t = T())</code></li>
+<li><code>template &lt;typename... Args&gt; void Grid::</code><strong><code>reshape</code></strong><code>(Args... shape)</code></li>
+</ul>
+<p>These change the grid's shape, as in <code>reset()</code>, but differ from <code>reset()</code> in
+that any elements that the old and new grids have in common will retain their
+value. The supplied element value (defaulting to <code>T</code>'s default constructor)
+will only be used to fill in any newly created cells. After calling
+<code>reshape()</code>, all iterators over the grid are invalidated.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Grid::index_type Grid::</code><strong><code>shape</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the grid's dimensions, as supplied to the constructor or the last call
+to <code>reset()</code> or <code>reshape()</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Grid::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the total number of elements in the grid (the product of its
+dimensions).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool</code> <strong><code>operator==</code></strong><code>(const Grid&amp; lhs, const Grid&amp; rhs) noexcept</code></li>
+<li><code>bool</code> <strong><code>operator!=</code></strong><code>(const Grid&amp; lhs, const Grid&amp; rhs) noexcept</code></li>
+</ul>
+<p>Element-wise comparison operators.</p></body>
+</html>

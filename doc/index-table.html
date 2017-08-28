@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Multi-Index Map</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="multi-index-map">Multi-Index Map</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/index-map.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#multi-index-map">Multi-Index Map</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#supporting-definitions">Supporting definitions</a></li>
+<li><a href="#class-indextable">Class IndexTable</a></li>
+<li><a href="#class-index">Class Index</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="introduction">Introduction</h2>
+<p>The <code>IndexTable</code> and <code>Index</code> classes provide a collection over which an
+arbitrary set of associative indexes can be created.</p>
+<p><code>IndexTable</code> is the actual data collection. This does not in itself provide
+any associative semantics; it simply acts as a collection over which an index
+can be built. The second class, <code>Index</code>, maintains an index over a table. The
+index is generated when the <code>Index</code> object is constructed, and automatically
+kept up to date as elements are inserted or erased from the underlying table.</p>
+<p>An index may be unique keyed (no two keys may be equivalent, according to the
+comparison function) or duplicate keyed (equivalent keys are allowed). This
+choice is controlled by a template argument to the <code>Index</code> class. An attempt
+to create a duplicate key in a unique index will throw an exception. A single
+<code>IndexTable</code> can have separate unique and non-unique indexes at the same time.</p>
+<p>The only requirement on the data type (<code>T</code>) and the key type (<code>K</code>) is that
+they must be copyable. Functions must be provided to extract a key from a data
+value, and to compare keys; these default to <code>static_cast&lt;K&gt;(T)</code> and
+<code>std::less&lt;K&gt;</code> respectively.</p>
+<p>All <code>IndexTable</code> and <code>Index</code> iterators are bidirectional iterators, with <code>T</code>
+as their value type. Inserting an element does not invalidate any iterators;
+erasing an element only invalidates any iterators that were pointing to that
+element. Although the non-<code>const</code> iterators over an <code>IndexTable</code> or <code>Index</code>
+provide a reference through which data elements may be updated, behaviour is
+undefined if any operation on an element (other than insertion or deletion)
+would change the key associated with it in any currently existing index.</p>
+<p>In the complexity specifications, <code>n</code> is the total number of elements in the
+table, and <code>k</code> is the number involved in a single operation (e.g. the number
+inserted or erased).</p>
+<h2 id="supporting-definitions">Supporting definitions</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>IndexCollision</code></strong><code>: public std::runtime_error</code></li>
+</ul>
+<p>An <code>IndexCollision</code> exception is thrown if a duplicate key is inserted into a
+unique index.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>enum class</code> <strong><code>IndexMode</code></strong><ul>
+<li><code>IndexMode::</code><strong><code>unique</code></strong></li>
+<li><code>IndexMode::</code><strong><code>duplicate</code></strong></li>
+</ul>
+</li>
+</ul>
+<p>Flags used in the <code>Index</code> class template to indicate whether duplicates are
+allowed.</p>
+</div>
+<h2 id="class-indextable">Class IndexTable</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>IndexTable</code></strong></li>
+</ul>
+<p>The basic data table class.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using IndexTable::</code><strong><code>const_iterator</code></strong> <code>= [bidirectional iterator]</code></li>
+<li><code>using IndexTable::</code><strong><code>iterator</code></strong> <code>= [bidirectional iterator]</code></li>
+<li><code>using IndexTable::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
+<li><code>using IndexTable::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using IndexTable::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
+<li><code>using IndexTable::</code><strong><code>size_type</code></strong> <code>= size_t</code></li>
+<li><code>using IndexTable::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>IndexTable::</code><strong><code>IndexTable</code></strong><code>()</code></li>
+<li><code>template &lt;typename Range&gt; explicit IndexTable::</code><strong><code>IndexTable</code></strong><code>(const Range&amp; src)</code></li>
+<li><code>template &lt;typename Iterator&gt; IndexTable::</code><strong><code>IndexTable</code></strong><code>(Iterator i1, Iterator i2)</code></li>
+<li><code>IndexTable::</code><strong><code>~IndexTable</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Life cycle functions. The default constructor creates an empty table; the
+second and third constructors copy elements from the range into the table.
+<em>(Complexity: Amortised constant for the default constructor, otherwise
+<code>O(n)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>iterator IndexTable::</code><strong><code>begin</code></strong><code>()</code></li>
+<li><code>const_iterator IndexTable::</code><strong><code>begin</code></strong><code>() const</code></li>
+<li><code>iterator IndexTable::</code><strong><code>end</code></strong><code>()</code></li>
+<li><code>const_iterator IndexTable::</code><strong><code>end</code></strong><code>() const</code></li>
+</ul>
+<p>Iterators over the elements of the table, in the order in which they were
+inserted. <em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IndexTable::</code><strong><code>clear</code></strong><code>()</code></li>
+</ul>
+<p>Deletes all elements. <em>(Complexity: <code>O(n)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool IndexTable::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the table is empty. <em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IndexTable::</code><strong><code>erase</code></strong><code>(iterator i)</code></li>
+<li><code>void IndexTable::</code><strong><code>erase</code></strong><code>(iterator i1, iterator i2)</code></li>
+</ul>
+<p>Remove elements from the table. <em>(Complexity: Amortised constant for the first
+version, <code>O(k)</code> for the second.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IndexTable::</code><strong><code>insert</code></strong><code>(const T&amp; t)</code></li>
+<li><code>template &lt;typename Range&gt; void IndexTable::</code><strong><code>insert</code></strong><code>(const Range&amp; src)</code></li>
+<li><code>template &lt;typename Iterator&gt; void IndexTable::</code><strong><code>insert</code></strong><code>(Iterator i1, Iterator i2)</code></li>
+<li><code>void IndexTable::</code><strong><code>push_back</code></strong><code>(const T&amp; t)</code></li>
+</ul>
+<p>These insert items into the table. The first version of <code>insert()</code> is a
+synonym for <code>push_back()</code>. All of these will throw <code>IndexCollision</code> if it
+would create a duplicate key in an index that does not allow duplicates.
+<em>(Complexity: <code>O(k)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t IndexTable::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the number of items in the table. <em>(Complexity: Amortised constant.)</em></p>
+</div>
+<h2 id="class-index">Class Index</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename K, typename T, IndexMode M = IndexMode::unique&gt; class</code> <strong><code>Index</code></strong></li>
+</ul>
+<p>The index type. The template arguments are the key type, the data type, and a
+flag indicating whether duplicate keys will be allowed.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Index::</code><strong><code>iterator</code></strong> <code>= [bidirectional iterator]</code><ul>
+<li><code>const K&amp; iterator::</code><strong><code>key</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>using Index::</code><strong><code>const_iterator</code></strong> <code>= [bidirectional iterator]</code><ul>
+<li><code>const K&amp; const_iterator::</code><strong><code>key</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>using Index::</code><strong><code>compare_function</code></strong> <code>= function&lt;bool(const K&amp;, const K&amp;)&gt;</code></li>
+<li><code>using Index::</code><strong><code>const_reference</code></strong> <code>= const T&amp;</code></li>
+<li><code>using Index::</code><strong><code>difference_type</code></strong> <code>= ptrdiff_t</code></li>
+<li><code>using Index::</code><strong><code>extract_function</code></strong> <code>= function&lt;K(const T&amp;)&gt;</code></li>
+<li><code>using Index::</code><strong><code>key_type</code></strong> <code>= K</code></li>
+<li><code>using Index::</code><strong><code>reference</code></strong> <code>= T&amp;</code></li>
+<li><code>using Index::</code><strong><code>size_type</code></strong> <code>= size_t</code></li>
+<li><code>using Index::</code><strong><code>table_type</code></strong> <code>= IndexTable&lt;T&gt;</code></li>
+<li><code>using Index::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+</ul>
+<p>Member types. In addition to the normal bidirectional iterator operations, the
+iterators have a <code>key()</code> member function that returns the element's key
+(behaviour is undefined if this is called on a non-dereferenceable iterator).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static constexpr IndexMode Index::</code><strong><code>mode</code></strong> <code>= M</code></li>
+</ul>
+<p>Member constants.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Index::</code><strong><code>Index</code></strong><code>()</code></li>
+<li><code>explicit Index::</code><strong><code>Index</code></strong><code>(table_type&amp; table)</code></li>
+<li><code>Index::</code><strong><code>Index</code></strong><code>(table_type&amp; table, extract_function extract)</code></li>
+<li><code>Index::</code><strong><code>Index</code></strong><code>(table_type&amp; table, extract_function extract, compare_function compare)</code></li>
+<li><code>Index::</code><strong><code>~Index</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Life cycle functions. The constructors take a reference to the table to be
+indexed, and optionally a key extraction function (used to obtain the key from
+a data value) and a comparison function (used to compare keys). The default
+extraction function simply performs a <code>static_cast&lt;K&gt;(T)</code>; the default
+comparison function is <code>std::less&lt;K&gt;</code>. A default constructed index is not
+associated with any table and is always empty.</p>
+<p>The constructors will build an index over the existing elements in the table;
+they will throw <code>IndexCollision</code> if the table contains values with duplicate
+keys but the index does not allow duplicates. An index may be destroyed before
+or after its associated table. If the table is destroyed first, the index will
+become empty. <em>(Complexity: Constant for the default constructor, <code>O(n)</code> for
+the other constructors, amortised constant for the destructor.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>iterator Index::</code><strong><code>begin</code></strong><code>()</code></li>
+<li><code>const_iterator Index::</code><strong><code>begin</code></strong><code>() const</code></li>
+<li><code>iterator Index::</code><strong><code>end</code></strong><code>()</code></li>
+<li><code>const_iterator Index::</code><strong><code>end</code></strong><code>() const</code></li>
+</ul>
+<p>Iterators over the table, in the order defined by the keys. If duplicates are
+allowed, elements with duplicate keys are visited in order of insertion.
+<em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>compare_function Index::</code><strong><code>compare</code></strong><code>() const</code></li>
+<li><code>extract_function Index::</code><strong><code>extract</code></strong><code>() const</code></li>
+</ul>
+<p>These return copies of the key comparison and extraction functions supplied to
+the constructor. <em>(Complexity: Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Index::</code><strong><code>count</code></strong><code>(const K&amp; k) const noexcept</code></li>
+</ul>
+<p>Returns the number of items in the table with the specified key. <em>(Complexity:
+<code>O(log n)+O(k)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool Index::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the table is empty. This is equivalent to <code>table().empty()</code>, except
+that it will return true if the table has been destroyed. <em>(Complexity:
+Constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Irange&lt;iterator&gt; Index::</code><strong><code>equal_range</code></strong><code>(const K&amp; k)</code></li>
+<li><code>Irange&lt;const_iterator&gt; Index::</code><strong><code>equal_range</code></strong><code>(const K&amp; k) const</code></li>
+<li><code>iterator Index::</code><strong><code>find</code></strong><code>(const K&amp; k)</code> <em>(unique keys only)</em></li>
+<li><code>const_iterator Index::</code><strong><code>find</code></strong><code>(const K&amp; k) const</code> <em>(unique keys only)</em></li>
+<li><code>iterator Index::</code><strong><code>lower_bound</code></strong><code>(const K&amp; k)</code></li>
+<li><code>const_iterator Index::</code><strong><code>lower_bound</code></strong><code>(const K&amp; k) const</code></li>
+<li><code>iterator Index::</code><strong><code>upper_bound</code></strong><code>(const K&amp; k)</code></li>
+<li><code>const_iterator Index::</code><strong><code>upper_bound</code></strong><code>(const K&amp; k) const</code></li>
+</ul>
+<p>These find elements or subranges matching the specified key (following the
+usual associative container semantics). The <code>find()</code> functions are not defined
+for indices that allow duplicate keys. <em>(Complexity: <code>O(log n)</code>.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Index::</code><strong><code>erase</code></strong><code>(iterator i)</code></li>
+<li><code>void Index::</code><strong><code>erase</code></strong><code>(iterator i1, iterator i2)</code></li>
+<li><code>void Index::</code><strong><code>erase</code></strong><code>(const K&amp; k)</code></li>
+</ul>
+<p>These erase elements from the table, identified either by iterators or a key.
+Erasing a nonexistent key is harmless. If the index allows duplicates, the
+third version of <code>erase()</code> will erase all matching elements. <em>(Complexity:
+Amortised constant for the first version; <code>O(log n)+O(k)</code> for the others.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t Index::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the number of items in the table. This is equivalent to
+<code>table().size()</code>, except that it will return zero if the table has been
+destroyed. <em>(Complexity: Amortised constant.)</em></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>table_type&amp; Index::</code><strong><code>table</code></strong><code>() noexcept</code></li>
+<li><code>const table_type&amp; Index::</code><strong><code>table</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>These return references to the associated table. Behaviour is undefined if
+the table has been destroyed or the index was default constructed.
+<em>(Complexity: Constant.)</em></p></body>
+</html>

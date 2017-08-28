@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Sequence Based Associative Array</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="sequence-based-associative-array">Sequence Based Associative Array</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/array-map.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#sequence-based-associative-array">Sequence Based Associative Array</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#class-arraymap">Class ArrayMap</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="class-arraymap">Class ArrayMap</h2>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename K, typename T&gt; class</code> <strong><code>ArrayMap</code></strong><ul>
+<li><code>using ArrayMap::</code><strong><code>const_iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using ArrayMap::</code><strong><code>iterator</code></strong> <code>= [random access iterator]</code></li>
+<li><code>using ArrayMap::</code><strong><code>key_type</code></strong> <code>= K</code></li>
+<li><code>using ArrayMap::</code><strong><code>mapped_type</code></strong> <code>= T</code></li>
+<li><code>using ArrayMap::</code><strong><code>value_type</code></strong> <code>= [K if T is void, otherwise std::pair&lt;K, T&gt;]</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>() noexcept</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>(std::initializer_list&lt;value_type&gt; list)</code></li>
+<li><code>ArrayMap::</code><strong><code>~ArrayMap</code></strong><code>() noexcept</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>(const ArrayMap&amp; a)</code></li>
+<li><code>ArrayMap::</code><strong><code>ArrayMap</code></strong><code>(ArrayMap&amp;&amp; a) noexcept</code></li>
+<li><code>ArrayMap&amp; ArrayMap::</code><strong><code>operator=</code></strong><code>(const ArrayMap&amp; a)</code></li>
+<li><code>ArrayMap&amp; ArrayMap::</code><strong><code>operator=</code></strong><code>(ArrayMap&amp;&amp; a) noexcept</code></li>
+<li><code>T&amp; ArrayMap::</code><strong><code>operator[]</code></strong><code>(const K&amp; k) [only defined if T is not void]</code></li>
+<li><code>iterator ArrayMap::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator ArrayMap::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>iterator ArrayMap::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const_iterator ArrayMap::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+<li><code>size_t ArrayMap::</code><strong><code>capacity</code></strong><code>() const noexcept</code></li>
+<li><code>void ArrayMap::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool ArrayMap::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>bool ArrayMap::</code><strong><code>erase</code></strong><code>(const K&amp; k) noexcept</code></li>
+<li><code>void ArrayMap::</code><strong><code>erase</code></strong><code>(const_iterator i) noexcept</code></li>
+<li><code>iterator ArrayMap::</code><strong><code>find</code></strong><code>(const K&amp; k) noexcept</code></li>
+<li><code>const_iterator ArrayMap::</code><strong><code>find</code></strong><code>(const K&amp; k) const noexcept</code></li>
+<li><code>bool ArrayMap::</code><strong><code>has</code></strong><code>(const K&amp; k) const noexcept</code></li>
+<li><code>std::pair&lt;iterator, bool&gt; ArrayMap::</code><strong><code>insert</code></strong><code>(const value_type&amp; v)</code></li>
+<li><code>void ArrayMap::</code><strong><code>reserve</code></strong><code>(size_t n)</code></li>
+<li><code>size_t ArrayMap::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+<li><code>template &lt;typename K&gt; using</code> <strong><code>ArraySet</code></strong> <code>= ArrayMap&lt;K, void&gt;</code></li>
+</ul>
+<p>An associative array that uses a simple sequential container internally,
+finding keys by linear search (using equality comparison). This can be more
+efficient than a tree or hash based container for small element counts; it can
+also be useful when the element type has no natural ordering or hash function.
+Member functions have their usual meaning for associative containers.</p></body>
+</html>

@@ -4,12 +4,18 @@
 
 * _General utilities_
     * [`"rs-core/common.hpp"`](common.html) - Common utilities
-    * [`"rs-core/container.hpp"`](container.html) - Containers
     * [`"rs-core/kwargs.hpp"`](kwargs.html) - Keyword arguments
     * [`"rs-core/optional.hpp"`](optional.html) - Optional type
     * [`"rs-core/variant.hpp"`](variant.html) - Variant type
 * _Concurrency_
     * [`"rs-core/thread.hpp"`](thread.html) - Threads
+* _Containers_
+    * [`"rs-core/array-map.hpp"`](array-map.html) - Sequence based associative array
+    * [`"rs-core/blob.hpp"`](blob.html) - Binary large object
+    * [`"rs-core/grid.hpp"`](grid.html) - Multidimensional array
+    * [`"rs-core/index-table.hpp"`](index-table.html) - Multi-index map
+    * [`"rs-core/scale-map.hpp"`](scale-map.html) - Interpolating associative array
+    * [`"rs-core/stack.hpp"`](stack.html) - Deterministic stack
 * _Functional programming_
     * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms
     * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization
