@@ -340,6 +340,7 @@ various types:</p>
 conversion to <code>std::string</code> - The string content is simply copied directly
 without using an output stream; a null character pointer is treated as an
 empty string.</li>
+<li>Unicode string and character types - Converted to UTF-8 using <code>uconv()</code>.</li>
 <li>Integer types - Formatted using <code>dec()</code>.</li>
 <li>Floating point types - Formatted using <code>fp_format()</code>.</li>
 <li><code>bool</code> - Written as <code>"true"</code> or <code>"false"</code>.</li>

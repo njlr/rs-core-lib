@@ -705,7 +705,9 @@ namespace RS {
 
     namespace RS_Detail {
 
-        template <typename R, typename I = decltype(std::begin(std::declval<R>())), typename V = typename std::iterator_traits<I>::value_type>
+        template <typename R> auto get_range_begin() { using std::begin; return begin(std::declval<R>()); }
+
+        template <typename R, typename I = decltype(get_range_begin<R>()), typename V = typename std::iterator_traits<I>::value_type>
         struct RangeToString {
             U8string operator()(const R& r) const {
                 U8string s = "[";
@@ -749,11 +751,11 @@ namespace RS {
         template <typename> struct SfinaeTrue: std::true_type {};
         template <typename T> auto check_std_begin(int) -> SfinaeTrue<decltype(std::begin(std::declval<T>()))>;
         template <typename T> auto check_std_begin(long) -> std::false_type;
-        template <typename T> auto check_std_end(int) -> SfinaeTrue<decltype(std::end(std::declval<T>()))>;
-        template <typename T> auto check_std_end(long) -> std::false_type;
+        template <typename T> auto check_adl_begin(int) -> SfinaeTrue<decltype(begin(std::declval<T>()))>;
+        template <typename T> auto check_adl_begin(long) -> std::false_type;
         template <typename T> struct CheckStdBegin: decltype(check_std_begin<T>(0)) {};
-        template <typename T> struct CheckStdEnd: decltype(check_std_end<T>(0)) {};
-        template <typename T> struct IsRangeType { static constexpr bool value = CheckStdBegin<T>::value && CheckStdEnd<T>::value; };
+        template <typename T> struct CheckAdlBegin: decltype(check_adl_begin<T>(0)) {};
+        template <typename T> struct IsRangeType { static constexpr bool value = CheckStdBegin<T>::value || CheckAdlBegin<T>::value; };
 
         template <typename T>
         struct ObjectToStringCategory {
@@ -778,6 +780,25 @@ namespace RS {
         template <> struct ObjectToString<const char*> { U8string operator()(const char* t) const { return t ? U8string(t) : U8string(); } };
         template <size_t N> struct ObjectToString<char[N], 'S'> { U8string operator()(const char* t) const { return U8string(t); } };
         template <> struct ObjectToString<char> { U8string operator()(char t) const { return {t}; } };
+
+        template <> struct ObjectToString<std::u16string> { U8string operator()(const std::u16string& t) const { return uconv<U8string>(t); } };
+        template <> struct ObjectToString<char16_t*> { U8string operator()(char16_t* t) const { return t ? uconv<U8string>(std::u16string(t)) : U8string(); } };
+        template <> struct ObjectToString<const char16_t*> { U8string operator()(const char16_t* t) const { return t ? uconv<U8string>(std::u16string(t)) : U8string(); } };
+        template <size_t N> struct ObjectToString<char16_t[N], 'X'> { U8string operator()(const char16_t* t) const { return uconv<U8string>(std::u16string(t)); } };
+        template <> struct ObjectToString<char16_t> { U8string operator()(char16_t t) const { return uconv<U8string>(std::u16string{t}); } };
+
+        template <> struct ObjectToString<std::u32string> { U8string operator()(const std::u32string& t) const { return uconv<U8string>(t); } };
+        template <> struct ObjectToString<char32_t*> { U8string operator()(char32_t* t) const { return t ? uconv<U8string>(std::u32string(t)) : U8string(); } };
+        template <> struct ObjectToString<const char32_t*> { U8string operator()(const char32_t* t) const { return t ? uconv<U8string>(std::u32string(t)) : U8string(); } };
+        template <size_t N> struct ObjectToString<char32_t[N], 'X'> { U8string operator()(const char32_t* t) const { return uconv<U8string>(std::u32string(t)); } };
+        template <> struct ObjectToString<char32_t> { U8string operator()(char32_t t) const { return uconv<U8string>(std::u32string{t}); } };
+
+        template <> struct ObjectToString<std::wstring> { U8string operator()(const std::wstring& t) const { return uconv<U8string>(t); } };
+        template <> struct ObjectToString<wchar_t*> { U8string operator()(wchar_t* t) const { return t ? uconv<U8string>(std::wstring(t)) : U8string(); } };
+        template <> struct ObjectToString<const wchar_t*> { U8string operator()(const wchar_t* t) const { return t ? uconv<U8string>(std::wstring(t)) : U8string(); } };
+        template <size_t N> struct ObjectToString<wchar_t[N], 'X'> { U8string operator()(const wchar_t* t) const { return uconv<U8string>(std::wstring(t)); } };
+        template <> struct ObjectToString<wchar_t> { U8string operator()(wchar_t t) const { return uconv<U8string>(std::wstring{t}); } };
+
         template <> struct ObjectToString<bool> { U8string operator()(bool t) const { return t ? "true" : "false"; } };
         template <> struct ObjectToString<std::nullptr_t> { U8string operator()(std::nullptr_t) const { return "null"; } };
         template <typename T> struct ObjectToString<T, 'I'> { U8string operator()(T t) const { return dec(t); } };

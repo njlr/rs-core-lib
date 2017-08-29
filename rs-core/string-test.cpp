@@ -786,26 +786,46 @@ namespace {
         TEST_EQUAL(yn(true), "yes");
         TEST_EQUAL(yn(false), "no");
 
-        std::string s = "Hello";
-        std::u16string s16 = u"Hello";
-        std::u32string s32 = U"Hello";
-        std::wstring ws = L"Hello";
         std::atomic<int> ai(42);
 
         TEST_EQUAL(to_str(0), "0");
         TEST_EQUAL(to_str(42), "42");
         TEST_EQUAL(to_str(-42), "-42");
         TEST_EQUAL(to_str(123.456), "123.456");
-        TEST_EQUAL(to_str(s), "Hello");
-        TEST_EQUAL(to_str(s.data()), "Hello");
-        TEST_EQUAL(to_str(""s), "");
-        TEST_EQUAL(to_str("Hello"s), "Hello");
-        TEST_EQUAL(to_str('X'), "X");
         TEST_EQUAL(to_str(true), "true");
         TEST_EQUAL(to_str(false), "false");
         TEST_EQUAL(to_str(std::make_pair(10,20)), "{10,20}");
         TEST_EQUAL(to_str(std::make_pair("hello"s,"world"s)), "{hello,world}");
         TEST_EQUAL(to_str(ai), "42");
+
+        std::string s = "Hello";
+        std::u16string s16 = u"Hello";
+        std::u32string s32 = U"Hello";
+        std::wstring ws = L"Hello";
+
+        TEST_EQUAL(to_str(s), "Hello");
+        TEST_EQUAL(to_str(s.data()), "Hello");
+        TEST_EQUAL(to_str(""s), "");
+        TEST_EQUAL(to_str("Hello"s), "Hello");
+        TEST_EQUAL(to_str('X'), "X");
+
+        TEST_EQUAL(to_str(s16), "Hello");
+        TEST_EQUAL(to_str(s16.data()), "Hello");
+        TEST_EQUAL(to_str(u""s), "");
+        TEST_EQUAL(to_str(u"Hello"s), "Hello");
+        TEST_EQUAL(to_str(u'X'), "X");
+
+        TEST_EQUAL(to_str(s32), "Hello");
+        TEST_EQUAL(to_str(s32.data()), "Hello");
+        TEST_EQUAL(to_str(U""s), "");
+        TEST_EQUAL(to_str(U"Hello"s), "Hello");
+        TEST_EQUAL(to_str(U'X'), "X");
+
+        TEST_EQUAL(to_str(ws), "Hello");
+        TEST_EQUAL(to_str(ws.data()), "Hello");
+        TEST_EQUAL(to_str(L""s), "");
+        TEST_EQUAL(to_str(L"Hello"s), "Hello");
+        TEST_EQUAL(to_str(L'X'), "X");
 
         std::vector<bool> bv;
         std::vector<int> iv;

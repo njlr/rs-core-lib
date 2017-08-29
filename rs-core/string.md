@@ -273,6 +273,7 @@ various types:
 conversion to `std::string` - The string content is simply copied directly
 without using an output stream; a null character pointer is treated as an
 empty string.
+* Unicode string and character types - Converted to UTF-8 using `uconv()`.
 * Integer types - Formatted using `dec()`.
 * Floating point types - Formatted using `fp_format()`.
 * `bool` - Written as `"true"` or `"false"`.
