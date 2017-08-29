@@ -5,7 +5,6 @@
 #include "rs-core/blob.hpp"
 #include "rs-core/cache.hpp"
 #include "rs-core/common.hpp"
-#include "rs-core/container.hpp"
 #include "rs-core/digest.hpp"
 #include "rs-core/encoding.hpp"
 #include "rs-core/float.hpp"

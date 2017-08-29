@@ -3,6 +3,7 @@
 #include "rs-core/common.hpp"
 #include "rs-core/string.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 #include <initializer_list>
@@ -24,12 +25,12 @@ namespace RS {
         static constexpr size_t dim = N;
         Vector() noexcept { std::fill(begin(), end(), T(0)); }
         template <typename T2> explicit Vector(T2 t) noexcept { std::fill(begin(), end(), t); }
-        template <typename... Args> Vector(Args... args) noexcept: data{implicit_cast<T>(args)...} {}
-        template <typename T2> explicit Vector(const T2* ptr) noexcept { std::copy_n(ptr, N, data); }
+        template <typename... Args> Vector(Args... args) noexcept: arr{{implicit_cast<T>(args)...}} {}
+        template <typename T2> explicit Vector(const T2* ptr) noexcept { std::copy_n(ptr, N, arr.data()); }
         template <typename T2, size_t N2> Vector(const Vector<T2, N2>& v) noexcept;
         template <typename T2, size_t N2> Vector& operator=(const Vector<T2, N2>& v) noexcept;
-        T& operator[](size_t i) noexcept { return data[i]; }
-        const T& operator[](size_t i) const noexcept { return data[i]; }
+        T& operator[](size_t i) noexcept { return arr[i]; }
+        const T& operator[](size_t i) const noexcept { return arr[i]; }
         template <size_t N2> Vector<T, N2 - 1> operator[](const char (&str)[N2]) const;
         Vector operator+() const noexcept { return *this; }
         Vector operator-() const noexcept;
@@ -39,20 +40,20 @@ namespace RS {
         template <typename T2> Vector& operator/=(const Vector<T2, N>& rhs) noexcept;
         template <typename T2> Vector& operator*=(T2 rhs) noexcept;
         template <typename T2> Vector& operator/=(T2 rhs) noexcept;
-        T& at(size_t i) { range_check(i); return data[i]; }
-        const T& at(size_t i) const { range_check(i); return data[i]; }
-        T& x() noexcept { return data[0]; }
-        const T& x() const noexcept { return data[0]; }
-        T& y() noexcept { return data[1]; }
-        const T& y() const noexcept { return data[1]; }
-        T& z() noexcept { return data[2]; }
-        const T& z() const noexcept { return data[2]; }
-        T& w() noexcept { return data[3]; }
-        const T& w() const noexcept { return data[3]; }
-        T* begin() noexcept { return data; }
-        const T* begin() const noexcept { return data; }
-        T* end() noexcept { return data + N; }
-        const T* end() const noexcept { return data + N; }
+        T& at(size_t i) { range_check(i); return arr[i]; }
+        const T& at(size_t i) const { range_check(i); return arr[i]; }
+        T& x() noexcept { return arr[0]; }
+        const T& x() const noexcept { return arr[0]; }
+        T& y() noexcept { return arr[1]; }
+        const T& y() const noexcept { return arr[1]; }
+        T& z() noexcept { return arr[2]; }
+        const T& z() const noexcept { return arr[2]; }
+        T& w() noexcept { return arr[3]; }
+        const T& w() const noexcept { return arr[3]; }
+        T* begin() noexcept { return arr.data(); }
+        const T* begin() const noexcept { return arr.data(); }
+        T* end() noexcept { return begin() + N; }
+        const T* end() const noexcept { return begin() + N; }
         T angle(const Vector& v) const noexcept;
         Vector dir() const noexcept { return *this == Vector() ? Vector() : *this / r(); }
         bool is_null() const noexcept { return *this == Vector(); }
@@ -65,7 +66,7 @@ namespace RS {
         static Vector zero() noexcept { return {}; }
     private:
         static_assert(N > 0);
-        T data[N];
+        std::array<T, N> arr;
         static void range_check(size_t i) { if (i >= N) throw std::out_of_range("Vector index is out of range"); }
     };
 
@@ -118,7 +119,7 @@ namespace RS {
     Vector<T, N2 - 1> Vector<T, N>::operator[](const char (&str)[N2]) const {
         Vector<T, N2 - 1> swiz;
         for (size_t i = 0; i < N2 - 1; ++i)
-            swiz[i] = data[str[i] == 'w' ? 3 : str[i] - 'x'];
+            swiz[i] = arr[str[i] == 'w' ? 3 : str[i] - 'x'];
         return swiz;
     }
 
@@ -493,7 +494,7 @@ namespace RS {
         static constexpr MatrixLayout alt_layout = L == MatrixLayout::column ? MatrixLayout::row : MatrixLayout::column;
         using alt_matrix = Matrix<T, N, alt_layout>;
         using layout_specific = RS_Detail::LayoutSpecific<T, N, L>;
-        T data[N * N];
+        std::array<T, N * N> arr;
         static void range_check(size_t r, size_t c) { if (r >= N || c >= N) throw std::out_of_range("Matrix index is out of range"); }
     public:
         using value_type = T;
@@ -516,16 +517,16 @@ namespace RS {
         Matrix& operator-=(const alt_matrix& rhs) noexcept;
         template <typename T2> Matrix& operator*=(T2 rhs) noexcept;
         template <typename T2> Matrix& operator/=(T2 rhs) noexcept;
-        T& operator()(size_t r, size_t c) noexcept { return layout_specific::get_ref(data, r, c); }
-        T operator()(size_t r, size_t c) const noexcept { return layout_specific::get_ref(data, r, c); }
-        T& at(size_t r, size_t c) { range_check(r, c); return layout_specific::get_ref(data, r, c); }
-        T at(size_t r, size_t c) const { range_check(r, c); return layout_specific::get_ref(data, r, c); }
-        T* begin() noexcept { return data; }
-        const T* begin() const noexcept { return data; }
-        T* end() noexcept { return data + cells; }
-        const T* end() const noexcept { return data + cells; }
-        vector_type column(size_t c) const noexcept { return layout_specific::get_column(data, c); }
-        vector_type row(size_t r) const noexcept { return layout_specific::get_row(data, r); }
+        T& operator()(size_t r, size_t c) noexcept { return layout_specific::get_ref(arr.data(), r, c); }
+        T operator()(size_t r, size_t c) const noexcept { return layout_specific::get_ref(arr.data(), r, c); }
+        T& at(size_t r, size_t c) { range_check(r, c); return layout_specific::get_ref(arr.data(), r, c); }
+        T at(size_t r, size_t c) const { range_check(r, c); return layout_specific::get_ref(arr.data(), r, c); }
+        T* begin() noexcept { return arr.data(); }
+        const T* begin() const noexcept { return arr.data(); }
+        T* end() noexcept { return begin() + cells; }
+        const T* end() const noexcept { return begin() + cells; }
+        vector_type column(size_t c) const noexcept { return layout_specific::get_column(arr.data(), c); }
+        vector_type row(size_t r) const noexcept { return layout_specific::get_row(arr.data(), r); }
         T det() const noexcept { return RS_Detail::Determinant<Matrix>()(*this); }
         Matrix inverse() const noexcept { return RS_Detail::Inverse<Matrix>()(*this); }
         constexpr size_t size() const noexcept { return cells; }
@@ -572,7 +573,7 @@ namespace RS {
     Matrix<T, N, L>::Matrix(T2 lead, T3 other) noexcept {
         std::fill(begin(), end(), other);
         for (size_t i = 0; i < cells; i += N + 1)
-            data[i] = lead;
+            arr[i] = lead;
     }
 
     template <typename T, size_t N, MatrixLayout L>
@@ -667,14 +668,14 @@ namespace RS {
     template <typename T, size_t N, MatrixLayout L>
     Matrix<T, N, L> Matrix<T, N, L>::swap_columns(size_t c1, size_t c2) const noexcept {
         Matrix m = *this;
-        layout_specific::swap_columns(m.data, c1, c2);
+        layout_specific::swap_columns(m.arr.data(), c1, c2);
         return m;
     }
 
     template <typename T, size_t N, MatrixLayout L>
     Matrix<T, N, L> Matrix<T, N, L>::swap_rows(size_t r1, size_t r2) const noexcept {
         Matrix m = *this;
-        layout_specific::swap_rows(m.data, r1, r2);
+        layout_specific::swap_rows(m.arr.data(), r1, r2);
         return m;
     }
 
@@ -690,7 +691,7 @@ namespace RS {
     template <typename T, size_t N, MatrixLayout L>
     Matrix<T, N, L> Matrix<T, N, L>::from_array(const T* ptr) noexcept {
         Matrix m;
-        std::copy_n(ptr, cells, m.data);
+        std::copy_n(ptr, cells, m.arr.data());
         return m;
     }
 
@@ -828,12 +829,12 @@ namespace RS {
     public EqualityComparable<Quaternion<T>> {
     public:
         using value_type = T;
-        Quaternion() noexcept: data{T(0), T(0), T(0), T(0)} {}
-        Quaternion(T a) noexcept: data{a, T(0), T(0), T(0)} {}
-        Quaternion(T a, T b, T c, T d) noexcept: data{a, b, c, d} {}
-        Quaternion(T a, const Vector<T, 3>& bcd) noexcept: data{a, bcd.x(), bcd.y(), bcd.z()} {}
-        T& operator[](size_t i) noexcept { return data[i]; }
-        const T& operator[](size_t i) const noexcept { return data[i]; }
+        Quaternion() noexcept: arr{{T(0), T(0), T(0), T(0)}} {}
+        Quaternion(T a) noexcept: arr{{a, T(0), T(0), T(0)}} {}
+        Quaternion(T a, T b, T c, T d) noexcept: arr{{a, b, c, d}} {}
+        Quaternion(T a, const Vector<T, 3>& bcd) noexcept: arr{{a, bcd.x(), bcd.y(), bcd.z()}} {}
+        T& operator[](size_t i) noexcept { return arr[i]; }
+        const T& operator[](size_t i) const noexcept { return arr[i]; }
         Quaternion operator+() const noexcept { return *this; }
         Quaternion operator-() const noexcept { return {- a(), b(), c(), d()}; }
         Quaternion& operator+=(const Quaternion& rhs) noexcept;
@@ -841,22 +842,22 @@ namespace RS {
         template <typename T2> Quaternion& operator*=(T2 rhs) noexcept;
         template <typename T2> Quaternion& operator/=(T2 rhs) noexcept;
         Quaternion& operator*=(const Quaternion& rhs) noexcept;
-        T& a() noexcept { return data[0]; }
-        const T& a() const noexcept { return data[0]; }
-        T& b() noexcept { return data[1]; }
-        const T& b() const noexcept { return data[1]; }
-        T& c() noexcept { return data[2]; }
-        const T& c() const noexcept { return data[2]; }
-        T& d() noexcept { return data[3]; }
-        const T& d() const noexcept { return data[3]; }
-        T* begin() noexcept { return data; }
-        const T* begin() const noexcept { return data; }
-        T* end() noexcept { return data + 4; }
-        const T* end() const noexcept { return data + 4; }
+        T& a() noexcept { return arr[0]; }
+        const T& a() const noexcept { return arr[0]; }
+        T& b() noexcept { return arr[1]; }
+        const T& b() const noexcept { return arr[1]; }
+        T& c() noexcept { return arr[2]; }
+        const T& c() const noexcept { return arr[2]; }
+        T& d() noexcept { return arr[3]; }
+        const T& d() const noexcept { return arr[3]; }
+        T* begin() noexcept { return arr.data(); }
+        const T* begin() const noexcept { return arr.data(); }
+        T* end() noexcept { return begin() + 4; }
+        const T* end() const noexcept { return begin() + 4; }
         Quaternion conj() const noexcept { return {a(), - b(), - c(), - d()}; }
         Quaternion conj(const Quaternion& p) const noexcept { return *this * p * conj(); }
         T norm() const noexcept { return std::sqrt(norm2()); }
-        T norm2() const noexcept { return std::inner_product(data + 0, data + 4, data + 0, T(0)); }
+        T norm2() const noexcept { return std::inner_product(begin(), end(), begin(), T(0)); }
         Quaternion recip() const noexcept { return conj() / norm2(); }
         T s_part() const noexcept { return a(); }
         Vector<T, 3> v_part() const noexcept { return {b(), c(), d()}; }
@@ -864,7 +865,7 @@ namespace RS {
         Vector<T, 4> to_vector() const noexcept { return {a(), b(), c(), d()}; }
         static Quaternion from_vector(const Vector<T, 4>& v) noexcept { return {v.x(), v.y(), v.z(), v.w()}; }
     private:
-        T data[4];
+        std::array<T, 4> arr;
     };
 
     using Qfloat = Quaternion<float>;
@@ -874,14 +875,14 @@ namespace RS {
     template <typename T>
     Quaternion<T>& Quaternion<T>::operator+=(const Quaternion<T>& rhs) noexcept {
         for (size_t i = 0; i < 4; ++i)
-            data[i] += rhs.data[i];
+            arr[i] += rhs.arr[i];
         return *this;
     }
 
     template <typename T>
     Quaternion<T>& Quaternion<T>::operator-=(const Quaternion<T>& rhs) noexcept {
         for (size_t i = 0; i < 4; ++i)
-            data[i] -= rhs.data[i];
+            arr[i] -= rhs.arr[i];
         return *this;
     }
 
@@ -902,14 +903,14 @@ namespace RS {
     template <typename T>
     template <typename T2>
     Quaternion<T>& Quaternion<T>::operator*=(T2 rhs) noexcept {
-        std::for_each(std::begin(data), std::end(data), [rhs] (T& t) { t *= rhs; });
+        std::for_each(begin(), end(), [rhs] (T& t) { t *= rhs; });
         return *this;
     }
 
     template <typename T>
     template <typename T2>
     Quaternion<T>& Quaternion<T>::operator/=(T2 rhs) noexcept {
-        std::for_each(std::begin(data), std::end(data), [rhs] (T& t) { t /= rhs; });
+        std::for_each(begin(), end(), [rhs] (T& t) { t /= rhs; });
         return *this;
     }
 
