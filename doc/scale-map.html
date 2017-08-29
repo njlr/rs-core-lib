@@ -64,7 +64,7 @@ type is floating point.</p>
 tuples, each containing one <code>X</code> value and one to three <code>Y</code> values, interpreted
 in the same way as the <code>insert()</code> functions described below. If an <code>X</code> value
 is repeated, later entries overwrite earlier ones. Example:</p>
-<pre><code>ScaleMap&lt;float&gt; imap = {
+<pre><code>ScaleMap&lt;float&gt; map = {
     {10, 100},            // equivalent to insert(10, 100)
     {20, 200, 300, 400},  // equivalent to insert(20, 200, 300, 400)
     {30, 500, 600},       // equivalent to insert(30, 500, 600)

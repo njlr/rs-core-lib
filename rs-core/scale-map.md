@@ -50,7 +50,7 @@ tuples, each containing one `X` value and one to three `Y` values, interpreted
 in the same way as the `insert()` functions described below. If an `X` value
 is repeated, later entries overwrite earlier ones. Example:
 
-    ScaleMap<float> imap = {
+    ScaleMap<float> map = {
         {10, 100},            // equivalent to insert(10, 100)
         {20, 200, 300, 400},  // equivalent to insert(20, 200, 300, 400)
         {30, 500, 600},       // equivalent to insert(30, 500, 600)
