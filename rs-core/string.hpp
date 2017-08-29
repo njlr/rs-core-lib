@@ -705,9 +705,7 @@ namespace RS {
 
     namespace RS_Detail {
 
-        template <typename R> auto get_range_begin() { using std::begin; return begin(std::declval<R>()); }
-
-        template <typename R, typename I = decltype(get_range_begin<R>()), typename V = typename std::iterator_traits<I>::value_type>
+        template <typename R, typename V = RangeValue<R>>
         struct RangeToString {
             U8string operator()(const R& r) const {
                 U8string s = "[";
@@ -722,8 +720,8 @@ namespace RS {
             }
         };
 
-        template <typename R, typename I, typename K, typename V>
-        struct RangeToString<R, I, std::pair<K, V>> {
+        template <typename R, typename K, typename V>
+        struct RangeToString<R, std::pair<K, V>> {
             U8string operator()(const R& r) const {
                 U8string s = "{";
                 for (const auto& kv: r) {
@@ -739,8 +737,8 @@ namespace RS {
             }
         };
 
-        template <typename R, typename I>
-        struct RangeToString<R, I, char> {
+        template <typename R>
+        struct RangeToString<R, char> {
             U8string operator()(const R& r) const {
                 using std::begin;
                 using std::end;
@@ -748,22 +746,13 @@ namespace RS {
             }
         };
 
-        template <typename> struct SfinaeTrue: std::true_type {};
-        template <typename T> auto check_std_begin(int) -> SfinaeTrue<decltype(std::begin(std::declval<T>()))>;
-        template <typename T> auto check_std_begin(long) -> std::false_type;
-        template <typename T> auto check_adl_begin(int) -> SfinaeTrue<decltype(begin(std::declval<T>()))>;
-        template <typename T> auto check_adl_begin(long) -> std::false_type;
-        template <typename T> struct CheckStdBegin: decltype(check_std_begin<T>(0)) {};
-        template <typename T> struct CheckAdlBegin: decltype(check_adl_begin<T>(0)) {};
-        template <typename T> struct IsRangeType { static constexpr bool value = CheckStdBegin<T>::value || CheckAdlBegin<T>::value; };
-
         template <typename T>
         struct ObjectToStringCategory {
             static constexpr char value =
                 std::is_integral<T>::value ? 'I' :
                 std::is_floating_point<T>::value ? 'F' :
                 std::is_convertible<T, std::string>::value ? 'S' :
-                IsRangeType<T>::value ? 'R' : 'X';
+                CommonRangeType<T>::value ? 'R' : 'X';
         };
 
         template <typename T, char C = ObjectToStringCategory<T>::value>

@@ -205,8 +205,31 @@ namespace RS {
         constexpr bool little_endian_target = false;
     #endif
 
-    template <typename Range> using RangeIterator = decltype(std::begin(std::declval<Range&>()));
-    template <typename Range> using RangeValue = std::decay_t<decltype(*std::begin(std::declval<Range>()))>;
+    namespace RS_Detail {
+
+        template <typename> struct CommonTrue: std::true_type {};
+        template <typename T> auto common_adl_begin(int) -> CommonTrue<decltype(begin(std::declval<T>()))>;
+        template <typename T> auto common_adl_begin(long) -> std::false_type;
+        template <typename T> auto common_std_begin(int) -> CommonTrue<decltype(std::begin(std::declval<T>()))>;
+        template <typename T> auto common_std_begin(long) -> std::false_type;
+        template <typename T> struct CommonAdlBegin: decltype(common_adl_begin<T>(0)) {};
+        template <typename T> struct CommonStdBegin: decltype(common_std_begin<T>(0)) {};
+        template <typename T> struct CommonRangeType { static constexpr bool value = CommonAdlBegin<T>::value || CommonStdBegin<T>::value; };
+
+        template <typename R, bool A = CommonAdlBegin<R>::value, bool S = CommonStdBegin<R>::value> struct CommonRangeTraits;
+        template <typename R, bool S> struct CommonRangeTraits<R, true, S> {
+            using iterator = decltype(begin(std::declval<R&>()));
+            using value_type = typename std::iterator_traits<iterator>::value_type;
+        };
+        template <typename R> struct CommonRangeTraits<R, false, true> {
+            using iterator = decltype(std::begin(std::declval<R&>()));
+            using value_type = typename std::iterator_traits<iterator>::value_type;
+        };
+
+    }
+
+    template <typename Range> using RangeIterator = typename RS_Detail::CommonRangeTraits<Range>::iterator;
+    template <typename Range> using RangeValue = typename RS_Detail::CommonRangeTraits<Range>::value_type;
 
     constexpr const char* ascii_whitespace = "\t\n\v\f\r ";
     constexpr size_t npos = std::string::npos;
