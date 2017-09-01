@@ -20,6 +20,7 @@
 <li><a href="#arithmetic-functions">Arithmetic functions</a></li>
 <li><a href="#arithmetic-literals">Arithmetic literals</a></li>
 <li><a href="#numerical-algorithms">Numerical algorithms</a><ul>
+<li><a href="#numerical-integration">Numerical integration</a></li>
 <li><a href="#precision-sum">Precision sum</a></li>
 <li><a href="#root-finding">Root finding</a></li>
 </ul>
@@ -175,6 +176,24 @@ rules apply if the result is not representable by the return type.</p>
 <p>Angle literals, converting degrees to radians.</p>
 </div>
 <h2 id="numerical-algorithms">Numerical algorithms</h2>
+<h3 id="numerical-integration">Numerical integration</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, typename F&gt; T</code> <strong><code>line_integral</code></strong><code>(T x1, T x2, size_t k, F f)</code></li>
+</ul>
+<p>Computes the integral of <code>f(x)</code> over the interval <code>[x1,x2]</code> by the trapezoid
+algorithm, using <code>k</code> subdivisions. This has complexity <code>O(k)</code>. Behaviour is
+undefined if <code>k=0</code> or the function has a pole within the interval.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T, size_t N, typename F&gt; T</code> <strong><code>volume_integral</code></strong><code>(Vector&lt;T, N&gt; x1, Vector&lt;T, N&gt; x2, size_t k, F f)</code></li>
+</ul>
+<p>Computes the volume integral of <code>f(x)</code> over the rectangular prism whose
+opposite corners are <code>x1</code> and <code>x2</code>, dividing each side into <code>k</code> subdivisions.
+This has complexity <code>O(k<sup>N</sup>)</code> Behaviour is undefined if
+<code>k=0</code> or the function has a pole within the volume.</p>
+</div>
 <h3 id="precision-sum">Precision sum</h3>
 <div class="defns">
 <ul>

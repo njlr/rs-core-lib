@@ -1,12 +1,17 @@
 #pragma once
 
 #include "rs-core/common.hpp"
+#include "rs-core/vector.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
+#include <deque>
+#include <functional>
 #include <numeric>
 #include <stdexcept>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace RS {
@@ -162,6 +167,113 @@ namespace RS {
             partials.push_back(x);
         }
         return std::accumulate(partials.begin(), partials.end(), value_type(0));
+    }
+
+    // Numerical integration
+
+    namespace RS_Detail {
+
+        template <typename T>
+        class IntegralIterator:
+        public ForwardIterator<IntegralIterator<T>, const T> {
+        public:
+            IntegralIterator() = default;
+            template <typename F> IntegralIterator(T x1, T x2, int k, F f):
+                function(f), start_x(x1), delta_x((x2 - x1) / k), prev_y(f(x1)) { ++*this; }
+            explicit IntegralIterator(int k): index(k + 1) {}
+            const T& operator*() const noexcept { return area_element; }
+            IntegralIterator& operator++() {
+                ++index;
+                T x = start_x + delta_x * index;
+                T y = function(x);
+                area_element = delta_x * (prev_y + y) / 2;
+                prev_y = y;
+                return *this;
+            }
+            bool operator==(const IntegralIterator& rhs) const noexcept { return index == rhs.index; }
+        private:
+            std::function<T(T)> function;
+            T start_x = 0;
+            T delta_x = 0;
+            T prev_y = 0;
+            T area_element = 0;
+            int index = 0;
+        };
+
+        template <typename T, size_t N>
+        class VolumeIterator:
+        public ForwardIterator<VolumeIterator<T, N>, const T> {
+        public:
+            using vector_type = Vector<T, N>;
+            VolumeIterator(): done(true) {}
+            template <typename F> VolumeIterator(vector_type x1, vector_type x2, int k, F f):
+                function(f), start_x(x1), delta_x((x2 - x1) / k), n_edge(k),
+                volume_factor(std::ldexp(product_of(delta_x), - int(N))), volume_element(get_volume()) {}
+            const T& operator*() const noexcept { return volume_element; }
+            VolumeIterator& operator++() { next_index(); volume_element = get_volume(); return *this; }
+            bool operator==(const VolumeIterator& rhs) const noexcept { return done == rhs.done && (done || index == rhs.index); }
+        private:
+            static constexpr size_t points = size_t(1) << N;
+            std::function<T(vector_type)> function;
+            std::deque<std::pair<vector_type, T>> function_cache;
+            vector_type start_x;
+            vector_type delta_x;
+            Vector<size_t, N> index;
+            size_t n_edge = 0;
+            T volume_factor = 0;
+            T volume_element = 0;
+            bool done = false;
+            void next_index() {
+                size_t i = 0;
+                while (i < N) {
+                    if (++index[i] < n_edge)
+                        break;
+                    index[i++] = 0;
+                }
+                done = i == N;
+            }
+            T get_value(vector_type x) {
+                static constexpr size_t cache_size = 2 * points;
+                for (auto& xy: function_cache)
+                    if (xy.first == x)
+                        return xy.second;
+                T y = function(x);
+                function_cache.push_back({x, y});
+                if (function_cache.size() > cache_size)
+                    function_cache.pop_front();
+                return y;
+            }
+            T get_volume() {
+                auto corner = start_x + delta_x * index;
+                std::array<T, points> y;
+                for (size_t i = 0; i < points; ++i) {
+                    auto x = corner;
+                    for (size_t j = 0; j < N; ++j)
+                        x[j] += delta_x[j] * ((i >> j) & 1);
+                    y[i] = get_value(x);
+                }
+                return volume_factor * precision_sum(y);
+            }
+        };
+
+    }
+
+    template <typename T, typename F>
+    T line_integral(T x1, T x2, size_t k, F f) {
+        using namespace RS_Detail;
+        static_assert(std::is_floating_point<T>::value);
+        static_assert(std::is_convertible<F, std::function<T(T)>>::value);
+        IntegralIterator<T> i(x1, x2, k, f), j(k);
+        return precision_sum(irange(i, j));
+    }
+
+    template <typename T, size_t N, typename F>
+    T volume_integral(Vector<T, N> x1, Vector<T, N> x2, size_t k, F f) {
+        using namespace RS_Detail;
+        static_assert(std::is_floating_point<T>::value);
+        static_assert(std::is_convertible<F, std::function<T(Vector<T, N>)>>::value);
+        VolumeIterator<T, N> i(x1, x2, k, f), j;
+        return precision_sum(irange(i, j));
     }
 
     // Root finding

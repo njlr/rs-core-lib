@@ -1,5 +1,6 @@
 #include "rs-core/float.hpp"
 #include "rs-core/unit-test.hpp"
+#include "rs-core/vector.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -111,6 +112,24 @@ namespace {
         TEST_NEAR(-90.0_deg, -1.570796);
         TEST_NEAR(-180.0_deg, -3.141593);
         TEST_NEAR(-360.0_deg, -6.283185);
+
+    }
+
+    void check_line_integral() {
+
+        double integral = 0;
+
+        TRY((integral = line_integral(0.0, 10.0, 10, [] (auto x) { return x * x; })));
+        TEST_EQUAL(integral, 335);
+
+    }
+
+    void check_volume_integral() {
+
+        double integral = 0;
+
+        TRY((integral = volume_integral(Double2(0, 0), Double2(5, 5), 5, [] (auto x) { return x[0] * x[1]; })));
+        TEST_EQUAL(integral, 156.25);
 
     }
 
@@ -278,6 +297,8 @@ TEST_MODULE(core, float) {
     check_arithmetic_constants();
     check_arithmetic_functions();
     check_arithmetic_literals();
+    check_line_integral();
+    check_volume_integral();
     check_precision_sum();
     check_root_finding_parameters();
     check_bisection();

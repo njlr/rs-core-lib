@@ -134,6 +134,21 @@ Angle literals, converting degrees to radians.
 
 ## Numerical algorithms ##
 
+### Numerical integration ###
+
+* `template <typename T, typename F> T` **`line_integral`**`(T x1, T x2, size_t k, F f)`
+
+Computes the integral of `f(x)` over the interval `[x1,x2]` by the trapezoid
+algorithm, using `k` subdivisions. This has complexity `O(k)`. Behaviour is
+undefined if `k=0` or the function has a pole within the interval.
+
+* `template <typename T, size_t N, typename F> T` **`volume_integral`**`(Vector<T, N> x1, Vector<T, N> x2, size_t k, F f)`
+
+Computes the volume integral of `f(x)` over the rectangular prism whose
+opposite corners are `x1` and `x2`, dividing each side into `k` subdivisions.
+This has complexity <code>O(k<sup>N</sup>)</code> Behaviour is undefined if
+`k=0` or the function has a pole within the volume.
+
 ### Precision sum ###
 
 * `template <typename SinglePassRange> [value type]` **`precision_sum`**`(const SinglePassRange& range)`
