@@ -186,6 +186,10 @@ vector elements.
 Simple string formatting; this simply writes the vector's elements in their
 default format, enclosed in square brackets.
 
+* `template <typename T, size_t N> struct std::`**`hash`**`<Vector<T, N>>`
+
+Hash function.
+
 ## Matrix ##
 
 * `enum class` **`MatrixLayout`**
@@ -359,6 +363,10 @@ Comparison operators.
 
 Simple string formatting; this writes the matrix by row in nested array form.
 
+* `template <typename T, size_t N, RS::MatrixLayout L> struct std::`**`hash`**`<Matrix<T, N, L>>`
+
+Hash function.
+
 ## Quaternion ##
 
 * `template <typename T> class` **`Quaternion`**
@@ -467,6 +475,10 @@ the quaternion is zero.
 * `static Quaternion` **`from_vector`**`(const Vector<T, 4>& v) noexcept`
 
 Component-wise conversions between a quaternion and a 4-vector,
+
+* `template <typename T> struct std::`**`hash`**`<Quaternion<T>>`
+
+Hash function.
 
 ## Transformations ##
 

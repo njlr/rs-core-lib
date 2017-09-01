@@ -6,6 +6,7 @@
 #include <array>
 #include <cmath>
 #include <cstdlib>
+#include <functional>
 #include <initializer_list>
 #include <iterator>
 #include <numeric>
@@ -1197,5 +1198,30 @@ namespace RS {
         static_assert(std::is_floating_point<T>::value, "Only floating point coordinates are supported");
         return rotate4(rotateq(angle, axis));
     }
+
+}
+
+namespace std {
+
+    template <typename T, size_t N>
+    struct hash<RS::Vector<T, N>> {
+        using argument_type = RS::Vector<T, N>;
+        using result_type = size_t;
+        size_t operator()(const RS::Vector<T, N>& v) const noexcept { return RS::hash_range(v); }
+    };
+
+    template <typename T, size_t N, RS::MatrixLayout L>
+    struct hash<RS::Matrix<T, N, L>> {
+        using argument_type = RS::Matrix<T, N, L>;
+        using result_type = size_t;
+        size_t operator()(const RS::Matrix<T, N, L>& m) const noexcept { return RS::hash_range(m); }
+    };
+
+    template <typename T>
+    struct hash<RS::Quaternion<T>> {
+        using argument_type = RS::Quaternion<T>;
+        using result_type = size_t;
+        size_t operator()(const RS::Quaternion<T>& q) const noexcept { return RS::hash_range(q); }
+    };
 
 }
