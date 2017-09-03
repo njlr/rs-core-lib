@@ -137,9 +137,10 @@ trailing whitespace. All non-ASCII bytes are treated as non-whitespace
 characters.
 
 * `template <typename C> void` **`null_term`**`(basic_string<C>& str) noexcept`
+* `template <typename C> basic_string<C>` **`null_term_str`**`(const basic_string<C>& str)`
 
-Cuts off a string at the first null character (useful after the string has
-been used as an output buffer by some C APIs).
+Cut off a string at the first null character (useful after the string has been
+used as an output buffer by some C APIs).
 
 * `U8string` **`quote`**`(const std::string& str)`
 * `U8string` **`bquote`**`(const std::string& str)`

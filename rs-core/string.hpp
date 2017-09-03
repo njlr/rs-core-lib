@@ -451,6 +451,13 @@ namespace RS {
             str.resize(p);
     }
 
+    template <typename C>
+    std::basic_string<C> null_term_str(const std::basic_string<C>& str) {
+        auto result = str;
+        null_term(result);
+        return result;
+    }
+
     inline U8string quote(const std::string& str) { return RS_Detail::quote_string(str, true); }
     inline U8string bquote(const std::string& str) { return RS_Detail::quote_string(str, false); }
 

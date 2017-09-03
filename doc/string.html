@@ -180,9 +180,10 @@ characters.</p>
 <div class="defns">
 <ul>
 <li><code>template &lt;typename C&gt; void</code> <strong><code>null_term</code></strong><code>(basic_string&lt;C&gt;&amp; str) noexcept</code></li>
+<li><code>template &lt;typename C&gt; basic_string&lt;C&gt;</code> <strong><code>null_term_str</code></strong><code>(const basic_string&lt;C&gt;&amp; str)</code></li>
 </ul>
-<p>Cuts off a string at the first null character (useful after the string has
-been used as an output buffer by some C APIs).</p>
+<p>Cut off a string at the first null character (useful after the string has been
+used as an output buffer by some C APIs).</p>
 </div>
 <div class="defns">
 <ul>

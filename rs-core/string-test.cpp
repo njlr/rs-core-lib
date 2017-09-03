@@ -520,12 +520,12 @@ namespace {
         TRY(s = linearize("Hello world."));                      TEST_EQUAL(s, "Hello world.");
         TRY(s = linearize("\r\nHello world.\r\nGoodbye.\r\n"));  TEST_EQUAL(s, "Hello world. Goodbye.");
 
-        s = ""s;                TRY(null_term(s));   TEST_EQUAL(s, "");
-        s = "Hello world"s;     TRY(null_term(s));   TEST_EQUAL(s, "Hello world");
-        s = "Hello\0world"s;    TRY(null_term(s));   TEST_EQUAL(s, "Hello");
-        ws = L""s;              TRY(null_term(ws));  TEST_EQUAL(ws, L"");
-        ws = L"Hello world"s;   TRY(null_term(ws));  TEST_EQUAL(ws, L"Hello world");
-        ws = L"Hello\0world"s;  TRY(null_term(ws));  TEST_EQUAL(ws, L"Hello");
+        s = ""s;                TEST_EQUAL(null_term_str(s), "");
+        s = "Hello world"s;     TEST_EQUAL(null_term_str(s), "Hello world");
+        s = "Hello\0world"s;    TEST_EQUAL(null_term_str(s), "Hello");
+        ws = L""s;              TEST_EQUAL(null_term_str(ws), L"");
+        ws = L"Hello world"s;   TEST_EQUAL(null_term_str(ws), L"Hello world");
+        ws = L"Hello\0world"s;  TEST_EQUAL(null_term_str(ws), L"Hello");
 
         TRY(s = quote(""s));                      TEST_EQUAL(s, "\"\""s);
         TRY(s = quote("\"\""s));                  TEST_EQUAL(s, "\"\\\"\\\"\""s);
