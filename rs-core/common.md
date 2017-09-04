@@ -256,13 +256,6 @@ supply the standard member types:
 * `using` **`reference`** `= CV&`
 * `using` **`value_type`** `= std::remove_const_t<CV>`
 
-### Smart pointers ###
-
-* `template <typename T> shared_ptr<T>` **`shptr`**`(const T& t)`
-* `template <typename T> unique_ptr<T>` **`unptr`**`(const T& t)`
-
-Shorthand for `make_shared/unique<T>(t)`.
-
 ### Type adapters ###
 
 * `template <typename T, int Def = 0> class` **`Movable`**

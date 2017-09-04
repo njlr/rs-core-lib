@@ -422,33 +422,6 @@ namespace {
 
     }
 
-    void check_smart_pointers() {
-
-        int i = 42;
-        U8string s = "Hello";
-
-        auto si = shptr(i);
-        TEST_TYPE_OF(si, std::shared_ptr<int>);
-        TEST(si);
-        if (si) TEST_EQUAL(*si, 42);
-
-        auto ui = unptr(i);
-        TEST_TYPE_OF(ui, std::unique_ptr<int>);
-        TEST(ui);
-        if (ui) TEST_EQUAL(*ui, 42);
-
-        auto ss = shptr(s);
-        TEST_TYPE_OF(ss, std::shared_ptr<std::string>);
-        TEST(ss);
-        if (ss) TEST_EQUAL(*ss, "Hello");
-
-        auto us = unptr(s);
-        TEST_TYPE_OF(us, std::unique_ptr<std::string>);
-        TEST(us);
-        if (us) TEST_EQUAL(*us, "Hello");
-
-    }
-
     struct Adapt {
         Movable<U8string> s;
         Movable<int> i;
@@ -2253,7 +2226,6 @@ TEST_MODULE(core, common) {
     check_string_types();
     check_exceptions();
     check_metaprogramming_and_type_traits();
-    check_smart_pointers();
     check_type_adapters();
     check_type_related_functions();
     check_version_number();

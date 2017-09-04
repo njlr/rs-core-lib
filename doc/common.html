@@ -23,7 +23,6 @@
 <li><a href="#exceptions">Exceptions</a></li>
 <li><a href="#metaprogramming-and-type-traits">Metaprogramming and type traits</a></li>
 <li><a href="#mixins">Mixins</a></li>
-<li><a href="#smart-pointers">Smart pointers</a></li>
 <li><a href="#type-adapters">Type adapters</a></li>
 <li><a href="#type-related-functions">Type related functions</a></li>
 <li><a href="#version-number">Version number</a></li>
@@ -389,14 +388,6 @@ supply the standard member types:</p>
 <li><code>using</code> <strong><code>reference</code></strong> <code>= CV&amp;</code></li>
 <li><code>using</code> <strong><code>value_type</code></strong> <code>= std::remove_const_t&lt;CV&gt;</code></li>
 </ul>
-</div>
-<h3 id="smart-pointers">Smart pointers</h3>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename T&gt; shared_ptr&lt;T&gt;</code> <strong><code>shptr</code></strong><code>(const T&amp; t)</code></li>
-<li><code>template &lt;typename T&gt; unique_ptr&lt;T&gt;</code> <strong><code>unptr</code></strong><code>(const T&amp; t)</code></li>
-</ul>
-<p>Shorthand for <code>make_shared/unique&lt;T&gt;(t)</code>.</p>
 </div>
 <h3 id="type-adapters">Type adapters</h3>
 <div class="defns">

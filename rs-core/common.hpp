@@ -530,11 +530,6 @@ namespace RS {
     template <size_t Bits> using SignedInteger = typename RS_Detail::IntegerType<Bits>::signed_type;
     template <size_t Bits> using UnsignedInteger = typename RS_Detail::IntegerType<Bits>::unsigned_type;
 
-    // Smart pointers
-
-    template <typename T> std::shared_ptr<T> shptr(const T& t) { return std::make_shared<T>(t); }
-    template <typename T> std::unique_ptr<T> unptr(const T& t) { return std::make_unique<T>(t); }
-
     // Type adapters
 
     namespace RS_Detail {
