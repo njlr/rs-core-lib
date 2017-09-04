@@ -2,6 +2,7 @@ $(BUILD)/algorithm-test.o: rs-core/algorithm-test.cpp rs-core/algorithm.hpp rs-c
 $(BUILD)/array-map-test.o: rs-core/array-map-test.cpp rs-core/array-map.hpp rs-core/common.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/blob-test.o: rs-core/blob-test.cpp rs-core/blob.hpp rs-core/common.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/cache-test.o: rs-core/cache-test.cpp rs-core/cache.hpp rs-core/common.hpp rs-core/unit-test.hpp
+$(BUILD)/channel-test.o: rs-core/channel-test.cpp rs-core/channel.hpp rs-core/common.hpp rs-core/optional.hpp rs-core/string.hpp rs-core/thread.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/common-test.o: rs-core/common-test.cpp rs-core/common.hpp rs-core/unit-test.hpp
 $(BUILD)/digest-test.o: rs-core/digest-test.cpp rs-core/common.hpp rs-core/digest.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/encoding-test.o: rs-core/encoding-test.cpp rs-core/common.hpp rs-core/encoding.hpp rs-core/string.hpp rs-core/unit-test.hpp
@@ -12,10 +13,13 @@ $(BUILD)/io-test.o: rs-core/io-test.cpp rs-core/common.hpp rs-core/float.hpp rs-
 $(BUILD)/kwargs-test.o: rs-core/kwargs-test.cpp rs-core/common.hpp rs-core/kwargs.hpp rs-core/unit-test.hpp
 $(BUILD)/meta-test.o: rs-core/meta-test.cpp rs-core/common.hpp rs-core/meta.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/mp-integer-test.o: rs-core/mp-integer-test.cpp rs-core/common.hpp rs-core/mp-integer.hpp rs-core/rational.hpp rs-core/string.hpp rs-core/unit-test.hpp
+$(BUILD)/net-test.o: rs-core/net-test.cpp rs-core/channel.hpp rs-core/common.hpp rs-core/net.hpp rs-core/optional.hpp rs-core/string.hpp rs-core/thread.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/optional-test.o: rs-core/optional-test.cpp rs-core/common.hpp rs-core/optional.hpp rs-core/string.hpp rs-core/unit-test.hpp
+$(BUILD)/process-test.o: rs-core/process-test.cpp rs-core/channel.hpp rs-core/common.hpp rs-core/optional.hpp rs-core/process.hpp rs-core/string.hpp rs-core/thread.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/random-test.o: rs-core/random-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/random.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/vector.hpp
 $(BUILD)/rational-test.o: rs-core/rational-test.cpp rs-core/common.hpp rs-core/rational.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/scale-map-test.o: rs-core/scale-map-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/scale-map.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/vector.hpp
+$(BUILD)/signal-test.o: rs-core/signal-test.cpp rs-core/channel.hpp rs-core/common.hpp rs-core/optional.hpp rs-core/signal.hpp rs-core/string.hpp rs-core/thread.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/stack-test.o: rs-core/stack-test.cpp rs-core/common.hpp rs-core/stack.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/statistics-test.o: rs-core/statistics-test.cpp rs-core/common.hpp rs-core/statistics.hpp rs-core/unit-test.hpp
 $(BUILD)/string-test.o: rs-core/string-test.cpp rs-core/common.hpp rs-core/string.hpp rs-core/unit-test.hpp
@@ -30,4 +34,7 @@ LDLIBS += -lcrypto
 endif
 ifeq ($(LIBTAG),linux)
 LDLIBS += -lcrypto
+endif
+ifeq ($(LIBTAG),mingw)
+LDLIBS += -lws2_32
 endif

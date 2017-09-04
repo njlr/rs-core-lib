@@ -9,6 +9,9 @@
     * [`"rs-core/variant.hpp"`](variant.html) - Variant type
 * _Concurrency_
     * [`"rs-core/thread.hpp"`](thread.html) - Threads
+    * [`"rs-core/channel.hpp"`](channel.html) - Message dispatch
+    * [`"rs-core/process.hpp"`](process.html) - Process control
+    * [`"rs-core/signal.hpp"`](signal.html) - Signal handling
 * _Containers_
     * [`"rs-core/array-map.hpp"`](array-map.html) - Sequence based associative array
     * [`"rs-core/blob.hpp"`](blob.html) - Binary large object
@@ -20,6 +23,8 @@
     * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms
     * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
+* _Networking_
+    * [`"rs-core/net.hpp"`](net.html) - TCP/IP networking
 * _Numerics_
     * [`"rs-core/float.hpp"`](float.html) - Floating point utilities
     * [`"rs-core/mp-integer.hpp"`](mp-integer.html) -- Multiple precision integers

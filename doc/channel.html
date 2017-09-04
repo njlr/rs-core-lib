@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Message Dispatch</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="message-dispatch">Message Dispatch</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/channel.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#message-dispatch">Message Dispatch</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#class-hierarchy">Class hierarchy</a></li>
+<li><a href="#support-classes">Support classes</a><ul>
+<li><a href="#class-interval">Class Interval</a></li>
+<li><a href="#class-polled">Class Polled</a></li>
+</ul>
+</li>
+<li><a href="#channel-base-classes">Channel base classes</a><ul>
+<li><a href="#class-channel">Class Channel</a></li>
+<li><a href="#class-eventchannel">Class EventChannel</a></li>
+<li><a href="#class-messagechannel">Class MessageChannel</a></li>
+<li><a href="#class-streamchannel">Class StreamChannel</a></li>
+</ul>
+</li>
+<li><a href="#concrete-channel-classes">Concrete channel classes</a><ul>
+<li><a href="#trivial-channels">Trivial channels</a></li>
+<li><a href="#class-timerchannel">Class TimerChannel</a></li>
+<li><a href="#class-generatorchannel">Class GeneratorChannel</a></li>
+<li><a href="#class-queuechannel">Class QueueChannel</a></li>
+<li><a href="#class-valuechannel">Class ValueChannel</a></li>
+<li><a href="#class-bufferchannel">Class BufferChannel</a></li>
+</ul>
+</li>
+<li><a href="#dispatch-control-class">Dispatch control class</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="class-hierarchy">Class hierarchy</h2>
+<div class="defns">
+<ul>
+<li><code>[abstract] class</code> <strong><code>Channel</code></strong><ul>
+<li><code>[abstract] class</code> <strong><code>EventChannel</code></strong><code>: public Channel</code><ul>
+<li><code>class</code> <strong><code>TrueChannel</code></strong><code>: public EventChannel</code></li>
+<li><code>class</code> <strong><code>FalseChannel</code></strong><code>: public EventChannel</code></li>
+<li><code>class</code> <strong><code>TimerChannel</code></strong><code>: public EventChannel, public Interval</code></li>
+</ul>
+</li>
+<li><code>[abstract] template &lt;typename T&gt; class</code> <strong><code>MessageChannel</code></strong><code>: public Channel</code><ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>GeneratorChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code></li>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>QueueChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code></li>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>ValueChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code></li>
+</ul>
+</li>
+<li><code>[abstract] class</code> <strong><code>StreamChannel</code></strong><code>: public Channel</code><ul>
+<li><code>class</code> <strong><code>BufferChannel</code></strong><code>: public StreamChannel</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>[abstract] class</code> <strong><code>Interval</code></strong><ul>
+<li><code>class</code> <strong><code>Dispatch</code></strong><code>: public Interval</code></li>
+<li><code>[abstract] class</code> <strong><code>Polled</code></strong><code>: public Interval</code></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="support-classes">Support classes</h2>
+<h3 id="class-interval">Class Interval</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Interval</code></strong><ul>
+<li><code>using Interval::</code><strong><code>time</code></strong> <code>= std::chrono::microseconds</code></li>
+<li><code>time Interval::</code><strong><code>interval</code></strong><code>() const noexcept</code></li>
+<li><code>template &lt;typename R, typename P&gt; void Interval::</code><strong><code>set_interval</code></strong><code>(std::chrono::duration&lt;R, P&gt; t) noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>This is a general purpose mixin class for anything that uses a time interval.
+It also provides the definition of the time unit used internally by all of the
+message dispatch classes. The <code>set_interval()</code> function clamps the argument to
+a minimum of zero.</p>
+</div>
+<h3 id="class-polled">Class Polled</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Polled</code></strong><code>: public Interval</code><ul>
+<li><code>static constexpr auto Polled::</code><strong><code>default_interval</code></strong> <code>= 10ms</code></li>
+<li><code>virtual Polled::</code><strong><code>~Polled</code></strong><code>()</code></li>
+<li><code>virtual Channel::state Polled::</code><strong><code>poll</code></strong><code>() = 0</code></li>
+</ul>
+</li>
+</ul>
+<p>Mixin class for channels for which no easy timed wait operation exists,
+requiring a polled implementation. Polled channel classes should derive from
+both <code>Channel</code> and <code>Polled</code>, implementing <code>close()</code>, <code>poll()</code>, and
+<code>do_wait()</code>. The <code>poll()</code> function should immediately return <code>ready</code>,
+<code>waiting</code>, or <code>closed</code>; the <code>do_wait()</code> function should just call
+<code>polled_wait()</code>.</p>
+</div>
+<h2 id="channel-base-classes">Channel base classes</h2>
+<h3 id="class-channel">Class Channel</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Channel</code></strong><ul>
+<li><code>enum Channel::</code><strong><code>state</code></strong><ul>
+<li><code>Channel::</code><strong><code>closed</code></strong> <code>= -1</code></li>
+<li><code>Channel::</code><strong><code>waiting</code></strong> <code>= 0</code></li>
+<li><code>Channel::</code><strong><code>ready</code></strong> <code>= 1</code></li>
+</ul>
+</li>
+<li><code>virtual Channel::</code><strong><code>~Channel</code></strong><code>() noexcept</code></li>
+<li><code>Channel::</code><strong><code>Channel</code></strong><code>(Channel&amp;&amp; c) noexcept</code></li>
+<li><code>Channel&amp; Channel::</code><strong><code>operator=</code></strong><code>(Channel&amp;&amp; c) noexcept</code></li>
+<li><code>virtual void Channel::</code><strong><code>close</code></strong><code>() noexcept = 0</code></li>
+<li><code>virtual state Channel::</code><strong><code>poll</code></strong><code>()</code></li>
+<li><code>virtual bool Channel::</code><strong><code>sync</code></strong><code>() const noexcept</code> <em>= false</em></li>
+<li><code>template &lt;typename R, typename P&gt; Channel::state Channel::</code><strong><code>wait</code></strong><code>(std::chrono::duration&lt;R, P&gt; t)</code></li>
+<li><code>protected virtual Channel::state Channel::</code><strong><code>do_wait</code></strong><code>(Interval::time t) = 0</code></li>
+</ul>
+</li>
+</ul>
+<p>The base class for all readable message channels. All concrete channel classes
+must derive from one of the three intermediate classes below, not directly
+from Channel. Derived classes need to implement at least <code>close()</code> and
+<code>do_wait()</code>, and may optionally implement <code>poll()</code> if a more efficient
+implementation than the default call to <code>do_wait(0)</code> is available. The
+<code>wait()</code> function simply converts the timeout to the internal duration type
+and calls <code>do_wait()</code>.</p>
+<p>The <code>close()</code> function must be async safe and idempotent, but for most channel
+classes, <code>do_wait()</code>, and <code>read()</code> where relevant, are not expected to be
+async safe and should not be called from multiple threads.</p>
+<p>If <code>sync()</code> is true, the channel can only be used in a synchronous dispatch
+handler (see <code>Dispatch</code> below), usually because it calls an underlying native
+API that is only intended to be used from the main thread.</p>
+<p>The channel base classes implement move operations in case a derived class
+needs them, but derived channel types are usually not movable. Channel classes
+are never copyable.</p>
+</div>
+<h3 id="class-eventchannel">Class EventChannel</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>EventChannel</code></strong><code>: public Channel</code><ul>
+<li><code>using EventChannel::</code><strong><code>callback</code></strong> <code>= std::function&lt;void()&gt;</code></li>
+<li><code>protected EventChannel::</code><strong><code>EventChannel</code></strong><code>()</code></li>
+</ul>
+</li>
+</ul>
+<p>Intermediate base class for event channels (channels that carry no information
+beyond the fact that an event has happened). The <code>callback</code> function type is
+the callback type expected to be passed to <code>Dispatch::add()</code> (see below) when
+an event channel is added to the dispatch set.</p>
+</div>
+<h3 id="class-messagechannel">Class MessageChannel</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>MessageChannel</code></strong><code>: public Channel</code><ul>
+<li><code>using MessageChannel::</code><strong><code>callback</code></strong> <code>= std::function&lt;void(const T&amp;)&gt;</code></li>
+<li><code>using MessageChannel::</code><strong><code>value_type</code></strong> <code>= T</code></li>
+<li><code>virtual bool MessageChannel::</code><strong><code>read</code></strong><code>(T&amp; t) = 0</code></li>
+<li><code>Optional&lt;T&gt; MessageChannel::</code><strong><code>read_opt</code></strong><code>()</code></li>
+<li><code>protected MessageChannel::</code><strong><code>MessageChannel</code></strong><code>()</code></li>
+</ul>
+</li>
+</ul>
+<p>Intermediate base class for message channels (channels that send discrete
+objects). When a message channel is added to a dispatch set, the callback
+function will be applied to each incoming message object. The message type <code>T</code>
+must be at least movable or copyable; if <code>read_opt()</code> is called it must also
+be default constructible. Derived classes may impose additional restrictions.</p>
+<p>A message channel type should implement <code>read()</code> as well as the usual
+<code>Channel</code> members. The <code>read()</code> function should return true on a successful
+read, false if the channel is closed. It will normally be called only after a
+successful <code>wait()</code>; if no data is immediately available, <code>read()</code> may block
+or return false. The state of the argument to <code>read()</code> if it returns false is
+unspecified.</p>
+<p>The <code>read_opt()</code> function calls <code>read()</code> and returns the message on success,
+or an empty value on failure.</p>
+</div>
+<h3 id="class-streamchannel">Class StreamChannel</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>StreamChannel</code></strong><code>: public Channel</code><ul>
+<li><code>using StreamChannel::</code><strong><code>callback</code></strong> <code>= std::function&lt;void(std::string&amp;)&gt;</code></li>
+<li><code>static constexpr size_t StreamChannel::</code><strong><code>default_buffer</code></strong> <code>= 16384</code></li>
+<li><code>virtual size_t StreamChannel::</code><strong><code>read</code></strong><code>(void* dst, size_t maxlen) = 0</code></li>
+<li><code>size_t StreamChannel::</code><strong><code>buffer</code></strong><code>() const noexcept</code></li>
+<li><code>void set_StreamChannel::</code><strong><code>buffer</code></strong><code>(size_t n) noexcept</code></li>
+<li><code>std::string StreamChannel::</code><strong><code>read_all</code></strong><code>()</code></li>
+<li><code>std::string StreamChannel::</code><strong><code>read_str</code></strong><code>()</code></li>
+<li><code>size_t StreamChannel::</code><strong><code>read_to</code></strong><code>(std::string&amp; dst)</code></li>
+<li><code>protected StreamChannel::</code><strong><code>StreamChannel</code></strong><code>()</code></li>
+</ul>
+</li>
+</ul>
+<p>Intermediate base class for byte stream channels. When a stream channel is
+added to a dispatch set, the callback function will be invoked whenever more
+data arrives. The string argument to the callback is a buffer internal to the
+dispatch manager; it starts out empty, with incoming data appended to it
+before each callback. Data will never be removed from the buffer by the
+dispatch manager; the callback function is responsible for removing any data
+it has consumed.</p>
+<p>Stream channels should implement <code>read()</code> as well as the usual <code>Channel</code>
+members. The <code>read()</code> function should return the number of bytes read on
+success, or zero if the channel is closed; if no data is available it may
+block or return zero. If <code>dst</code> is null or <code>maxlen</code> is zero, <code>read()</code> should
+return zero immediately.</p>
+<p>The <code>read_all()</code>, <code>read_str()</code>, and <code>read_to()</code> functions are convenience
+wrappers around <code>read()</code>. The <code>read_all()</code> function will read until the
+channel is closed, blocking as necessary; <code>read_str()</code> calls <code>read()</code> once and
+returns the new data as a string; <code>read_to()</code> calls <code>read()</code> and appends the
+data to the string. The buffer size functions control the internal read limit
+for <code>read_all/str/to()</code>.</p>
+</div>
+<h2 id="concrete-channel-classes">Concrete channel classes</h2>
+<p>Member functions inherited from the channel base classes are not documented
+again here unless they have significantly different semantics.</p>
+<h3 id="trivial-channels">Trivial channels</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>TrueChannel</code></strong><code>: public EventChannel</code></li>
+<li><code>class</code> <strong><code>FalseChannel</code></strong><code>: public EventChannel</code></li>
+</ul>
+<p>Trivial event channels whose <code>wait()</code> functions always succeed immediately
+(<code>TrueChannel</code>) or always time out (<code>FalseChannel</code>).</p>
+</div>
+<h3 id="class-timerchannel">Class TimerChannel</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>TimerChannel</code></strong><code>: public EventChannel, public Interval</code><ul>
+<li><code>TimerChannel::</code><strong><code>TimerChannel</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename R, typename P&gt; explicit TimerChannel::</code><strong><code>TimerChannel</code></strong><code>(std::chrono::duration&lt;R, P&gt; t) noexcept</code></li>
+<li><code>void TimerChannel::</code><strong><code>flush</code></strong><code>() noexcept</code></li>
+<li><code>Interval::time TimerChannel::</code><strong><code>next</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>An event channel that delivers one tick every interval, starting at one
+interval after the time of construction. Multiple ticks may be delivered at
+once (represented by repeated calls to <code>wait()</code> returning success immediately)
+if multiple intervals have elapsed since the last check. The <code>next()</code> function
+returns the time of the next tick (this may be in the past if multiple ticks
+are pending); <code>flush()</code> discards any pending ticks.</p>
+</div>
+<h3 id="class-generatorchannel">Class GeneratorChannel</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>GeneratorChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code><ul>
+<li><code>using GeneratorChannel::</code><strong><code>generator</code></strong> <code>= std::function&lt;T()&gt;</code></li>
+<li><code>GeneratorChannel::</code><strong><code>GeneratorChannel</code></strong><code>()</code></li>
+<li><code>template &lt;typename F&gt; explicit GeneratorChannel::</code><strong><code>GeneratorChannel</code></strong><code>(F f)</code></li>
+</ul>
+</li>
+</ul>
+<p>A channel that calls a function to generate incoming messages. A default
+constructed channel is always closed. Calling <code>wait()</code> on an open channel
+always succeeds immediately, apart from any delay involved in the callback
+function itself.</p>
+</div>
+<h3 id="class-queuechannel">Class QueueChannel</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>QueueChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code><ul>
+<li><code>QueueChannel::</code><strong><code>QueueChannel</code></strong><code>()</code></li>
+<li><code>void QueueChannel::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool QueueChannel::</code><strong><code>write</code></strong><code>(const T&amp; t)</code></li>
+<li><code>bool QueueChannel::</code><strong><code>write</code></strong><code>(T&amp;&amp; t)</code></li>
+</ul>
+</li>
+</ul>
+<p>A last in, first out message queue. Unlike most channel types, it is safe for
+multiple threads to call <code>wait()</code> or <code>read()</code> simultaneously on a
+<code>QueueChannel</code>.</p>
+</div>
+<h3 id="class-valuechannel">Class ValueChannel</h3>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename T&gt; class</code> <strong><code>ValueChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code><ul>
+<li><code>ValueChannel::</code><strong><code>ValueChannel</code></strong><code>()</code></li>
+<li><code>explicit ValueChannel::</code><strong><code>ValueChannel</code></strong><code>(const T&amp; t)</code></li>
+<li><code>void ValueChannel::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool ValueChannel::</code><strong><code>write</code></strong><code>(const T&amp; t)</code></li>
+<li><code>bool ValueChannel::</code><strong><code>write</code></strong><code>(T&amp;&amp; t)</code></li>
+</ul>
+</li>
+</ul>
+<p>A single value buffer channel. Any value written into the channel overwrites
+any other value that was written earlier but has not yet been read. The
+channel only reports a new message when the value is changed; writing the same
+value again will succeed but will not trigger a read. <code>T</code> must be equality
+comparable.</p>
+</div>
+<h3 id="class-bufferchannel">Class BufferChannel</h3>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>BufferChannel</code></strong><code>: public StreamChannel</code><ul>
+<li><code>BufferChannel::</code><strong><code>BufferChannel</code></strong><code>()</code></li>
+<li><code>void BufferChannel::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+<li><code>bool BufferChannel::</code><strong><code>write</code></strong><code>(const void* src, size_t len)</code></li>
+<li><code>bool BufferChannel::</code><strong><code>write_str</code></strong><code>(const std::string&amp; src)</code></li>
+</ul>
+</li>
+</ul>
+<p>A byte stream buffer channel. Message boundaries are not preserved; calling
+<code>read()</code> will extract all pending data up to the length limit, regardless of
+whether it was written as a single block or multiple smaller blocks.</p>
+</div>
+<h2 id="dispatch-control-class">Dispatch control class</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Dispatch</code></strong><code>: public Interval</code><ul>
+<li><code>enum Dispatch::</code><strong><code>mode_type</code></strong><ul>
+<li><code>Dispatch::</code><strong><code>sync</code></strong></li>
+<li><code>Dispatch::</code><strong><code>async</code></strong></li>
+</ul>
+</li>
+<li><code>static constexpr auto Dispatch::</code><strong><code>default_interval</code></strong> <code>= 1ms</code></li>
+<li><code>Dispatch::</code><strong><code>Dispatch</code></strong><code>() noexcept</code></li>
+<li><code>Dispatch::</code><strong><code>~Dispatch</code></strong><code>() noexcept</code></li>
+<li><code>template &lt;typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(EventChannel&amp; chan, mode_type mode, F func)</code></li>
+<li><code>template &lt;typename T, typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(MessageChannel&lt;T&gt;&amp; chan, mode_type mode, F func)</code></li>
+<li><code>template &lt;typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(StreamChannel&amp; chan, mode_type mode, F func)</code></li>
+<li><code>void Dispatch::</code><strong><code>drop</code></strong><code>(Channel&amp; chan) noexcept</code></li>
+<li><code>bool Dispatch::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+<li><code>void Dispatch::</code><strong><code>run</code></strong><code>() noexcept</code></li>
+<li><code>void Dispatch::</code><strong><code>stop</code></strong><code>() noexcept</code></li>
+<li><code>Channel* Dispatch::</code><strong><code>last_channel</code></strong><code>() const noexcept</code></li>
+<li><code>std::exception_ptr Dispatch::</code><strong><code>last_error</code></strong><code>() const noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>The message dispatch manager class. Create one instance of this class
+(normally in the application's main thread), add channels and their associated
+callback functions to it, and call <code>run()</code> to run the dispatch loop. Behaviour
+is undefined if <code>run()</code> is called on more than one <code>Dispatch</code> object at the
+same time.</p>
+<p><code>Dispatch</code> member functions must only be called synchronously (i.e. not from
+inside an asynchronous callback function). Channels can safely be destroyed
+while in a dispatch set (the <code>Dispatch</code> object will notice this and silently
+drop the channel), provided this is done synchronously.</p>
+<p>The <code>add()</code> functions start a synchronous or asynchronous task reading from
+the channel. They will throw <code>invalid_argument</code> if the same channel is added
+more than once, if the <code>mode</code> flag is not <code>sync</code> or <code>async</code>, or if the
+callback function is null. If the channel is synchronous only
+(<code>Channel::sync()</code> is true), the <code>mode</code> flag is ignored. The <code>drop()</code> function
+removes a channel from the dispatch set (without closing it).</p>
+<p>The <code>run()</code> function runs until a channel is closed or a callback function
+throws an exception; it returns immediately if the dispatch set is empty. The
+<code>stop()</code> function closes all channels and waits for them to finish (the
+destructor calls this). The <code>last_channel()</code> and <code>last_error()</code> functions
+return the channel and exception (if any) that ended the most recent <code>run()</code>
+(these will both be null if <code>run()</code> has not been called or the dispatch set is
+empty).</p></body>
+</html>

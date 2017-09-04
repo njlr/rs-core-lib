@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Signal Handling</title>
+<link type="text/css" rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<h1 id="signal-handling">Signal Handling</h1>
+<p>By Ross Smith</p>
+<ul>
+<li><code>#include "rs-core/signal.hpp"</code></li>
+</ul>
+<h2 id="contents">Contents</h2>
+<div class="toc">
+<ul>
+<li><a href="#signal-handling">Signal Handling</a><ul>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#class-posixsignal">Class PosixSignal</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="class-posixsignal">Class PosixSignal</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>PosixSignal</code></strong><code>: public MessageChannel&lt;int&gt;</code><ul>
+<li><code>using PosixSignal::</code><strong><code>signal_list</code></strong> <code>= std::vector&lt;int&gt;</code></li>
+<li><code>PosixSignal::</code><strong><code>PosixSignal</code></strong><code>(std::initializer_list&lt;int&gt; list)</code></li>
+<li><code>explicit PosixSignal::</code><strong><code>PosixSignal</code></strong><code>(const signal_list&amp; list)</code></li>
+<li><code>virtual PosixSignal::</code><strong><code>~PosixSignal</code></strong><code>() noexcept</code></li>
+<li><code>virtual bool PosixSignal::</code><strong><code>sync</code></strong><code>() const noexcept</code> <em>= true</em></li>
+<li><code>static U8string</code> <strong><code>name</code></strong><code>(int s)</code></li>
+</ul>
+</li>
+</ul>
+<p>A channel that intercepts Unix signals, reporting them as channel messages. An
+attempt to listen for an unblockable signal such as <code>SIGKILL</code> will be quietly
+ignored. On Windows signals will never happen; waiting will always fail.</p>
+<p>The <code>name()</code> function returns the signal name corresponding to the given
+signal number. If the argument is not a valid signal number, this will simply
+return the integer value as a string.</p></body>
+</html>
