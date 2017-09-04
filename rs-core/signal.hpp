@@ -159,7 +159,7 @@ namespace RS {
             auto lock = make_lock(mutex);
             if (t > Interval::time())
                 cv.wait_for(lock, t, [&] { return ! open; });
-            return open ? waiting : closed;
+            return open ? state::waiting : state::closed;
         }
 
     #endif
