@@ -773,13 +773,6 @@ C-style arrays and is <code>constexpr</code>.</p>
 <h3 id="generic-arithmetic-functions">Generic arithmetic functions</h3>
 <div class="defns">
 <ul>
-<li><code>template &lt;typename T, typename... Args&gt; constexpr T</code> <strong><code>static_min</code></strong><code>(T t, Args... args) noexcept</code></li>
-<li><code>template &lt;typename T, typename... Args&gt; constexpr T</code> <strong><code>static_max</code></strong><code>(T t, Args... args) noexcept</code></li>
-</ul>
-<p>Compile time maximum and minimum functions.</p>
-</div>
-<div class="defns">
-<ul>
 <li><code>template &lt;typename T, typename T2, typename T3&gt; constexpr T</code> <strong><code>clamp</code></strong><code>(const T&amp; x, const T2&amp; min, const T3&amp; max) noexcept</code></li>
 </ul>
 <p>Clamps a value to a fixed range. This returns <code>static_cast&lt;T&gt;(min)</code> if

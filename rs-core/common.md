@@ -591,11 +591,6 @@ Returns `irange(ptr,ptr+len)`.
 
 ### Generic arithmetic functions ###
 
-* `template <typename T, typename... Args> constexpr T` **`static_min`**`(T t, Args... args) noexcept`
-* `template <typename T, typename... Args> constexpr T` **`static_max`**`(T t, Args... args) noexcept`
-
-Compile time maximum and minimum functions.
-
 * `template <typename T, typename T2, typename T3> constexpr T` **`clamp`**`(const T& x, const T2& min, const T3& max) noexcept`
 
 Clamps a value to a fixed range. This returns `static_cast<T>(min)` if

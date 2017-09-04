@@ -1108,10 +1108,6 @@ namespace RS {
 
     }
 
-    template <typename T> constexpr T static_min(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_min(T t, Args... args) noexcept { return t < static_min(args...) ? t : static_min(args...); }
-    template <typename T> constexpr T static_max(T t) noexcept { return t; }
-    template <typename T, typename... Args> constexpr T static_max(T t, Args... args) noexcept { return static_max(args...) < t ? t : static_max(args...); }
     template <typename T, typename T2, typename T3> constexpr T clamp(const T& x, const T2& min, const T3& max) noexcept { return x < T(min) ? T(min) : T(max) < x ? T(max) : x; }
     template <typename T> std::pair<T, T> divide(T x, T y) noexcept { return RS_Detail::Divide<T>()(x, y); }
     template <typename T> T quo(T x, T y) noexcept { return divide(x, y).first; }

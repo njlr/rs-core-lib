@@ -1067,26 +1067,6 @@ namespace {
 
     void check_generic_arithmetic_functions() {
 
-        static constexpr int n1 = 10, n2 = 20, n3 = 30, n4 = 40;
-
-        static constexpr int m1 = static_min(n1);
-        static constexpr int m2 = static_min(n1, n2);
-        static constexpr int m3 = static_min(n1, n2, n3);
-        static constexpr int m4 = static_min(n1, n2, n3, n4);
-        static constexpr int m5 = static_max(n1);
-        static constexpr int m6 = static_max(n1, n2);
-        static constexpr int m7 = static_max(n1, n2, n3);
-        static constexpr int m8 = static_max(n1, n2, n3, n4);
-
-        TEST_EQUAL(m1, 10);
-        TEST_EQUAL(m2, 10);
-        TEST_EQUAL(m3, 10);
-        TEST_EQUAL(m4, 10);
-        TEST_EQUAL(m5, 10);
-        TEST_EQUAL(m6, 20);
-        TEST_EQUAL(m7, 30);
-        TEST_EQUAL(m8, 40);
-
         TEST_EQUAL(clamp(1, 2, 4), 2);
         TEST_EQUAL(clamp(2, 2, 4), 2);
         TEST_EQUAL(clamp(3, 2, 4), 3);
