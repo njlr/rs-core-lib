@@ -73,11 +73,11 @@ namespace RS {
         inline Channel::state StreamProcess::do_wait(Interval::time t) {
             using namespace std::chrono;
             if (! fp)
-                return closed;
+                return state::closed;
             if (t < Interval::time())
                 t = {};
             int fd = fileno(fp);
-            auto cs = closed;
+            auto cs = state::closed;
             #ifdef _XOPEN_SOURCE
                 fd_set fds;
                 FD_ZERO(&fds);
@@ -87,13 +87,13 @@ namespace RS {
                 int rc = ::select(fd + 1, &fds, nullptr, &fds, &tv);
                 int err = errno;
                 if (rc == -1 && err == EBADF)
-                    cs = closed;
+                    cs = state::closed;
                 else if (rc == -1)
                     throw std::system_error(err, std::generic_category());
                 else if (rc == 0)
-                    cs = waiting;
+                    cs = state::waiting;
                 else
-                    cs = ready;
+                    cs = state::ready;
             #else
                 auto fh = reinterpret_cast<HANDLE>(_get_osfhandle(fd));
                 auto ms = duration_cast<milliseconds>(t).count();
@@ -101,13 +101,13 @@ namespace RS {
                 auto rc = WaitForSingleObject(fh, ms);
                 auto err = GetLastError();
                 if (rc == WAIT_OBJECT_0)
-                    cs = ready;
+                    cs = state::ready;
                 else if (rc == WAIT_TIMEOUT)
-                    cs = waiting;
+                    cs = state::waiting;
                 else if (err == ERROR_INVALID_HANDLE)
                     throw std::system_error(err, windows_category());
                 else
-                    cs = closed;
+                    cs = state::closed;
             #endif
             return cs;
         }
@@ -157,14 +157,14 @@ namespace RS {
             Interval::time delta;
             for (;;) {
                 auto rc = ps.wait(delta);
-                if (rc == closed || ! ps.read_to(buf))
-                    return buf.empty() ? closed : ready;
+                if (rc == state::closed || ! ps.read_to(buf))
+                    return buf.empty() ? state::closed : state::ready;
                 size_t lf = buf.find('\n');
                 if (lf != npos)
-                    return ready;
+                    return state::ready;
                 auto now = ReliableClock::now();
                 if (now > deadline)
-                    return waiting;
+                    return state::waiting;
                 delta = duration_cast<Interval::time>(deadline - now);
             }
         }

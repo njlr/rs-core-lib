@@ -110,10 +110,10 @@ both <code>Channel</code> and <code>Polled</code>, implementing <code>close()</c
 <div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Channel</code></strong><ul>
-<li><code>enum Channel::</code><strong><code>state</code></strong><ul>
-<li><code>Channel::</code><strong><code>closed</code></strong> <code>= -1</code></li>
-<li><code>Channel::</code><strong><code>waiting</code></strong> <code>= 0</code></li>
-<li><code>Channel::</code><strong><code>ready</code></strong> <code>= 1</code></li>
+<li><code>enum class Channel::</code><strong><code>state</code></strong><ul>
+<li><code>Channel::state::</code><strong><code>ready</code></strong></li>
+<li><code>Channel::state::</code><strong><code>waiting</code></strong></li>
+<li><code>Channel::state::</code><strong><code>closed</code></strong></li>
 </ul>
 </li>
 <li><code>virtual Channel::</code><strong><code>~Channel</code></strong><code>() noexcept</code></li>
@@ -316,17 +316,17 @@ whether it was written as a single block or multiple smaller blocks.</p>
 <div class="defns">
 <ul>
 <li><code>class</code> <strong><code>Dispatch</code></strong><code>: public Interval</code><ul>
-<li><code>enum Dispatch::</code><strong><code>mode_type</code></strong><ul>
-<li><code>Dispatch::</code><strong><code>sync</code></strong></li>
-<li><code>Dispatch::</code><strong><code>async</code></strong></li>
+<li><code>enum class Dispatch::</code><strong><code>mode</code></strong><ul>
+<li><code>Dispatch::mode::</code><strong><code>sync</code></strong></li>
+<li><code>Dispatch::mode::</code><strong><code>async</code></strong></li>
 </ul>
 </li>
 <li><code>static constexpr auto Dispatch::</code><strong><code>default_interval</code></strong> <code>= 1ms</code></li>
 <li><code>Dispatch::</code><strong><code>Dispatch</code></strong><code>() noexcept</code></li>
 <li><code>Dispatch::</code><strong><code>~Dispatch</code></strong><code>() noexcept</code></li>
-<li><code>template &lt;typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(EventChannel&amp; chan, mode_type mode, F func)</code></li>
-<li><code>template &lt;typename T, typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(MessageChannel&lt;T&gt;&amp; chan, mode_type mode, F func)</code></li>
-<li><code>template &lt;typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(StreamChannel&amp; chan, mode_type mode, F func)</code></li>
+<li><code>template &lt;typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(EventChannel&amp; chan, mode m, F func)</code></li>
+<li><code>template &lt;typename T, typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(MessageChannel&lt;T&gt;&amp; chan, mode m, F func)</code></li>
+<li><code>template &lt;typename F&gt; void Dispatch::</code><strong><code>add</code></strong><code>(StreamChannel&amp; chan, mode m, F func)</code></li>
 <li><code>void Dispatch::</code><strong><code>drop</code></strong><code>(Channel&amp; chan) noexcept</code></li>
 <li><code>bool Dispatch::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
 <li><code>void Dispatch::</code><strong><code>run</code></strong><code>() noexcept</code></li>

@@ -766,15 +766,15 @@ namespace RS {
 
         inline Channel::state SocketSet::do_wait(Interval::time t) {
             if (! open)
-                return closed;
+                return state::closed;
             if (current)
-                return ready;
+                return state::ready;
             size_t index = npos;
             auto rc = do_select(natives.data(), natives.size(), t, &index);
-            if (rc != waiting && index < channels.size())
+            if (rc != state::waiting && index < channels.size())
                 current = channels[index];
-            if (rc == closed)
-                return ready;
+            if (rc == state::closed)
+                return state::ready;
             else
                 return rc;
         }
@@ -814,9 +814,9 @@ namespace RS {
             clear_error();
             auto rc = net_call(::select(last + 1, &rfds, nullptr, &efds, &tv));
             if (rc.res == 0)
-                return Channel::waiting;
+                return Channel::state::waiting;
             else if (rc.res == -1 && rc.err == e_badf)
-                return Channel::closed;
+                return Channel::state::closed;
             else
                 rc.fail_if(-1, "select()");
             size_t pos = npos;
@@ -824,22 +824,22 @@ namespace RS {
                 if (sockets[i] != no_socket && (FD_ISSET(sockets[i], &rfds) || FD_ISSET(sockets[i], &efds)))
                     pos = i;
             if (pos == npos)
-                return Channel::waiting;
+                return Channel::state::waiting;
             if (index)
                 *index = pos;
-            return Channel::ready;
+            return Channel::state::ready;
         }
 
         inline Channel::state Socket::do_wait(Interval::time t) {
             if (sock == no_socket)
-                return closed;
+                return state::closed;
             else
                 return SocketSet::do_select(&sock, 1, t);
         }
 
         inline size_t Socket::do_read(void* dst, size_t maxlen, SocketAddress* from) {
             using namespace RS_Detail;
-            if (! dst || ! maxlen || sock == no_socket || SocketSet::do_select(&sock, 1) != ready)
+            if (! dst || ! maxlen || sock == no_socket || SocketSet::do_select(&sock, 1) != state::ready)
                 return 0;
             auto cdst = static_cast<char*>(dst);
             NetResult<SocketSendRecv> rc;
@@ -862,7 +862,7 @@ namespace RS {
             if (sock.native() == no_socket)
                 return false;
             auto s = sock.native();
-            if (SocketSet::do_select(&s, 1) != ready)
+            if (SocketSet::do_select(&s, 1) != state::ready)
                 return false;
             clear_error();
             auto rc = net_call(::accept(sock.native(), nullptr, nullptr)).fail_if(no_socket, "socket()");

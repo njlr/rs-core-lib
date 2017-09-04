@@ -11,6 +11,7 @@
 #include <exception>
 #include <functional>
 #include <map>
+#include <ostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -50,7 +51,7 @@ namespace RS {
 
     class Channel {
     public:
-        enum state { closed = -1, waiting = 0, ready = 1 };
+        enum class state { ready = 1, waiting, closed };
         virtual ~Channel() noexcept { drop(); }
         Channel(const Channel&) = delete;
         Channel(Channel&& c) noexcept { owner = std::exchange(c.owner, nullptr); }
@@ -79,6 +80,16 @@ namespace RS {
                 owner = std::exchange(c.owner, nullptr);
             }
             return *this;
+        }
+
+        inline std::ostream& operator<<(std::ostream& out, Channel::state cs) {
+            switch (cs) {
+                case Channel::state::ready:    out << "ready"; break;
+                case Channel::state::waiting:  out << "waiting"; break;
+                case Channel::state::closed:   out << "closed"; break;
+                default:                       out << int(cs); break;
+            }
+            return out;
         }
 
     class EventChannel:
@@ -130,10 +141,10 @@ namespace RS {
         inline std::string StreamChannel::read_all() {
             using namespace std::chrono;
             std::string s;
-            auto cs = waiting;
-            while (cs != closed) {
+            auto cs = state::waiting;
+            while (cs != state::closed) {
                 cs = wait(seconds(1));
-                if (cs == ready)
+                if (cs == state::ready)
                     read_to(s);
             }
             return s;
@@ -163,7 +174,7 @@ namespace RS {
         TrueChannel() = default;
         virtual void close() noexcept { open = false; }
     protected:
-        virtual state do_wait(Interval::time /*t*/) { return open ? ready : closed; }
+        virtual state do_wait(Interval::time /*t*/) { return open ? state::ready : state::closed; }
     private:
         std::atomic<bool> open{true};
     };
@@ -191,11 +202,11 @@ namespace RS {
         inline Channel::state FalseChannel::do_wait(Interval::time t) {
             auto lock = make_lock(mutex);
             if (! open)
-                return closed;
+                return state::closed;
             else if (t <= Interval::time())
-                return waiting;
+                return state::waiting;
             cv.wait_for(lock, t, [&] { return ! open; });
-            return open ? waiting : closed;
+            return open ? state::waiting : state::closed;
         }
 
     class TimerChannel:
@@ -246,25 +257,24 @@ namespace RS {
             using namespace std::chrono;
             auto lock = make_lock(mutex);
             if (! open)
-                return closed;
+                return state::closed;
             auto now = clock_type::now();
             if (next_tick <= now) {
                 next_tick += interval();
-                return ready;
+                return state::ready;
             }
             if (t <= Interval::time())
-                return waiting;
+                return state::waiting;
             auto remaining = duration_cast<Interval::time>(next_tick - now);
             if (t < remaining) {
                 cv.wait_for(lock, t, [&] { return ! open; });
-                return open ? waiting : closed;
-            } else {
-                cv.wait_for(lock, remaining, [&] { return ! open; });
-                if (! open)
-                    return closed;
-                next_tick += interval();
-                return ready;
+                return open ? state::waiting : state::closed;
             }
+            cv.wait_for(lock, remaining, [&] { return ! open; });
+            if (! open)
+                return state::closed;
+            next_tick += interval();
+            return state::ready;
         }
 
     template <typename T>
@@ -301,7 +311,7 @@ namespace RS {
         template <typename T>
         Channel::state GeneratorChannel<T>::do_wait(Interval::time /*t*/) {
             auto lock = make_lock(mutex);
-            return gen ? Channel::ready : Channel::closed;
+            return gen ? Channel::state::ready : Channel::state::closed;
         }
 
     template <typename T>
@@ -335,7 +345,7 @@ namespace RS {
         template <typename T>
         bool QueueChannel<T>::read(T& t) {
             auto lock = make_lock(mutex);
-            if (get_status() != Channel::ready)
+            if (get_status() != Channel::state::ready)
                 return false;
             t = queue.front();
             queue.pop_front();
@@ -373,19 +383,19 @@ namespace RS {
         template <typename T>
         Channel::state QueueChannel<T>::do_wait(Interval::time t) {
             auto lock = make_lock(mutex);
-            if (get_status() == Channel::waiting && t > Interval::time())
-                cv.wait_for(lock, t, [&] { return get_status() != Channel::waiting; });
+            if (get_status() == Channel::state::waiting && t > Interval::time())
+                cv.wait_for(lock, t, [&] { return get_status() != Channel::state::waiting; });
             return get_status();
         }
 
         template <typename T>
         Channel::state QueueChannel<T>::get_status() noexcept {
             if (! open)
-                return Channel::closed;
+                return Channel::state::closed;
             else if (queue.empty())
-                return Channel::waiting;
+                return Channel::state::waiting;
             else
-                return Channel::ready;
+                return Channel::state::ready;
         }
 
     template <typename T>
@@ -406,35 +416,35 @@ namespace RS {
         Mutex mutex;
         ConditionVariable cv;
         T value;
-        Channel::state st = Channel::waiting;
+        Channel::state st = Channel::state::waiting;
     };
 
         template <typename T>
         void ValueChannel<T>::close() noexcept {
             auto lock = make_lock(mutex);
-            st = Channel::closed;
+            st = Channel::state::closed;
             cv.notify_all();
         }
 
         template <typename T>
         bool ValueChannel<T>::read(T& t) {
             auto lock = make_lock(mutex);
-            if (st != Channel::ready)
+            if (st != Channel::state::ready)
                 return false;
             t = value;
-            st = Channel::waiting;
+            st = Channel::state::waiting;
             return true;
         }
 
         template <typename T>
         bool ValueChannel<T>::write(const T& t) {
             auto lock = make_lock(mutex);
-            if (st == Channel::closed)
+            if (st == Channel::state::closed)
                 return false;
             if (t == value)
                 return true;
             value = t;
-            st = Channel::ready;
+            st = Channel::state::ready;
             cv.notify_all();
             return true;
         }
@@ -442,12 +452,12 @@ namespace RS {
         template <typename T>
         bool ValueChannel<T>::write(T&& t) {
             auto lock = make_lock(mutex);
-            if (st == Channel::closed)
+            if (st == Channel::state::closed)
                 return false;
             if (t == value)
                 return true;
             value = std::move(t);
-            st = Channel::ready;
+            st = Channel::state::ready;
             cv.notify_all();
             return true;
         }
@@ -455,8 +465,8 @@ namespace RS {
         template <typename T>
         Channel::state ValueChannel<T>::do_wait(Interval::time t) {
             auto lock = make_lock(mutex);
-            if (st == Channel::waiting && t > Interval::time())
-                cv.wait_for(lock, t, [&] { return st != Channel::waiting; });
+            if (st == Channel::state::waiting && t > Interval::time())
+                cv.wait_for(lock, t, [&] { return st != Channel::state::waiting; });
             return st;
         }
 
@@ -528,11 +538,11 @@ namespace RS {
             if (open && ofs == buf.size() && t > Interval::time())
                 cv.wait_for(lock, t, [&] { return ! open || ofs < buf.size(); });
             if (! open)
-                return closed;
+                return state::closed;
             else if (ofs == buf.size())
-                return waiting;
+                return state::waiting;
             else
-                return ready;
+                return state::ready;
         }
 
     // Polling mixin class
@@ -555,11 +565,11 @@ namespace RS {
             auto deadline = ReliableClock::now() + t;
             for (;;) {
                 Channel::state s = poll();
-                if (s != Channel::waiting)
+                if (s != Channel::state::waiting)
                     return s;
                 auto now = ReliableClock::now();
                 if (now >= deadline)
-                    return Channel::waiting;
+                    return Channel::state::waiting;
                 auto remaining = std::min(duration_cast<Interval::time>(deadline - now), interval());
                 sleep_for(remaining);
             }
@@ -571,13 +581,13 @@ namespace RS {
     public Interval {
     public:
         RS_NO_COPY_MOVE(Dispatch);
-        enum mode_type { sync = 1, async };
+        enum class mode { sync = 1, async };
         static constexpr auto default_interval = std::chrono::milliseconds(1);
         Dispatch() noexcept { set_interval(default_interval); }
         ~Dispatch() noexcept { stop(); }
-        template <typename F> void add(EventChannel& chan, mode_type mode, F func);
-        template <typename T, typename F> void add(MessageChannel<T>& chan, mode_type mode, F func);
-        template <typename F> void add(StreamChannel& chan, mode_type mode, F func);
+        template <typename F> void add(EventChannel& chan, mode m, F func);
+        template <typename T, typename F> void add(MessageChannel<T>& chan, mode m, F func);
+        template <typename F> void add(StreamChannel& chan, mode m, F func);
         void drop(Channel& chan) noexcept;
         bool empty() const noexcept { return tasks.empty(); }
         void run() noexcept;
@@ -587,7 +597,7 @@ namespace RS {
     private:
         using callback = std::function<void()>;
         struct task_info {
-            mode_type mode;
+            mode runmode;
             callback call;
             Thread thread;
             std::atomic<bool> done;
@@ -596,19 +606,28 @@ namespace RS {
         std::map<Channel*, task_info> tasks;
         Channel* channel_ptr = nullptr;
         std::exception_ptr error_ptr;
-        void add_task(Channel& chan, mode_type mode, callback call);
+        void add_task(Channel& chan, mode m, callback call);
         template <typename C, typename F> static typename C::callback make_callback(C& /*chan*/, const F& func) { return func; }
     };
 
+        inline std::ostream& operator<<(std::ostream& out, Dispatch::mode dm) {
+            switch (dm) {
+                case Dispatch::mode::sync:   out << "sync"; break;
+                case Dispatch::mode::async:  out << "async"; break;
+                default:                     out << int(dm); break;
+            }
+            return out;
+        }
+
         template <typename F>
-        void Dispatch::add(EventChannel& chan, mode_type mode, F func) {
+        void Dispatch::add(EventChannel& chan, mode m, F func) {
             auto handler = make_callback(chan, func);
             if (handler)
-                add_task(chan, mode, handler);
+                add_task(chan, m, handler);
         }
 
         template <typename T, typename F>
-        void Dispatch::add(MessageChannel<T>& chan, mode_type mode, F func) {
+        void Dispatch::add(MessageChannel<T>& chan, mode m, F func) {
             auto handler = make_callback(chan, func);
             if (! handler)
                 return;
@@ -616,11 +635,11 @@ namespace RS {
                 if (chan.read(t))
                     handler(t);
             };
-            add_task(chan, mode, call);
+            add_task(chan, m, call);
         }
 
         template <typename F>
-        void Dispatch::add(StreamChannel& chan, mode_type mode, F func) {
+        void Dispatch::add(StreamChannel& chan, mode m, F func) {
             auto handler = make_callback(chan, func);
             if (! handler)
                 return;
@@ -628,7 +647,7 @@ namespace RS {
                 if (chan.read_to(s))
                     handler(s);
             };
-            add_task(chan, mode, call);
+            add_task(chan, m, call);
         }
 
         inline void Dispatch::drop(Channel& chan) noexcept {
@@ -646,12 +665,12 @@ namespace RS {
                 int calls = 0;
                 for (auto& t: tasks) {
                     channel_ptr = t.first;
-                    if (t.second.mode == sync) {
+                    if (t.second.runmode == Dispatch::mode::sync) {
                         try {
                             auto cs = t.first->poll();
-                            if (cs == Channel::closed)
+                            if (cs == Channel::state::closed)
                                 return;
-                            if (cs == Channel::ready) {
+                            if (cs == Channel::state::ready) {
                                 t.second.call();
                                 ++calls;
                             }
@@ -679,25 +698,25 @@ namespace RS {
                 run();
         }
 
-        inline void Dispatch::add_task(Channel& chan, mode_type mode, callback call) {
+        inline void Dispatch::add_task(Channel& chan, mode m, callback call) {
             using namespace std::chrono;
             if (tasks.count(&chan))
                 throw std::invalid_argument("Duplicate dispatch channel");
-            if (mode != sync && mode != async)
+            if (m != Dispatch::mode::sync && m != Dispatch::mode::async)
                 throw std::invalid_argument("Invalid dispatch mode");
             if (! call)
                 throw std::invalid_argument("Dispatch callback is null");
             chan.owner = this;
             auto& task = tasks[&chan];
-            task.mode = chan.sync() ? sync : mode;
+            task.runmode = chan.sync() ? Dispatch::mode::sync : m;
             task.call = call;
-            if (task.mode == async) {
+            if (task.runmode == Dispatch::mode::async) {
                 auto payload = [&] () noexcept {
                     try {
-                        auto cs = Channel::waiting;
-                        while (cs != Channel::closed) {
+                        auto cs = Channel::state::waiting;
+                        while (cs != Channel::state::closed) {
                             cs = chan.wait(seconds(1));
-                            if (cs == Channel::ready)
+                            if (cs == Channel::state::ready)
                                 task.call();
                         }
                     }

@@ -90,9 +90,9 @@ namespace RS {
                 sigset_t pending;
                 for (;;) {
                     if (! open)
-                        return closed;
-                    if (! queue.empty())
-                        return ready;
+                        return state::closed;
+                    else if (! queue.empty())
+                        return state::ready;
                     sigemptyset(&pending);
                     sigpending(&pending);
                     auto i = std::find_if(signals.begin(), signals.end(),
@@ -104,11 +104,11 @@ namespace RS {
                         int s = 0;
                         sigwait(&mask, &s);
                         queue.push_back(s);
-                        return ready;
+                        return state::ready;
                     }
-                    if (t <= Interval::time())
-                        return waiting;
-                    if (t < delta) {
+                    if (t <= Interval::time()) {
+                        return state::waiting;
+                    } else if (t < delta) {
                         sleep_for(t);
                         t = Interval::time();
                     } else {
@@ -122,18 +122,18 @@ namespace RS {
 
             inline Channel::state PosixSignal::do_wait(Interval::time t) {
                 if (! open)
-                    return false;
-                if (! queue.empty())
-                    return ready;
+                    return state::closed;
+                else if (! queue.empty())
+                    return state::ready;
                 t = std::max(t, Interval::time());
                 auto ts = duration_to_timespec(t);
                 int s = sigtimedwait(&newmask, nullptr, &ts);
                 if (! open)
-                    return closed;
-                if (s == -1)
-                    return waiting;
+                    return state::closed;
+                else if (s == -1)
+                    return state::waiting;
                 queue.push_back(s);
-                return ready;
+                return state::ready;
             }
 
         #endif

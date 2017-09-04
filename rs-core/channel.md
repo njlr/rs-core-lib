@@ -58,10 +58,10 @@ both `Channel` and `Polled`, implementing `close()`, `poll()`, and
 ### Class Channel ###
 
 * `class` **`Channel`**
-    * `enum Channel::`**`state`**
-        * `Channel::`**`closed`** `= -1`
-        * `Channel::`**`waiting`** `= 0`
-        * `Channel::`**`ready`** `= 1`
+    * `enum class Channel::`**`state`**
+        * `Channel::state::`**`ready`**
+        * `Channel::state::`**`waiting`**
+        * `Channel::state::`**`closed`**
     * `virtual Channel::`**`~Channel`**`() noexcept`
     * `Channel::`**`Channel`**`(Channel&& c) noexcept`
     * `Channel& Channel::`**`operator=`**`(Channel&& c) noexcept`
@@ -243,15 +243,15 @@ whether it was written as a single block or multiple smaller blocks.
 ## Dispatch control class ##
 
 * `class` **`Dispatch`**`: public Interval`
-    * `enum Dispatch::`**`mode_type`**
-        * `Dispatch::`**`sync`**
-        * `Dispatch::`**`async`**
+    * `enum class Dispatch::`**`mode`**
+        * `Dispatch::mode::`**`sync`**
+        * `Dispatch::mode::`**`async`**
     * `static constexpr auto Dispatch::`**`default_interval`** `= 1ms`
     * `Dispatch::`**`Dispatch`**`() noexcept`
     * `Dispatch::`**`~Dispatch`**`() noexcept`
-    * `template <typename F> void Dispatch::`**`add`**`(EventChannel& chan, mode_type mode, F func)`
-    * `template <typename T, typename F> void Dispatch::`**`add`**`(MessageChannel<T>& chan, mode_type mode, F func)`
-    * `template <typename F> void Dispatch::`**`add`**`(StreamChannel& chan, mode_type mode, F func)`
+    * `template <typename F> void Dispatch::`**`add`**`(EventChannel& chan, mode m, F func)`
+    * `template <typename T, typename F> void Dispatch::`**`add`**`(MessageChannel<T>& chan, mode m, F func)`
+    * `template <typename F> void Dispatch::`**`add`**`(StreamChannel& chan, mode m, F func)`
     * `void Dispatch::`**`drop`**`(Channel& chan) noexcept`
     * `bool Dispatch::`**`empty`**`() const noexcept`
     * `void Dispatch::`**`run`**`() noexcept`
