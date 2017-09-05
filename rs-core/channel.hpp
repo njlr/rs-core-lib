@@ -58,6 +58,7 @@ namespace RS {
         Channel& operator=(const Channel&) = delete;
         Channel& operator=(Channel&& c) noexcept;
         virtual void close() noexcept = 0;
+        virtual bool multiplex() const noexcept { return false; }
         virtual state poll() { return do_wait({}); }
         virtual bool sync() const noexcept { return false; }
         template <typename R, typename P> state wait(std::chrono::duration<R, P> t)
@@ -173,6 +174,7 @@ namespace RS {
         RS_NO_COPY_MOVE(TrueChannel);
         TrueChannel() = default;
         virtual void close() noexcept { open = false; }
+        virtual bool multiplex() const noexcept { return true; }
     protected:
         virtual state do_wait(Interval::time /*t*/) { return open ? state::ready : state::closed; }
     private:
@@ -185,6 +187,7 @@ namespace RS {
         RS_NO_COPY_MOVE(FalseChannel);
         FalseChannel() = default;
         virtual void close() noexcept;
+        virtual bool multiplex() const noexcept { return true; }
     protected:
         virtual state do_wait(Interval::time t);
     private:
@@ -217,6 +220,7 @@ namespace RS {
         TimerChannel() { set_interval(Interval::time::max()); }
         template <typename R, typename P> explicit TimerChannel(std::chrono::duration<R, P> t) noexcept;
         virtual void close() noexcept;
+        virtual bool multiplex() const noexcept { return true; }
         void flush() noexcept;
         auto next() const noexcept { return next_tick; }
     protected:
@@ -321,6 +325,7 @@ namespace RS {
         RS_NO_COPY_MOVE(QueueChannel);
         QueueChannel() = default;
         virtual void close() noexcept;
+        virtual bool multiplex() const noexcept { return true; }
         virtual bool read(T& t);
         void clear() noexcept;
         bool write(const T& t);
@@ -406,6 +411,7 @@ namespace RS {
         ValueChannel() = default;
         explicit ValueChannel(const T& t): value(t) {}
         virtual void close() noexcept;
+        virtual bool multiplex() const noexcept { return true; }
         virtual bool read(T& t);
         void clear() noexcept;
         bool write(const T& t);
@@ -712,10 +718,12 @@ namespace RS {
 
         inline void Dispatch::add_task(Channel& chan, mode m, callback call) {
             using namespace std::chrono;
-            if (tasks.count(&chan))
-                throw std::invalid_argument("Duplicate dispatch channel");
+            if (! chan.multiplex() && tasks.count(&chan))
+                throw std::invalid_argument("Duplicate dispatch channel is not multiplex");
             if (m != Dispatch::mode::sync && m != Dispatch::mode::async)
                 throw std::invalid_argument("Invalid dispatch mode");
+            if (m == Dispatch::mode::async && chan.sync())
+                throw std::invalid_argument("Invalid dispatch mode for channel");
             if (! call)
                 throw std::invalid_argument("Dispatch callback is null");
             chan.owner = this;

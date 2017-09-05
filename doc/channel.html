@@ -120,6 +120,7 @@ both <code>Channel</code> and <code>Polled</code>, implementing <code>close()</c
 <li><code>Channel::</code><strong><code>Channel</code></strong><code>(Channel&amp;&amp; c) noexcept</code></li>
 <li><code>Channel&amp; Channel::</code><strong><code>operator=</code></strong><code>(Channel&amp;&amp; c) noexcept</code></li>
 <li><code>virtual void Channel::</code><strong><code>close</code></strong><code>() noexcept = 0</code></li>
+<li><code>virtual bool Channel::</code><strong><code>multiplex</code></strong><code>() const noexcept</code> <em>= false</em></li>
 <li><code>virtual state Channel::</code><strong><code>poll</code></strong><code>()</code></li>
 <li><code>virtual bool Channel::</code><strong><code>sync</code></strong><code>() const noexcept</code> <em>= false</em></li>
 <li><code>template &lt;typename R, typename P&gt; Channel::state Channel::</code><strong><code>wait</code></strong><code>(std::chrono::duration&lt;R, P&gt; t)</code></li>
@@ -132,11 +133,12 @@ must derive from one of the three intermediate classes below, not directly
 from Channel. Derived classes need to implement at least <code>close()</code> and
 <code>do_wait()</code>, and may optionally implement <code>poll()</code> if a more efficient
 implementation than the default call to <code>do_wait(0)</code> is available. The
-<code>wait()</code> function simply converts the timeout to the internal duration type
-and calls <code>do_wait()</code>.</p>
-<p>The <code>close()</code> function must be async safe and idempotent, but for most channel
-classes, <code>do_wait()</code>, and <code>read()</code> where relevant, are not expected to be
-async safe and should not be called from multiple threads.</p>
+<code>close()</code> function must be async safe and idempotent. The <code>wait()</code> function
+simply converts the timeout to the internal duration type and calls
+<code>do_wait()</code>.</p>
+<p>If <code>multiplex()</code> is true, it is safe to call <code>wait()</code> (and <code>read()</code> where
+relevant) from multiple threads at the same time, provided it is acceptable
+for each message to be delivered to an unpredictable choice of thread.</p>
 <p>If <code>sync()</code> is true, the channel can only be used in a synchronous dispatch
 handler (see <code>Dispatch</code> below), usually because it calls an underlying native
 API that is only intended to be used from the main thread.</p>
@@ -225,8 +227,14 @@ again here unless they have significantly different semantics.</p>
 <h3 id="trivial-channels">Trivial channels</h3>
 <div class="defns">
 <ul>
-<li><code>class</code> <strong><code>TrueChannel</code></strong><code>: public EventChannel</code></li>
-<li><code>class</code> <strong><code>FalseChannel</code></strong><code>: public EventChannel</code></li>
+<li><code>class</code> <strong><code>TrueChannel</code></strong><code>: public EventChannel</code><ul>
+<li><code>virtual bool TrueChannel::</code><strong><code>multiplex</code></strong><code>() const noexcept</code> <em>= true</em></li>
+</ul>
+</li>
+<li><code>class</code> <strong><code>FalseChannel</code></strong><code>: public EventChannel</code><ul>
+<li><code>virtual bool FalsChannel::</code><strong><code>multiplex</code></strong><code>() const noexcept</code> <em>= true</em></li>
+</ul>
+</li>
 </ul>
 <p>Trivial event channels whose <code>wait()</code> functions always succeed immediately
 (<code>TrueChannel</code>) or always time out (<code>FalseChannel</code>).</p>
@@ -237,6 +245,7 @@ again here unless they have significantly different semantics.</p>
 <li><code>class</code> <strong><code>TimerChannel</code></strong><code>: public EventChannel, public Interval</code><ul>
 <li><code>TimerChannel::</code><strong><code>TimerChannel</code></strong><code>() noexcept</code></li>
 <li><code>template &lt;typename R, typename P&gt; explicit TimerChannel::</code><strong><code>TimerChannel</code></strong><code>(std::chrono::duration&lt;R, P&gt; t) noexcept</code></li>
+<li><code>virtual bool TimerChannel::</code><strong><code>multiplex</code></strong><code>() const noexcept</code> <em>= true</em></li>
 <li><code>void TimerChannel::</code><strong><code>flush</code></strong><code>() noexcept</code></li>
 <li><code>Interval::time TimerChannel::</code><strong><code>next</code></strong><code>() const noexcept</code></li>
 </ul>
@@ -245,9 +254,10 @@ again here unless they have significantly different semantics.</p>
 <p>An event channel that delivers one tick every interval, starting at one
 interval after the time of construction. Multiple ticks may be delivered at
 once (represented by repeated calls to <code>wait()</code> returning success immediately)
-if multiple intervals have elapsed since the last check. The <code>next()</code> function
-returns the time of the next tick (this may be in the past if multiple ticks
-are pending); <code>flush()</code> discards any pending ticks.</p>
+if multiple intervals have elapsed since the last check.</p>
+<p>The <code>next()</code> function returns the time of the next tick (this may be in the
+past if multiple ticks are pending); <code>flush()</code> discards any pending ticks.
+These are async safe and can be called from any thread.</p>
 </div>
 <h3 id="class-generatorchannel">Class GeneratorChannel</h3>
 <div class="defns">
@@ -269,15 +279,14 @@ function itself.</p>
 <ul>
 <li><code>template &lt;typename T&gt; class</code> <strong><code>QueueChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code><ul>
 <li><code>QueueChannel::</code><strong><code>QueueChannel</code></strong><code>()</code></li>
+<li><code>virtual bool QueueChannel::</code><strong><code>multiplex</code></strong><code>() const noexcept</code> <em>= true</em></li>
 <li><code>void QueueChannel::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
 <li><code>bool QueueChannel::</code><strong><code>write</code></strong><code>(const T&amp; t)</code></li>
 <li><code>bool QueueChannel::</code><strong><code>write</code></strong><code>(T&amp;&amp; t)</code></li>
 </ul>
 </li>
 </ul>
-<p>A last in, first out message queue. Unlike most channel types, it is safe for
-multiple threads to call <code>wait()</code> or <code>read()</code> simultaneously on a
-<code>QueueChannel</code>.</p>
+<p>A last in, first out message queue.</p>
 </div>
 <h3 id="class-valuechannel">Class ValueChannel</h3>
 <div class="defns">
@@ -285,6 +294,7 @@ multiple threads to call <code>wait()</code> or <code>read()</code> simultaneous
 <li><code>template &lt;typename T&gt; class</code> <strong><code>ValueChannel</code></strong><code>: public MessageChannel&lt;T&gt;</code><ul>
 <li><code>ValueChannel::</code><strong><code>ValueChannel</code></strong><code>()</code></li>
 <li><code>explicit ValueChannel::</code><strong><code>ValueChannel</code></strong><code>(const T&amp; t)</code></li>
+<li><code>virtual bool ValueChannel::</code><strong><code>multiplex</code></strong><code>() const noexcept</code> <em>= true</em></li>
 <li><code>void ValueChannel::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
 <li><code>bool ValueChannel::</code><strong><code>write</code></strong><code>(const T&amp; t)</code></li>
 <li><code>bool ValueChannel::</code><strong><code>write</code></strong><code>(T&amp;&amp; t)</code></li>
@@ -357,11 +367,16 @@ inside an asynchronous callback function). Channels can safely be destroyed
 while in a dispatch set (the <code>Dispatch</code> object will notice this and silently
 drop the channel), provided this is done synchronously.</p>
 <p>The <code>add()</code> functions start a synchronous or asynchronous task reading from
-the channel. They will throw <code>invalid_argument</code> if the mode flag is not
-<code>Dispatch::mode::sync</code> or <code>async</code>, or if the callback function is null. If the
-channel can only be run synchronously (<code>Channel::sync()</code> is true), the mode
-flag is ignored. The <code>drop()</code> function removes a channel from the dispatch set
-(without closing it).</p>
+the channel. They will throw <code>invalid_argument</code> if any of these conditions is
+true:</p>
+<ul>
+<li>The same channel is added more than once, and the channel is not multiplex (<code>Channel::multiplex()</code> is false).</li>
+<li>The mode flag is not one of the <code>Dispatch::mode</code> enumeration values.</li>
+<li>The channel is synchronous (<code>Channel::sync()</code> is true), but the mode is <code>async</code>.</li>
+<li>The callback function is null.</li>
+</ul>
+<p>The <code>drop()</code> function removes a channel from the dispatch set (without closing
+it).</p>
 <p>The <code>run()</code> function runs until a channel is closed or a callback function
 throws an exception; it returns immediately if the dispatch set is empty.
 Asynchronous message handlers will continue to run in other threads regardless
