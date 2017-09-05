@@ -1,6 +1,7 @@
 #include "rs-core/channel.hpp"
 #include "rs-core/optional.hpp"
 #include "rs-core/string.hpp"
+#include "rs-core/time.hpp"
 #include "rs-core/unit-test.hpp"
 #include <chrono>
 #include <deque>
@@ -323,13 +324,15 @@ namespace {
         static constexpr auto time_interval = 1ms;
 
         auto cs = Channel::state::closed;
+        Dispatch::result_type rc;
 
         {
             // Stopwatch w("Run with no channels");
             Dispatch disp;
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), nullptr);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::empty);
+            TEST_EQUAL(rc.channel, nullptr);
+            TEST(! rc.error);
         }
 
         {
@@ -338,9 +341,10 @@ namespace {
             TimerChannel chan(time_interval);
             int n = 0;
             TRY(disp.add(chan, Dispatch::mode::sync, [&] { ++n; if (n == cycles) chan.close(); }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::closed);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST(! rc.error);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(cs, Channel::state::closed);
             TEST_EQUAL(n, cycles);
@@ -352,9 +356,10 @@ namespace {
             TimerChannel chan(time_interval);
             int n = 0;
             TRY(disp.add(chan, Dispatch::mode::async, [&] { ++n; if (n == cycles) chan.close(); }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::closed);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST(! rc.error);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(cs, Channel::state::closed);
             TEST_EQUAL(n, cycles);
@@ -366,9 +371,10 @@ namespace {
             TimerChannel chan(time_interval);
             int n = 0;
             TRY(disp.add(chan, Dispatch::mode::sync, [&] { ++n; if (n == cycles) throw TestException(); }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST_THROW(rethrow(disp.last_error()), TestException);
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::error);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST_THROW(rethrow(rc.error), TestException);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(n, cycles);
         }
@@ -379,9 +385,10 @@ namespace {
             TimerChannel chan(time_interval);
             int n = 0;
             TRY(disp.add(chan, Dispatch::mode::async, [&] { ++n; if (n == cycles) throw TestException(); }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST_THROW(rethrow(disp.last_error()), TestException);
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::error);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST_THROW(rethrow(rc.error), TestException);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(n, cycles);
         }
@@ -395,9 +402,10 @@ namespace {
                 Dispatch disp;
                 TRY(disp.add(chan1, Dispatch::mode::sync, [&] { ++n1; if (n1 == cycles) throw TestException(); }));
                 TRY(disp.add(chan2, Dispatch::mode::sync, [&] { ++n2; }));
-                TRY(disp.run());
-                TEST_EQUAL(disp.last_channel(), &chan1);
-                TEST_THROW(rethrow(disp.last_error()), TestException);
+                TRY(rc = disp.run());
+                TEST_EQUAL(rc.why(), Dispatch::reason::error);
+                TEST_EQUAL(rc.channel, &chan1);
+                TEST_THROW(rethrow(rc.error), TestException);
                 TRY(cs = chan1.wait(1ms));
                 TEST_EQUAL(n1, cycles);
             }
@@ -414,9 +422,10 @@ namespace {
                 Dispatch disp;
                 TRY(disp.add(chan1, Dispatch::mode::async, [&] { ++n1; if (n1 == cycles) throw TestException(); }));
                 TRY(disp.add(chan2, Dispatch::mode::async, [&] { ++n2; }));
-                TRY(disp.run());
-                TEST_EQUAL(disp.last_channel(), &chan1);
-                TEST_THROW(rethrow(disp.last_error()), TestException);
+                TRY(rc = disp.run());
+                TEST_EQUAL(rc.why(), Dispatch::reason::error);
+                TEST_EQUAL(rc.channel, &chan1);
+                TEST_THROW(rethrow(rc.error), TestException);
                 TRY(cs = chan1.wait(1ms));
                 TEST_EQUAL(n1, cycles);
             }
@@ -433,9 +442,10 @@ namespace {
                 Dispatch disp;
                 TRY(disp.add(chan1, Dispatch::mode::sync, [&] { ++n1; if (n1 == cycles) throw TestException(); }));
                 TRY(disp.add(chan2, Dispatch::mode::async, [&] { ++n2; }));
-                TRY(disp.run());
-                TEST_EQUAL(disp.last_channel(), &chan1);
-                TEST_THROW(rethrow(disp.last_error()), TestException);
+                TRY(rc = disp.run());
+                TEST_EQUAL(rc.why(), Dispatch::reason::error);
+                TEST_EQUAL(rc.channel, &chan1);
+                TEST_THROW(rethrow(rc.error), TestException);
                 TRY(cs = chan1.wait(1ms));
                 TEST_EQUAL(n1, cycles);
             }
@@ -452,9 +462,10 @@ namespace {
                 Dispatch disp;
                 TRY(disp.add(chan1, Dispatch::mode::sync, [&] { ++n1; }));
                 TRY(disp.add(chan2, Dispatch::mode::async, [&] { ++n2; if (n2 == cycles) throw TestException(); }));
-                TRY(disp.run());
-                TEST_EQUAL(disp.last_channel(), &chan2);
-                TEST_THROW(rethrow(disp.last_error()), TestException);
+                TRY(rc = disp.run());
+                TEST_EQUAL(rc.why(), Dispatch::reason::error);
+                TEST_EQUAL(rc.channel, &chan2);
+                TEST_THROW(rethrow(rc.error), TestException);
                 TRY(cs = chan2.wait(1ms));
                 TEST_EQUAL(n2, cycles);
             }
@@ -475,9 +486,10 @@ namespace {
                 if (i >= 5)
                     chan.close();
             }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::closed);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST(! rc.error);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(cs, Channel::state::closed);
             s = to_str(v);
@@ -497,9 +509,10 @@ namespace {
                 if (i >= 5)
                     chan.close();
             }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::closed);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST(! rc.error);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(cs, Channel::state::closed);
             s = to_str(v);
@@ -519,9 +532,10 @@ namespace {
                 if (s.find('\n') != npos)
                     chan.close();
             }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::closed);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST(! rc.error);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(cs, Channel::state::closed);
             TEST_EQUAL(s, "Hello world\n");
@@ -540,9 +554,10 @@ namespace {
                 if (s.find('\n') != npos)
                     chan.close();
             }));
-            TRY(disp.run());
-            TEST_EQUAL(disp.last_channel(), &chan);
-            TEST(! disp.last_error());
+            TRY(rc = disp.run());
+            TEST_EQUAL(rc.why(), Dispatch::reason::closed);
+            TEST_EQUAL(rc.channel, &chan);
+            TEST(! rc.error);
             TRY(cs = chan.wait(1ms));
             TEST_EQUAL(cs, Channel::state::closed);
             TEST_EQUAL(s, "Hello world\n");

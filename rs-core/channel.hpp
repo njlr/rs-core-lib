@@ -582,6 +582,13 @@ namespace RS {
     public:
         RS_NO_COPY_MOVE(Dispatch);
         enum class mode { sync = 1, async };
+        enum class reason { empty = 1, closed, error };
+        struct result_type {
+            Channel* channel = nullptr;
+            std::exception_ptr error;
+            void rethrow() const { if (error) std::rethrow_exception(error); }
+            reason why() const noexcept { return error ? reason::error : channel ? reason::closed : reason::empty; }
+        };
         static constexpr auto default_interval = std::chrono::milliseconds(1);
         Dispatch() noexcept { set_interval(default_interval); }
         ~Dispatch() noexcept { stop(); }
@@ -590,10 +597,8 @@ namespace RS {
         template <typename F> void add(StreamChannel& chan, mode m, F func);
         void drop(Channel& chan) noexcept;
         bool empty() const noexcept { return tasks.empty(); }
-        void run() noexcept;
+        result_type run() noexcept;
         void stop() noexcept;
-        Channel* last_channel() const noexcept { return channel_ptr; }
-        std::exception_ptr last_error() const noexcept { return error_ptr; }
     private:
         using callback = std::function<void()>;
         struct task_info {
@@ -604,8 +609,6 @@ namespace RS {
             std::exception_ptr error;
         };
         std::map<Channel*, task_info> tasks;
-        Channel* channel_ptr = nullptr;
-        std::exception_ptr error_ptr;
         void add_task(Channel& chan, mode m, callback call);
         template <typename C, typename F> static typename C::callback make_callback(C& /*chan*/, const F& func) { return func; }
     };
@@ -615,6 +618,16 @@ namespace RS {
                 case Dispatch::mode::sync:   out << "sync"; break;
                 case Dispatch::mode::async:  out << "async"; break;
                 default:                     out << int(dm); break;
+            }
+            return out;
+        }
+
+        inline std::ostream& operator<<(std::ostream& out, Dispatch::reason dr) {
+            switch (dr) {
+                case Dispatch::reason::empty:   out << "empty"; break;
+                case Dispatch::reason::closed:  out << "closed"; break;
+                case Dispatch::reason::error:   out << "error"; break;
+                default:                        out << int(dr); break;
             }
             return out;
         }
@@ -655,33 +668,32 @@ namespace RS {
             chan.owner = nullptr;
         }
 
-        inline void Dispatch::run() noexcept {
-            channel_ptr = nullptr;
-            error_ptr = nullptr;
+        inline Dispatch::result_type Dispatch::run() noexcept {
+            result_type rc;
             if (tasks.empty())
-                return;
-            ScopeExit guard([&] { drop(*channel_ptr); });
+                return rc;
+            ScopeExit guard([&] { if (rc.channel) drop(*rc.channel); });
             for (;;) {
                 int calls = 0;
                 for (auto& t: tasks) {
-                    channel_ptr = t.first;
+                    rc.channel = t.first;
                     if (t.second.runmode == Dispatch::mode::sync) {
                         try {
                             auto cs = t.first->poll();
                             if (cs == Channel::state::closed)
-                                return;
+                                return rc;
                             if (cs == Channel::state::ready) {
                                 t.second.call();
                                 ++calls;
                             }
                         }
                         catch (...) {
-                            error_ptr = std::current_exception();
-                            return;
+                            rc.error = std::current_exception();
+                            return rc;
                         }
                     } else if (t.second.done) {
-                        error_ptr = t.second.error;
-                        return;
+                        rc.error = t.second.error;
+                        return rc;
                     }
                 }
                 if (calls == 0)

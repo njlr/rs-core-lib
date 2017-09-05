@@ -246,6 +246,15 @@ whether it was written as a single block or multiple smaller blocks.
     * `enum class Dispatch::`**`mode`**
         * `Dispatch::mode::`**`sync`**
         * `Dispatch::mode::`**`async`**
+    * `enum class Dispatch::`**`reason`**
+        * `Dispatch::reason::`**`empty`** _- The dispatch set is empty_
+        * `Dispatch::reason::`**`closed`** _- A channel was closed_
+        * `Dispatch::reason::`**`error`** _- A message handler callback threw an exception_
+    * `struct Dispatch::`**`result_type`**
+        * `Channel* result_type::`**`channel`** `= nullptr`
+        * `std::exception_ptr result_type::`**`error`** `= nullptr`
+        * `void result_type::`**`rethrow`**`() const`
+        * `Dispatch::reason result_type::`**`why`**`() const noexcept`
     * `static constexpr auto Dispatch::`**`default_interval`** `= 1ms`
     * `Dispatch::`**`Dispatch`**`() noexcept`
     * `Dispatch::`**`~Dispatch`**`() noexcept`
@@ -254,10 +263,8 @@ whether it was written as a single block or multiple smaller blocks.
     * `template <typename F> void Dispatch::`**`add`**`(StreamChannel& chan, mode m, F func)`
     * `void Dispatch::`**`drop`**`(Channel& chan) noexcept`
     * `bool Dispatch::`**`empty`**`() const noexcept`
-    * `void Dispatch::`**`run`**`() noexcept`
+    * `result_type Dispatch::`**`run`**`() noexcept`
     * `void Dispatch::`**`stop`**`() noexcept`
-    * `Channel* Dispatch::`**`last_channel`**`() const noexcept`
-    * `std::exception_ptr Dispatch::`**`last_error`**`() const noexcept`
 
 The message dispatch manager class. Create one instance of this class
 (normally in the application's main thread), add channels and their associated
@@ -271,16 +278,22 @@ while in a dispatch set (the `Dispatch` object will notice this and silently
 drop the channel), provided this is done synchronously.
 
 The `add()` functions start a synchronous or asynchronous task reading from
-the channel. They will throw `invalid_argument` if the same channel is added
-more than once, if the `mode` flag is not `sync` or `async`, or if the
-callback function is null. If the channel is synchronous only
-(`Channel::sync()` is true), the `mode` flag is ignored. The `drop()` function
-removes a channel from the dispatch set (without closing it).
+the channel. They will throw `invalid_argument` if the mode flag is not
+`Dispatch::mode::sync` or `async`, or if the callback function is null. If the
+channel can only be run synchronously (`Channel::sync()` is true), the mode
+flag is ignored. The `drop()` function removes a channel from the dispatch set
+(without closing it).
 
 The `run()` function runs until a channel is closed or a callback function
-throws an exception; it returns immediately if the dispatch set is empty. The
-`stop()` function closes all channels and waits for them to finish (the
-destructor calls this). The `last_channel()` and `last_error()` functions
-return the channel and exception (if any) that ended the most recent `run()`
-(these will both be null if `run()` has not been called or the dispatch set is
-empty).
+throws an exception; it returns immediately if the dispatch set is empty.
+Asynchronous message handlers will continue to run in other threads regardless
+of whether the dispatch thread is currently calling `run()`.
+
+The return value from `run()` indicates which channel was responsible for
+ending the run and the exception it threw, if any; both members will be null
+if the dispatch set is empty. The result type's `rethrow()` function will
+rethrow the exception if it is not null, otherwise do nothing. The `why()`
+function returns a flag summarizing the reason for the run to stop.
+
+The `stop()` function closes all channels and waits for them to finish (the
+destructor calls this).
