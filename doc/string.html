@@ -20,9 +20,9 @@
 <li><a href="#character-functions">Character functions</a></li>
 <li><a href="#string-property-functions">String property functions</a></li>
 <li><a href="#string-manipulation-functions">String manipulation functions</a></li>
-<li><a href="#htmlxml-tags">HTML/XML tags</a></li>
 <li><a href="#string-formatting-functions">String formatting functions</a></li>
 <li><a href="#string-parsing-functions">String parsing functions</a></li>
+<li><a href="#htmlxml-tags">HTML/XML tags</a></li>
 <li><a href="#type-names">Type names</a></li>
 <li><a href="#unicode-functions">Unicode functions</a></li>
 </ul>
@@ -203,6 +203,14 @@ the string is not valid UTF-8.</p>
 </div>
 <div class="defns">
 <ul>
+<li><code>std::string</code> <strong><code>replace</code></strong><code>(const std::string&amp; s, const std::string&amp; target, const std::string&amp; subst, size_t n = npos)</code></li>
+</ul>
+<p>Replaces the first <code>n</code> occurrences (all of them by default) of <code>target</code> in <code>s</code>
+with <code>subst</code>. This will return the string unchanged if <code>target</code> is empty or
+<code>n=0</code>.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const std::string&amp; src, OutputIterator dst, const std::string&amp; delim = ascii_whitespace)</code></li>
 <li><code>Strings</code> <strong><code>splitv</code></strong><code>(const std::string&amp; src, const std::string&amp; delim = ascii_whitespace)</code></li>
 </ul>
@@ -232,47 +240,6 @@ existing receiver.</p>
 <code>unqualify("RS::unqualify()")</code> returns <code>"unqualify()"</code>). This will return the
 original string unchanged if the delimiter string is empty or none of its
 characters are found.</p>
-</div>
-<h2 id="htmlxml-tags">HTML/XML tags</h2>
-<div class="defns">
-<ul>
-<li><code>class</code> <strong><code>Tag</code></strong><ul>
-<li><code>Tag::</code><strong><code>Tag</code></strong><code>()</code></li>
-<li><code>Tag::</code><strong><code>Tag</code></strong><code>(std::ostream&amp; out, const std::string&amp; element)</code></li>
-<li><code>Tag::</code><strong><code>~Tag</code></strong><code>() noexcept</code></li>
-<li><code>Tag::</code><strong><code>Tag</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
-<li><code>Tag&amp; Tag::</code><strong><code>operator=</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
-</ul>
-</li>
-</ul>
-<p>This class writes an HTML/XML tag in its constructor, then writes the
-corresponding closing tag in its destructor. If the supplied string ends with
-one line feed, a line feed will be written after the closing tag, but not the
-opening one; if it ends with two line feeds, one will be written after both
-tags.</p>
-<p>The opening tag can be supplied with or without enclosing angle brackets. The
-constructor does not attempt any validation of the tag's format (except that
-an empty tag will cause the class to do nothing); no promises are made about
-the output if the <code>element</code> argument is not a valid HTML/XML tag.</p>
-<p>If the opening tag is standalone, the text will simply be written as is, and
-no closing tag will be written. Standalone tags are identified by a closing
-slash; the class is not aware of HTML's list of automatic self closing tags.</p>
-</div>
-<div class="defns">
-<ul>
-<li><code>template &lt;typename... Args&gt; void</code> <strong><code>tagged</code></strong><code>(std::ostream&amp; out, const std::string&amp; element, const Args&amp;... args)</code></li>
-<li><code>template &lt;typename T&gt; void</code> <strong><code>tagged</code></strong><code>(std::ostream&amp; out, const std::string&amp; element, const T&amp; t)</code></li>
-</ul>
-<p>This function can be used to write a piece of literal text enclosed in one or
-more tags. The arguments are the output stream, a list of tags (using the same
-format as the <code>Tag</code> class), and an object that will be written to the output
-stream enclosed by the tags.</p>
-<p>Example:</p>
-<pre><code>tagged(std::cout, "p\n", "code", "Hello world");
-</code></pre>
-<p>Output:</p>
-<pre><code>&lt;p&gt;&lt;code&gt;Hello world&lt;/code&gt;&lt;/p&gt;\n
-</code></pre>
 </div>
 <h2 id="string-formatting-functions">String formatting functions</h2>
 <div class="defns">
@@ -383,6 +350,47 @@ tag is ignored.</p>
 <p>These will throw <code>std::invalid_argument</code> if the string does not start with a
 valid number, or <code>std::range_error</code> if the result is too big for the return
 type.</p>
+</div>
+<h2 id="htmlxml-tags">HTML/XML tags</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Tag</code></strong><ul>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>()</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(std::ostream&amp; out, const std::string&amp; element)</code></li>
+<li><code>Tag::</code><strong><code>~Tag</code></strong><code>() noexcept</code></li>
+<li><code>Tag::</code><strong><code>Tag</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
+<li><code>Tag&amp; Tag::</code><strong><code>operator=</code></strong><code>(Tag&amp;&amp; t) noexcept</code></li>
+</ul>
+</li>
+</ul>
+<p>This class writes an HTML/XML tag in its constructor, then writes the
+corresponding closing tag in its destructor. If the supplied string ends with
+one line feed, a line feed will be written after the closing tag, but not the
+opening one; if it ends with two line feeds, one will be written after both
+tags.</p>
+<p>The opening tag can be supplied with or without enclosing angle brackets. The
+constructor does not attempt any validation of the tag's format (except that
+an empty tag will cause the class to do nothing); no promises are made about
+the output if the <code>element</code> argument is not a valid HTML/XML tag.</p>
+<p>If the opening tag is standalone, the text will simply be written as is, and
+no closing tag will be written. Standalone tags are identified by a closing
+slash; the class is not aware of HTML's list of automatic self closing tags.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename... Args&gt; void</code> <strong><code>tagged</code></strong><code>(std::ostream&amp; out, const std::string&amp; element, const Args&amp;... args)</code></li>
+<li><code>template &lt;typename T&gt; void</code> <strong><code>tagged</code></strong><code>(std::ostream&amp; out, const std::string&amp; element, const T&amp; t)</code></li>
+</ul>
+<p>This function can be used to write a piece of literal text enclosed in one or
+more tags. The arguments are the output stream, a list of tags (using the same
+format as the <code>Tag</code> class), and an object that will be written to the output
+stream enclosed by the tags.</p>
+<p>Example:</p>
+<pre><code>tagged(std::cout, "p\n", "code", "Hello world");
+</code></pre>
+<p>Output:</p>
+<pre><code>&lt;p&gt;&lt;code&gt;Hello world&lt;/code&gt;&lt;/p&gt;\n
+</code></pre>
 </div>
 <h2 id="type-names">Type names</h2>
 <div class="defns">

@@ -555,6 +555,21 @@ namespace {
         TRY(s = repeat("Hello", 4));  TEST_EQUAL(s, "HelloHelloHelloHello");
         TRY(s = repeat("Hello", 5));  TEST_EQUAL(s, "HelloHelloHelloHelloHello");
 
+        TRY(s = replace(""s, "", ""));                             TEST_EQUAL(s, "");
+        TRY(s = replace(""s, "a", "b"));                           TEST_EQUAL(s, "");
+        TRY(s = replace("abcdefabcdefabcdef"s, "abc", "xyz"));     TEST_EQUAL(s, "xyzdefxyzdefxyzdef");
+        TRY(s = replace("abcdefabcdefabcdef"s, "def", "xyz"));     TEST_EQUAL(s, "abcxyzabcxyzabcxyz");
+        TRY(s = replace("abcdefabcdefabcdef"s, "abc", ""));        TEST_EQUAL(s, "defdefdef");
+        TRY(s = replace("abcdefabcdefabcdef"s, "def", ""));        TEST_EQUAL(s, "abcabcabc");
+        TRY(s = replace("abcdefabcdefabcdef"s, "abc", "uvwxyz"));  TEST_EQUAL(s, "uvwxyzdefuvwxyzdefuvwxyzdef");
+        TRY(s = replace("abcdefabcdefabcdef"s, "def", "uvwxyz"));  TEST_EQUAL(s, "abcuvwxyzabcuvwxyzabcuvwxyz");
+        TRY(s = replace("abc,abc,abc"s, "abc", "*", 0));           TEST_EQUAL(s, "abc,abc,abc");
+        TRY(s = replace("abc,abc,abc"s, "abc", "*", 1));           TEST_EQUAL(s, "*,abc,abc");
+        TRY(s = replace("abc,abc,abc"s, "abc", "*", 2));           TEST_EQUAL(s, "*,*,abc");
+        TRY(s = replace("abc,abc,abc"s, "abc", "*", 3));           TEST_EQUAL(s, "*,*,*");
+        TRY(s = replace("abc,abc,abc"s, "abc", "*", 4));           TEST_EQUAL(s, "*,*,*");
+        TRY(s = replace("abc,abc,abc"s, "abc", "*", 5));           TEST_EQUAL(s, "*,*,*");
+
         TRY(split("", overwrite(sv)));                       TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
         TRY(split(" ", overwrite(sv)));                      TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
         TRY(split("\n\n", overwrite(sv)));                   TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
@@ -616,74 +631,6 @@ namespace {
         TEST_EQUAL(unqualify("alpha::bravo::charlie"), "charlie");
         TEST_EQUAL(unqualify("alpha-bravo"), "alpha-bravo");
         TEST_EQUAL(unqualify("alpha-bravo-charlie"), "alpha-bravo-charlie");
-
-    }
-
-    void check_html_xml_tags() {
-
-        const std::string expected =
-            "<h1>Header</h1>\n"
-            "<br/>\n"
-            "<ul>\n"
-            "<li><code>alpha</code></li>\n"
-            "<li><code>bravo</code></li>\n"
-            "<li><code>charlie</code></li>\n"
-            "</ul>\n";
-
-        {
-            std::ostringstream out;
-            {
-                Tag h1;
-                TRY(h1 = Tag(out, "<h1>\n"));
-                out << "Header";
-            }
-            Tag br;
-            TRY(br = Tag(out, "<br/>\n"));
-            {
-                Tag ul;
-                TRY(ul = Tag(out, "<ul>\n\n"));
-                for (auto item: {"alpha", "bravo", "charlie"}) {
-                    Tag li, code;
-                    TRY(li = Tag(out, "<li>\n"));
-                    TRY(code = Tag(out, "<code>"));
-                    out << item;
-                }
-            }
-            std::string s = out.str();
-            TEST_EQUAL(s, expected);
-        }
-
-        {
-            std::ostringstream out;
-            {
-                Tag h1(out, "h1\n");
-                out << "Header";
-            }
-            Tag br(out, "br/\n");
-            {
-                Tag ul(out, "ul\n\n");
-                for (auto item: {"alpha", "bravo", "charlie"}) {
-                    Tag li(out, "li\n");
-                    Tag code(out, "code");
-                    out << item;
-                }
-            }
-            std::string s = out.str();
-            TEST_EQUAL(s, expected);
-        }
-
-        {
-            std::ostringstream out;
-            tagged(out, "h1\n", "Header");
-            Tag br(out, "br/\n");
-            {
-                Tag ul(out, "ul\n\n");
-                for (auto item: {"alpha", "bravo", "charlie"})
-                    tagged(out, "li\n", "code", item);
-            }
-            std::string s = out.str();
-            TEST_EQUAL(s, expected);
-        }
 
     }
 
@@ -959,6 +906,74 @@ namespace {
 
     }
 
+    void check_html_xml_tags() {
+
+        const std::string expected =
+            "<h1>Header</h1>\n"
+            "<br/>\n"
+            "<ul>\n"
+            "<li><code>alpha</code></li>\n"
+            "<li><code>bravo</code></li>\n"
+            "<li><code>charlie</code></li>\n"
+            "</ul>\n";
+
+        {
+            std::ostringstream out;
+            {
+                Tag h1;
+                TRY(h1 = Tag(out, "<h1>\n"));
+                out << "Header";
+            }
+            Tag br;
+            TRY(br = Tag(out, "<br/>\n"));
+            {
+                Tag ul;
+                TRY(ul = Tag(out, "<ul>\n\n"));
+                for (auto item: {"alpha", "bravo", "charlie"}) {
+                    Tag li, code;
+                    TRY(li = Tag(out, "<li>\n"));
+                    TRY(code = Tag(out, "<code>"));
+                    out << item;
+                }
+            }
+            std::string s = out.str();
+            TEST_EQUAL(s, expected);
+        }
+
+        {
+            std::ostringstream out;
+            {
+                Tag h1(out, "h1\n");
+                out << "Header";
+            }
+            Tag br(out, "br/\n");
+            {
+                Tag ul(out, "ul\n\n");
+                for (auto item: {"alpha", "bravo", "charlie"}) {
+                    Tag li(out, "li\n");
+                    Tag code(out, "code");
+                    out << item;
+                }
+            }
+            std::string s = out.str();
+            TEST_EQUAL(s, expected);
+        }
+
+        {
+            std::ostringstream out;
+            tagged(out, "h1\n", "Header");
+            Tag br(out, "br/\n");
+            {
+                Tag ul(out, "ul\n\n");
+                for (auto item: {"alpha", "bravo", "charlie"})
+                    tagged(out, "li\n", "code", item);
+            }
+            std::string s = out.str();
+            TEST_EQUAL(s, expected);
+        }
+
+    }
+
     class Base {
     public:
         virtual ~Base() noexcept {}
@@ -1085,9 +1100,9 @@ TEST_MODULE(core, string) {
     check_character_functions();
     check_string_property_functions();
     check_string_manipulation_functions();
-    check_html_xml_tags();
     check_string_formatting_functions();
     check_string_parsing_functions();
+    check_html_xml_tags();
     check_type_names();
     check_unicode_functions();
 

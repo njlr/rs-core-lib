@@ -154,6 +154,12 @@ the string is not valid UTF-8.
 
 Returns a string containing `n` copies of `s`.
 
+* `std::string` **`replace`**`(const std::string& s, const std::string& target, const std::string& subst, size_t n = npos)`
+
+Replaces the first `n` occurrences (all of them by default) of `target` in `s`
+with `subst`. This will return the string unchanged if `target` is empty or
+`n=0`.
+
 * `template <typename OutputIterator> void` **`split`**`(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace)`
 * `Strings` **`splitv`**`(const std::string& src, const std::string& delim = ascii_whitespace)`
 
@@ -179,46 +185,6 @@ Strips off any prefix ending in one of the delimiter characters (e.g.
 `unqualify("RS::unqualify()")` returns `"unqualify()"`). This will return the
 original string unchanged if the delimiter string is empty or none of its
 characters are found.
-
-## HTML/XML tags ##
-
-* `class` **`Tag`**
-    * `Tag::`**`Tag`**`()`
-    * `Tag::`**`Tag`**`(std::ostream& out, const std::string& element)`
-    * `Tag::`**`~Tag`**`() noexcept`
-    * `Tag::`**`Tag`**`(Tag&& t) noexcept`
-    * `Tag& Tag::`**`operator=`**`(Tag&& t) noexcept`
-
-This class writes an HTML/XML tag in its constructor, then writes the
-corresponding closing tag in its destructor. If the supplied string ends with
-one line feed, a line feed will be written after the closing tag, but not the
-opening one; if it ends with two line feeds, one will be written after both
-tags.
-
-The opening tag can be supplied with or without enclosing angle brackets. The
-constructor does not attempt any validation of the tag's format (except that
-an empty tag will cause the class to do nothing); no promises are made about
-the output if the `element` argument is not a valid HTML/XML tag.
-
-If the opening tag is standalone, the text will simply be written as is, and
-no closing tag will be written. Standalone tags are identified by a closing
-slash; the class is not aware of HTML's list of automatic self closing tags.
-
-* `template <typename... Args> void` **`tagged`**`(std::ostream& out, const std::string& element, const Args&... args)`
-* `template <typename T> void` **`tagged`**`(std::ostream& out, const std::string& element, const T& t)`
-
-This function can be used to write a piece of literal text enclosed in one or
-more tags. The arguments are the output stream, a list of tags (using the same
-format as the `Tag` class), and an object that will be written to the output
-stream enclosed by the tags.
-
-Example:
-
-    tagged(std::cout, "p\n", "code", "Hello world");
-
-Output:
-
-    <p><code>Hello world</code></p>\n
 
 ## String formatting functions ##
 
@@ -313,6 +279,46 @@ tag is ignored.
 These will throw `std::invalid_argument` if the string does not start with a
 valid number, or `std::range_error` if the result is too big for the return
 type.
+
+## HTML/XML tags ##
+
+* `class` **`Tag`**
+    * `Tag::`**`Tag`**`()`
+    * `Tag::`**`Tag`**`(std::ostream& out, const std::string& element)`
+    * `Tag::`**`~Tag`**`() noexcept`
+    * `Tag::`**`Tag`**`(Tag&& t) noexcept`
+    * `Tag& Tag::`**`operator=`**`(Tag&& t) noexcept`
+
+This class writes an HTML/XML tag in its constructor, then writes the
+corresponding closing tag in its destructor. If the supplied string ends with
+one line feed, a line feed will be written after the closing tag, but not the
+opening one; if it ends with two line feeds, one will be written after both
+tags.
+
+The opening tag can be supplied with or without enclosing angle brackets. The
+constructor does not attempt any validation of the tag's format (except that
+an empty tag will cause the class to do nothing); no promises are made about
+the output if the `element` argument is not a valid HTML/XML tag.
+
+If the opening tag is standalone, the text will simply be written as is, and
+no closing tag will be written. Standalone tags are identified by a closing
+slash; the class is not aware of HTML's list of automatic self closing tags.
+
+* `template <typename... Args> void` **`tagged`**`(std::ostream& out, const std::string& element, const Args&... args)`
+* `template <typename T> void` **`tagged`**`(std::ostream& out, const std::string& element, const T& t)`
+
+This function can be used to write a piece of literal text enclosed in one or
+more tags. The arguments are the output stream, a list of tags (using the same
+format as the `Tag` class), and an object that will be written to the output
+stream enclosed by the tags.
+
+Example:
+
+    tagged(std::cout, "p\n", "code", "Hello world");
+
+Output:
+
+    <p><code>Hello world</code></p>\n
 
 ## Type names ##
 

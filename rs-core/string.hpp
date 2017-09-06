@@ -475,6 +475,23 @@ namespace RS {
         return r;
     }
 
+    inline std::string replace(const std::string& s, const std::string& target, const std::string& subst, size_t n = npos) {
+        if (target.empty() || n == 0)
+            return s;
+        std::string r;
+        size_t i = 0, j = 0, slen = s.size(), tlen = target.size();
+        for (size_t k = 0; k < n && i < slen; ++k) {
+            j = s.find(target, i);
+            if (j == npos)
+                break;
+            r.append(s, i, j - i);
+            r += subst;
+            i = j + tlen;
+        }
+        r.append(s, i, npos);
+        return r;
+    }
+
     template <typename OutputIterator>
     void split(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace) {
         if (delim.empty()) {
@@ -541,75 +558,6 @@ namespace RS {
             return str;
         else
             return str.substr(pos + 1, npos);
-    }
-
-    // HTML/XML tags
-
-    class Tag {
-    public:
-        Tag() = default;
-        Tag(std::ostream& out, const std::string& element) {
-            std::string content = trim_right(element, "\n");
-            size_t lfs = element.size() - content.size();
-            content = trim(content, "\t\n\f\r <>");
-            if (content.empty())
-                return;
-            std::string start = '<' + content + '>';
-            if (content.back() == '/') {
-                if (lfs)
-                    start += '\n';
-                out << start;
-                return;
-            }
-            auto cut = std::find_if_not(content.begin(), content.end(), ascii_isalnum_w);
-            std::string tag(content.begin(), cut);
-            end = "</" + tag + '>';
-            if (lfs >= 2)
-                start += '\n';
-            if (lfs)
-                end += '\n';
-            out << start;
-            os = &out;
-        }
-        ~Tag() noexcept {
-            if (os)
-                try { *os << end; }
-                    catch (...) {}
-        }
-        Tag(const Tag&) = delete;
-        Tag(Tag&& t) noexcept {
-            if (&t != this) {
-                end = std::move(t.end);
-                os = t.os;
-                t.os = nullptr;
-            }
-        }
-        Tag& operator=(const Tag&) = delete;
-        Tag& operator=(Tag&& t) noexcept {
-            if (&t != this) {
-                if (os)
-                    *os << end;
-                end = std::move(t.end);
-                os = t.os;
-                t.os = nullptr;
-            }
-            return *this;
-        }
-    private:
-        std::string end;
-        std::ostream* os = nullptr;
-    };
-
-    template <typename T>
-    void tagged(std::ostream& out, const std::string& element, const T& t) {
-        Tag html(out, element);
-        out << t;
-    }
-
-    template <typename... Args>
-    void tagged(std::ostream& out, const std::string& element, const Args&... args) {
-        Tag html(out, element);
-        tagged(out, args...);
     }
 
     // String formatting functions
@@ -901,6 +849,75 @@ namespace RS {
             }
         }
         return x;
+    }
+
+    // HTML/XML tags
+
+    class Tag {
+    public:
+        Tag() = default;
+        Tag(std::ostream& out, const std::string& element) {
+            std::string content = trim_right(element, "\n");
+            size_t lfs = element.size() - content.size();
+            content = trim(content, "\t\n\f\r <>");
+            if (content.empty())
+                return;
+            std::string start = '<' + content + '>';
+            if (content.back() == '/') {
+                if (lfs)
+                    start += '\n';
+                out << start;
+                return;
+            }
+            auto cut = std::find_if_not(content.begin(), content.end(), ascii_isalnum_w);
+            std::string tag(content.begin(), cut);
+            end = "</" + tag + '>';
+            if (lfs >= 2)
+                start += '\n';
+            if (lfs)
+                end += '\n';
+            out << start;
+            os = &out;
+        }
+        ~Tag() noexcept {
+            if (os)
+                try { *os << end; }
+                    catch (...) {}
+        }
+        Tag(const Tag&) = delete;
+        Tag(Tag&& t) noexcept {
+            if (&t != this) {
+                end = std::move(t.end);
+                os = t.os;
+                t.os = nullptr;
+            }
+        }
+        Tag& operator=(const Tag&) = delete;
+        Tag& operator=(Tag&& t) noexcept {
+            if (&t != this) {
+                if (os)
+                    *os << end;
+                end = std::move(t.end);
+                os = t.os;
+                t.os = nullptr;
+            }
+            return *this;
+        }
+    private:
+        std::string end;
+        std::ostream* os = nullptr;
+    };
+
+    template <typename T>
+    void tagged(std::ostream& out, const std::string& element, const T& t) {
+        Tag html(out, element);
+        out << t;
+    }
+
+    template <typename... Args>
+    void tagged(std::ostream& out, const std::string& element, const Args&... args) {
+        Tag html(out, element);
+        tagged(out, args...);
     }
 
     // Type names
