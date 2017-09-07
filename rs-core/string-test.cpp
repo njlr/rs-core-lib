@@ -479,6 +479,38 @@ namespace {
         std::wstring ws;
         Strings sv;
 
+        s = "";            TRY(s = add_prefix(s, ""));       TEST_EQUAL(s, "");
+        s = "";            TRY(s = add_prefix(s, "Hello"));  TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = add_prefix(s, ""));       TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = add_prefix(s, "Hello"));  TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = add_prefix(s, "World"));  TEST_EQUAL(s, "WorldHello");
+        s = "HelloWorld";  TRY(s = add_prefix(s, "Hello"));  TEST_EQUAL(s, "HelloWorld");
+        s = "HelloWorld";  TRY(s = add_prefix(s, "World"));  TEST_EQUAL(s, "WorldHelloWorld");
+
+        s = "";            TRY(s = add_suffix(s, ""));       TEST_EQUAL(s, "");
+        s = "";            TRY(s = add_suffix(s, "Hello"));  TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = add_suffix(s, ""));       TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = add_suffix(s, "Hello"));  TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = add_suffix(s, "World"));  TEST_EQUAL(s, "HelloWorld");
+        s = "HelloWorld";  TRY(s = add_suffix(s, "Hello"));  TEST_EQUAL(s, "HelloWorldHello");
+        s = "HelloWorld";  TRY(s = add_suffix(s, "World"));  TEST_EQUAL(s, "HelloWorld");
+
+        s = "";            TRY(s = drop_prefix(s, ""));       TEST_EQUAL(s, "");
+        s = "";            TRY(s = drop_prefix(s, "Hello"));  TEST_EQUAL(s, "");
+        s = "Hello";       TRY(s = drop_prefix(s, ""));       TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = drop_prefix(s, "Hello"));  TEST_EQUAL(s, "");
+        s = "Hello";       TRY(s = drop_prefix(s, "World"));  TEST_EQUAL(s, "Hello");
+        s = "HelloWorld";  TRY(s = drop_prefix(s, "Hello"));  TEST_EQUAL(s, "World");
+        s = "HelloWorld";  TRY(s = drop_prefix(s, "World"));  TEST_EQUAL(s, "HelloWorld");
+
+        s = "";            TRY(s = drop_suffix(s, ""));       TEST_EQUAL(s, "");
+        s = "";            TRY(s = drop_suffix(s, "Hello"));  TEST_EQUAL(s, "");
+        s = "Hello";       TRY(s = drop_suffix(s, ""));       TEST_EQUAL(s, "Hello");
+        s = "Hello";       TRY(s = drop_suffix(s, "Hello"));  TEST_EQUAL(s, "");
+        s = "Hello";       TRY(s = drop_suffix(s, "World"));  TEST_EQUAL(s, "Hello");
+        s = "HelloWorld";  TRY(s = drop_suffix(s, "Hello"));  TEST_EQUAL(s, "HelloWorld");
+        s = "HelloWorld";  TRY(s = drop_suffix(s, "World"));  TEST_EQUAL(s, "Hello");
+
         TEST_EQUAL(ascii_lowercase("Hello World"s), "hello world");
         TEST_EQUAL(ascii_uppercase("Hello World"s), "HELLO WORLD");
         TEST_EQUAL(ascii_titlecase("hello world"s), "Hello World");

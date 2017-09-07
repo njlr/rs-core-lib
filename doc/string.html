@@ -137,6 +137,18 @@ code points).</p>
 <h2 id="string-manipulation-functions">String manipulation functions</h2>
 <div class="defns">
 <ul>
+<li><code>std::string</code> <strong><code>add_prefix</code></strong><code>(const std::string&amp; s, const std::string&amp; prefix)</code></li>
+<li><code>std::string</code> <strong><code>add_suffix</code></strong><code>(const std::string&amp; s, const std::string&amp; suffix)</code></li>
+<li><code>std::string</code> <strong><code>drop_prefix</code></strong><code>(const std::string&amp; s, const std::string&amp; prefix)</code></li>
+<li><code>std::string</code> <strong><code>drop_suffix</code></strong><code>(const std::string&amp; s, const std::string&amp; suffix)</code></li>
+</ul>
+<p>The <code>add_prefix/suffix()</code> functions add a prefix or suffix to the string if it
+was not already there, or return the string unchanged if it was. The
+<code>drop_prefix/suffix()</code> functions remove a prefix or suffix if it was present,
+otherwise return the string unchanged.</p>
+</div>
+<div class="defns">
+<ul>
 <li><code>std::string</code> <strong><code>ascii_lowercase</code></strong><code>(const std::string&amp; s)</code></li>
 <li><code>std::string</code> <strong><code>ascii_uppercase</code></strong><code>(const std::string&amp; s)</code></li>
 <li><code>std::string</code> <strong><code>ascii_titlecase</code></strong><code>(const std::string&amp; s)</code></li>

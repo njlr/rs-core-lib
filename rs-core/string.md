@@ -104,6 +104,16 @@ True if the string contains no 8-bit bytes.
 
 ## String manipulation functions ##
 
+* `std::string` **`add_prefix`**`(const std::string& s, const std::string& prefix)`
+* `std::string` **`add_suffix`**`(const std::string& s, const std::string& suffix)`
+* `std::string` **`drop_prefix`**`(const std::string& s, const std::string& prefix)`
+* `std::string` **`drop_suffix`**`(const std::string& s, const std::string& suffix)`
+
+The `add_prefix/suffix()` functions add a prefix or suffix to the string if it
+was not already there, or return the string unchanged if it was. The
+`drop_prefix/suffix()` functions remove a prefix or suffix if it was present,
+otherwise return the string unchanged.
+
 * `std::string` **`ascii_lowercase`**`(const std::string& s)`
 * `std::string` **`ascii_uppercase`**`(const std::string& s)`
 * `std::string` **`ascii_titlecase`**`(const std::string& s)`

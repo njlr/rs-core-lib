@@ -350,6 +350,34 @@ namespace RS {
 
     }
 
+    inline std::string add_prefix(const std::string& s, const std::string& prefix) {
+        if (starts_with(s, prefix))
+            return s;
+        else
+            return prefix + s;
+    }
+
+    inline std::string add_suffix(const std::string& s, const std::string& suffix) {
+        if (ends_with(s, suffix))
+            return s;
+        else
+            return s + suffix;
+    }
+
+    inline std::string drop_prefix(const std::string& s, const std::string& prefix) {
+        if (starts_with(s, prefix))
+            return s.substr(prefix.size(), npos);
+        else
+            return s;
+    }
+
+    inline std::string drop_suffix(const std::string& s, const std::string& suffix) {
+        if (ends_with(s, suffix))
+            return s.substr(0, s.size() - suffix.size());
+        else
+            return s;
+    }
+
     inline std::string ascii_lowercase(const std::string& s) {
         auto r = s;
         std::transform(r.begin(), r.end(), r.begin(), ascii_tolower);
