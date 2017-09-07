@@ -108,7 +108,7 @@ namespace RS {
 
     // Process I/O operations
 
-    inline std::string run_command(const U8string& cmd) {
+    inline std::string shell(const U8string& cmd) {
         static constexpr size_t block = 1024;
         std::shared_ptr<FILE> pipe;
         #ifdef _XOPEN_SOURCE

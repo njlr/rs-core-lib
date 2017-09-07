@@ -77,9 +77,9 @@ namespace {
         U8string s;
 
         #ifdef _XOPEN_SOURCE
-            TRY(s = run_command("ls"));
+            TRY(s = shell("ls"));
         #else
-            TRY(s = run_command("dir /b"));
+            TRY(s = shell("dir /b"));
         #endif
 
         TEST(! s.empty());
@@ -91,7 +91,7 @@ namespace {
 
     }
 
-    void check_progres_bar() {
+    void check_progress_bar() {
 
         // double scale = 100;
         // auto runtime = 2s;
@@ -164,7 +164,7 @@ TEST_MODULE(core, io) {
 
     check_file_io_operations();
     check_process_io_operations();
-    check_progres_bar();
+    check_progress_bar();
     check_terminal_io_operations();
 
 }
