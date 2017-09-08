@@ -24,6 +24,7 @@
     * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
 * _Input/output_
+    * [`"rs-core/file.hpp"`](file.html) - File class
     * [`"rs-core/io.hpp"`](io.html) - I/O utilities
     * [`"rs-core/terminal.hpp"`](terminal.html) - Terminal I/O
 * _Networking_

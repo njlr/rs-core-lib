@@ -8,6 +8,7 @@
 #include "rs-core/common.hpp"
 #include "rs-core/digest.hpp"
 #include "rs-core/encoding.hpp"
+#include "rs-core/file.hpp"
 #include "rs-core/float.hpp"
 #include "rs-core/grid.hpp"
 #include "rs-core/index-table.hpp"

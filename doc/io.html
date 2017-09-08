@@ -2,11 +2,11 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>Core I/O</title>
+<title>I/O Utilities</title>
 <link type="text/css" rel="stylesheet" href="style.css"/>
 </head>
 <body>
-<h1 id="core-io">Core I/O</h1>
+<h1 id="io-utilities">I/O Utilities</h1>
 <p>By Ross Smith</p>
 <ul>
 <li><code>#include "rs-core/io.hpp"</code></li>
@@ -14,39 +14,859 @@
 <h2 id="contents">Contents</h2>
 <div class="toc">
 <ul>
-<li><a href="#core-io">Core I/O</a><ul>
+<li><a href="#io-utilities">I/O Utilities</a><ul>
 <li><a href="#contents">Contents</a></li>
-<li><a href="#file-io-operations">File I/O operations</a></li>
+<li><a href="#io-abstract-base-class">I/O abstract base class</a></li>
+<li><a href="#c-standard-io">C standard I/O</a></li>
+<li><a href="#unix-file-descriptor-io">Unix file descriptor I/O</a></li>
+<li><a href="#windows-file-handle-io">Windows file handle I/O</a></li>
+<li><a href="#string-buffer">String buffer</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<h2 id="file-io-operations">File I/O operations</h2>
-<p>Functions that take a file name have overloads that take a UTF-16 string in
-native Windows builds (not on Cygwin, where the <code>_wfopen()</code> function is not
-available). In all of these functions, passing an empty string or <code>"-"</code> as the
-file name will cause the function to read from standard input or write to
-standard output.</p>
+<h2 id="io-abstract-base-class">I/O abstract base class</h2>
 <div class="defns">
 <ul>
-<li><code>bool</code> <strong><code>load_file</code></strong><code>(const string&amp; file, string&amp; dst, size_t limit = npos)</code></li>
-<li><code>bool</code> <strong><code>load_file</code></strong><code>(const wstring&amp; file, string&amp; dst, size_t limit = npos)</code> <em>(Native Windows only)</em></li>
+<li><code>class</code> <strong><code>IO</code></strong></li>
 </ul>
-<p>Read a file's contents into a string. Optionally, a maximum number of bytes
-can be specified The return value is true if everything went well, false if
-there was an error while opening or reading the file. If the function returns
-false, the destination string will be cleared.</p>
+<p>This is an abstract base class for classes that implement file and string I/O.
+Classes derived from this do not normally throw exceptions from I/O operation
+failures, including failure to open a file in the first place (but may throw
+for other reasons, e.g. allocation failure); instead the <code>error()</code> and
+<code>check()</code> methods can be used to test for errors and optionally throw.</p>
 </div>
 <div class="defns">
 <ul>
-<li><code>bool</code> <strong><code>save_file</code></strong><code>(const string&amp; file, const void* ptr, size_t n, bool append = false)</code></li>
-<li><code>bool</code> <strong><code>save_file</code></strong><code>(const string&amp; file, const string&amp; src, bool append = false)</code></li>
-<li><code>bool</code> <strong><code>save_file</code></strong><code>(const wstring&amp; file, const void* ptr, size_t n, bool append = false)</code> <em>(Native Windows only)</em></li>
-<li><code>bool</code> <strong><code>save_file</code></strong><code>(const wstring&amp; file, const string&amp; src, bool append = false)</code> <em>(Native Windows only)</em></li>
+<li><code>class IO::</code><strong><code>line_iterator</code></strong><ul>
+<li><code>using IO::line_iterator::</code><strong><code>iterator_category</code></strong> <code>= std::input_iterator_category</code></li>
+<li><code>using IO::line_iterator::</code><strong><code>value_type</code></strong> <code>= std::string</code></li>
 </ul>
-<p>Write a string's contents into a file, optionally appending it to the file
-instead of overwriting it if it already exists (if the file does not exist, or
-is standard output, the <code>append</code> flag has no effect). The return value is true
-if everything went well, false if there was an error while opening or writing
-the file.</p></body>
+</li>
+</ul>
+<p>An iterator over the lines in a text file (see <code>read_line()</code> for the
+semantics).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>enum class IO::</code><strong><code>mode</code></strong><ul>
+<li><code>IO::mode::</code><strong><code>read_only</code></strong>      <em>- Open for read only; fail if the file does not exist</em></li>
+<li><code>IO::mode::</code><strong><code>write_only</code></strong>     <em>- Open for write only; always create a new file, replacing it if it already exists</em></li>
+<li><code>IO::mode::</code><strong><code>append</code></strong>         <em>- Open for append; open the file if it already exists, otherwise create a new one</em></li>
+<li><code>IO::mode::</code><strong><code>create_always</code></strong>  <em>- Open for read and write; always create a new file, replacing it if it already exists</em></li>
+<li><code>IO::mode::</code><strong><code>open_always</code></strong>    <em>- Open for read and write; open the file if it already exists, otherwise create a new one</em></li>
+<li><code>IO::mode::</code><strong><code>open_existing</code></strong>  <em>- Open for read and write; open the file if it already exists, otherwise fail</em></li>
+</ul>
+</li>
+</ul>
+<p>Flags for some of the commonly used opening modes.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual IO::</code><strong><code>~IO</code></strong><code>()</code></li>
+</ul>
+<p>Destructor.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual void IO::</code><strong><code>close</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Close the file. This is only needed if you want to check for an error
+afterwards; any open file is closed by the destructor.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual void IO::</code><strong><code>flush</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Flush the stream. The semantics of this depends on the particular derived
+class. Flushing an input stream usually does nothing.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual bool IO::</code><strong><code>is_open</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the file is open.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual bool IO::</code><strong><code>is_terminal</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the I/O stream is reading or writing to a terminal.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual size_t IO::</code><strong><code>read</code></strong><code>(void* ptr, size_t maxlen) noexcept</code></li>
+<li><code>virtual std::string IO::</code><strong><code>read_line</code></strong><code>()</code></li>
+<li><code>virtual int IO::</code><strong><code>getc</code></strong><code>() noexcept</code></li>
+<li><code>std::string IO::</code><strong><code>read_all</code></strong><code>()</code></li>
+<li><code>size_t IO::</code><strong><code>read_n</code></strong><code>(std::string&amp; s, size_t maxlen = 1024)</code></li>
+<li><code>std::string IO::</code><strong><code>read_str</code></strong><code>(size_t maxlen)</code></li>
+</ul>
+<p>Input functions. The <code>read()</code> function reads up to <code>maxlen</code> bytes into the
+destination buffer, returning the number of bytes actually read. The
+<code>read_line()</code> function reads up to the next line feed (or EOF), returning the
+line as a string (the line feed is discarded). The <code>getc()</code> function reads one
+byte, returning the byte value or <code>EOF</code>.</p>
+<p>The <code>read_all()</code> function reads all available data until it reaches EOF or an
+error occurs. The <code>read_n()</code> and <code>read_str()</code> functions call <code>read()</code>, writing
+the incoming data into a string instead of a user supplied buffer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual void IO::</code><strong><code>seek</code></strong><code>(ptrdiff_t offset, int which = SEEK_CUR) noexcept</code></li>
+<li><code>virtual ptrdiff_t IO::</code><strong><code>tell</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Set or query the current position in the file. The <code>which</code> argument takes the
+standard values <code>SEEK_CUR</code>, <code>SEEK_SET</code>, or <code>SEEK_END</code>. These may not work on
+all streams (it is not usually possible to seek on standard input or output).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>virtual size_t IO::</code><strong><code>write</code></strong><code>(const void* ptr, size_t len)</code></li>
+<li><code>virtual void IO::</code><strong><code>write_n</code></strong><code>(size_t n, char c)</code></li>
+<li><code>virtual void IO::</code><strong><code>putc</code></strong><code>(char c)</code></li>
+<li><code>void IO::</code><strong><code>write_line</code></strong><code>(const std::string&amp; str)</code></li>
+<li><code>size_t IO::</code><strong><code>write_str</code></strong><code>(const std::string&amp; str)</code></li>
+<li><code>template &lt;typename... Args&gt; void IO::</code><strong><code>format</code></strong><code>(const U8string&amp; pattern, const Args&amp;... args)</code></li>
+<li><code>template &lt;typename... Args&gt; void IO::</code><strong><code>print</code></strong><code>(const Args&amp;... args)</code></li>
+</ul>
+<p>Output functions. The <code>write()</code> function attempts to write the given block of
+bytes, returning the number successfully written (on most I/O streams this
+will be less than <code>len</code> only if something goes wrong, but this is not
+guaranteed). The <code>write_n()</code> function writes <code>n</code> identical bytes equal to <code>c</code>.
+The <code>putc()</code> function writes one byte.</p>
+<p>The <code>write_str()</code> function calls <code>write()</code> with the string contents, repeating
+the call if an incomplete write occurs but is not reported as an error;
+<code>write_line()</code> does the same thing, but will add a line feed if the string did
+not already end with one. The <code>format()</code> function calls <code>fmt(pattern,args...)</code>
+and writes the resulting string to the output stream. The <code>print()</code> function
+formats each argument using <code>to_str()</code>, writing them to the output stream with
+a space between each pair of arguments, followed by a line feed.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void IO::</code><strong><code>check</code></strong><code>() const</code></li>
+<li><code>void IO::</code><strong><code>clear_error</code></strong><code>() noexcept</code></li>
+<li><code>std::error_code IO::</code><strong><code>error</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Error handling functions. The <code>error()</code> function returns any pending error
+status; <code>check()</code> throws <code>std::system_error</code> if an error is set. Once an error
+happens, the error status remains set until <code>clear_error()</code> is called,
+although the actual error code may be changed if a subsequent operation
+generates a different error.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Irange&lt;line_iterator&gt; IO::</code><strong><code>lines</code></strong><code>()</code></li>
+</ul>
+<p>Return iterators over the lines in a file. These are obtained by calling
+<code>read_line()</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool IO::</code><strong><code>ok</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the file is open and there is no error set.</p>
+</div>
+<h2 id="c-standard-io">C standard I/O</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Cstdio</code></strong><code>: public IO</code></li>
+</ul>
+<p>This class implements standard buffered I/O, using the <code>FILE*</code> based system
+API in <code>&lt;cstdio&gt;</code> or <code>&lt;stdio.h&gt;</code></p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Cstdio::</code><strong><code>handle_type</code></strong> <code>= FILE*</code></li>
+</ul>
+<p>The native file handle type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>explicit Cstdio::</code><strong><code>Cstdio</code></strong><code>(FILE* f, bool owner = true) noexcept</code></li>
+<li><code>explicit Cstdio::</code><strong><code>Cstdio</code></strong><code>(const File&amp; f, mode m = mode::read_only)</code></li>
+<li><code>Cstdio::</code><strong><code>Cstdio</code></strong><code>(const File&amp; f, const U8string&amp; iomode)</code></li>
+</ul>
+<p>The first constructor wraps a <code>Cstdio</code> object around an existing file pointer;
+if <code>owner</code> is true, the destructor will close the file. The second constructor
+opens the file using one of the standard <code>IO::mode</code> values, defaulting to read
+only. The third constructor opens the file using the same mode string used in
+<code>fopen()</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Cstdio::</code><strong><code>Cstdio</code></strong><code>() noexcept</code></li>
+<li><code>virtual Cstdio::</code><strong><code>~Cstdio</code></strong><code>() noexcept</code></li>
+<li><code>Cstdio::</code><strong><code>Cstdio</code></strong><code>(Cstdio&amp;&amp; io) noexcept</code></li>
+<li><code>Cstdio&amp; Cstdio::</code><strong><code>operator=</code></strong><code>(Cstdio&amp;&amp; io) noexcept</code></li>
+</ul>
+<p>Other life cycle operations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>int Cstdio::</code><strong><code>fd</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>Returns the underlying file descriptor.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>FILE* Cstdio::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>FILE* Cstdio::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Return the native file handle. The <code>release()</code> function sets the internal
+handle to null and abandons ownership of the stream.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void Cstdio::</code><strong><code>ungetc</code></strong><code>(char c)</code></li>
+</ul>
+<p>Calls the native <code>ungetc()</code> function to push one byte back into the stream
+buffer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Cstdio Cstdio::</code><strong><code>null</code></strong><code>() noexcept</code></li>
+<li><code>static Cstdio Cstdio::</code><strong><code>std_input</code></strong><code>() noexcept</code></li>
+<li><code>static Cstdio Cstdio::</code><strong><code>std_output</code></strong><code>() noexcept</code></li>
+<li><code>static Cstdio Cstdio::</code><strong><code>std_error</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Standard streams. The <code>null()</code> function opens <code>"/dev/null"</code> or the equivalent
+for reading and writing.</p>
+</div>
+<h2 id="unix-file-descriptor-io">Unix file descriptor I/O</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Fdio</code></strong><code>: public IO</code></li>
+</ul>
+<p>This class implements standard Posix unbuffered I/O, using the file descriptor
+based system API.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Fdio::</code><strong><code>handle_type</code></strong> <code>= int</code></li>
+</ul>
+<p>The native file descriptor type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>explicit Fdio::</code><strong><code>Fdio</code></strong><code>(int f, bool owner = true) noexcept</code></li>
+<li><code>explicit Fdio::</code><strong><code>Fdio</code></strong><code>(const File&amp; f, mode m = mode::read_only)</code></li>
+<li><code>Fdio::</code><strong><code>Fdio</code></strong><code>(const File&amp; f, int iomode, int perm = 0666)</code></li>
+</ul>
+<p>The first constructor wraps an <code>Fdio</code> object around an existing file
+descriptor; if <code>owner</code> is true, the destructor will close the file. The second
+constructor opens the file using one of the standard <code>IO::mode</code> values,
+defaulting to read only. The third constructor opens the file using the same
+flags used in the Posix <code>open()</code> function.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+<th>Posix</th>
+<th>Apple</th>
+<th>Cygwin</th>
+<th>Linux</th>
+<th>Mingw</th>
+<th>MSVC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Access mode flags</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>O_EXEC</code></td>
+<td>Open for execute only</td>
+<td>Posix</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_RDONLY</code></td>
+<td>Open for reading only</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_RDWR</code></td>
+<td>Open for reading and writing</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_SEARCH</code></td>
+<td>Open directory for search only</td>
+<td>Posix</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_WRONLY</code></td>
+<td>Open for writing only</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><em>Other Posix flags</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>O_APPEND</code></td>
+<td>Set append mode</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_CLOEXEC</code></td>
+<td>Implicitly set <code>FD_CLOEXEC</code></td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_CREAT</code></td>
+<td>Create if file does not exist</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_DIRECTORY</code></td>
+<td>Must be a directory</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_DSYNC</code></td>
+<td>Synchronize data</td>
+<td>Posix</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_EXCL</code></td>
+<td>Error if file already exists</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_NOCTTY</code></td>
+<td>Don't assign controlling terminal</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_NOFOLLOW</code></td>
+<td>Don't follow symlinks</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_NONBLOCK</code></td>
+<td>No delay</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_RSYNC</code></td>
+<td>Synchronize read operations</td>
+<td>Posix</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_SYNC</code></td>
+<td>Synchronize write operations</td>
+<td>Posix</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_TRUNC</code></td>
+<td>Truncate to zero length</td>
+<td>Posix</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_TTY_INIT</code></td>
+<td>Set <code>termios</code> structure if this is a terminal</td>
+<td>Posix</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><em>Non-standard flags</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>O_ASYNC</code></td>
+<td>Signal process group when data ready</td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_BINARY</code></td>
+<td>Open in binary mode</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_DIRECT</code></td>
+<td>Minimize caching</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_EVTONLY</code></td>
+<td>Descriptor for event notification only</td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_EXLOCK</code></td>
+<td>Open with exclusive file lock</td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_FSYNC</code></td>
+<td>Synchronous writes</td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_LARGEFILE</code></td>
+<td>Allow files too large for a 32-bit offset</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_NDELAY</code></td>
+<td>Synonym for <code>O_NONBLOCK</code></td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>Cygwin</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_NOATIME</code></td>
+<td>Don't update last access time</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_NOINHERIT</code></td>
+<td>Prevent creation of a shared descriptor</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_PATH</code></td>
+<td>Path-only handle, do not open file</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_RANDOM</code></td>
+<td>Optimize for random access</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_RAW</code></td>
+<td>Synonym for <code>O_BINARY</code></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_SEQUENTIAL</code></td>
+<td>Optimize for sequential access</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_SHLOCK</code></td>
+<td>Open with shared file lock</td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_SHORT_LIVED</code></td>
+<td>If possible do not flush to disk</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_SYMLINK</code></td>
+<td>Allow opening a symlink</td>
+<td>&mdash;</td>
+<td>Apple</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_TEMPORARY</code></td>
+<td>Delete file when last descriptor is closed</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_TMPFILE</code></td>
+<td>Delete file when last descriptor is closed</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Linux</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+</tr>
+<tr>
+<td><code>O_TEXT</code></td>
+<td>Open in text mode</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Cygwin</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_U8TEXT</code></td>
+<td>Open in UTF-8 text mode</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_U16TEXT</code></td>
+<td>Open in UTF-16 text mode</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+<tr>
+<td><code>O_WTEXT</code></td>
+<td>Open in UTF-16 text mode, check for BOM</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td>Mingw</td>
+<td>MSVC</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="defns">
+<ul>
+<li><code>Fdio::</code><strong><code>Fdio</code></strong><code>() noexcept</code></li>
+<li><code>virtual Fdio::</code><strong><code>~Fdio</code></strong><code>() noexcept</code></li>
+<li><code>Fdio::</code><strong><code>Fdio</code></strong><code>(Fdio&amp;&amp; io) noexcept</code></li>
+<li><code>Fdio&amp; Fdio::</code><strong><code>operator=</code></strong><code>(Fdio&amp;&amp; io) noexcept</code></li>
+</ul>
+<p>Other life cycle operations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Fdio Fdio::</code><strong><code>dup</code></strong><code>() noexcept</code></li>
+<li><code>Fdio Fdio::</code><strong><code>dup</code></strong><code>(int f) noexcept</code></li>
+</ul>
+<p>These call the native <code>dup()</code> or <code>dup2()</code> functions to duplicate a file
+descriptor.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>int Fdio::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>int Fdio::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Return the native file descriptor. The <code>release()</code> function sets the internal
+descriptor to -1 and abandons ownership of the stream.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Fdio Fdio::</code><strong><code>null</code></strong><code>() noexcept</code></li>
+<li><code>static Fdio Fdio::</code><strong><code>std_input</code></strong><code>() noexcept</code></li>
+<li><code>static Fdio Fdio::</code><strong><code>std_output</code></strong><code>() noexcept</code></li>
+<li><code>static Fdio Fdio::</code><strong><code>std_error</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Standard streams.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static std::pair&lt;Fdio, Fdio&gt; Fdio::</code><strong><code>pipe</code></strong><code>(size_t winmem = 1024)</code></li>
+</ul>
+<p>Opens a pipe (by calling the native <code>pipe()</code> function or the equivalent),
+returning the read and write ends of the pipe. On Windows a size limit is
+required when creating a pipe; this argument is ignored on Unix.</p>
+</div>
+<h2 id="windows-file-handle-io">Windows file handle I/O</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>Winio</code></strong><code>: public IO</code></li>
+</ul>
+<p>This class implements I/O using the Win32 system API.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>using Winio::</code><strong><code>handle_type</code></strong> <code>= HANDLE</code></li>
+</ul>
+<p>The native file handle type.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>explicit Winio::</code><strong><code>Winio</code></strong><code>(void* f, bool owner = true) noexcept</code></li>
+<li><code>explicit Winio::</code><strong><code>Winio</code></strong><code>(const File&amp; f, mode m = mode::read_only)</code></li>
+<li><code>Winio::</code><strong><code>Winio</code></strong><code>(const File&amp; f, uint32_t desired_access, uint32_t share_mode, LPSECURITY_ATTRIBUTES security_attributes, uint32_t creation_disposition, uint32_t flags_and_attributes = 0, HANDLE template_file = nullptr)</code></li>
+</ul>
+<p>The first constructor wraps a <code>Winio</code> object around an existing file handle;
+if <code>owner</code> is true, the destructor will close the file. The second constructor
+opens the file using one of the standard <code>IO::mode</code> values, defaulting to read
+only. The third constructor opens the file using the same arguments used in
+<code>CreateFile()</code>.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>Winio::</code><strong><code>Winio</code></strong><code>() noexcept</code></li>
+<li><code>virtual Winio::</code><strong><code>~Winio</code></strong><code>() noexcept</code></li>
+<li><code>Winio::</code><strong><code>Winio</code></strong><code>(Winio&amp;&amp; io) noexcept</code></li>
+<li><code>Winio&amp; Winio::</code><strong><code>operator=</code></strong><code>(Winio&amp;&amp; io) noexcept</code></li>
+</ul>
+<p>Other life cycle operations.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void* Winio::</code><strong><code>get</code></strong><code>() const noexcept</code></li>
+<li><code>void* Winio::</code><strong><code>release</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Return the native file handle. The <code>release()</code> function sets the internal
+handle to null and abandons ownership of the stream.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>static Winio Winio::</code><strong><code>null</code></strong><code>() noexcept</code></li>
+<li><code>static Winio Winio::</code><strong><code>std_input</code></strong><code>() noexcept</code></li>
+<li><code>static Winio Winio::</code><strong><code>std_output</code></strong><code>() noexcept</code></li>
+<li><code>static Winio Winio::</code><strong><code>std_error</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Standard streams.</p>
+</div>
+<h2 id="string-buffer">String buffer</h2>
+<div class="defns">
+<ul>
+<li><code>class</code> <strong><code>StringBuffer</code></strong><code>: public IO</code></li>
+</ul>
+<p>This class implements file-like read and write operations on a string buffer.
+The string used as a buffer can be supplied to the constructor, or created
+internally. Writing to the <code>StringBuffer</code> appends data to the end of the
+buffer; reading removes it from the beginning. Seeking forward will discard
+bytes from the read end of the buffer; seeking backward has no effect.</p>
+<p>The actual contents of the buffer are managed internally; read and write
+operations move internal pointers within the string, but to avoid excessive
+copying, data will only be trimmed from the whole buffer when heuristics
+suggest that it is growing too large. Calling <code>flush()</code> will force an
+immediate trim to contain only the active portion of the buffer. Calling
+<code>close()</code> removes all data (equivalent to <code>clear()</code>; the <code>StringBuffer</code> does
+not actually maintain an open/closed state).</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>StringBuffer::</code><strong><code>StringBuffer</code></strong><code>() noexcept</code></li>
+<li><code>explicit StringBuffer::</code><strong><code>StringBuffer</code></strong><code>(std::string&amp; s)</code></li>
+<li><code>virtual StringBuffer::</code><strong><code>~StringBuffer</code></strong><code>() noexcept</code></li>
+<li><code>StringBuffer::</code><strong><code>StringBuffer</code></strong><code>(StringBuffer&amp;&amp; src) noexcept</code></li>
+<li><code>StringBuffer&amp; StringBuffer::</code><strong><code>operator=</code></strong><code>(StringBuffer&amp;&amp; src) noexcept</code></li>
+</ul>
+<p>Life cycle operations. A moved-from <code>StringBuffer</code> is empty.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>char* StringBuffer::</code><strong><code>begin</code></strong><code>() noexcept</code></li>
+<li><code>const char* StringBuffer::</code><strong><code>begin</code></strong><code>() const noexcept</code></li>
+<li><code>char* StringBuffer::</code><strong><code>end</code></strong><code>() noexcept</code></li>
+<li><code>const char* StringBuffer::</code><strong><code>end</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>These return pointers to the ends of the currently valid part of the buffer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>void StringBuffer::</code><strong><code>clear</code></strong><code>() noexcept</code></li>
+</ul>
+<p>Empties the buffer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>bool StringBuffer::</code><strong><code>empty</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>True if the buffer is empty.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>size_t StringBuffer::</code><strong><code>size</code></strong><code>() const noexcept</code></li>
+</ul>
+<p>The number of bytes currently in the valid part of the buffer.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>std::string StringBuffer::</code><strong><code>str</code></strong><code>() const</code></li>
+</ul>
+<p>Returns the buffer contents as a string.</p></body>
 </html>
