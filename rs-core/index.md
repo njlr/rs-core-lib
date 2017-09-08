@@ -35,7 +35,7 @@
     * [`"rs-core/rational.hpp"`](rational.html) -- Rational numbers
     * [`"rs-core/statistics.hpp"`](statistics.html) -- Statistics
     * [`"rs-core/vector.hpp"`](vector.html) - Vectors, matrices, and quaternions
-* _Text and I/O_
+* _Text processing_
     * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
     * [`"rs-core/encoding.hpp"`](encoding.html) -- Binary and text encodings
     * [`"rs-core/string.hpp"`](string.html) - String algorithms
