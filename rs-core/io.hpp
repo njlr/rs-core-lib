@@ -3,7 +3,6 @@
 #include "rs-core/common.hpp"
 #include <algorithm>
 #include <cstdio>
-#include <memory>
 #include <string>
 
 namespace RS {
@@ -98,29 +97,5 @@ namespace RS {
     #endif
 
     inline bool save_file(const std::string& file, const std::string& src, bool append = false) { return save_file(file, src.data(), src.size(), append); }
-
-    // Process I/O operations
-
-    inline std::string shell(const U8string& cmd) {
-        static constexpr size_t block = 1024;
-        std::shared_ptr<FILE> pipe;
-        #ifdef _XOPEN_SOURCE
-            pipe.reset(popen(cmd.data(), "r"), pclose);
-        #else
-            auto wcmd = uconv<std::wstring>(cmd);
-            pipe.reset(_wpopen(wcmd.data(), L"rb"), pclose);
-        #endif
-        if (! pipe)
-            return {};
-        U8string result;
-        size_t bytes = 0;
-        do {
-            size_t offset = result.size();
-            result.resize(offset + block);
-            bytes = fread(&result[0] + offset, 1, block, pipe.get());
-            result.resize(offset + bytes);
-        } while (bytes);
-        return result;
-    }
 
 }

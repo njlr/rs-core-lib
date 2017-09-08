@@ -1,7 +1,5 @@
 #include "rs-core/io.hpp"
-#include "rs-core/string.hpp"
 #include "rs-core/unit-test.hpp"
-#include <set>
 #include <string>
 
 using namespace RS;
@@ -68,30 +66,10 @@ namespace {
 
     }
 
-    void check_process_io_operations() {
-
-        U8string s;
-
-        #ifdef _XOPEN_SOURCE
-            TRY(s = shell("ls"));
-        #else
-            TRY(s = shell("dir /b"));
-        #endif
-
-        TEST(! s.empty());
-        std::set<U8string> ss;
-        TRY(split(s, append(ss), "\r\n"));
-        TEST(! ss.empty());
-        TEST(ss.count("Makefile"));
-        TEST(ss.count("build"));
-
-    }
-
 }
 
 TEST_MODULE(core, io) {
 
     check_file_io_operations();
-    check_process_io_operations();
 
 }

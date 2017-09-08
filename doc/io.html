@@ -17,7 +17,6 @@
 <li><a href="#core-io">Core I/O</a><ul>
 <li><a href="#contents">Contents</a></li>
 <li><a href="#file-io-operations">File I/O operations</a></li>
-<li><a href="#process-io-operations">Process I/O operations</a></li>
 </ul>
 </li>
 </ul>
@@ -49,15 +48,5 @@ false, the destination string will be cleared.</p>
 instead of overwriting it if it already exists (if the file does not exist, or
 is standard output, the <code>append</code> flag has no effect). The return value is true
 if everything went well, false if there was an error while opening or writing
-the file.</p>
-</div>
-<h2 id="process-io-operations">Process I/O operations</h2>
-<div class="defns">
-<ul>
-<li><code>std::string</code> <strong><code>shell</code></strong><code>(const U8string&amp; cmd)</code></li>
-</ul>
-<p>Runs a shell command synchronously (via <code>popen()</code> or the equivalent),
-capturing standard output. No error indication is returned; standard error
-still goes to its usual destination, unless explicitly redirected in the
-command line.</p></body>
+the file.</p></body>
 </html>

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "rs-core/channel.hpp"
-#include "rs-core/string.hpp"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -15,6 +14,8 @@
 #endif
 
 namespace RS {
+
+    // Spawned process channels
 
     class StreamProcess:
     public StreamChannel {
@@ -168,5 +169,12 @@ namespace RS {
                 delta = duration_cast<Interval::time>(deadline - now);
             }
         }
+
+    // Shell commands
+
+    inline std::string shell(const U8string& cmd) {
+        StreamProcess proc(cmd);
+        return proc.read_all();
+    }
 
 }

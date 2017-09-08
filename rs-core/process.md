@@ -8,6 +8,15 @@ By Ross Smith
 
 [TOC]
 
+## Shell commands ##
+
+* `std::string` **`shell`**`(const U8string& cmd)`
+
+Runs a shell command synchronously (via `popen()` or the equivalent),
+capturing standard output. No error indication is returned; standard error
+still goes to its usual destination, unless explicitly redirected in the
+command line.
+
 ## Spawned process channels ##
 
 These classes call `popen()` to create a child process on construction, with

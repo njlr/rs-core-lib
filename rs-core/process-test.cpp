@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <memory>
+#include <set>
 
 using namespace RS;
 using namespace std::chrono;
@@ -12,6 +13,25 @@ using namespace std::literals;
 namespace {
 
     constexpr const char* files = "[LICENSE.txt,Makefile,README.md,build,dependencies.make,doc,rs-core,scripts]";
+
+    void check_shell_commands() {
+
+        U8string s;
+        std::set<U8string> ss;
+
+        #ifdef _XOPEN_SOURCE
+            TRY(s = shell("ls"));
+        #else
+            TRY(s = shell("dir /b"));
+        #endif
+
+        TEST(! s.empty());
+        TRY(split(s, overwrite(ss), "\r\n"));
+        TEST(! ss.empty());
+        TEST(ss.count("Makefile"));
+        TEST(ss.count("build"));
+
+    }
 
     void check_stream_process() {
 
@@ -95,6 +115,7 @@ namespace {
 
 TEST_MODULE(core, process) {
 
+    check_shell_commands();
     check_stream_process();
     check_text_process();
 

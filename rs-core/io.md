@@ -34,12 +34,3 @@ instead of overwriting it if it already exists (if the file does not exist, or
 is standard output, the `append` flag has no effect). The return value is true
 if everything went well, false if there was an error while opening or writing
 the file.
-
-## Process I/O operations ##
-
-* `std::string` **`shell`**`(const U8string& cmd)`
-
-Runs a shell command synchronously (via `popen()` or the equivalent),
-capturing standard output. No error indication is returned; standard error
-still goes to its usual destination, unless explicitly redirected in the
-command line.

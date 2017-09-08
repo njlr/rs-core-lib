@@ -16,6 +16,7 @@
 <ul>
 <li><a href="#process-control">Process Control</a><ul>
 <li><a href="#contents">Contents</a></li>
+<li><a href="#shell-commands">Shell commands</a></li>
 <li><a href="#spawned-process-channels">Spawned process channels</a><ul>
 <li><a href="#class-streamprocess">Class StreamProcess</a></li>
 <li><a href="#class-textprocess">Class TextProcess</a></li>
@@ -24,6 +25,16 @@
 </ul>
 </li>
 </ul>
+</div>
+<h2 id="shell-commands">Shell commands</h2>
+<div class="defns">
+<ul>
+<li><code>std::string</code> <strong><code>shell</code></strong><code>(const U8string&amp; cmd)</code></li>
+</ul>
+<p>Runs a shell command synchronously (via <code>popen()</code> or the equivalent),
+capturing standard output. No error indication is returned; standard error
+still goes to its usual destination, unless explicitly redirected in the
+command line.</p>
 </div>
 <h2 id="spawned-process-channels">Spawned process channels</h2>
 <p>These classes call <code>popen()</code> to create a child process on construction, with
