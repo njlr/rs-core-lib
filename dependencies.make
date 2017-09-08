@@ -9,7 +9,7 @@ $(BUILD)/encoding-test.o: rs-core/encoding-test.cpp rs-core/common.hpp rs-core/e
 $(BUILD)/float-test.o: rs-core/float-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/vector.hpp
 $(BUILD)/grid-test.o: rs-core/grid-test.cpp rs-core/common.hpp rs-core/grid.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/vector.hpp
 $(BUILD)/index-table-test.o: rs-core/index-table-test.cpp rs-core/common.hpp rs-core/index-table.hpp rs-core/string.hpp rs-core/unit-test.hpp
-$(BUILD)/io-test.o: rs-core/io-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/io.hpp rs-core/string.hpp rs-core/time.hpp rs-core/unit-test.hpp rs-core/vector.hpp
+$(BUILD)/io-test.o: rs-core/io-test.cpp rs-core/common.hpp rs-core/io.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/kwargs-test.o: rs-core/kwargs-test.cpp rs-core/common.hpp rs-core/kwargs.hpp rs-core/unit-test.hpp
 $(BUILD)/meta-test.o: rs-core/meta-test.cpp rs-core/common.hpp rs-core/meta.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/mp-integer-test.o: rs-core/mp-integer-test.cpp rs-core/common.hpp rs-core/mp-integer.hpp rs-core/rational.hpp rs-core/string.hpp rs-core/unit-test.hpp
@@ -24,6 +24,7 @@ $(BUILD)/stack-test.o: rs-core/stack-test.cpp rs-core/common.hpp rs-core/stack.h
 $(BUILD)/statistics-test.o: rs-core/statistics-test.cpp rs-core/common.hpp rs-core/statistics.hpp rs-core/unit-test.hpp
 $(BUILD)/string-test.o: rs-core/string-test.cpp rs-core/common.hpp rs-core/string.hpp rs-core/unit-test.hpp
 $(BUILD)/table-test.o: rs-core/table-test.cpp rs-core/common.hpp rs-core/string.hpp rs-core/table.hpp rs-core/unit-test.hpp
+$(BUILD)/terminal-test.o: rs-core/terminal-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/string.hpp rs-core/terminal.hpp rs-core/time.hpp rs-core/unit-test.hpp rs-core/vector.hpp
 $(BUILD)/thread-test.o: rs-core/thread-test.cpp rs-core/common.hpp rs-core/thread.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/time-test.o: rs-core/time-test.cpp rs-core/common.hpp rs-core/time.hpp rs-core/unit-test.hpp
 $(BUILD)/uuid-test.o: rs-core/uuid-test.cpp rs-core/common.hpp rs-core/float.hpp rs-core/random.hpp rs-core/string.hpp rs-core/unit-test.hpp rs-core/uuid.hpp rs-core/vector.hpp

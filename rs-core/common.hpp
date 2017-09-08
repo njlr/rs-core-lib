@@ -52,6 +52,7 @@
 #include <cwchar>
 #include <exception>
 #include <functional>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <memory>

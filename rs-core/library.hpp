@@ -26,6 +26,7 @@
 #include "rs-core/statistics.hpp"
 #include "rs-core/string.hpp"
 #include "rs-core/table.hpp"
+#include "rs-core/terminal.hpp"
 #include "rs-core/thread.hpp"
 #include "rs-core/time.hpp"
 #include "rs-core/unit-test.hpp"

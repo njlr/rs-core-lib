@@ -23,6 +23,9 @@
     * [`"rs-core/algorithm.hpp"`](algorithm.html) -- Algorithms
     * [`"rs-core/cache.hpp"`](cache.html) -- Function memoization
     * [`"rs-core/meta.hpp"`](meta.html) - Template metaprogramming
+* _Input/Output_
+    * [`"rs-core/io.hpp"`](io.html) - I/O utilities
+    * [`"rs-core/terminal.hpp"`](terminal.html) - Terminal I/O
 * _Networking_
     * [`"rs-core/net.hpp"`](net.html) - TCP/IP networking
 * _Numerics_
@@ -35,7 +38,6 @@
 * _Text and I/O_
     * [`"rs-core/digest.hpp"`](digest.html) -- Message digest algorithms
     * [`"rs-core/encoding.hpp"`](encoding.html) -- Binary and text encodings
-    * [`"rs-core/io.hpp"`](io.html) - I/O utilities
     * [`"rs-core/string.hpp"`](string.html) - String algorithms
     * [`"rs-core/table.hpp"`](table.html) - Simple table layout
     * [`"rs-core/uuid.hpp"`](uuid.html) - UUID
