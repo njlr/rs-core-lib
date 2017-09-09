@@ -4,7 +4,7 @@
 #	project/module.cpp       = Part of the library
 #	project/module-test.cpp  = Unit test for part of the library
 #	project/app-module.cpp   = Part of the application
-# If the current directory ends in -lib, the library is installable;
+# If the current directory ends in -lib or -engine, the library is installable;
 # otherwise, if any application modules exist, the application is installable;
 # otherwise, nothing is installable.
 
@@ -97,6 +97,17 @@ LD := $(CXX)
 MAINAPP := $(BUILD)/$(NAME)$(EXE)
 TESTAPP := $(BUILD)/test-$(NAME)$(EXE)
 
+INSTALLABLE :=
+ifneq ($(APPSOURCES),)
+	INSTALLABLE := app
+endif
+ifeq ($(TAG),lib)
+	INSTALLABLE := lib
+endif
+ifeq ($(TAG),engine)
+	INSTALLABLE := lib
+endif
+
 .DELETE_ON_ERROR:
 
 .PHONY: all static app run tests check install symlinks uninstall doc unlink undoc clean clean-all dep help
@@ -182,8 +193,7 @@ else
 doc: $(DOCS)
 endif
 
-ifeq ($(TAG),lib)
-# Library is the installable target
+ifeq ($(INSTALLABLE),lib)
 static: $(STATICPART) $(NAME)/library.hpp
 ifeq ($(LIBSOURCES),)
 install: uninstall static
@@ -218,8 +228,7 @@ help-install: help-test
 	@echo "    uninstall  = Uninstall the application"
 else
 static: $(STATICPART)
-ifneq ($(APPSOURCES),)
-# Application is the installable target
+ifeq ($(INSTALLABLE),app)
 install: uninstall app
 	mkdir -p $(PREFIX)/bin
 	cp $(MAINAPP) $(PREFIX)/bin
