@@ -522,14 +522,12 @@ namespace RS {
 
     template <typename OutputIterator>
     void split(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace) {
+        if (src.empty())
+            return;
         if (delim.empty()) {
-            if (! src.empty()) {
-                *dst = src;
-                ++dst;
-            }
+            *dst = src;
             return;
         }
-        bool single = delim.size() == 1;
         size_t i = 0, j = 0, size = src.size();
         while (i < size) {
             j = src.find_first_of(delim, i);
@@ -537,24 +535,43 @@ namespace RS {
                 *dst = src.substr(i, npos);
                 break;
             }
-            if (single) {
-                *dst++ = src.substr(i, j - i);
-                i = j + 1;
-                if (i == size) {
-                    *dst = U8string();
-                    break;
-                }
-            } else {
-                if (j > i)
-                    *dst++ = src.substr(i, j - i);
-                i = src.find_first_not_of(delim, j);
+            if (j > i) {
+                *dst = src.substr(i, j - i);
+                ++dst;
             }
+            i = src.find_first_not_of(delim, j);
         }
     }
 
     inline Strings splitv(const std::string& src, const std::string& delim = ascii_whitespace) {
         Strings v;
         split(src, append(v), delim);
+        return v;
+    }
+
+    template <typename OutputIterator>
+    void split_lines(const std::string& src, OutputIterator dst) {
+        if (src.empty())
+            return;
+        size_t i = 0, j = 0, size = src.size();
+        while (i < size) {
+            j = src.find('\n', i);
+            if (j == npos) {
+                *dst = src.substr(i, npos);
+                break;
+            } else if (j - i > 0 && src[j - 1] == '\r') {
+                *dst = src.substr(i, j - i - 1);
+            } else {
+                *dst = src.substr(i, j - i);
+            }
+            ++dst;
+            i = j + 1;
+        }
+    }
+
+    inline Strings splitv_lines(const std::string& src) {
+        Strings v;
+        split_lines(src, append(v));
         return v;
     }
 
@@ -1001,15 +1018,30 @@ namespace RS {
     namespace Literals {
 
         inline Strings operator""_csv(const char* p, size_t n) {
-            auto words = splitv(U8string(p, n), ",");
-            for (auto& word: words)
-                word = trim(word);
-            return words;
+            if (n == 0)
+                return {};
+            Strings v;
+            const char* q = nullptr;
+            const char* end = p + n;
+            for (;;) {
+                q = static_cast<const char*>(memchr(p, ',', end - p));
+                if (! q)
+                    q = end;
+                v.push_back(trim(U8string(p, q)));
+                if (q == end)
+                    break;
+                p = q + 1;
+                if (p == end) {
+                    v.push_back({});
+                    break;
+                }
+            }
+            return v;
         }
 
         inline U8string operator""_doc(const char* p, size_t n) {
             using namespace RS_Detail;
-            auto lines = splitv(U8string(p, n), "\n");
+            auto lines = splitv_lines(U8string(p, n));
             for (auto& line: lines)
                 line = trim_right(line);
             lines.erase(lines.begin(), std::find_if(lines.begin(), lines.end(), [] (auto& s) { return ! s.empty(); }));

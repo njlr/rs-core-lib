@@ -226,15 +226,21 @@ with <code>subst</code>. This will return the string unchanged if <code>target</
 <li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split</code></strong><code>(const std::string&amp; src, OutputIterator dst, const std::string&amp; delim = ascii_whitespace)</code></li>
 <li><code>Strings</code> <strong><code>splitv</code></strong><code>(const std::string&amp; src, const std::string&amp; delim = ascii_whitespace)</code></li>
 </ul>
-<p>Split a string into substrings, discarding any delimiter characters. If the
-delimiter list contains exactly one character, each individual occurrence of
-that character will be treated as a split point; if more than one delimiter
-character is supplied, any contiguous subsequence of those characters will be
-treated as a single delimiter; if the delimiter list is empty, the source
-string will simply be copied unchanged to the output. The value type of the
-output iterator in <code>split()</code> must be assignment compatible with <code>U8string</code>;
-the <code>splitv()</code> version returns a vector of strings instead of writing to an
-existing receiver.</p>
+<p>Split a string into substrings, discarding any delimiter characters. Any
+contiguous subsequence of delimiter characters will be treated as a break
+point. If the input string is empty, the output list will always be empty;
+otherwise, if the delimiter list is empty, the output will consist of a single
+string matching the input. The value type of the output iterator in <code>split()</code>
+must be assignment compatible with <code>U8string</code>; the <code>splitv()</code> version returns
+a vector of strings instead of writing to an existing receiver.</p>
+</div>
+<div class="defns">
+<ul>
+<li><code>template &lt;typename OutputIterator&gt; void</code> <strong><code>split_lines</code></strong><code>(const std::string&amp; src, OutputIterator dst)</code></li>
+<li><code>Strings</code> <strong><code>splitv_lines</code></strong><code>(const std::string&amp; src)</code></li>
+</ul>
+<p>Split a string into lines. A line ends with any LF or CRLF; these are not
+copied into the output.</p>
 </div>
 <div class="defns">
 <ul>

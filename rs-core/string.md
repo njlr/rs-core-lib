@@ -173,15 +173,19 @@ with `subst`. This will return the string unchanged if `target` is empty or
 * `template <typename OutputIterator> void` **`split`**`(const std::string& src, OutputIterator dst, const std::string& delim = ascii_whitespace)`
 * `Strings` **`splitv`**`(const std::string& src, const std::string& delim = ascii_whitespace)`
 
-Split a string into substrings, discarding any delimiter characters. If the
-delimiter list contains exactly one character, each individual occurrence of
-that character will be treated as a split point; if more than one delimiter
-character is supplied, any contiguous subsequence of those characters will be
-treated as a single delimiter; if the delimiter list is empty, the source
-string will simply be copied unchanged to the output. The value type of the
-output iterator in `split()` must be assignment compatible with `U8string`;
-the `splitv()` version returns a vector of strings instead of writing to an
-existing receiver.
+Split a string into substrings, discarding any delimiter characters. Any
+contiguous subsequence of delimiter characters will be treated as a break
+point. If the input string is empty, the output list will always be empty;
+otherwise, if the delimiter list is empty, the output will consist of a single
+string matching the input. The value type of the output iterator in `split()`
+must be assignment compatible with `U8string`; the `splitv()` version returns
+a vector of strings instead of writing to an existing receiver.
+
+* `template <typename OutputIterator> void` **`split_lines`**`(const std::string& src, OutputIterator dst)`
+* `Strings` **`splitv_lines`**`(const std::string& src)`
+
+Split a string into lines. A line ends with any LF or CRLF; these are not
+copied into the output.
 
 * `std::string` **`trim`**`(const std::string& str, const std::string& chars = ascii_whitespace)`
 * `std::string` **`trim_left`**`(const std::string& str, const std::string& chars = ascii_whitespace)`

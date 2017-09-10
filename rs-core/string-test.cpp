@@ -610,9 +610,8 @@ namespace {
         TRY(split("\t Hello \t world \t", overwrite(sv)));   TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
         TRY(split("", overwrite(sv), "*"));                  TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
         TRY(split(" ", overwrite(sv), "*"));                 TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[ ]");
-        TRY(split("*", overwrite(sv), "*"));                 TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
-        TRY(split("**", overwrite(sv), "*"));                TEST_EQUAL(sv.size(), 3);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,]");
-        TRY(split("**Hello**world**", overwrite(sv), "*"));  TEST_EQUAL(sv.size(), 7);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,Hello,,world,,]");
+        TRY(split("**", overwrite(sv), "*"));                TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split("**Hello**world**", overwrite(sv), "*"));  TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
         TRY(split("*****", overwrite(sv), "@*"));            TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
 
         TRY(sv = splitv(""));                       TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
@@ -623,10 +622,29 @@ namespace {
         TRY(sv = splitv("\t Hello \t world \t"));   TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
         TRY(sv = splitv("", "*"));                  TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
         TRY(sv = splitv(" ", "*"));                 TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[ ]");
-        TRY(sv = splitv("*", "*"));                 TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
-        TRY(sv = splitv("**", "*"));                TEST_EQUAL(sv.size(), 3);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,]");
-        TRY(sv = splitv("**Hello**world**", "*"));  TEST_EQUAL(sv.size(), 7);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,,Hello,,world,,]");
+        TRY(sv = splitv("**", "*"));                TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv("**Hello**world**", "*"));  TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,world]");
         TRY(sv = splitv("*****", "@*"));            TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+
+        TRY(split_lines("", overwrite(sv)));                      TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split_lines("\n", overwrite(sv)));                    TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split_lines("\r\n", overwrite(sv)));                  TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(split_lines("\n\n", overwrite(sv)));                  TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
+        TRY(split_lines("\r\n\r\n", overwrite(sv)));              TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
+        TRY(split_lines("Hello\nGoodbye", overwrite(sv)));        TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,Goodbye]");
+        TRY(split_lines("Hello\nGoodbye\n", overwrite(sv)));      TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,Goodbye]");
+        TRY(split_lines("Hello\r\nGoodbye\r\n", overwrite(sv)));  TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,Goodbye]");
+        TRY(split_lines("Hello\n\nGoodbye\n\n", overwrite(sv)));  TEST_EQUAL(sv.size(), 4);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,,Goodbye,]");
+
+        TRY(sv = splitv_lines(""));                      TEST_EQUAL(sv.size(), 0);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv_lines("\n"));                    TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv_lines("\r\n"));                  TEST_EQUAL(sv.size(), 1);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[]");
+        TRY(sv = splitv_lines("\n\n"));                  TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
+        TRY(sv = splitv_lines("\r\n\r\n"));              TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[,]");
+        TRY(sv = splitv_lines("Hello\nGoodbye"));        TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,Goodbye]");
+        TRY(sv = splitv_lines("Hello\nGoodbye\n"));      TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,Goodbye]");
+        TRY(sv = splitv_lines("Hello\r\nGoodbye\r\n"));  TEST_EQUAL(sv.size(), 2);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,Goodbye]");
+        TRY(sv = splitv_lines("Hello\n\nGoodbye\n\n"));  TEST_EQUAL(sv.size(), 4);  TRY(s = to_str(sv));  TEST_EQUAL(s, "[Hello,,Goodbye,]");
 
         TEST_EQUAL(trim(""), "");
         TEST_EQUAL(trim("Hello"), "Hello");
