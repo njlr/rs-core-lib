@@ -1,3 +1,7 @@
 build
 *.stackdump
 __*
+/.buckd/
+/buck-out/
+.buckconfig.local
+BUCKAROO_DEPS
